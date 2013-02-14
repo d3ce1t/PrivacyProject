@@ -24,7 +24,7 @@ static const char *fragmentShaderSource =
         "#version 130\n"
         "out vec4 outputColor;\n"
         "void main() {\n"
-        "   outputColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);\n"
+        "   outputColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);\n"
         "}\n";
 
 TriangleWindow::TriangleWindow()
