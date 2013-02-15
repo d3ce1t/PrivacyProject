@@ -13,36 +13,15 @@ const GLfloat vertices[] = {
     0.5f, -0.5f
 };
 
-static const char *vertexShaderSource =
-        "#version 130\n"
-        "in vec4 posAttr;\n"
-        "void main() {\n"
-        "   gl_Position = posAttr;\n"
-        "}\n";
-
-static const char *fragmentShaderSource =
-        "#version 130\n"
-        "out vec4 outputColor;\n"
-        "void main() {\n"
-        "   outputColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);\n"
-        "}\n";
-
 TriangleWindow::TriangleWindow()
     : m_program(0) {}
 
-GLuint TriangleWindow::loadShader(GLenum type, const char *source)
-{
-    GLuint shader = glCreateShader(type);
-    glShaderSource(shader, 1, &source, 0);
-    glCompileShader(shader);
-    return shader;
-}
 
 void TriangleWindow::initialize()
 {
     m_program = new QOpenGLShaderProgram(this);
-    m_program->addShaderFromSourceCode(QOpenGLShader::Vertex, vertexShaderSource);
-    m_program->addShaderFromSourceCode(QOpenGLShader::Fragment, fragmentShaderSource);
+    m_program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/vertex/vertex.vsh");
+    m_program->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/fragment/fragment.fsh");
     m_program->link();
     m_posAttr = m_program->attributeLocation("posAttr");
 }

@@ -21,3 +21,10 @@ HEADERS  += \
     trianglewindow.h
 
 FORMS    +=
+
+OTHER_FILES += \
+    fragment.fsh \
+    vertex.vsh
+
+RESOURCES += \
+    shaders.qrc
