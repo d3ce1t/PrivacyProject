@@ -1,7 +1,12 @@
 #version 130
 
 in vec4 posAttr;
+in vec4 colAttr;
 
-void main(void) {
-   gl_Position = posAttr;
+smooth out vec4 theColor;
+
+void main()
+{
+    gl_Position = posAttr;
+    theColor = colAttr;
 }

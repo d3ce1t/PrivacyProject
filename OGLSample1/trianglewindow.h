@@ -16,6 +16,7 @@ private:
     GLuint loadShader(GLenum type, const char *source);
 
     GLuint m_posAttr;
+    GLuint m_colAttr;
     QOpenGLShaderProgram *m_program;
 };
 
