@@ -20,6 +20,9 @@ private:
     GLuint m_posAttr;
     GLuint m_colAttr;
     GLuint m_offset;
+    GLuint m_zNear;
+    GLuint m_zFar;
+    GLuint m_frustumScale;
     QOpenGLShaderProgram *m_program;
 };
 

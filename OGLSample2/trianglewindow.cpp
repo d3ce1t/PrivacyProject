@@ -11,64 +11,64 @@ using namespace std;
 
 GLfloat vertices[] = {
     // Triangle 1
-    0.25f,  0.25f, 0.75f, 1.0f,
-    0.25f, -0.25f, 0.75f, 1.0f,
-   -0.25f,  0.25f, 0.75f, 1.0f,
+    0.25f,  0.25f, -1.25f, 1.0f,
+    0.25f, -0.25f, -1.25f, 1.0f,
+   -0.25f,  0.25f, -1.25f, 1.0f,
 
     // Triangle 2
-    0.25f, -0.25f, 0.75f, 1.0f,
-   -0.25f, -0.25f, 0.75f, 1.0f,
-   -0.25f,  0.25f, 0.75f, 1.0f,
+    0.25f, -0.25f, -1.25f, 1.0f,
+   -0.25f, -0.25f, -1.25f, 1.0f,
+   -0.25f,  0.25f, -1.25f, 1.0f,
 
     // Triangle 3
-    0.25f,  0.25f, -0.75f, 1.0f,
-   -0.25f,  0.25f, -0.75f, 1.0f,
-    0.25f, -0.25f, -0.75f, 1.0f,
+    0.25f,  0.25f, -2.75f, 1.0f,
+   -0.25f,  0.25f, -2.75f, 1.0f,
+    0.25f, -0.25f, -2.75f, 1.0f,
 
     // Triangle 4
-    0.25f, -0.25f, -0.75f, 1.0f,
-   -0.25f,  0.25f, -0.75f, 1.0f,
-   -0.25f, -0.25f, -0.75f, 1.0f,
+    0.25f, -0.25f, -2.75f, 1.0f,
+   -0.25f,  0.25f, -2.75f, 1.0f,
+   -0.25f, -0.25f, -2.75f, 1.0f,
 
     // Triangle 5
-   -0.25f,  0.25f,  0.75f, 1.0f,
-   -0.25f, -0.25f,  0.75f, 1.0f,
-   -0.25f, -0.25f, -0.75f, 1.0f,
+   -0.25f,  0.25f, -1.25f, 1.0f,
+   -0.25f, -0.25f, -1.25f, 1.0f,
+   -0.25f, -0.25f, -2.75f, 1.0f,
 
     // Triangle 6
-   -0.25f,  0.25f,  0.75f, 1.0f,
-   -0.25f, -0.25f, -0.75f, 1.0f,
-   -0.25f,  0.25f, -0.75f, 1.0f,
+   -0.25f,  0.25f, -1.25f, 1.0f,
+   -0.25f, -0.25f, -2.75f, 1.0f,
+   -0.25f,  0.25f, -2.75f, 1.0f,
 
     // Triangle 7
-    0.25f,  0.25f,  0.75f, 1.0f,
-    0.25f, -0.25f, -0.75f, 1.0f,
-    0.25f, -0.25f,  0.75f, 1.0f,
+    0.25f,  0.25f, -1.25f, 1.0f,
+    0.25f, -0.25f, -2.75f, 1.0f,
+    0.25f, -0.25f, -1.25f, 1.0f,
 
     // Triangle 8
-    0.25f,  0.25f,  0.75f, 1.0f,
-    0.25f,  0.25f, -0.75f, 1.0f,
-    0.25f, -0.25f, -0.75f, 1.0f,
+    0.25f,  0.25f, -1.25f, 1.0f,
+    0.25f,  0.25f, -2.75f, 1.0f,
+    0.25f, -0.25f, -2.75f, 1.0f,
 
     // Triangle 9
-    0.25f,  0.25f, -0.75f, 1.0f,
-    0.25f,  0.25f,  0.75f, 1.0f,
-   -0.25f,  0.25f,  0.75f, 1.0f,
+    0.25f,  0.25f, -2.75f, 1.0f,
+    0.25f,  0.25f, -1.25f, 1.0f,
+   -0.25f,  0.25f, -1.25f, 1.0f,
 
     // Triangle 10
-    0.25f,  0.25f, -0.75f, 1.0f,
-   -0.25f,  0.25f,  0.75f, 1.0f,
-   -0.25f,  0.25f, -0.75f, 1.0f,
+    0.25f,  0.25f, -2.75f, 1.0f,
+   -0.25f,  0.25f, -1.25f, 1.0f,
+   -0.25f,  0.25f, -2.75f, 1.0f,
 
     // Triangle 11
-    0.25f, -0.25f, -0.75f, 1.0f,
-   -0.25f, -0.25f,  0.75f, 1.0f,
-    0.25f, -0.25f,  0.75f, 1.0f,
+    0.25f, -0.25f, -2.75f, 1.0f,
+   -0.25f, -0.25f, -1.25f, 1.0f,
+    0.25f, -0.25f, -1.25f, 1.0f,
 
     // Triangle 12
-    0.25f, -0.25f, -0.75f, 1.0f,
-   -0.25f, -0.25f, -0.75f, 1.0f,
-   -0.25f, -0.25f,  0.75f, 1.0f
+    0.25f, -0.25f, -2.75f, 1.0f,
+   -0.25f, -0.25f, -2.75f, 1.0f,
+   -0.25f, -0.25f, -1.25f, 1.0f
 };
 
 const GLfloat colours[] = {
@@ -150,10 +150,19 @@ void TriangleWindow::initialize()
     m_colAttr = m_program->attributeLocation("colAttr");
     m_posAttr = m_program->attributeLocation("posAttr");
     m_offset = m_program->uniformLocation("offset");
+    m_zNear = m_program->uniformLocation("zNear");
+    m_zFar = m_program->uniformLocation("zFar");
+    m_frustumScale = m_program->uniformLocation("frustumScale");
 
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glFrontFace(GL_CW);
+
+    m_program->bind();
+    m_program->setUniformValue(m_frustumScale, 1.0f);
+    m_program->setUniformValue(m_zNear, 1.0f);
+    m_program->setUniformValue(m_zFar, 3.0f);
+    m_program->release();
 
     timer.start();
 }
@@ -167,7 +176,7 @@ void TriangleWindow::render()
 
     m_program->bind();
 
-    m_program->setUniformValue(m_offset, 0.5f, 0.25f);
+    m_program->setUniformValue(m_offset, 0.5f, 0.5f);
     m_program->setAttributeArray(m_posAttr, vertices, 4);
     m_program->setAttributeArray(m_colAttr, colours, 4);
 
