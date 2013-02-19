@@ -29,7 +29,11 @@ void TriangleWindow::initialize()
     m_program = new QOpenGLShaderProgram(this);
     m_program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/vertex/vertex.vsh");
     m_program->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/fragment/fragment.fsh");
+    m_program->bindAttributeLocation("posAttr", 0);
+    m_program->bindAttributeLocation("colAttr", 1);
+
     m_program->link();
+
     m_colAttr = m_program->attributeLocation("colAttr");
     m_posAttr = m_program->attributeLocation("posAttr");
 }
@@ -49,7 +53,7 @@ void TriangleWindow::render()
     m_program->enableAttributeArray(m_posAttr);
     m_program->enableAttributeArray(m_colAttr);
 
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawArrays(GL_TRIANGLES, m_posAttr, 3);
 
     m_program->disableAttributeArray(m_colAttr);
     m_program->disableAttributeArray(m_posAttr);
