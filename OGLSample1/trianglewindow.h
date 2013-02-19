@@ -3,6 +3,7 @@
 
 #include <QtGui/QOpenGLShaderProgram>
 #include "openglwindow.h"
+#include <QElapsedTimer>
 
 class TriangleWindow : public OpenGLWindow
 {
@@ -11,10 +12,13 @@ public:
 
     void initialize();
     void render();
+    void ComputePositionOffsets(float &fXOffset, float &fYOffset);
+    void AdjustVertexData(float fXOffset, float fYOffset);
 
 private:
     GLuint loadShader(GLenum type, const char *source);
 
+    QElapsedTimer timer;
     GLuint m_posAttr;
     GLuint m_colAttr;
     QOpenGLShaderProgram *m_program;
