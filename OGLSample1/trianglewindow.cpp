@@ -38,10 +38,12 @@ void TriangleWindow::initialize()
     m_colAttr = m_program->attributeLocation("colAttr");
     m_posAttr = m_program->attributeLocation("posAttr");
     m_loopDuration = m_program->uniformLocation("loopDuration");
+    m_fragLoopDuration = m_program->uniformLocation("fragLoopDuration");
     m_time = m_program->uniformLocation("time");
 
     m_program->bind();
-    m_program->setUniformValue(m_loopDuration, 2.5f);
+    m_program->setUniformValue(m_loopDuration, 5.0f);
+    m_program->setUniformValue(m_fragLoopDuration, 10.0f);
     m_program->release();
 
     timer.start();
@@ -56,7 +58,9 @@ void TriangleWindow::render()
 
     m_program->bind();
 
-    m_program->setUniformValue(m_time, timer.elapsed() / 1000.0f);
+    float currentTime = timer.elapsed() / 1000.0f;
+
+    m_program->setUniformValue(m_time, currentTime);
 
     m_program->setAttributeArray(m_posAttr, vertices, 2);
     m_program->setAttributeArray(m_colAttr, colours, 3);
@@ -64,6 +68,9 @@ void TriangleWindow::render()
     m_program->enableAttributeArray(m_posAttr);
     m_program->enableAttributeArray(m_colAttr);
 
+    glDrawArrays(GL_TRIANGLES, m_posAttr, 3);
+
+    m_program->setUniformValue(m_time, currentTime + 2.5f);
     glDrawArrays(GL_TRIANGLES, m_posAttr, 3);
 
     m_program->disableAttributeArray(m_colAttr);

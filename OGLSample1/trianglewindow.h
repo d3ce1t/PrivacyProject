@@ -20,6 +20,7 @@ private:
     GLuint m_posAttr;
     GLuint m_colAttr;
     GLuint m_loopDuration;
+    GLuint m_fragLoopDuration;
     GLuint m_time;
     QOpenGLShaderProgram *m_program;
 };
