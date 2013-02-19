@@ -12,7 +12,6 @@ public:
 
     void initialize();
     void render();
-    void ComputePositionOffsets(float &fXOffset, float &fYOffset);
 
 private:
     GLuint loadShader(GLenum type, const char *source);
@@ -20,7 +19,8 @@ private:
     QElapsedTimer timer;
     GLuint m_posAttr;
     GLuint m_colAttr;
-    GLuint m_offsetLocation;
+    GLuint m_loopDuration;
+    GLuint m_time;
     QOpenGLShaderProgram *m_program;
 };
 

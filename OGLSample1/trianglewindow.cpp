@@ -37,16 +37,18 @@ void TriangleWindow::initialize()
 
     m_colAttr = m_program->attributeLocation("colAttr");
     m_posAttr = m_program->attributeLocation("posAttr");
-    m_offsetLocation = m_program->uniformLocation("offset");
+    m_loopDuration = m_program->uniformLocation("loopDuration");
+    m_time = m_program->uniformLocation("time");
+
+    m_program->bind();
+    m_program->setUniformValue(m_loopDuration, 2.5f);
+    m_program->release();
 
     timer.start();
 }
 
 void TriangleWindow::render()
 {
-    float fXOffset = 0.0f, fYOffset = 0.0f;
-    ComputePositionOffsets(fXOffset, fYOffset);
-
     glViewport(0, 0, width(), height());
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -54,7 +56,8 @@ void TriangleWindow::render()
 
     m_program->bind();
 
-    m_program->setUniformValue(m_offsetLocation, fXOffset, fYOffset);
+    m_program->setUniformValue(m_time, timer.elapsed() / 1000.0f);
+
     m_program->setAttributeArray(m_posAttr, vertices, 2);
     m_program->setAttributeArray(m_colAttr, colours, 3);
 
@@ -67,17 +70,4 @@ void TriangleWindow::render()
     m_program->disableAttributeArray(m_posAttr);
 
     m_program->release();
-}
-
-void TriangleWindow::ComputePositionOffsets(float &fXOffset, float &fYOffset)
-{
-    const float fLoopDuration = 2.5f;
-    const float fScale = 3.1415926f * 2.0f / fLoopDuration;
-
-    float fElapsedTime = timer.elapsed() / 1000.0f;
-
-    float fCurrTimeThroughLoop = fmodf(fElapsedTime, fLoopDuration);
-
-    fXOffset = cosf(fCurrTimeThroughLoop * fScale) * 0.25f;
-    fYOffset = sinf(fCurrTimeThroughLoop * fScale) * 0.25f;
 }
