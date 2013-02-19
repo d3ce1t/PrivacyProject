@@ -10,7 +10,7 @@ int main(int argc, char **argv)
 
     TriangleWindow window;
     window.setFormat(format);
-    window.resize(640, 480);
+    window.resize(640, 640);
     window.show();
 
     window.setAnimating(true);

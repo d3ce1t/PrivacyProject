@@ -14,15 +14,18 @@ public:
     void render();
 
 private:
+    void resizeEvent(QResizeEvent *event);
     GLuint loadShader(GLenum type, const char *source);
 
     QElapsedTimer timer;
+    QMatrix4x4 matrix;
     GLuint m_posAttr;
     GLuint m_colAttr;
     GLuint m_offset;
-    GLuint m_zNear;
-    GLuint m_zFar;
-    GLuint m_frustumScale;
+    GLuint m_perspectiveMatrix;
+    float fFrustumScale;
+    float fzNear;
+    float fzFar;
     QOpenGLShaderProgram *m_program;
 };
 

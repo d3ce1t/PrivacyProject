@@ -134,7 +134,12 @@ const GLfloat colours[] = {
 };
 
 TriangleWindow::TriangleWindow()
-    : m_program(0) {}
+    : m_program(0)
+{
+    fFrustumScale = 1.0f;
+    fzNear = 0.3f;
+    fzFar = 100.0f;
+}
 
 
 void TriangleWindow::initialize()
@@ -150,18 +155,28 @@ void TriangleWindow::initialize()
     m_colAttr = m_program->attributeLocation("colAttr");
     m_posAttr = m_program->attributeLocation("posAttr");
     m_offset = m_program->uniformLocation("offset");
-    m_zNear = m_program->uniformLocation("zNear");
-    m_zFar = m_program->uniformLocation("zFar");
-    m_frustumScale = m_program->uniformLocation("frustumScale");
+    m_perspectiveMatrix = m_program->uniformLocation("perspectiveMatrix");
 
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glFrontFace(GL_CW);
 
+    matrix.fill(0);
+    matrix(0, 0) = fFrustumScale;
+    matrix(1,1) = fFrustumScale;
+    matrix(2,2) = (fzFar + fzNear) / (fzNear - fzFar);
+    matrix(3, 2) = (2 * fzFar * fzNear) / (fzNear - fzFar);
+    matrix(2, 3) = -1.0f;
+
+    /*QMatrix4x4 matrix;
+    matrix.perspective(60, 1.0, 0.1, 10.0);
+    matrix.translate(0, 0, -2);
+    matrix.rotate(10, 0, 1, 0);*/
+
+    //cout << screen()->refreshRate() << endl;
+
     m_program->bind();
-    m_program->setUniformValue(m_frustumScale, 1.0f);
-    m_program->setUniformValue(m_zNear, 1.0f);
-    m_program->setUniformValue(m_zFar, 3.0f);
+    m_program->setUniformValue(m_perspectiveMatrix, matrix);
     m_program->release();
 
     timer.start();
@@ -170,13 +185,12 @@ void TriangleWindow::initialize()
 void TriangleWindow::render()
 {
     glViewport(0, 0, width(), height());
-
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     m_program->bind();
 
-    m_program->setUniformValue(m_offset, 0.5f, 0.5f);
+    m_program->setUniformValue(m_offset, 0.5, 0.5);
     m_program->setAttributeArray(m_posAttr, vertices, 4);
     m_program->setAttributeArray(m_colAttr, colours, 4);
 
@@ -189,4 +203,18 @@ void TriangleWindow::render()
     m_program->disableAttributeArray(m_posAttr);
 
     m_program->release();
+}
+
+void TriangleWindow::resizeEvent(QResizeEvent *event)
+{
+    /*matrix(0, 0) = fFrustumScale / (width() / (float) height());
+    matrix(1,1) = fFrustumScale;
+
+    if (m_program) {
+        m_program->bind();
+        m_program->setUniformValue(m_perspectiveMatrix, matrix);
+        m_program->release();
+    }*/
+
+    OpenGLWindow::resizeEvent(event);
 }
