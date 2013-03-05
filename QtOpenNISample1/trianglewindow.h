@@ -19,7 +19,7 @@ enum DisplayModes
 class TriangleWindow : public OpenGLWindow
 {
 public:
-    TriangleWindow(const char* strSampleName, openni::Device& device, openni::VideoStream& depth, openni::VideoStream& color);
+    TriangleWindow(openni::Device& device, openni::VideoStream& depth, openni::VideoStream& color);
     virtual ~TriangleWindow();
     void initialize();
     void render();
@@ -39,7 +39,6 @@ private:
     void initOpenGL();
 
     float                   m_pDepthHist[MAX_DEPTH];
-    char                    m_strSampleName[ONI_MAX_STR];
     unsigned int            m_nTexMapX;
     unsigned int            m_nTexMapY;
     DisplayModes            m_eViewState;

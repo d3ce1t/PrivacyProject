@@ -1,15 +1,10 @@
-// Undeprecate CRT functions
-#ifndef _CRT_SECURE_NO_DEPRECATE
-    #define _CRT_SECURE_NO_DEPRECATE 1
-#endif
-
 #define GL_WIN_SIZE_X	1280
 #define GL_WIN_SIZE_Y	1024
 #define TEXTURE_SIZE	512
 #define DEFAULT_DISPLAY_MODE	DISPLAY_MODE_DEPTH
+
 #define MIN_NUM_CHUNKS(data_size, chunk_size)	((((data_size)-1) / (chunk_size) + 1))
 #define MIN_CHUNKS_SIZE(data_size, chunk_size)	(MIN_NUM_CHUNKS(data_size, chunk_size) * (chunk_size))
-
 
 #include "trianglewindow.h"
 #include <QtGui/QScreen>
@@ -20,10 +15,9 @@
 
 using namespace std;
 
-TriangleWindow::TriangleWindow(const char* strSampleName, openni::Device& device, openni::VideoStream& depth, openni::VideoStream& color)
+TriangleWindow::TriangleWindow(openni::Device& device, openni::VideoStream& depth, openni::VideoStream& color)
     : m_device(device), m_depthStream(depth), m_colorStream(color), m_streams(NULL), m_eViewState(DEFAULT_DISPLAY_MODE), m_pTexMap(NULL)
 {
-    strncpy(m_strSampleName, strSampleName, ONI_MAX_STR);
 }
 
 TriangleWindow::~TriangleWindow()

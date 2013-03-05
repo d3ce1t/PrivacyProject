@@ -34,9 +34,9 @@ int main(int argc, char **argv)
             throw 7;
 
 
-        TriangleWindow window("Simple Viewer", device, depth, color);
+        TriangleWindow window(device, depth, color);
         window.setFormat(format);
-        window.resize(1280, 1024);
+        window.resize(640, 480);
         window.show();
         window.setAnimating(true);
         return app.exec();
