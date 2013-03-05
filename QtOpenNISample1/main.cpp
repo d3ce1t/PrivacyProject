@@ -1,6 +1,9 @@
 #include <QtGui/QGuiApplication>
 #include "trianglewindow.h"
 #include <OpenNI.h>
+#include <iostream>
+
+using namespace std;
 
 int main(int argc, char **argv)
 {
@@ -21,11 +24,14 @@ int main(int argc, char **argv)
         if (depth.create(device, openni::SENSOR_DEPTH) != openni::STATUS_OK)
             throw 3;
 
-        if (depth.start() != openni::STATUS_OK)
-            throw 4;
-
         if (color.create(device, openni::SENSOR_COLOR) != openni::STATUS_OK)
             throw 5;
+
+        if (device.setDepthColorSyncEnabled(true) == openni::STATUS_OK)
+            cout << "Frame Sync enabled" << endl;
+
+        if (depth.start() != openni::STATUS_OK)
+            throw 4;
 
         if (color.start() != openni::STATUS_OK)
             throw 6;
@@ -33,6 +39,17 @@ int main(int argc, char **argv)
         if (!depth.isValid() || !color.isValid())
             throw 7;
 
+
+
+
+        if (device.isImageRegistrationModeSupported(openni::IMAGE_REGISTRATION_DEPTH_TO_COLOR)) {
+            cout << "Image Registration is Supported" << endl;
+
+            openni::ImageRegistrationMode mode = device.getImageRegistrationMode();
+            cout << "Current Mode: " << mode << endl;
+
+            //device.setImageRegistrationMode(openni::IMAGE_REGISTRATION_OFF);
+        }
 
         TriangleWindow window(device, depth, color);
         window.setFormat(format);
