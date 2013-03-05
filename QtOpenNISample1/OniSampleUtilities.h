@@ -23,6 +23,7 @@
 
 #include <stdio.h>
 #include <OpenNI.h>
+#include <iostream>
 
 #ifdef WIN32
 #include <conio.h>
@@ -82,6 +83,7 @@ void Sleep(int millisecs)
 void calculateHistogram(float* pHistogram, int histogramSize, const openni::VideoFrameRef& frame)
 {
 	const openni::DepthPixel* pDepth = (const openni::DepthPixel*)frame.getData();
+
 	// Calculate the accumulative histogram (the yellow display...)
 	memset(pHistogram, 0, histogramSize*sizeof(float));
 	int restOfRow = frame.getStrideInBytes() / sizeof(openni::DepthPixel) - frame.getWidth();
@@ -89,6 +91,9 @@ void calculateHistogram(float* pHistogram, int histogramSize, const openni::Vide
 	int width = frame.getWidth();
 
 	unsigned int nNumberOfPoints = 0;
+
+
+    // Count how may points there are in a given depth
 	for (int y = 0; y < height; ++y)
 	{
 		for (int x = 0; x < width; ++x, ++pDepth)
@@ -96,15 +101,20 @@ void calculateHistogram(float* pHistogram, int histogramSize, const openni::Vide
 			if (*pDepth != 0)
 			{
 				pHistogram[*pDepth]++;
-				nNumberOfPoints++;
+                nNumberOfPoints++;
 			}
 		}
 		pDepth += restOfRow;
-	}
+    }
+
+    // Accumulate in the given depth all the points of previous depth layers
 	for (int nIndex=1; nIndex<histogramSize; nIndex++)
 	{
 		pHistogram[nIndex] += pHistogram[nIndex-1];
 	}
+
+    // Normalize (0% -> 256 color value, whereas 100% -> 0 color value)
+    // In other words, near objects are brighter than far objects
 	if (nNumberOfPoints)
 	{
 		for (int nIndex=1; nIndex<histogramSize; nIndex++)

@@ -1,5 +1,3 @@
-#define GL_WIN_SIZE_X	1280
-#define GL_WIN_SIZE_Y	1024
 #define TEXTURE_SIZE	512
 #define DEFAULT_DISPLAY_MODE	DISPLAY_MODE_DEPTH
 
@@ -60,7 +58,8 @@ openni::Status TriangleWindow::initOpenNI()
             depthHeight == colorHeight)
         {
             m_width = depthWidth;
-            m_height = depthHeight;
+            m_height = depthHeight;   
+            cout << "Native resolution is " << m_width << "x" << m_height << endl;
         }
         else
         {
@@ -138,7 +137,7 @@ void TriangleWindow::render()
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
-    glOrtho(0, GL_WIN_SIZE_X, GL_WIN_SIZE_Y, 0, -1.0, 1.0);
+    glOrtho(0, width(), height(), 0, -1.0, 1.0);
 
     if (m_depthFrame.isValid())
     {
@@ -190,7 +189,7 @@ void TriangleWindow::render()
                     int nHistValue = m_pDepthHist[*pDepth];
                     pTex->r = nHistValue;
                     pTex->g = nHistValue;
-                    pTex->b = 0;
+                    pTex->b = nHistValue;
                 }
             }
 
@@ -217,13 +216,13 @@ void TriangleWindow::render()
     glVertex2f(0, 0);
     // upper right
     glTexCoord2f((float)nXRes/(float)m_nTexMapX, 0);
-    glVertex2f(GL_WIN_SIZE_X, 0);
+    glVertex2f(width(), 0);
     // bottom right
     glTexCoord2f((float)nXRes/(float)m_nTexMapX, (float)nYRes/(float)m_nTexMapY);
-    glVertex2f(GL_WIN_SIZE_X, GL_WIN_SIZE_Y);
+    glVertex2f(width(), height());
     // bottom left
     glTexCoord2f(0, (float)nYRes/(float)m_nTexMapY);
-    glVertex2f(0, GL_WIN_SIZE_Y);
+    glVertex2f(0, height());
 
     glEnd();
 }
