@@ -1,5 +1,5 @@
-#ifndef TRIANGLEWINDOW_H
-#define TRIANGLEWINDOW_H
+#ifndef SAMPLEVIEWER_H
+#define SAMPLEVIEWER_H
 
 #include <QtGui/QOpenGLShaderProgram>
 #include "openglwindow.h"
@@ -16,11 +16,11 @@ enum DisplayModes
     DISPLAY_MODE_IMAGE
 };
 
-class TriangleWindow : public OpenGLWindow
+class SampleViewer : public OpenGLWindow
 {
 public:
-    TriangleWindow(openni::Device& device, openni::VideoStream& depth, openni::VideoStream& color);
-    virtual ~TriangleWindow();
+    SampleViewer();
+    virtual ~SampleViewer();
     void initialize();
     void render();
 
@@ -29,14 +29,13 @@ protected:
 
     openni::VideoFrameRef	m_depthFrame;
     openni::VideoFrameRef	m_colorFrame;
-    openni::Device&			m_device;
-    openni::VideoStream&	m_depthStream;
-    openni::VideoStream&	m_colorStream;
+    openni::Device			m_device;
+    openni::VideoStream     m_depthStream;
+    openni::VideoStream 	m_colorStream;
     openni::VideoStream**	m_streams;
 
 private:
-    openni::Status initOpenNI();
-    void initOpenGL();
+    void initOpenNI();
 
     float                   m_pDepthHist[MAX_DEPTH];
     unsigned int            m_nTexMapX;
@@ -47,4 +46,4 @@ private:
     int                     m_height;
 };
 
-#endif // TRIANGLEWINDOW_H
+#endif // SAMPLEVIEWER_H

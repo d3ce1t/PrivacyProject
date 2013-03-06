@@ -4,8 +4,9 @@
 #define MIN_NUM_CHUNKS(data_size, chunk_size)	((((data_size)-1) / (chunk_size) + 1))
 #define MIN_CHUNKS_SIZE(data_size, chunk_size)	(MIN_NUM_CHUNKS(data_size, chunk_size) * (chunk_size))
 
-#include "trianglewindow.h"
+#include "SampleViewer.h"
 #include <QtGui/QScreen>
+#include <QApplication>
 #include <iostream>
 #include <QElapsedTimer>
 #include <QKeyEvent>
@@ -13,93 +14,31 @@
 
 using namespace std;
 
-TriangleWindow::TriangleWindow(openni::Device& device, openni::VideoStream& depth, openni::VideoStream& color)
-    : m_device(device), m_depthStream(depth), m_colorStream(color), m_streams(NULL), m_eViewState(DEFAULT_DISPLAY_MODE), m_pTexMap(NULL)
+SampleViewer::SampleViewer()
+    : m_streams(NULL), m_eViewState(DEFAULT_DISPLAY_MODE), m_pTexMap(NULL)
 {
+    initOpenNI();
 }
 
-TriangleWindow::~TriangleWindow()
+SampleViewer::~SampleViewer()
 {
-    if (m_pTexMap != NULL)
-    {
+    cout << "End of application" << endl;
+
+    m_device.close();
+    openni::OpenNI::shutdown();
+
+    if (m_pTexMap != NULL) {
         delete[] m_pTexMap;
         m_pTexMap = NULL;
     }
 
-    if (m_streams != NULL)
-    {
+    if (m_streams != NULL) {
         delete []m_streams;
         m_streams = NULL;
     }
 }
 
-void TriangleWindow::initialize()
-{
-    initOpenNI();
-    initOpenGL();
-}
-
-openni::Status TriangleWindow::initOpenNI()
-{
-    openni::VideoMode depthVideoMode;
-    openni::VideoMode colorVideoMode;
-
-    if (m_depthStream.isValid() && m_colorStream.isValid())
-    {
-        depthVideoMode = m_depthStream.getVideoMode();
-        colorVideoMode = m_colorStream.getVideoMode();
-
-        int depthWidth = depthVideoMode.getResolutionX();
-        int depthHeight = depthVideoMode.getResolutionY();
-        int colorWidth = colorVideoMode.getResolutionX();
-        int colorHeight = colorVideoMode.getResolutionY();
-
-        if (depthWidth == colorWidth &&
-            depthHeight == colorHeight)
-        {
-            m_width = depthWidth;
-            m_height = depthHeight;   
-            cout << "Native resolution is " << m_width << "x" << m_height << endl;
-        }
-        else
-        {
-            printf("Error - expect color and depth to be in same resolution: D: %dx%d, C: %dx%d\n",
-                depthWidth, depthHeight,
-                colorWidth, colorHeight);
-            return openni::STATUS_ERROR;
-        }
-    }
-    else if (m_depthStream.isValid())
-    {
-        depthVideoMode = m_depthStream.getVideoMode();
-        m_width = depthVideoMode.getResolutionX();
-        m_height = depthVideoMode.getResolutionY();
-    }
-    else if (m_colorStream.isValid())
-    {
-        colorVideoMode = m_colorStream.getVideoMode();
-        m_width = colorVideoMode.getResolutionX();
-        m_height = colorVideoMode.getResolutionY();
-    }
-    else
-    {
-        printf("Error - expects at least one of the streams to be valid...\n");
-        return openni::STATUS_ERROR;
-    }
-
-    m_streams = new openni::VideoStream*[2];
-    m_streams[0] = &m_depthStream;
-    m_streams[1] = &m_colorStream;
-
-    // Texture map init
-    m_nTexMapX = MIN_CHUNKS_SIZE(m_width, TEXTURE_SIZE);
-    m_nTexMapY = MIN_CHUNKS_SIZE(m_height, TEXTURE_SIZE);
-    m_pTexMap = new openni::RGB888Pixel[m_nTexMapX * m_nTexMapY];
-
-    return openni::STATUS_OK;
-}
-
-void TriangleWindow::initOpenGL()
+void SampleViewer::initialize()
 {
     /*glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
@@ -109,7 +48,80 @@ void TriangleWindow::initOpenGL()
     glEnable(GL_TEXTURE_2D);
 }
 
-void TriangleWindow::render()
+void SampleViewer::initOpenNI()
+{
+    const char* deviceURI = openni::ANY_DEVICE;
+
+    try {
+        if (openni::OpenNI::initialize() != openni::STATUS_OK)
+            throw 1;
+
+        if (m_device.open(deviceURI) != openni::STATUS_OK)
+            throw 2;
+
+        if (m_depthStream.create(m_device, openni::SENSOR_DEPTH) != openni::STATUS_OK)
+            throw 3;
+
+        if (m_colorStream.create(m_device, openni::SENSOR_COLOR) != openni::STATUS_OK)
+            throw 4;
+
+        if (m_device.setDepthColorSyncEnabled(true) == openni::STATUS_OK)
+            cout << "Frame Sync enabled" << endl;
+
+        if (m_depthStream.start() != openni::STATUS_OK)
+            throw 5;
+
+        if (m_colorStream.start() != openni::STATUS_OK)
+            throw 6;
+
+        if (!m_depthStream.isValid() || !m_colorStream.isValid())
+            throw 7;
+
+        if (m_device.isImageRegistrationModeSupported(openni::IMAGE_REGISTRATION_DEPTH_TO_COLOR)) {
+            cout << "Image Registration is Supported" << endl;
+            cout << "Current Mode: " << m_device.getImageRegistrationMode() << endl;
+        }
+
+        // Check Resolution
+        openni::VideoMode depthVideoMode = m_depthStream.getVideoMode();
+        openni::VideoMode colorVideoMode = m_colorStream.getVideoMode();
+
+        int depthWidth = depthVideoMode.getResolutionX();
+        int depthHeight = depthVideoMode.getResolutionY();
+        int colorWidth = colorVideoMode.getResolutionX();
+        int colorHeight = colorVideoMode.getResolutionY();
+
+        if (depthWidth != colorWidth || depthHeight != colorHeight) {
+            printf("Error - expect color and depth to be in same resolution: D: %dx%d, C: %dx%d\n",
+                                            depthWidth, depthHeight, colorWidth, colorHeight);
+            throw 8;
+        }
+
+        m_width = depthWidth;
+        m_height = depthHeight;
+        cout << "Native resolution is " << m_width << "x" << m_height << endl;
+
+        // Init Streams
+        m_streams = new openni::VideoStream*[2];
+        m_streams[0] = &m_depthStream;
+        m_streams[1] = &m_colorStream;
+
+        // Texture map init
+        m_nTexMapX = MIN_CHUNKS_SIZE(m_width, TEXTURE_SIZE);
+        m_nTexMapY = MIN_CHUNKS_SIZE(m_height, TEXTURE_SIZE);
+        m_pTexMap = new openni::RGB888Pixel[m_nTexMapX * m_nTexMapY];
+    }
+    catch (int ex)
+    {
+        m_depthStream.destroy();
+        m_colorStream.destroy();
+        printf("OpenNI init error:\n%s\n", openni::OpenNI::getExtendedError());
+        openni::OpenNI::shutdown();
+        throw ex;
+    }
+}
+
+void SampleViewer::render()
 {
     int changedIndex;
     openni::Status rc = openni::OpenNI::waitForAnyStream(m_streams, 2, &changedIndex);
@@ -227,17 +239,12 @@ void TriangleWindow::render()
     glEnd();
 }
 
-void TriangleWindow::keyPressEvent(QKeyEvent* ev) {
+void SampleViewer::keyPressEvent(QKeyEvent* ev) {
     switch (ev->key())
     {
     case Qt::Key_Escape:
-        m_depthStream.stop();
-        m_colorStream.stop();
-        m_depthStream.destroy();
-        m_colorStream.destroy();
-        m_device.close();
-        openni::OpenNI::shutdown();
-        exit (1);
+        QApplication::exit();
+        break;
     case Qt::Key_1 :
         m_eViewState = DISPLAY_MODE_OVERLAY;
         m_device.setImageRegistrationMode(openni::IMAGE_REGISTRATION_DEPTH_TO_COLOR);

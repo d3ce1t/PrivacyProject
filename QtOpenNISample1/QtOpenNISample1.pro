@@ -13,12 +13,12 @@ TEMPLATE = app
 
 SOURCES += main.cpp \
     openglwindow.cpp \
-    trianglewindow.cpp
+    SampleViewer.cpp
 
 HEADERS  += \
     openglwindow.h \
-    trianglewindow.h \
-    OniSampleUtilities.h
+    OniSampleUtilities.h \
+    SampleViewer.h
 
 FORMS    +=
 
