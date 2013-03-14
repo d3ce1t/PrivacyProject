@@ -1,3 +1,5 @@
+#define GL_WIN_SIZE_X	1280
+#define GL_WIN_SIZE_Y	1024
 #define TEXTURE_SIZE	512
 #define DEFAULT_DISPLAY_MODE	DISPLAY_MODE_DEPTH
 
@@ -33,18 +35,6 @@ char g_generalMessage[100] = {0};
 
 // time to hold in pose to exit program. In milliseconds.
 const int g_poseTimeoutToExit = 2000;
-
-/*#ifndef USE_GLES
-void glPrintString(void *font, const char *str)
-{
-    int i,l = (int)strlen(str);
-
-    for(i=0; i<l; i++)
-    {
-        glutBitmapCharacter(font,*str++);
-    }
-}
-#endif*/
 
 using namespace std;
 
@@ -91,6 +81,10 @@ void SampleViewer::initialize()
 
     glEnableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);
+
+    cout << glGetString(GL_EXTENSIONS) << endl;
+
+
 }
 
 void SampleViewer::initOpenNI()
@@ -155,7 +149,7 @@ void SampleViewer::render()
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
-    glOrtho(0, width(), height(), 0, -1.0, 1.0);
+    glOrtho(0, GL_WIN_SIZE_X, GL_WIN_SIZE_Y, 0, -1.0, 1.0);
 
     if (depthFrame.isValid() && g_drawDepth)
     {
@@ -272,13 +266,13 @@ void SampleViewer::render()
     glVertex2f(0, 0);
     // upper right
     glTexCoord2f((float)g_nXRes/(float)m_nTexMapX, 0);
-    glVertex2f(width(), 0);
+    glVertex2f(GL_WIN_SIZE_X, 0);
     // bottom right
     glTexCoord2f((float)g_nXRes/(float)m_nTexMapX, (float)g_nYRes/(float)m_nTexMapY);
-    glVertex2f(width(), height());
+    glVertex2f(GL_WIN_SIZE_X, GL_WIN_SIZE_Y);
     // bottom left
     glTexCoord2f(0, (float)g_nYRes/(float)m_nTexMapY);
-    glVertex2f(0, height());
+    glVertex2f(0, GL_WIN_SIZE_Y);
 
     glEnd();
     glDisable(GL_TEXTURE_2D);
@@ -446,8 +440,8 @@ void SampleViewer::DrawStatusLabel(nite::UserTracker* pUserTracker, const nite::
 
     float x,y;
     pUserTracker->convertJointCoordinatesToDepth(user.getCenterOfMass().x, user.getCenterOfMass().y, user.getCenterOfMass().z, &x, &y);
-    x *= width()/g_nXRes;
-    y *= height()/g_nYRes;
+    x *= GL_WIN_SIZE_X/g_nXRes;
+    y *= GL_WIN_SIZE_Y/g_nYRes;
     char *msg = g_userStatusLabels[user.getId()];
     glRasterPos2i(x-((strlen(msg)/2)*8),y);
     //glPrintString(GLUT_BITMAP_HELVETICA_18, msg);
@@ -470,8 +464,8 @@ void SampleViewer::DrawCenterOfMass(nite::UserTracker* pUserTracker, const nite:
 
     pUserTracker->convertJointCoordinatesToDepth(user.getCenterOfMass().x, user.getCenterOfMass().y, user.getCenterOfMass().z, &coordinates[0], &coordinates[1]);
 
-    coordinates[0] *= width()/g_nXRes;
-    coordinates[1] *= height()/g_nYRes;
+    coordinates[0] *= GL_WIN_SIZE_X/g_nXRes;
+    coordinates[1] *= GL_WIN_SIZE_Y/g_nYRes;
     glPointSize(8);
     glVertexPointer(3, GL_FLOAT, 0, coordinates);
     glDrawArrays(GL_POINTS, 0, 1);
@@ -489,14 +483,14 @@ void SampleViewer::DrawBoundingBox(const nite::UserData& user)
         user.getBoundingBox().min.x, user.getBoundingBox().min.y, 0,
         user.getBoundingBox().min.x, user.getBoundingBox().max.y, 0,
     };
-    coordinates[0]  *= width()/g_nXRes;
-    coordinates[1]  *= height()/g_nYRes;
-    coordinates[3]  *= width()/g_nXRes;
-    coordinates[4]  *= height()/g_nYRes;
-    coordinates[6]  *= width()/g_nXRes;
-    coordinates[7]  *= height()/g_nYRes;
-    coordinates[9]  *= width()/g_nXRes;
-    coordinates[10] *= height()/g_nYRes;
+    coordinates[0]  *= GL_WIN_SIZE_X/g_nXRes;
+    coordinates[1]  *= GL_WIN_SIZE_Y/g_nYRes;
+    coordinates[3]  *= GL_WIN_SIZE_X/g_nXRes;
+    coordinates[4]  *= GL_WIN_SIZE_Y/g_nYRes;
+    coordinates[6]  *= GL_WIN_SIZE_X/g_nXRes;
+    coordinates[7]  *= GL_WIN_SIZE_Y/g_nYRes;
+    coordinates[9]  *= GL_WIN_SIZE_X/g_nXRes;
+    coordinates[10] *= GL_WIN_SIZE_Y/g_nYRes;
 
     glPointSize(2);
     glVertexPointer(3, GL_FLOAT, 0, coordinates);
@@ -510,10 +504,10 @@ void SampleViewer::DrawLimb(nite::UserTracker* pUserTracker, const nite::Skeleto
     pUserTracker->convertJointCoordinatesToDepth(joint1.getPosition().x, joint1.getPosition().y, joint1.getPosition().z, &coordinates[0], &coordinates[1]);
     pUserTracker->convertJointCoordinatesToDepth(joint2.getPosition().x, joint2.getPosition().y, joint2.getPosition().z, &coordinates[3], &coordinates[4]);
 
-    coordinates[0] *= width()/g_nXRes;
-    coordinates[1] *= height()/g_nYRes;
-    coordinates[3] *= width()/g_nXRes;
-    coordinates[4] *= height()/g_nYRes;
+    coordinates[0] *= GL_WIN_SIZE_X/g_nXRes;
+    coordinates[1] *= GL_WIN_SIZE_Y/g_nYRes;
+    coordinates[3] *= GL_WIN_SIZE_X/g_nXRes;
+    coordinates[4] *= GL_WIN_SIZE_Y/g_nYRes;
 
     if (joint1.getPositionConfidence() == 1 && joint2.getPositionConfidence() == 1)
     {
