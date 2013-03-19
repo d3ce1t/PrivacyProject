@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/scenegraph/openglunderqml">
+        <file>main.qml</file>
+    </qresource>
+    <qresource prefix="/glsl">
+        <file>sampleFragment.fsh</file>
+        <file>sampleVertex.vsh</file>
+    </qresource>
+</RCC>
