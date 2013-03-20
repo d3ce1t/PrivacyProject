@@ -40,18 +40,16 @@
 ****************************************************************************/
 
 #include <QGuiApplication>
-#include <QtQuick/QQuickView>
-#include "squircle.h"
+#include "window.h"
 
-int main(int argc, char **argv)
+
+int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
-
-    qmlRegisterType<Squircle>("Squircle", 1, 0, "Squircle");
-
-    QQuickView view;
-    view.setSource(QUrl("qrc:///scenegraph/openglunderqml/main.qml"));
-    view.show();
-
+    Window* mainWindow = new Window();
+    mainWindow->setResizeMode( QQuickView::SizeRootObjectToView);
+    mainWindow->setSource(QUrl("qrc:///scenegraph/openglunderqml/main.qml"));
+    mainWindow->resize(640, 480);
+    mainWindow->show();
     return app.exec();
 }

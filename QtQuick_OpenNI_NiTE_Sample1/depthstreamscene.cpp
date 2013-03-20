@@ -5,14 +5,17 @@
 
 #define MIN_NUM_CHUNKS(data_size, chunk_size)	((((data_size)-1) / (chunk_size) + 1))
 #define MIN_CHUNKS_SIZE(data_size, chunk_size)	(MIN_NUM_CHUNKS(data_size, chunk_size) * (chunk_size))
-#define GL_WIN_SIZE_X	640
-#define GL_WIN_SIZE_Y	480
 #define TEXTURE_SIZE	512
 
 
 DepthStreamScene::DepthStreamScene()
-    : textureUnit(0)
+    : textureUnit(0), colorCount(3)
 {
+    colors[0] = QVector3D(1, 0, 0);
+    colors[1] = QVector3D(0, 1, 0);
+    colors[2] = QVector3D(0, 0, 1);
+    colors[3] = QVector3D(1, 1, 1);
+
     m_shaderProgram = NULL;
     m_pTexMap = NULL;
     m_nativeWidth = 0;
@@ -60,8 +63,6 @@ void DepthStreamScene::initialise()
 
 void DepthStreamScene::prepareShaderProgram()
 {
-    matrix.ortho(0, GL_WIN_SIZE_X, GL_WIN_SIZE_Y, 0, -1.0, 1.0);
-
     m_shaderProgram = new QOpenGLShaderProgram();
     m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/glsl/textureVertex.vsh");
     m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/glsl/textureFragment.fsh");
@@ -85,9 +86,9 @@ void DepthStreamScene::prepareVertexBuffers()
 {
     float vertexData[] = {
         0, 0,
-        GL_WIN_SIZE_X, 0,
-        GL_WIN_SIZE_X, GL_WIN_SIZE_Y,
-        0, GL_WIN_SIZE_Y
+        m_width, 0,
+        m_width, m_height,
+        0, m_height
     };
 
     float texCoordsData[] = {
@@ -118,16 +119,16 @@ void DepthStreamScene::prepareVertexBuffers()
 
 void DepthStreamScene::update(float t)
 {
-
+    Q_UNUSED(t);
 }
 
 void DepthStreamScene::render()
 {
     float vertexData[] = {
         0, 0,
-        GL_WIN_SIZE_X, 0,
-        GL_WIN_SIZE_X, GL_WIN_SIZE_Y,
-        0, GL_WIN_SIZE_Y
+        m_width, 0,
+        m_width, m_height,
+        0, m_height
     };
 
     float texCoordsData[] = {
@@ -167,9 +168,10 @@ void DepthStreamScene::render()
     glDisable(GL_TEXTURE_2D);
 }
 
-void DepthStreamScene::resize( int w, int h )
+void DepthStreamScene::resize( float w, float h )
 {
-
+    m_width = w;
+    m_height = h;
 }
 
 void DepthStreamScene::computeVideoTexture(nite::UserTrackerFrameRef& userTrackerFrame)
@@ -221,14 +223,14 @@ openni::RGB888Pixel* DepthStreamScene::prepareFrameTexture(openni::RGB888Pixel* 
                     if (!g_drawBackground) {
                         factor[0] = factor[1] = factor[2] = 0;
                     } else {
-                        factor[0] = Colors[colorCount][0];
-                        factor[1] = Colors[colorCount][1];
-                        factor[2] = Colors[colorCount][2];
+                        factor[0] = colors[colorCount].x();
+                        factor[1] = colors[colorCount].y();
+                        factor[2] = colors[colorCount].z();
                     }
                 } else {
-                    factor[0] = Colors[*pLabels % colorCount][0];
-                    factor[1] = Colors[*pLabels % colorCount][1];
-                    factor[2] = Colors[*pLabels % colorCount][2];
+                    factor[0] = colors[*pLabels % colorCount].x();
+                    factor[1] = colors[*pLabels % colorCount].y();
+                    factor[2] = colors[*pLabels % colorCount].z();
                 }
                 //					// Add debug lines - every 10cm
                 // 					else if ((*pDepth / 10) % 10 == 0)
@@ -250,4 +252,8 @@ openni::RGB888Pixel* DepthStreamScene::prepareFrameTexture(openni::RGB888Pixel* 
     }
 
     return texture;
+}
+
+void DepthStreamScene::setMatrix(QMatrix4x4 &matrix) {
+    this->matrix = matrix;
 }

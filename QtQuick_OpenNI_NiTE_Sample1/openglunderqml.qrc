@@ -1,13 +1,12 @@
 <RCC>
     <qresource prefix="/scenegraph/openglunderqml">
         <file>main.qml</file>
+        <file>Button.qml</file>
     </qresource>
     <qresource prefix="/glsl">
         <file>textureVertex.vsh</file>
         <file>textureFragment.fsh</file>
         <file>simpleFragment.fsh</file>
         <file>simpleVertex.vsh</file>
-        <file>fragment.fsh</file>
-        <file>vertex.vsh</file>
     </qresource>
 </RCC>

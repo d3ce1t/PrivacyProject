@@ -29,7 +29,7 @@ void BasicUsageScene::initialise()
     prepareShaderProgram();
 
     // Prepare our geometry and associate it with shader program
-    prepareVertexBuffers();
+    //prepareVertexBuffers();
 
     //m_vao.release();
 
@@ -44,6 +44,18 @@ void BasicUsageScene::update( float t )
 
 void BasicUsageScene::render()
 {
+    const GLfloat vertexData[] = {
+        0.0f, 0.707f,
+        -0.5f, -0.5f,
+        0.5f, -0.5f
+    };
+
+    const GLfloat colorData[] = {
+        1.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 1.0f
+    };
+
     glViewport(0, 0, width, height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -54,13 +66,9 @@ void BasicUsageScene::render()
     //m_vao.bind();
 
     // Because VAO isnt' supported, do this
-    //m_vertexPositionBuffer.bind();
-    //m_shaderProgram->setAttributeBuffer(m_posAttr, GL_FLOAT, 0, 2, 0);
-    //m_vertexPositionBuffer.release();
 
-    //m_vertexColorBuffer.bind();
-    //m_shaderProgram->setAttributeBuffer(m_colAttr, GL_FLOAT, 0, 3, 0);
-    //m_vertexColorBuffer.release();
+    m_shaderProgram->setAttributeArray(m_posAttr, vertexData, 2);
+    m_shaderProgram->setAttributeArray(m_colAttr, colorData, 3);
 
     m_shaderProgram->enableAttributeArray(m_posAttr);
     m_shaderProgram->enableAttributeArray(m_colAttr);

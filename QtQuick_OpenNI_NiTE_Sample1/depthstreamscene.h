@@ -19,9 +19,10 @@ public:
     void initialise();
     void update(float t);
     void render();
-    void resize( int w, int h );
+    void resize( float w, float h );
     void computeVideoTexture(nite::UserTrackerFrameRef& userTrackerFrame);
     void setNativeResolution(int width, int height);
+    void setMatrix(QMatrix4x4& matrix);
 
 private:
     openni::RGB888Pixel* prepareFrameTexture(openni::RGB888Pixel* texture, unsigned int width, unsigned int height, nite::UserTrackerFrameRef userTrackedFrame);
@@ -30,13 +31,15 @@ private:
     void prepareVertexBuffers();
 
 
-    const int textureUnit;
-    const float Colors[4][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}, {1, 1, 1}};
-    const int colorCount = 3;
+    const int               textureUnit;
+    QVector3D               colors[4];
+    const int               colorCount;
 
     QMatrix4x4              matrix;
     int                     m_nativeWidth;
     int                     m_nativeHeight;
+    float                   m_width;
+    float                   m_height;
     float                   m_pDepthHist[MAX_DEPTH];
     openni::RGB888Pixel*	m_pTexMap;
     unsigned int            m_nTexMapX;

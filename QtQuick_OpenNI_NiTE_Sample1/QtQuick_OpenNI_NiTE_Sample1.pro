@@ -3,15 +3,19 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = QtQuickOpenNI_NiTE_Sample1
 
-HEADERS += squircle.h \
+HEADERS += \
     OniSampleUtilities.h \
-    simpleshaderprogram.h \
     depthstreamscene.h \
-    AbstractScene.h
+    AbstractScene.h \
+    window.h \
+    basicusagescene.h \
+    skeleton.h
 
-SOURCES += squircle.cpp main.cpp \
-    simpleshaderprogram.cpp \
-    depthstreamscene.cpp
+SOURCES += main.cpp \
+    depthstreamscene.cpp \
+    window.cpp \
+    basicusagescene.cpp \
+    skeleton.cpp
 
 RESOURCES += openglunderqml.qrc
 
