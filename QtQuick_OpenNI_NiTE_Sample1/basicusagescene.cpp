@@ -14,10 +14,8 @@ BasicUsageScene::BasicUsageScene()
     m_pUserTracker = NULL;
 
     g_drawSkeleton = true;
-    g_drawCenterOfMass = true;
-    g_drawStatusLabel = false;
-    g_drawBoundingBox = true;
-    g_drawFrameId = false;
+    g_drawCenterOfMass = false;
+    g_drawBoundingBox = false;
 }
 
 BasicUsageScene::~BasicUsageScene()
@@ -49,10 +47,6 @@ void BasicUsageScene::update( float t )
 
 void BasicUsageScene::render()
 {
-    /* if (g_drawStatusLabel)
-     {
-         //DrawStatusLabel(m_pUserTracker, user);
-     }*/
      if (g_drawCenterOfMass)
      {
          DrawCenterOfMass(m_pUserTracker, m_user);
@@ -64,7 +58,12 @@ void BasicUsageScene::render()
 
      if (m_user.getSkeleton().getState() == nite::SKELETON_TRACKED && g_drawSkeleton)
      {
+         m_skeleton.setSkeleton(m_user.getSkeleton(), m_pUserTracker);
          DrawSkeleton(m_pUserTracker, m_user);
+     }
+     else
+     {
+         m_skeleton.setState(0);
      }
 }
 
@@ -72,6 +71,8 @@ void BasicUsageScene::resize( float w, float h )
 {
     m_width = w;
     m_height = h;
+    m_skeleton.setResolution(w, h);
+
 }
 
 void BasicUsageScene::prepareShaderProgram()
@@ -113,6 +114,7 @@ void BasicUsageScene::setNativeResolution(int width, int height)
 {
     m_nativeWidth = width;
     m_nativeHeight = height;
+    m_skeleton.setNativeResolution(width, height);
 }
 
 void BasicUsageScene::DrawCenterOfMass(nite::UserTracker* pUserTracker, const nite::UserData& user)
@@ -153,6 +155,8 @@ void BasicUsageScene::DrawCenterOfMass(nite::UserTracker* pUserTracker, const ni
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);
 }
+
+
 void BasicUsageScene::DrawSkeleton(nite::UserTracker* pUserTracker, const nite::UserData& userData)
 {
     DrawLimb(pUserTracker, userData.getSkeleton().getJoint(nite::JOINT_HEAD), userData.getSkeleton().getJoint(nite::JOINT_NECK), userData.getId() % colorCount);
@@ -233,8 +237,8 @@ void BasicUsageScene::DrawBoundingBox(const nite::UserData& user)
 
 void BasicUsageScene::DrawLimb(nite::UserTracker* pUserTracker, const nite::SkeletonJoint& joint1, const nite::SkeletonJoint& joint2, int color)
 {
-    if (joint1.getPositionConfidence() < 0.5f || joint2.getPositionConfidence() < 0.5f)
-        return;
+    /*if (joint1.getPositionConfidence() < 0.5f || joint2.getPositionConfidence() < 0.5f)
+        return;*/
 
     float coordinates[4] = {0};
     pUserTracker->convertJointCoordinatesToDepth(joint1.getPosition().x, joint1.getPosition().y, joint1.getPosition().z, &coordinates[0], &coordinates[1]);
@@ -245,7 +249,7 @@ void BasicUsageScene::DrawLimb(nite::UserTracker* pUserTracker, const nite::Skel
     coordinates[2] *= m_width/m_nativeWidth;
     coordinates[3] *= m_height/m_nativeHeight;
 
-    float factor = (joint1.getPositionConfidence() + joint2.getPositionConfidence()) / 2.0f;
+    float factor = 0.5 + (joint1.getPositionConfidence() + joint2.getPositionConfidence()) / 4.0f;
 
 
     float coorColours[3] = {colors[color].x() * factor,
@@ -294,29 +298,6 @@ void BasicUsageScene::DrawLimb(nite::UserTracker* pUserTracker, const nite::Skel
     glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
     glPopMatrix();
 }
-
-/*void Squircle::DrawStatusLabel(nite::UserTracker* pUserTracker, const nite::UserData& user)
-{
-    int color = user.getId() % colorCount;
-    glColor3f(1.0f - Colors[color][0], 1.0f - Colors[color][1], 1.0f - Colors[color][2]);
-
-    float x,y;
-    pUserTracker->convertJointCoordinatesToDepth(user.getCenterOfMass().x, user.getCenterOfMass().y, user.getCenterOfMass().z, &x, &y);
-    x *= GL_WIN_SIZE_X/g_nXRes;
-    y *= GL_WIN_SIZE_Y/g_nYRes;
-    char *msg = g_userStatusLabels[user.getId()];
-    glRasterPos2i(x-((strlen(msg)/2)*8),y);
-    //glPrintString(GLUT_BITMAP_HELVETICA_18, msg);
-}*/
-
-/*void Squircle::DrawFrameId(int frameId)
-{
-    char buffer[80] = "";
-    sprintf(buffer, "%d", frameId);
-    glColor3f(1.0f, 0.0f, 0.0f);
-    glRasterPos2i(20, 20);
-    //glPrintString(GLUT_BITMAP_HELVETICA_18, buffer);
-}*/
 
 void BasicUsageScene::setDrawSkeletonFlag(bool value)
 {

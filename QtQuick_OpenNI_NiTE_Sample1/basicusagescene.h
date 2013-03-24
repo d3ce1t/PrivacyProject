@@ -7,6 +7,7 @@
 #include <NiTE.h>
 #include <OpenNI.h>
 #include <QObject>
+#include <skeleton.h>
 
 class QOpenGLShaderProgram;
 
@@ -14,7 +15,9 @@ class BasicUsageScene : public QObject, public AbstractScene
 {
     Q_OBJECT
 
-    Q_PROPERTY(bool drawBoundingBox READ getDrawBoundingBoxFlag WRITE setDrawBoundingBoxFlag NOTIFY changeOfStatus)
+    Q_PROPERTY(bool drawBoundingBox  READ getDrawBoundingBoxFlag   WRITE setDrawBoundingBoxFlag  NOTIFY changeOfStatus)
+    Q_PROPERTY(bool drawCenterOfMass READ getDrawCenterOfMassFlag  WRITE setDrawCenterOfMassFlag NOTIFY changeOfStatus)
+    Q_PROPERTY(bool drawSkeleton     READ getDrawSkeletonFlag      WRITE setDrawSkeletonFlag     NOTIFY changeOfStatus)
 
 public:
     explicit BasicUsageScene();
@@ -27,6 +30,7 @@ public:
     void setUser(const nite::UserData& m_user);
     void setNativeResolution(int width, int height);
     void setUserTrackerPointer(nite::UserTracker *pUserTracker);
+    dai::Skeleton& getSkeleton() {return m_skeleton;}
 
     // Property Getters
     bool getDrawSkeletonFlag() const {return g_drawSkeleton;}
@@ -44,8 +48,6 @@ signals:
 
 private:
     void prepareShaderProgram();
-    //void DrawStatusLabel(nite::UserTracker* pUserTracker, const nite::UserData& user);
-    //void DrawFrameId(int frameId);
     void DrawCenterOfMass(nite::UserTracker* pUserTracker, const nite::UserData& m_user);
     void DrawBoundingBox(const nite::UserData& m_user);
     void DrawLimb(nite::UserTracker* pUserTracker, const nite::SkeletonJoint& joint1, const nite::SkeletonJoint& joint2, int color);
@@ -67,12 +69,12 @@ private:
     float                   m_width;
     float                   m_height;
 
+    dai::Skeleton           m_skeleton;
+
     // Settings Flags
     bool                    g_drawSkeleton;
     bool                    g_drawCenterOfMass;
-    bool                    g_drawStatusLabel;
     bool                    g_drawBoundingBox;
-    bool                    g_drawFrameId;
     nite::UserData          m_user;
 };
 

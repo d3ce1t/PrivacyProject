@@ -9,13 +9,15 @@ HEADERS += \
     AbstractScene.h \
     window.h \
     basicusagescene.h \
-    skeleton.h
+    skeleton.h \
+    grill.h
 
 SOURCES += main.cpp \
     depthstreamscene.cpp \
     window.cpp \
     basicusagescene.cpp \
-    skeleton.cpp
+    skeleton.cpp \
+    grill.cpp
 
 RESOURCES += openglunderqml.qrc
 

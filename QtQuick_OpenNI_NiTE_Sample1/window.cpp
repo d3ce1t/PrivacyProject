@@ -4,11 +4,19 @@
 #include <QTimer>
 #include <QDebug>
 #include <QQmlContext>
-
+#include <QtQml>
+#include <iostream>
+#include <grill.h>
 
 Window::Window( QWindow *parent )
     : QQuickView( parent ), g_poseTimeoutToExit(2000)
 {
+    m_statusLabel = new QString("Not tracking");
+    g_drawStatusLabel = true;
+    g_drawFrameId = true;
+    m_frameId = 0;
+    m_renderedFrames = 0;
+
     memset(g_userStatusLabels, 0, MAX_USERS*100*sizeof(char));
 
     for (int i=0; i<MAX_USERS; ++i) {
@@ -22,7 +30,7 @@ Window::Window( QWindow *parent )
 
     QTimer* timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), SLOT(update()));
-    timer->start( 16 );
+    timer->start( 33 );
 
     QSurfaceFormat format;
     format.setMajorVersion(2);
@@ -34,11 +42,14 @@ Window::Window( QWindow *parent )
 
     m_scene = new BasicUsageScene();
     m_depthScene = new DepthStreamScene();
-    m_pUserTracker = new nite::UserTracker;
-    initOpenNI();
+    m_pUserTracker = new nite::UserTracker();
+    m_grill = new Grill();
+    //initOpenNI();
 
     // QML properties
-    rootContext()->setContextProperty("rootItem", (QObject *) m_scene);
+    rootContext()->setContextProperty("appSettings1", (QObject *) m_scene);
+    rootContext()->setContextProperty("appSettings2", (QObject *) this);
+    rootContext()->setContextProperty("skeleton", (QObject *) &m_scene->getSkeleton());
 }
 
 Window::~Window()
@@ -61,19 +72,26 @@ Window::~Window()
         delete m_scene;
         m_scene = NULL;
     }
+
+    if (m_grill != NULL) {
+        delete m_grill;
+        m_grill = NULL;
+    }
 }
 
 void Window::renderOpenGLScene()
 {
     // Read Depth Frame
-    nite::UserTrackerFrameRef userTrackerFrame;
+    /*nite::UserTrackerFrameRef userTrackerFrame;
+
+    m_pUserTracker->setSkeletonSmoothingFactor(0.7);
 
     if (m_pUserTracker->readFrame(&userTrackerFrame) != nite::STATUS_OK) {
         printf("GetNextData failed\n");
         return;
     }
 
-    videoMode = userTrackerFrame.getDepthFrame().getVideoMode();
+    videoMode = userTrackerFrame.getDepthFrame().getVideoMode();*/
 
     static bool firstTime = true;
 
@@ -81,15 +99,20 @@ void Window::renderOpenGLScene()
     // Make here in order to use the OpenGLContext initalised by QtQuick
     if ( firstTime )
     {
-        matrix.ortho(0, videoMode.getResolutionX(), videoMode.getResolutionY(), 0, -1.0, 1.0);
-        m_depthScene->setNativeResolution(videoMode.getResolutionX(), videoMode.getResolutionY());
+        matrix.perspective(70, 1.0, 0.0, 100.0);
+        matrix.translate(0, -0.5, -2);
+        //matrix.rotate(45, QVector3D(0, 1, 0));
+        //matrix.ortho(0, width(), height(), 0, -1.0, 1.0);
+        /*m_depthScene->setNativeResolution(videoMode.getResolutionX(), videoMode.getResolutionY());
         m_depthScene->setMatrix(matrix);
         m_depthScene->resize(width(), height());
         m_depthScene->initialise();
         m_scene->setNativeResolution(videoMode.getResolutionX(), videoMode.getResolutionY());
         m_scene->setMatrix(matrix);
         m_scene->resize(width(), height());
-        m_scene->initialise();
+        m_scene->initialise();*/
+        m_grill->setMatrix(matrix);
+        m_grill->initialise();
         m_time.start();
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         qDebug() << "Width: " << width() << " Height: " << height();
@@ -97,15 +120,14 @@ void Window::renderOpenGLScene()
     }
 
     // Prepare Scene
-    m_depthScene->computeVideoTexture(userTrackerFrame);
-    const nite::Array<nite::UserData>& users = userTrackerFrame.getUsers();
+    //m_depthScene->computeVideoTexture(userTrackerFrame);
+    //const nite::Array<nite::UserData>& users = userTrackerFrame.getUsers();
 
     //
     // Rendering
     //
 
     // Configure ViewPort and Clear Screen
-
     glViewport(0, 0, width(), height());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
@@ -113,12 +135,17 @@ void Window::renderOpenGLScene()
     glPushMatrix();
 
     // Render
-    m_depthScene->render();
+    //m_depthScene->render();
 
-    for (int i = 0; i < users.getSize(); ++i)
+    m_grill->render();
+
+   /* int numberOfUsers = MAX_USERS <= users.getSize()? MAX_USERS : users.getSize();
+
+    for (int i = 0; i < numberOfUsers; ++i)
     {
         const nite::UserData& user = users[i];
         updateUserState(user, userTrackerFrame.getTimestamp());
+
         if (user.isNew()) {
             m_pUserTracker->startSkeletonTracking(user.getId());
             m_pUserTracker->startPoseDetection(user.getId(), nite::POSE_CROSSED_HANDS);
@@ -128,21 +155,12 @@ void Window::renderOpenGLScene()
             m_scene->setUserTrackerPointer(m_pUserTracker);
             m_scene->render();
         }
-    }
-
-    /*if (g_drawFrameId)
-    {
-        DrawFrameId(userTrackerFrame.getFrameIndex());
     }*/
 
-    /*if (g_generalMessage[0] != '\0')
-    {
-        char *msg = g_generalMessage;
-        glColor3f(1.0f, 0.0f, 0.0f);
-        glRasterPos2i(100, 20);
-
-        glPrintString(GLUT_BITMAP_HELVETICA_18, msg);
-    }*/
+    // Compute Frame Per Seconds
+    //m_frameId = userTrackerFrame.getFrameIndex();
+    m_fps = ++m_renderedFrames / (m_time.elapsed() / 1000.0f);
+    emit changeOfStatus();
 
     // Restore State
     glPopMatrix();
@@ -166,6 +184,55 @@ void Window::resizeEvent(QResizeEvent *event)
         qDebug() << "New size: " << width() << " Height:" << height();
     }
 }
+
+/*void Window::keyPressEvent(QKeyEvent* event)
+{
+    switch (event->key())
+    {
+    case Qt::Key_Left:
+        matrix.rotate(2, QVector3D(0, 1, 0));
+        qDebug() << "Left";
+        break;
+
+    case Qt::Key_Right:
+        matrix.rotate(-2, QVector3D(0, 1, 0));
+        qDebug() << "Right";
+        break;
+
+    case Qt::Key_Up:
+        matrix.rotate(2, QVector3D(1, 0, 0));
+        qDebug() << "Up";
+        break;
+
+    case Qt::Key_Down:
+        matrix.rotate(-2, QVector3D(1, 0, 0));
+        qDebug() << "Down";
+        break;
+
+    case Qt::Key_A:
+        matrix.translate(-0.1, 0, 0);
+        qDebug() << "Left";
+        break;
+
+    case Qt::Key_D:
+        matrix.translate(+0.1, 0, 0);
+        qDebug() << "Right";
+        break;
+
+    case Qt::Key_W:
+        matrix.translate(0, 0, 0.1);
+        qDebug() << "Up";
+        break;
+
+    case Qt::Key_S:
+        matrix.translate(0, 0, -0.1);
+        qDebug() << "Down";
+        break;
+    }
+
+    m_grill->setMatrix(matrix);
+
+}*/
 
 void Window::initOpenNI()
 {
@@ -196,7 +263,9 @@ void Window::initOpenNI()
 void Window::printMessage(const nite::UserData &user, uint64_t ts, const char *msg)
 {
     sprintf(g_userStatusLabels[user.getId()],"%s", msg);
-    printf("[%08llu] User #%d:\t%s\n",ts, user.getId(),msg);
+    *m_statusLabel = msg;
+    emit changeOfStatus();
+    printf("[%08lu] User #%d:\t%s\n", ts, user.getId(),msg);
 }
 
 void Window::updateUserState(const nite::UserData& user, uint64_t ts)
@@ -204,21 +273,22 @@ void Window::updateUserState(const nite::UserData& user, uint64_t ts)
     if (user.isNew())
         printMessage(user, ts, "New");
     else if (user.isVisible() && !g_visibleUsers[user.getId()])
-        printf("[%08llu] User #%d:\tVisible\n", ts, user.getId());
+        printf("[%08lu] User #%d:\tVisible\n", ts, user.getId());
     else if (!user.isVisible() && g_visibleUsers[user.getId()])
-        printf("[%08llu] User #%d:\tOut of Scene\n", ts, user.getId());
+        printf("[%08lu] User #%d:\tOut of Scene\n", ts, user.getId());
     else if (user.isLost())
         printMessage(user, ts, "Lost");
 
     g_visibleUsers[user.getId()] = user.isVisible();
 
 
-    if(g_skeletonStates[user.getId()] != user.getSkeleton().getState())
+    if (g_skeletonStates[user.getId()] != user.getSkeleton().getState())
     {
         switch(g_skeletonStates[user.getId()] = user.getSkeleton().getState())
         {
         case nite::SKELETON_NONE:
             printMessage(user, ts, "Stopped tracking.");
+            m_scene->getSkeleton().setState(0);
             break;
         case nite::SKELETON_CALIBRATING:
             printMessage(user, ts, "Calibrating...");
@@ -235,4 +305,14 @@ void Window::updateUserState(const nite::UserData& user, uint64_t ts)
             break;
         }
     }
+}
+
+void Window::setDrawStatusLabelFlag(bool value) {
+    g_drawStatusLabel = value;
+    emit changeOfStatus();
+}
+
+void Window::setDrawFrameIdFlag(bool value) {
+    g_drawFrameId = value;
+    emit changeOfStatus();
 }

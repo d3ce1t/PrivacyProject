@@ -2,6 +2,7 @@
     <qresource prefix="/scenegraph/openglunderqml">
         <file>main.qml</file>
         <file>Button.qml</file>
+        <file>Checkbox.qml</file>
     </qresource>
     <qresource prefix="/glsl">
         <file>textureVertex.vsh</file>
