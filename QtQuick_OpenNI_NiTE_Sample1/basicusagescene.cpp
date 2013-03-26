@@ -13,9 +13,9 @@ BasicUsageScene::BasicUsageScene()
     m_shaderProgram = NULL;
     m_pUserTracker = NULL;
 
-    g_drawSkeleton = true;
-    g_drawCenterOfMass = false;
-    g_drawBoundingBox = false;
+    g_drawSkeleton = false;
+    g_drawCenterOfMass = true;
+    g_drawBoundingBox = true;
 }
 
 BasicUsageScene::~BasicUsageScene()
@@ -119,27 +119,35 @@ void BasicUsageScene::setNativeResolution(int width, int height)
 
 void BasicUsageScene::DrawCenterOfMass(nite::UserTracker* pUserTracker, const nite::UserData& user)
 {
-    float coordinates[2] = {0};
+    float coordinates[3] = {0};
     const GLfloat centerColour[] = {1.0f, 1.0f, 1.0f};
 
     pUserTracker->convertJointCoordinatesToDepth(user.getCenterOfMass().x, user.getCenterOfMass().y, user.getCenterOfMass().z, &coordinates[0], &coordinates[1]);
 
-    coordinates[0] *= m_width/m_nativeWidth;
-    coordinates[1] *= m_height/m_nativeHeight;
+    //qDebug() << "Joint Coordinates: " << coordinates[0] << ", " << coordinates[1] << ", " << coordinates[2];
+    //qDebug() << "Depth Coordinates: " << coordinates[0] << ", " << coordinates[1] << ", " << coordinates[2];
+
+    coordinates[0] = (coordinates[0] / m_width)*2 - 1;
+    coordinates[1] = (coordinates[1] / m_height)*2 - 1;
+
+    /*coordinates[0] *= m_width/m_nativeWidth;
+    coordinates[1] *= m_height/m_nativeHeight;*/
+    coordinates[2] = 0;
+
+    //qDebug() << "Screen Coordinates: " << coordinates[0] << ", " << coordinates[1] << ", " << coordinates[2];
 
     // Draw
-    glPushMatrix();
-
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
+    //glEnableClientState(GL_VERTEX_ARRAY);
+    //glDisableClientState(GL_COLOR_ARRAY);
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+    glDisable(GL_DEPTH_TEST);
 
 
     m_shaderProgram->bind();
-    m_shaderProgram->setAttributeArray(m_posAttr, coordinates, 2);
+    m_shaderProgram->setAttributeArray(m_posAttr, coordinates, 3);
     m_shaderProgram->setAttributeArray(m_colorAttr, centerColour, 3);
     m_shaderProgram->setUniformValue(m_pointSize, 8.0f);
-
+    m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
     m_shaderProgram->enableAttributeArray(m_posAttr);
     m_shaderProgram->enableAttributeArray(m_colorAttr);
 
@@ -149,11 +157,9 @@ void BasicUsageScene::DrawCenterOfMass(nite::UserTracker* pUserTracker, const ni
     m_shaderProgram->disableAttributeArray(m_posAttr);
     m_shaderProgram->release();
 
-    glPopMatrix();
-
     glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
+    //glDisableClientState(GL_VERTEX_ARRAY);
+    //glDisableClientState(GL_COLOR_ARRAY);
 }
 
 
@@ -211,15 +217,27 @@ void BasicUsageScene::DrawBoundingBox(const nite::UserData& user)
     coordinates[6]  *= m_width/m_nativeWidth;
     coordinates[7]  *= m_height/m_nativeHeight;
 
-    glPushMatrix();
+  /*coordinates[0]  = (coordinates[0] / m_width)*2 - 1;
+    coordinates[1]  = (coordinates[1] / m_height)*2 - 1;
+    coordinates[3]  = (coordinates[3] / m_width)*2 - 1;
+    coordinates[4]  = (coordinates[4] / m_height)*2 - 1;
+    coordinates[6]  = (coordinates[6] / m_width)*2 - 1;
+    coordinates[7]  = (coordinates[7] / m_height)*2 - 1;
+    coordinates[9]  = (coordinates[9] / m_width)*2 - 1;
+    coordinates[10]  = (coordinates[10] / m_height)*2 - 1;*/
+
+
+   // qDebug() << coordinates[0] << coordinates[1] << coordinates[2];
+   // qDebug() << coordinates[9] << coordinates[10] << coordinates[11];
+
+    glDisable(GL_DEPTH_TEST);
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
 
     m_shaderProgram->bind();
     m_shaderProgram->setAttributeArray(m_posAttr, coordinates, 2);
     m_shaderProgram->setAttributeArray(m_colorAttr, coorColours, 3);
     m_shaderProgram->setUniformValue(m_pointSize, 2.0f);
+    m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
     m_shaderProgram->enableAttributeArray(m_posAttr);
     m_shaderProgram->enableAttributeArray(m_colorAttr);
 
@@ -229,10 +247,7 @@ void BasicUsageScene::DrawBoundingBox(const nite::UserData& user)
     m_shaderProgram->disableAttributeArray(m_posAttr);
     m_shaderProgram->release();
 
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
     glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
-    glPopMatrix();
 }
 
 void BasicUsageScene::DrawLimb(nite::UserTracker* pUserTracker, const nite::SkeletonJoint& joint1, const nite::SkeletonJoint& joint2, int color)
@@ -256,10 +271,9 @@ void BasicUsageScene::DrawLimb(nite::UserTracker* pUserTracker, const nite::Skel
                             colors[color].y() * factor,
                             colors[color].z() * factor};
 
-    glPushMatrix();
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
+    //glEnableClientState(GL_VERTEX_ARRAY);
+    //glEnableClientState(GL_COLOR_ARRAY);
 
     // Bind Shader
     m_shaderProgram->bind();
@@ -268,6 +282,7 @@ void BasicUsageScene::DrawLimb(nite::UserTracker* pUserTracker, const nite::Skel
     m_shaderProgram->setAttributeArray(m_posAttr, coordinates, 2);
     m_shaderProgram->setAttributeArray(m_colorAttr, coorColours, 3);
     m_shaderProgram->setUniformValue(m_pointSize, 3.0f);
+    m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
     m_shaderProgram->enableAttributeArray(m_posAttr);
     m_shaderProgram->enableAttributeArray(m_colorAttr);
     glDrawArrays(GL_LINES, m_posAttr, 2);
@@ -293,10 +308,9 @@ void BasicUsageScene::DrawLimb(nite::UserTracker* pUserTracker, const nite::Skel
     m_shaderProgram->disableAttributeArray(m_posAttr);
     m_shaderProgram->release();
 
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
+    //glDisableClientState(GL_VERTEX_ARRAY);
+    //glDisableClientState(GL_COLOR_ARRAY);
     glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
-    glPopMatrix();
 }
 
 void BasicUsageScene::setDrawSkeletonFlag(bool value)

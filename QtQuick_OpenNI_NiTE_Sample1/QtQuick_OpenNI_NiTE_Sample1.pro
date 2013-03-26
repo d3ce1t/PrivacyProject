@@ -4,20 +4,21 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = QtQuickOpenNI_NiTE_Sample1
 
 HEADERS += \
-    OniSampleUtilities.h \
     depthstreamscene.h \
     AbstractScene.h \
     window.h \
     basicusagescene.h \
     skeleton.h \
-    grill.h
+    grill.h \
+    histogramscene.h
 
 SOURCES += main.cpp \
     depthstreamscene.cpp \
     window.cpp \
     basicusagescene.cpp \
     skeleton.cpp \
-    grill.cpp
+    grill.cpp \
+    histogramscene.cpp
 
 RESOURCES += openglunderqml.qrc
 

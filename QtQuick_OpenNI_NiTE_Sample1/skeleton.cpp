@@ -104,8 +104,8 @@ QVector2D Skeleton::getJoint(nite::JointType type) const
         coordinates[0]  *= m_width/m_nativeWidth;
         coordinates[1]  *= m_height/m_nativeHeight;
 
-        qDebug() << "m_width: " << m_width << ", m_nativeWidth: " << m_nativeWidth;
-        qDebug() << "m_heigth: " << m_height << ", m_nativeHeight: " << m_nativeHeight;
+        /*qDebug() << "m_width: " << m_width << ", m_nativeWidth: " << m_nativeWidth;
+        qDebug() << "m_heigth: " << m_height << ", m_nativeHeight: " << m_nativeHeight;*/
 
         result.setX(coordinates[0]);
         result.setY(coordinates[1]);

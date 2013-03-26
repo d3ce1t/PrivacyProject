@@ -49,7 +49,6 @@ int main(int argc, char *argv[])
     Window* mainWindow = new Window();
     mainWindow->setResizeMode( QQuickView::SizeRootObjectToView);
     mainWindow->setSource(QUrl("qrc:///scenegraph/openglunderqml/main.qml"));
-    //mainWindow->resize(800, 600);
     mainWindow->show();
     return app.exec();
 }

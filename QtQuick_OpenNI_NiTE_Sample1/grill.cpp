@@ -27,17 +27,11 @@ void Grill::update(float t)
 
 void Grill::render()
 {
-    /*float vertexData[] = {
-        0.0, 1.0, -1.0, 1.0,
-        1.0, -1.0, -1.0, 1.0,
-        -1.0, -1.0, -1.0, 1.0
-    };*/
-
     float vertexData[] = {
-        -1.0, 0.0, -1.0, 1.0,
-        1.0, 0.0, -1.0, 1.0,
-        -1.0, 0.0, 1.0, 1.0,
-        1.0, 0.0, 1.0, 1.0
+        -1.0, 0.0, -1.0,
+        1.0, 0.0, -1.0,
+        1.0, 0.0, 1.0,
+        -1.0, 0.0, 1.0
     };
 
     float colorData[] = {
@@ -48,38 +42,27 @@ void Grill::render()
     };
 
     // Render
-    //glEnable(GL_DEPTH_TEST);
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-
-    glPushMatrix();
+    //glEnableClientState(GL_VERTEX_ARRAY);
+    //glEnableClientState(GL_COLOR_ARRAY);
 
     m_shaderProgram->bind();
-    m_shaderProgram->setAttributeArray(m_posAttr, vertexData, 4);
+    m_shaderProgram->setAttributeArray(m_posAttr, vertexData, 3);
     m_shaderProgram->setAttributeArray(m_colorAttr, colorData, 3);
     m_shaderProgram->setUniformValue(m_pointSize, 3.0f);
     m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
     m_shaderProgram->enableAttributeArray(m_posAttr);
     m_shaderProgram->enableAttributeArray(m_colorAttr);
 
-    glDrawArrays(GL_TRIANGLE_STRIP, m_posAttr, 4);
-
-    //m_matrix.rotate(0.01, QVector3D(1, 1, 0));
-    //m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
-    //glDrawArrays(GL_LINES, m_posAttr, 128);
+    glDrawArrays(GL_TRIANGLE_FAN, m_posAttr, 4);
 
     m_shaderProgram->disableAttributeArray(m_colorAttr);
     m_shaderProgram->disableAttributeArray(m_posAttr);
     m_shaderProgram->release();
 
-    glPopMatrix();
-
     glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
-    glDisable(GL_DEPTH_TEST);
-
+    //glDisableClientState(GL_VERTEX_ARRAY);
+    //glDisableClientState(GL_COLOR_ARRAY);
 }
 
 void Grill::resize( float w, float h )

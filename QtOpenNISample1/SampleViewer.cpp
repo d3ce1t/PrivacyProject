@@ -124,6 +124,8 @@ void SampleViewer::initOpenNI()
 void SampleViewer::render()
 {
     int changedIndex;
+
+
     openni::Status rc = openni::OpenNI::waitForAnyStream(m_streams, 2, &changedIndex);
 
     if (rc != openni::STATUS_OK)

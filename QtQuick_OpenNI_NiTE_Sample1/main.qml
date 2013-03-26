@@ -2,8 +2,8 @@ import QtQuick 2.0
 
 Item {
     id: wrapper
-    width: 800
-    height: 800
+    width: 640
+    height: 480
     focus: true
 
     // Joints Layer
@@ -178,6 +178,87 @@ Item {
                     appSettings1.drawSkeleton = value
                 }
             }
+
+            Checkbox {
+                anchors.right: parent.right
+                label: "Enable Background drawing"
+                value: appSettings2.drawBackground
+                onClick : {
+                    appSettings2.drawBackground = value
+                }
+            }
+
+            Checkbox {
+                anchors.right: parent.right
+                label: "Enable Histogram"
+                value: winObject.drawHistogram
+                onClick : {
+                    winObject.drawHistogram = value
+                }
+            }
+
+            Checkbox {
+                id: checkBoxXYRot
+                anchors.right: parent.right
+                label: "Enable XY rotation"
+                value: true
+                onClick : {
+                    checkBoxZRot.value = false
+                }
+            }
+
+            Checkbox {
+                id: checkBoxZRot
+                anchors.right: parent.right
+                label: "Enable ZY rotation"
+                value: false
+                onClick : {
+                    checkBoxXYRot.value = false
+                }
+            }
+
+            Checkbox {
+                id: checkBoxYTrans
+                anchors.right: parent.right
+                label: "Enable Y translation"
+                value: false
+            }
+
+            Checkbox {
+                id: checkBoxOM1
+                anchors.right: parent.right
+                label: "Enable Depth Overlay"
+                value: appSettings2.overlayMode <= 1 ? true : false
+                onClick : {
+                    if (value === true && checkBoxOM2.value === true) {
+                        appSettings2.overlayMode = 1;
+                    }
+                    else if (value === false && checkBoxOM2.value === true)
+                        appSettings2.overlayMode = 2;
+                    else {
+                        appSettings2.overlayMode = 0;
+                        value = true
+                    }
+                }
+            }
+
+            Checkbox {
+                id: checkBoxOM2
+                anchors.right: parent.right
+                label: "Enable RGB Overlay"
+                value: appSettings2.overlayMode >= 1 ? true : false
+                onClick : {
+                    if (value === true && checkBoxOM1.value === true) {
+                        appSettings2.overlayMode = 1;
+                    }
+                    else if (value === false && checkBoxOM1.value === true)
+                        appSettings2.overlayMode = 0;
+                    else {
+                        appSettings2.overlayMode = 2;
+                        value = true
+                    }
+                }
+            }
         }
     }
 
@@ -187,18 +268,18 @@ Item {
         radius: 10
         anchors.fill: textStatusLabel
         anchors.margins: -10
-        visible: appSettings2.drawStatusLabel
+        visible: winObject.drawStatusLabel
     }
 
     Text {
         id: textStatusLabel
-        text: appSettings2.statusLabel
+        text: winObject.statusLabel
         color: "black"
         wrapMode: Text.WordWrap
         anchors.left: parent.left
         anchors.top: parent.top
         anchors.margins: 20
-        visible: appSettings2.drawStatusLabel
+        visible: winObject.drawStatusLabel
     }
 
     // Draw Frames Id
@@ -207,18 +288,18 @@ Item {
         radius: 10
         anchors.fill: textFrameId
         anchors.margins: -10
-        visible: appSettings2.drawFrameId
+        visible: winObject.drawFrameId
     }
 
     Text {
         id: textFrameId
-        text: "Frames " + appSettings2.frameId + " (" + Math.round(appSettings2.fps) + " fps)"
+        text: "Frames " + winObject.frameId + " (" + Math.round(winObject.fps) + " fps)"
         color: "black"
         wrapMode: Text.WordWrap
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.margins: 20
-        visible: appSettings2.drawFrameId
+        visible: winObject.drawFrameId
     }
 
     Keys.onPressed: {
@@ -230,16 +311,53 @@ Item {
             Qt.quit();
         }
         else if (event.key === Qt.Key_Up) {
-            console.log("UP");
+            if (checkBoxXYRot.value === true) {
+                winObject.rotateAxisX(2)
+            } else if (checkBoxZRot.value === true) {
+                winObject.rotateAxisX(-2)
+            }
         }
         else if (event.key === Qt.Key_Down) {
-            console.log("DOWN");
+            if (checkBoxXYRot.value === true) {
+                winObject.rotateAxisX(-2)
+            } else if (checkBoxZRot.value === true) {
+                winObject.rotateAxisX(+2)
+            }
         }
         else if (event.key === Qt.Key_Right) {
-            console.log("RIGHT");
+            if (checkBoxXYRot.value === true) {
+                winObject.rotateAxisY(-2)
+            } else if (checkBoxZRot.value === true) {
+                winObject.rotateAxisZ(-2)
+            }
         }
         else if (event.key === Qt.Key_Left) {
-            console.log("LEFT");
+            if (checkBoxXYRot.value === true) {
+                winObject.rotateAxisY(2)
+            } else if (checkBoxZRot.value === true) {
+                winObject.rotateAxisZ(2)
+            }
+        }
+        else if (event.key === Qt.Key_W) {
+            if (checkBoxYTrans.value === false)
+                winObject.translateAxisZ(-0.1)
+            else
+                winObject.translateAxisY(0.1)
+        }
+        else if (event.key === Qt.Key_S) {
+            if (checkBoxYTrans.value === false)
+                winObject.translateAxisZ(0.1)
+            else
+                winObject.translateAxisY(-0.1)
+        }
+        else if (event.key === Qt.Key_A) {
+            winObject.translateAxisX(-0.1)
+        }
+        else if (event.key === Qt.Key_D) {
+            winObject.translateAxisX(0.1)
+        }
+        else if (event.key === Qt.Key_R) {
+            winObject.resetPerspective()
         }
     }
 

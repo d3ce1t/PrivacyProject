@@ -14,8 +14,8 @@
 #include <QKeyEvent>
 #include "OniSampleUtilities.h"
 
-bool g_drawSkeleton = true;
-bool g_drawCenterOfMass = false;
+bool g_drawSkeleton = false;
+bool g_drawCenterOfMass = true;
 bool g_drawStatusLabel = true;
 bool g_drawBoundingBox = false;
 bool g_drawBackground = true;
