@@ -1,0 +1,1452 @@
+<dataset name="MSRDailyActivity3D - Sitting Down">
+	<path>/files/DataSets/MSRDailyAct3D/dataset</path>
+	<activities size="16" />
+	<actors size="10" />
+	<description>
+	The dataset was captured by using a Kinect device. There are 16 activities: drink, eat, read book, call cellphone, write on a paper, use laptop, use vacuum cleaner, cheer up, sit still, toss paper, play game, lie down on sofa, walk, play guitar, stand up, sit down. There are 10 subjects. Each subject performs each activity twice, once in standing position, and once in sitting position. There is a sofa in the scene. Three channels are recorded: depth maps (.bin), skeleton joint positions (.txt), and RGB video (.avi). There are 16*10*2=320 files for each channel. In total, there are 320*3=960 files. Note that the RGB channel anddepth channel are recorded independently, so they are not strictly synchronized. The format of the skeleton file is as follows. The first integer is the number of frames. The second integer is the number of joints which is always 20. For each frame, the first integer is the number of rows. This integer is 40 when there is exactly one skeleton being detected in this frame. It is zero when no skeleton is detected. It is 80 when two skeletons are detected (in that case which is rare, we simply use the first skeleton in our experiments). For most of the frames, the number of rows is 40. Each joint corresponds to two rows. The first row is its real world coordinates (x,y,z) and the second row is its screen coordinates plus depth (u, v, depth) where u and v are normalized to be within [0,1]. For each row, the integer at the end is supposed to be the confidence value, but it is not useful."
+	</description>
+
+	<instances>
+		<instance type="depth" activity="01" actor="01">
+			<file>a01_s01_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="01" actor="01">
+			<file>a01_s01_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="01" actor="01">
+			<file>a01_s01_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="01" actor="02">
+			<file>a01_s02_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="01" actor="02">
+			<file>a01_s02_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="01" actor="02">
+			<file>a01_s02_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="01" actor="03">
+			<file>a01_s03_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="01" actor="03">
+			<file>a01_s03_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="01" actor="03">
+			<file>a01_s03_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="01" actor="04">
+			<file>a01_s04_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="01" actor="04">
+			<file>a01_s04_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="01" actor="04">
+			<file>a01_s04_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="01" actor="05">
+			<file>a01_s05_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="01" actor="05">
+			<file>a01_s05_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="01" actor="05">
+			<file>a01_s05_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="01" actor="06">
+			<file>a01_s06_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="01" actor="06">
+			<file>a01_s06_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="01" actor="06">
+			<file>a01_s06_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="01" actor="07">
+			<file>a01_s07_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="01" actor="07">
+			<file>a01_s07_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="01" actor="07">
+			<file>a01_s07_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="01" actor="08">
+			<file>a01_s08_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="01" actor="08">
+			<file>a01_s08_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="01" actor="08">
+			<file>a01_s08_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="01" actor="09">
+			<file>a01_s09_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="01" actor="09">
+			<file>a01_s09_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="01" actor="09">
+			<file>a01_s09_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="01" actor="10">
+			<file>a01_s10_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="01" actor="10">
+			<file>a01_s10_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="01" actor="10">
+			<file>a01_s10_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="02" actor="01">
+			<file>a02_s01_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="02" actor="01">
+			<file>a02_s01_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="02" actor="01">
+			<file>a02_s01_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="02" actor="02">
+			<file>a02_s02_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="02" actor="02">
+			<file>a02_s02_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="02" actor="02">
+			<file>a02_s02_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="02" actor="03">
+			<file>a02_s03_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="02" actor="03">
+			<file>a02_s03_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="02" actor="03">
+			<file>a02_s03_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="02" actor="04">
+			<file>a02_s04_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="02" actor="04">
+			<file>a02_s04_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="02" actor="04">
+			<file>a02_s04_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="02" actor="05">
+			<file>a02_s05_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="02" actor="05">
+			<file>a02_s05_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="02" actor="05">
+			<file>a02_s05_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="02" actor="06">
+			<file>a02_s06_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="02" actor="06">
+			<file>a02_s06_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="02" actor="06">
+			<file>a02_s06_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="02" actor="07">
+			<file>a02_s07_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="02" actor="07">
+			<file>a02_s07_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="02" actor="07">
+			<file>a02_s07_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="02" actor="08">
+			<file>a02_s08_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="02" actor="08">
+			<file>a02_s08_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="02" actor="08">
+			<file>a02_s08_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="02" actor="09">
+			<file>a02_s09_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="02" actor="09">
+			<file>a02_s09_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="02" actor="09">
+			<file>a02_s09_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="02" actor="10">
+			<file>a02_s10_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="02" actor="10">
+			<file>a02_s10_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="02" actor="10">
+			<file>a02_s10_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="03" actor="01">
+			<file>a03_s01_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="03" actor="01">
+			<file>a03_s01_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="03" actor="01">
+			<file>a03_s01_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="03" actor="02">
+			<file>a03_s02_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="03" actor="02">
+			<file>a03_s02_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="03" actor="02">
+			<file>a03_s02_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="03" actor="03">
+			<file>a03_s03_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="03" actor="03">
+			<file>a03_s03_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="03" actor="03">
+			<file>a03_s03_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="03" actor="04">
+			<file>a03_s04_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="03" actor="04">
+			<file>a03_s04_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="03" actor="04">
+			<file>a03_s04_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="03" actor="05">
+			<file>a03_s05_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="03" actor="05">
+			<file>a03_s05_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="03" actor="05">
+			<file>a03_s05_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="03" actor="06">
+			<file>a03_s06_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="03" actor="06">
+			<file>a03_s06_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="03" actor="06">
+			<file>a03_s06_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="03" actor="07">
+			<file>a03_s07_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="03" actor="07">
+			<file>a03_s07_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="03" actor="07">
+			<file>a03_s07_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="03" actor="08">
+			<file>a03_s08_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="03" actor="08">
+			<file>a03_s08_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="03" actor="08">
+			<file>a03_s08_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="03" actor="09">
+			<file>a03_s09_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="03" actor="09">
+			<file>a03_s09_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="03" actor="09">
+			<file>a03_s09_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="03" actor="10">
+			<file>a03_s10_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="03" actor="10">
+			<file>a03_s10_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="03" actor="10">
+			<file>a03_s10_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="04" actor="01">
+			<file>a04_s01_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="04" actor="01">
+			<file>a04_s01_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="04" actor="01">
+			<file>a04_s01_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="04" actor="02">
+			<file>a04_s02_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="04" actor="02">
+			<file>a04_s02_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="04" actor="02">
+			<file>a04_s02_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="04" actor="03">
+			<file>a04_s03_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="04" actor="03">
+			<file>a04_s03_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="04" actor="03">
+			<file>a04_s03_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="04" actor="04">
+			<file>a04_s04_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="04" actor="04">
+			<file>a04_s04_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="04" actor="04">
+			<file>a04_s04_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="04" actor="05">
+			<file>a04_s05_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="04" actor="05">
+			<file>a04_s05_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="04" actor="05">
+			<file>a04_s05_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="04" actor="06">
+			<file>a04_s06_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="04" actor="06">
+			<file>a04_s06_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="04" actor="06">
+			<file>a04_s06_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="04" actor="07">
+			<file>a04_s07_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="04" actor="07">
+			<file>a04_s07_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="04" actor="07">
+			<file>a04_s07_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="04" actor="08">
+			<file>a04_s08_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="04" actor="08">
+			<file>a04_s08_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="04" actor="08">
+			<file>a04_s08_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="04" actor="09">
+			<file>a04_s09_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="04" actor="09">
+			<file>a04_s09_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="04" actor="09">
+			<file>a04_s09_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="04" actor="10">
+			<file>a04_s10_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="04" actor="10">
+			<file>a04_s10_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="04" actor="10">
+			<file>a04_s10_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="05" actor="01">
+			<file>a05_s01_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="05" actor="01">
+			<file>a05_s01_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="05" actor="01">
+			<file>a05_s01_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="05" actor="02">
+			<file>a05_s02_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="05" actor="02">
+			<file>a05_s02_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="05" actor="02">
+			<file>a05_s02_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="05" actor="03">
+			<file>a05_s03_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="05" actor="03">
+			<file>a05_s03_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="05" actor="03">
+			<file>a05_s03_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="05" actor="04">
+			<file>a05_s04_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="05" actor="04">
+			<file>a05_s04_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="05" actor="04">
+			<file>a05_s04_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="05" actor="05">
+			<file>a05_s05_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="05" actor="05">
+			<file>a05_s05_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="05" actor="05">
+			<file>a05_s05_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="05" actor="06">
+			<file>a05_s06_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="05" actor="06">
+			<file>a05_s06_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="05" actor="06">
+			<file>a05_s06_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="05" actor="07">
+			<file>a05_s07_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="05" actor="07">
+			<file>a05_s07_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="05" actor="07">
+			<file>a05_s07_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="05" actor="08">
+			<file>a05_s08_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="05" actor="08">
+			<file>a05_s08_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="05" actor="08">
+			<file>a05_s08_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="05" actor="09">
+			<file>a05_s09_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="05" actor="09">
+			<file>a05_s09_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="05" actor="09">
+			<file>a05_s09_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="05" actor="10">
+			<file>a05_s10_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="05" actor="10">
+			<file>a05_s10_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="05" actor="10">
+			<file>a05_s10_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="06" actor="01">
+			<file>a06_s01_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="06" actor="01">
+			<file>a06_s01_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="06" actor="01">
+			<file>a06_s01_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="06" actor="02">
+			<file>a06_s02_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="06" actor="02">
+			<file>a06_s02_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="06" actor="02">
+			<file>a06_s02_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="06" actor="03">
+			<file>a06_s03_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="06" actor="03">
+			<file>a06_s03_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="06" actor="03">
+			<file>a06_s03_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="06" actor="04">
+			<file>a06_s04_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="06" actor="04">
+			<file>a06_s04_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="06" actor="04">
+			<file>a06_s04_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="06" actor="05">
+			<file>a06_s05_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="06" actor="05">
+			<file>a06_s05_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="06" actor="05">
+			<file>a06_s05_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="06" actor="06">
+			<file>a06_s06_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="06" actor="06">
+			<file>a06_s06_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="06" actor="06">
+			<file>a06_s06_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="06" actor="07">
+			<file>a06_s07_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="06" actor="07">
+			<file>a06_s07_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="06" actor="07">
+			<file>a06_s07_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="06" actor="08">
+			<file>a06_s08_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="06" actor="08">
+			<file>a06_s08_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="06" actor="08">
+			<file>a06_s08_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="06" actor="09">
+			<file>a06_s09_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="06" actor="09">
+			<file>a06_s09_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="06" actor="09">
+			<file>a06_s09_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="06" actor="10">
+			<file>a06_s10_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="06" actor="10">
+			<file>a06_s10_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="06" actor="10">
+			<file>a06_s10_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="07" actor="01">
+			<file>a07_s01_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="07" actor="01">
+			<file>a07_s01_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="07" actor="01">
+			<file>a07_s01_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="07" actor="02">
+			<file>a07_s02_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="07" actor="02">
+			<file>a07_s02_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="07" actor="02">
+			<file>a07_s02_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="07" actor="03">
+			<file>a07_s03_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="07" actor="03">
+			<file>a07_s03_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="07" actor="03">
+			<file>a07_s03_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="07" actor="04">
+			<file>a07_s04_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="07" actor="04">
+			<file>a07_s04_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="07" actor="04">
+			<file>a07_s04_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="07" actor="05">
+			<file>a07_s05_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="07" actor="05">
+			<file>a07_s05_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="07" actor="05">
+			<file>a07_s05_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="07" actor="06">
+			<file>a07_s06_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="07" actor="06">
+			<file>a07_s06_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="07" actor="06">
+			<file>a07_s06_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="07" actor="07">
+			<file>a07_s07_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="07" actor="07">
+			<file>a07_s07_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="07" actor="07">
+			<file>a07_s07_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="07" actor="08">
+			<file>a07_s08_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="07" actor="08">
+			<file>a07_s08_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="07" actor="08">
+			<file>a07_s08_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="07" actor="09">
+			<file>a07_s09_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="07" actor="09">
+			<file>a07_s09_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="07" actor="09">
+			<file>a07_s09_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="07" actor="10">
+			<file>a07_s10_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="07" actor="10">
+			<file>a07_s10_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="07" actor="10">
+			<file>a07_s10_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="08" actor="01">
+			<file>a08_s01_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="08" actor="01">
+			<file>a08_s01_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="08" actor="01">
+			<file>a08_s01_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="08" actor="02">
+			<file>a08_s02_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="08" actor="02">
+			<file>a08_s02_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="08" actor="02">
+			<file>a08_s02_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="08" actor="03">
+			<file>a08_s03_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="08" actor="03">
+			<file>a08_s03_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="08" actor="03">
+			<file>a08_s03_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="08" actor="04">
+			<file>a08_s04_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="08" actor="04">
+			<file>a08_s04_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="08" actor="04">
+			<file>a08_s04_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="08" actor="05">
+			<file>a08_s05_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="08" actor="05">
+			<file>a08_s05_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="08" actor="05">
+			<file>a08_s05_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="08" actor="06">
+			<file>a08_s06_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="08" actor="06">
+			<file>a08_s06_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="08" actor="06">
+			<file>a08_s06_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="08" actor="07">
+			<file>a08_s07_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="08" actor="07">
+			<file>a08_s07_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="08" actor="07">
+			<file>a08_s07_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="08" actor="08">
+			<file>a08_s08_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="08" actor="08">
+			<file>a08_s08_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="08" actor="08">
+			<file>a08_s08_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="08" actor="09">
+			<file>a08_s09_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="08" actor="09">
+			<file>a08_s09_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="08" actor="09">
+			<file>a08_s09_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="08" actor="10">
+			<file>a08_s10_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="08" actor="10">
+			<file>a08_s10_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="08" actor="10">
+			<file>a08_s10_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="09" actor="01">
+			<file>a09_s01_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="09" actor="01">
+			<file>a09_s01_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="09" actor="01">
+			<file>a09_s01_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="09" actor="02">
+			<file>a09_s02_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="09" actor="02">
+			<file>a09_s02_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="09" actor="02">
+			<file>a09_s02_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="09" actor="03">
+			<file>a09_s03_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="09" actor="03">
+			<file>a09_s03_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="09" actor="03">
+			<file>a09_s03_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="09" actor="04">
+			<file>a09_s04_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="09" actor="04">
+			<file>a09_s04_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="09" actor="04">
+			<file>a09_s04_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="09" actor="05">
+			<file>a09_s05_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="09" actor="05">
+			<file>a09_s05_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="09" actor="05">
+			<file>a09_s05_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="09" actor="06">
+			<file>a09_s06_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="09" actor="06">
+			<file>a09_s06_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="09" actor="06">
+			<file>a09_s06_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="09" actor="07">
+			<file>a09_s07_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="09" actor="07">
+			<file>a09_s07_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="09" actor="07">
+			<file>a09_s07_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="09" actor="08">
+			<file>a09_s08_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="09" actor="08">
+			<file>a09_s08_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="09" actor="08">
+			<file>a09_s08_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="09" actor="09">
+			<file>a09_s09_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="09" actor="09">
+			<file>a09_s09_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="09" actor="09">
+			<file>a09_s09_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="09" actor="10">
+			<file>a09_s10_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="09" actor="10">
+			<file>a09_s10_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="09" actor="10">
+			<file>a09_s10_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="10" actor="01">
+			<file>a10_s01_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="10" actor="01">
+			<file>a10_s01_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="10" actor="01">
+			<file>a10_s01_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="10" actor="02">
+			<file>a10_s02_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="10" actor="02">
+			<file>a10_s02_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="10" actor="02">
+			<file>a10_s02_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="10" actor="03">
+			<file>a10_s03_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="10" actor="03">
+			<file>a10_s03_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="10" actor="03">
+			<file>a10_s03_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="10" actor="04">
+			<file>a10_s04_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="10" actor="04">
+			<file>a10_s04_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="10" actor="04">
+			<file>a10_s04_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="10" actor="05">
+			<file>a10_s05_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="10" actor="05">
+			<file>a10_s05_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="10" actor="05">
+			<file>a10_s05_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="10" actor="06">
+			<file>a10_s06_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="10" actor="06">
+			<file>a10_s06_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="10" actor="06">
+			<file>a10_s06_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="10" actor="07">
+			<file>a10_s07_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="10" actor="07">
+			<file>a10_s07_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="10" actor="07">
+			<file>a10_s07_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="10" actor="08">
+			<file>a10_s08_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="10" actor="08">
+			<file>a10_s08_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="10" actor="08">
+			<file>a10_s08_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="10" actor="09">
+			<file>a10_s09_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="10" actor="09">
+			<file>a10_s09_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="10" actor="09">
+			<file>a10_s09_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="10" actor="10">
+			<file>a10_s10_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="10" actor="10">
+			<file>a10_s10_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="10" actor="10">
+			<file>a10_s10_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="11" actor="01">
+			<file>a11_s01_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="11" actor="01">
+			<file>a11_s01_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="11" actor="01">
+			<file>a11_s01_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="11" actor="02">
+			<file>a11_s02_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="11" actor="02">
+			<file>a11_s02_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="11" actor="02">
+			<file>a11_s02_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="11" actor="03">
+			<file>a11_s03_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="11" actor="03">
+			<file>a11_s03_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="11" actor="03">
+			<file>a11_s03_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="11" actor="04">
+			<file>a11_s04_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="11" actor="04">
+			<file>a11_s04_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="11" actor="04">
+			<file>a11_s04_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="11" actor="05">
+			<file>a11_s05_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="11" actor="05">
+			<file>a11_s05_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="11" actor="05">
+			<file>a11_s05_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="11" actor="06">
+			<file>a11_s06_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="11" actor="06">
+			<file>a11_s06_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="11" actor="06">
+			<file>a11_s06_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="11" actor="07">
+			<file>a11_s07_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="11" actor="07">
+			<file>a11_s07_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="11" actor="07">
+			<file>a11_s07_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="11" actor="08">
+			<file>a11_s08_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="11" actor="08">
+			<file>a11_s08_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="11" actor="08">
+			<file>a11_s08_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="11" actor="09">
+			<file>a11_s09_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="11" actor="09">
+			<file>a11_s09_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="11" actor="09">
+			<file>a11_s09_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="11" actor="10">
+			<file>a11_s10_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="11" actor="10">
+			<file>a11_s10_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="11" actor="10">
+			<file>a11_s10_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="12" actor="01">
+			<file>a12_s01_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="12" actor="01">
+			<file>a12_s01_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="12" actor="01">
+			<file>a12_s01_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="12" actor="02">
+			<file>a12_s02_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="12" actor="02">
+			<file>a12_s02_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="12" actor="02">
+			<file>a12_s02_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="12" actor="03">
+			<file>a12_s03_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="12" actor="03">
+			<file>a12_s03_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="12" actor="03">
+			<file>a12_s03_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="12" actor="04">
+			<file>a12_s04_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="12" actor="04">
+			<file>a12_s04_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="12" actor="04">
+			<file>a12_s04_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="12" actor="05">
+			<file>a12_s05_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="12" actor="05">
+			<file>a12_s05_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="12" actor="05">
+			<file>a12_s05_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="12" actor="06">
+			<file>a12_s06_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="12" actor="06">
+			<file>a12_s06_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="12" actor="06">
+			<file>a12_s06_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="12" actor="07">
+			<file>a12_s07_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="12" actor="07">
+			<file>a12_s07_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="12" actor="07">
+			<file>a12_s07_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="12" actor="08">
+			<file>a12_s08_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="12" actor="08">
+			<file>a12_s08_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="12" actor="08">
+			<file>a12_s08_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="12" actor="09">
+			<file>a12_s09_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="12" actor="09">
+			<file>a12_s09_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="12" actor="09">
+			<file>a12_s09_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="12" actor="10">
+			<file>a12_s10_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="12" actor="10">
+			<file>a12_s10_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="12" actor="10">
+			<file>a12_s10_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="13" actor="01">
+			<file>a13_s01_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="13" actor="01">
+			<file>a13_s01_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="13" actor="01">
+			<file>a13_s01_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="13" actor="02">
+			<file>a13_s02_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="13" actor="02">
+			<file>a13_s02_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="13" actor="02">
+			<file>a13_s02_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="13" actor="03">
+			<file>a13_s03_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="13" actor="03">
+			<file>a13_s03_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="13" actor="03">
+			<file>a13_s03_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="13" actor="04">
+			<file>a13_s04_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="13" actor="04">
+			<file>a13_s04_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="13" actor="04">
+			<file>a13_s04_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="13" actor="05">
+			<file>a13_s05_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="13" actor="05">
+			<file>a13_s05_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="13" actor="05">
+			<file>a13_s05_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="13" actor="06">
+			<file>a13_s06_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="13" actor="06">
+			<file>a13_s06_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="13" actor="06">
+			<file>a13_s06_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="13" actor="07">
+			<file>a13_s07_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="13" actor="07">
+			<file>a13_s07_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="13" actor="07">
+			<file>a13_s07_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="13" actor="08">
+			<file>a13_s08_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="13" actor="08">
+			<file>a13_s08_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="13" actor="08">
+			<file>a13_s08_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="13" actor="09">
+			<file>a13_s09_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="13" actor="09">
+			<file>a13_s09_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="13" actor="09">
+			<file>a13_s09_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="13" actor="10">
+			<file>a13_s10_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="13" actor="10">
+			<file>a13_s10_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="13" actor="10">
+			<file>a13_s10_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="14" actor="01">
+			<file>a14_s01_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="14" actor="01">
+			<file>a14_s01_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="14" actor="01">
+			<file>a14_s01_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="14" actor="02">
+			<file>a14_s02_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="14" actor="02">
+			<file>a14_s02_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="14" actor="02">
+			<file>a14_s02_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="14" actor="03">
+			<file>a14_s03_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="14" actor="03">
+			<file>a14_s03_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="14" actor="03">
+			<file>a14_s03_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="14" actor="04">
+			<file>a14_s04_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="14" actor="04">
+			<file>a14_s04_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="14" actor="04">
+			<file>a14_s04_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="14" actor="05">
+			<file>a14_s05_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="14" actor="05">
+			<file>a14_s05_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="14" actor="05">
+			<file>a14_s05_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="14" actor="06">
+			<file>a14_s06_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="14" actor="06">
+			<file>a14_s06_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="14" actor="06">
+			<file>a14_s06_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="14" actor="07">
+			<file>a14_s07_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="14" actor="07">
+			<file>a14_s07_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="14" actor="07">
+			<file>a14_s07_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="14" actor="08">
+			<file>a14_s08_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="14" actor="08">
+			<file>a14_s08_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="14" actor="08">
+			<file>a14_s08_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="14" actor="09">
+			<file>a14_s09_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="14" actor="09">
+			<file>a14_s09_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="14" actor="09">
+			<file>a14_s09_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="14" actor="10">
+			<file>a14_s10_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="14" actor="10">
+			<file>a14_s10_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="14" actor="10">
+			<file>a14_s10_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="15" actor="01">
+			<file>a15_s01_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="15" actor="01">
+			<file>a15_s01_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="15" actor="01">
+			<file>a15_s01_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="15" actor="02">
+			<file>a15_s02_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="15" actor="02">
+			<file>a15_s02_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="15" actor="02">
+			<file>a15_s02_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="15" actor="03">
+			<file>a15_s03_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="15" actor="03">
+			<file>a15_s03_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="15" actor="03">
+			<file>a15_s03_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="15" actor="04">
+			<file>a15_s04_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="15" actor="04">
+			<file>a15_s04_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="15" actor="04">
+			<file>a15_s04_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="15" actor="05">
+			<file>a15_s05_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="15" actor="05">
+			<file>a15_s05_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="15" actor="05">
+			<file>a15_s05_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="15" actor="06">
+			<file>a15_s06_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="15" actor="06">
+			<file>a15_s06_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="15" actor="06">
+			<file>a15_s06_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="15" actor="07">
+			<file>a15_s07_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="15" actor="07">
+			<file>a15_s07_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="15" actor="07">
+			<file>a15_s07_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="15" actor="08">
+			<file>a15_s08_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="15" actor="08">
+			<file>a15_s08_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="15" actor="08">
+			<file>a15_s08_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="15" actor="09">
+			<file>a15_s09_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="15" actor="09">
+			<file>a15_s09_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="15" actor="09">
+			<file>a15_s09_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="15" actor="10">
+			<file>a15_s10_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="15" actor="10">
+			<file>a15_s10_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="15" actor="10">
+			<file>a15_s10_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="16" actor="01">
+			<file>a16_s01_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="16" actor="01">
+			<file>a16_s01_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="16" actor="01">
+			<file>a16_s01_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="16" actor="02">
+			<file>a16_s02_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="16" actor="02">
+			<file>a16_s02_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="16" actor="02">
+			<file>a16_s02_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="16" actor="03">
+			<file>a16_s03_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="16" actor="03">
+			<file>a16_s03_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="16" actor="03">
+			<file>a16_s03_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="16" actor="04">
+			<file>a16_s04_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="16" actor="04">
+			<file>a16_s04_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="16" actor="04">
+			<file>a16_s04_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="16" actor="05">
+			<file>a16_s05_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="16" actor="05">
+			<file>a16_s05_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="16" actor="05">
+			<file>a16_s05_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="16" actor="06">
+			<file>a16_s06_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="16" actor="06">
+			<file>a16_s06_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="16" actor="06">
+			<file>a16_s06_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="16" actor="07">
+			<file>a16_s07_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="16" actor="07">
+			<file>a16_s07_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="16" actor="07">
+			<file>a16_s07_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="16" actor="08">
+			<file>a16_s08_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="16" actor="08">
+			<file>a16_s08_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="16" actor="08">
+			<file>a16_s08_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="16" actor="09">
+			<file>a16_s09_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="16" actor="09">
+			<file>a16_s09_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="16" actor="09">
+			<file>a16_s09_e01_skeleton.txt</file>
+		</instance>
+		<instance type="depth" activity="16" actor="10">
+			<file>a16_s10_e01_depth.bin</file>
+		</instance>
+		<instance type="color" activity="16" actor="10">
+			<file>a16_s10_e01_rgb.avi</file>
+		</instance>
+		<instance type="skeleton" activity="16" actor="10">
+			<file>a16_s10_e01_skeleton.txt</file>
+		</instance>
+	</instances>
+	
+</dataset>

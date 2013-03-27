@@ -1,18 +1,19 @@
-#ifndef DATASETINFO_H
-#define DATASETINFO_H
+#ifndef DATASET_H
+#define DATASET_H
 
+#include "DataSetInfo.h"
 #include <QString>
 
-class DataSetInfo
+
+class DataSet
 {
 public:
-    DataSetInfo();
+    DataSet();
     /*getNumberOfSamples();
     getNumberOfActors();
     getNumberOfActivities();*/
-
 private:
-    QString m_path; // Path where the dataset is located
+    DataSetInfo m_info;
 
 };
 
