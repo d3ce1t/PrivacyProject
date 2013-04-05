@@ -1,13 +1,13 @@
-#include "viewer.h"
-#include <basicusagescene.h>
-#include <depthstreamscene.h>
+#include "Viewer.h"
+#include <BasicUsageScene.h>
+#include <DepthStreamScene.h>
 #include <QTimer>
 #include <QDebug>
 #include <QQmlContext>
 #include <QtQml>
 #include <iostream>
-#include <grill.h>
-#include <histogramscene.h>
+#include <Grill.h>
+#include <HistogramScene.h>
 
 Viewer::Viewer( QWindow *parent )
     : QQuickView( parent ), g_poseTimeoutToExit(2000)

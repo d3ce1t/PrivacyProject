@@ -1,7 +1,7 @@
-#include "skeleton.h"
+#include "Skeleton.h"
 #include <QDebug>
 
-using namespace dai;
+using namespace Dataset;
 
 Skeleton::Skeleton(QObject *parent) :
     QObject(parent)

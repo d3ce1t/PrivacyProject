@@ -1,4 +1,4 @@
-#include "depthstreamscene.h"
+#include "DepthStreamScene.h"
 #include <cstdio>
 #include <QOpenGLShaderProgram>
 

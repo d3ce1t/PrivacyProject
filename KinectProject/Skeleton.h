@@ -5,7 +5,7 @@
 #include <QVector2D>
 #include <NiTE.h>
 
-namespace dai
+namespace Dataset
 {
     class Skeleton : public QObject
     {

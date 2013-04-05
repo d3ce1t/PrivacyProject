@@ -1,4 +1,4 @@
-#include "histogramscene.h"
+#include "HistogramScene.h"
 #include <QOpenGLShaderProgram>
 
 HistogramScene::HistogramScene()

@@ -4,36 +4,55 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = KinectProject
 
 HEADERS += \
-    depthstreamscene.h \
     AbstractScene.h \
-    basicusagescene.h \
-    skeleton.h \
-    grill.h \
-    histogramscene.h \
-    mainwindow.h \
-    viewer.h \
-    dataset/AbstractDataSet.h \
-    dataset/DataSetInfo.h \
     dataset/MSR3Action3D.h \
-    dataset/MSRDailyAct3D.h \
-    dataset/Sample.h \
-    dataset/datasetmanager.h \
-    dataset/DataSet.h
+    dataset/InstanceInfo.h \
+    BasicUsageScene.h \
+    DepthStreamScene.h \
+    Grill.h \
+    HistogramScene.h \
+    Skeleton.h \
+    dataset/Dataset.h \
+    dataset/DatasetEnums.h \
+    dataset/NotSupportedDatasetException.h \
+    MainWindow.h \
+    exceptions/NotSupportedDatasetException.h \
+    DatasetBrowser.h \
+    dataset/DatasetMetadata.h \
+    dataset/MSRDailyActivity3D.h \
+    DepthFrame.h \
+    dataset/MSRDailyActivity3DInstance.h \
+    ColorFrame.h \
+    DataFrame.h \
+    InstanceWidgetItem.h \
+    dataset/DataInstance.h \
+    viewer/depthviewer.h \
+    viewer/basicviewer.h \
+    viewer/Viewer.h
 
-SOURCES += main.cpp \
-    depthstreamscene.cpp \
-    basicusagescene.cpp \
-    skeleton.cpp \
-    grill.cpp \
-    histogramscene.cpp \
-    mainwindow.cpp \
-    viewer.cpp \
-    dataset/DataSetInfo.cpp \
+SOURCES += \
     dataset/MSR3Action3D.cpp \
-    dataset/MSRDailyAct3D.cpp \
-    dataset/Sample.cpp \
-    dataset/datasetmanager.cpp \
-    dataset/DataSet.cpp
+    dataset/InstanceInfo.cpp \
+    BasicUsageScene.cpp \
+    DepthStreamScene.cpp \
+    Grill.cpp \
+    HistogramScene.cpp \
+    Main.cpp \
+    Skeleton.cpp \
+    dataset/Dataset.cpp \
+    MainWindow.cpp \
+    DatasetBrowser.cpp \
+    dataset/DatasetMetadata.cpp \
+    dataset/MSRDailyActivity3D.cpp \
+    DepthFrame.cpp \
+    dataset/MSRDailyActivity3DInstance.cpp \
+    ColorFrame.cpp \
+    DataFrame.cpp \
+    InstanceWidgetItem.cpp \
+    dataset/DataInstance.cpp \
+    viewer/depthviewer.cpp \
+    viewer/basicviewer.cpp \
+    viewer/Viewer.cpp
 
 RESOURCES += openglunderqml.qrc
 
@@ -49,4 +68,6 @@ INCLUDEPATH += /opt/NiTE-2.0.0/Include
 DEPENDPATH += /opt/NiTE-2.0.0/Include
 
 FORMS += \
-    mainwindow.ui
+    mainwindow.ui \
+    DatasetBrowser.ui \
+    viewer/basicviewer.ui

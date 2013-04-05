@@ -1,4 +1,4 @@
-#include "basicusagescene.h"
+#include "BasicUsageScene.h"
 #include <QOpenGLShaderProgram>
 
 

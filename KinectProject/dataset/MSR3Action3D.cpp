@@ -3,9 +3,8 @@
 #include <cstdio>
 
 using namespace std;
-using namespace DataSet;
 
-MSR3Action3D::MSR3Action3D()
+/*MSR3Action3D::MSR3Action3D()
 {
     fileDescriptor = NULL;
     nColumns = 0;
@@ -90,7 +89,7 @@ Sample* MSR3Action3D::next()
     }
 
     return NULL;
-}
+}*/
 
 /*DataSetInfo MSR3Action3D::getInfo()
 {

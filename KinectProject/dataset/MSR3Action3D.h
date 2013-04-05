@@ -1,11 +1,9 @@
 #ifndef MSR3ACTION3D_H
 #define MSR3ACTION3D_H
 
-#include "AbstractDataSet.h"
+/*namespace Dataset {
 
-namespace DataSet {
-
-    class MSR3Action3D : public AbstractDataSet
+    class MSR3Action3D
     {
     public:
         MSR3Action3D();
@@ -23,6 +21,6 @@ namespace DataSet {
         int nRows;
         int frameIndex;
     };
-}
+}*/
 
 #endif // MSR3ACTION3D_H

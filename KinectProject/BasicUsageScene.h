@@ -7,7 +7,7 @@
 #include <NiTE.h>
 #include <OpenNI.h>
 #include <QObject>
-#include <skeleton.h>
+#include <Skeleton.h>
 
 class QOpenGLShaderProgram;
 
@@ -30,7 +30,7 @@ public:
     void setUser(const nite::UserData& m_user);
     void setNativeResolution(int width, int height);
     void setUserTrackerPointer(nite::UserTracker *pUserTracker);
-    dai::Skeleton& getSkeleton() {return m_skeleton;}
+    Dataset::Skeleton& getSkeleton() {return m_skeleton;}
 
     // Property Getters
     bool getDrawSkeletonFlag() const {return g_drawSkeleton;}
@@ -69,7 +69,7 @@ private:
     float                   m_width;
     float                   m_height;
 
-    dai::Skeleton           m_skeleton;
+    Dataset::Skeleton           m_skeleton;
 
     // Settings Flags
     bool                    g_drawSkeleton;

@@ -33,6 +33,8 @@ bool MSRDailyAct3D::open(string fileName)
     fread(&nColumns, 4, 1, fileDescriptor);
     fread(&nRows, 4, 1, fileDescriptor);
 
+    cout << nFrames << endl;
+
     return true;
 }
 

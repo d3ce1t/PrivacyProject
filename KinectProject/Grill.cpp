@@ -1,4 +1,4 @@
-#include "grill.h"
+#include "Grill.h"
 #include <QOpenGLShaderProgram>
 
 Grill::Grill()
