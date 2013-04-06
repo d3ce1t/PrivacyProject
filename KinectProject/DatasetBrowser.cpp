@@ -5,6 +5,8 @@
 #include "dataset/MSRDailyActivity3DInstance.h"
 #include "InstanceWidgetItem.h"
 #include "viewer/basicviewer.h"
+#include "viewer/Viewer.h"
+#include <QGuiApplication>
 
 using namespace dai;
 
@@ -88,13 +90,15 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
 {
     InstanceWidgetItem* instanceItem = dynamic_cast<InstanceWidgetItem*>(item);
     InstanceInfo& info = instanceItem->getInfo();
-    MSRDailyActivity3DInstance* instance = new MSRDailyActivity3DInstance(info);
+    DataInstance* instance = new MSRDailyActivity3DInstance(info);
 
     //DataInstance& instance = m_dataset->getDepthInstance(info.getActivity(), info.getActor(), info.getSample());
 
-    BasicViewer* basicViewer = new BasicViewer(this);
-    basicViewer->play(instance);
-    basicViewer->show();
+    Viewer* viewer = new Viewer;
+    viewer->setResizeMode( QQuickView::SizeRootObjectToView);
+    viewer->setSource(QUrl("qrc:///scenegraph/openglunderqml/main.qml"));
+    viewer->show();
+    viewer->play(instance);
 }
 
 void DatasetBrowser::loadInstances()

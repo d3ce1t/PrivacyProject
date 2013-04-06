@@ -6,6 +6,7 @@
 #include <NiTE.h>
 #include <QOpenGLBuffer>
 #include <QMatrix4x4>
+#include "DepthFrame.h"
 
 #define MAX_DEPTH 10000
 
@@ -26,9 +27,8 @@ public:
     void update(float t);
     void render();
     void resize( float w, float h );
-    void computeVideoTexture(nite::UserTrackerFrameRef& userTrackerFrame, openni::VideoFrameRef &colorFrame);
+    void computeVideoTexture(const dai::DepthFrame &frame);
     void setNativeResolution(int width, int height);
-    float* getDepthHistogram();
     void setMatrix(QMatrix4x4& m_matrix);
     bool getDrawBackgroundFlag() {return g_drawBackground;}
     int getOverlayMode() {return m_overlayMode;}
@@ -41,8 +41,7 @@ signals:
     void changeOfStatus();
 
 private:
-    void calculateHistogram(float* pHistogram, int histogramSize, const openni::VideoFrameRef& frame);
-    openni::RGB888Pixel* prepareFrameTexture(openni::RGB888Pixel* texture, unsigned int width, unsigned int height, nite::UserTrackerFrameRef& userTrackedFrame, openni::VideoFrameRef& colorFrame);
+    openni::RGB888Pixel* prepareFrameTexture(openni::RGB888Pixel* texture, const dai::DepthFrame &frame);
     void loadVideoTexture(openni::RGB888Pixel* texture, GLsizei width, GLsizei height, GLuint glTextureId);
     void prepareShaderProgram();
     //void prepareVertexBuffers();
@@ -58,14 +57,9 @@ private:
     float                   m_width;
     float                   m_height;
     float                   m_pDepthHist[MAX_DEPTH];
-    float                   m_pDepthHistAux[MAX_DEPTH];
     openni::RGB888Pixel*	m_pTexMap;
-    unsigned int            m_nTexMapX;
-    unsigned int            m_nTexMapY;
 
     QOpenGLShaderProgram*   m_shaderProgram;
-    //QOpenGLBuffer           m_vertexPositionBuffer;
-    //QOpenGLBuffer           m_vertexTexCoordsBuffer;
 
     // OpenGL identifiers
     GLuint                  m_frameTexture; // Texture Object

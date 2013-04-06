@@ -26,9 +26,8 @@ HEADERS += \
     DataFrame.h \
     InstanceWidgetItem.h \
     dataset/DataInstance.h \
-    viewer/depthviewer.h \
-    viewer/basicviewer.h \
-    viewer/Viewer.h
+    viewer/Viewer.h \
+    functions.h
 
 SOURCES += \
     dataset/MSR3Action3D.cpp \
@@ -50,8 +49,6 @@ SOURCES += \
     DataFrame.cpp \
     InstanceWidgetItem.cpp \
     dataset/DataInstance.cpp \
-    viewer/depthviewer.cpp \
-    viewer/basicviewer.cpp \
     viewer/Viewer.cpp
 
 RESOURCES += openglunderqml.qrc
@@ -69,5 +66,4 @@ DEPENDPATH += /opt/NiTE-2.0.0/Include
 
 FORMS += \
     mainwindow.ui \
-    DatasetBrowser.ui \
-    viewer/basicviewer.ui
+    DatasetBrowser.ui

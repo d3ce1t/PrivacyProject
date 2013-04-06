@@ -3,12 +3,13 @@
 
 #include <QQuickView>
 #include <QTime>
+#include <QTimer>
 #include <QElapsedTimer>
-#include <NiTE.h>
-#include <OpenNI.h>
 #include <QMatrix4x4>
 #include <QVariantMap>
 #include <QString>
+#include "dataset/DataInstance.h"
+#include "DepthFrame.h"
 
 class DepthStreamScene;
 class BasicUsageScene;
@@ -19,23 +20,16 @@ class Viewer : public QQuickView
 {
     Q_OBJECT
 
-    Q_PROPERTY(bool drawStatusLabel READ getDrawStatusLabelFlag WRITE setDrawStatusLabelFlag NOTIFY changeOfStatus)
-    Q_PROPERTY(bool drawFrameId READ getDrawFrameIdFlag WRITE setDrawFrameIdFlag NOTIFY changeOfStatus)
-    Q_PROPERTY(bool drawHistogram READ getDrawHistogramFlag WRITE setDrawHistogramFlag NOTIFY changeOfStatus)
     Q_PROPERTY(int frameId READ getFrameId NOTIFY changeOfStatus)
-    Q_PROPERTY(QString statusLabel READ getStatuLabel NOTIFY changeOfStatus)
     Q_PROPERTY(float fps READ getFPS NOTIFY changeOfStatus)
 
 public:
     explicit Viewer( QWindow* parent = 0 );
     virtual ~Viewer();
     void initialise();
-    bool getDrawStatusLabelFlag() {return g_drawStatusLabel;}
-    bool getDrawFrameIdFlag() {return g_drawFrameId;}
-    bool getDrawHistogramFlag() {return g_drawHistogram;}
-    int  getFrameId() {return m_frameId;}
-    QString getStatuLabel() {return *m_statusLabel;}
+    int  getFrameId() {return m_frames;}
     float getFPS() {return m_fps;}
+    void play(dai::DataInstance* handler);
 
 public slots:
     void resetPerspective();
@@ -45,9 +39,6 @@ public slots:
     void translateAxisX(float value);
     void translateAxisY(float value);
     void translateAxisZ(float value);
-    void setDrawStatusLabelFlag(bool value);
-    void setDrawFrameIdFlag(bool value);
-    void setDrawHistogramFlag (bool value);
     void renderOpenGLScene();
     void update();
 
@@ -56,44 +47,25 @@ signals:
 
 protected:
     void resizeEvent(QResizeEvent* event);
-    //void keyPressEvent(QKeyEvent* event);
+    bool event(QEvent * ev);
 
 private:
-    void initOpenNI();
-    void printMessage(const nite::UserData& user, uint64_t ts, const char *msg);
-    void updateUserState(const nite::UserData& user, uint64_t ts);
-
-    const int               g_poseTimeoutToExit;
-    const static int        MAX_USERS = 10;
-    char                    g_userStatusLabels[MAX_USERS][100];
-
-    bool                    g_visibleUsers[MAX_USERS];
-    nite::SkeletonState     g_skeletonStates[MAX_USERS];
-
-
-    openni::Device			m_device;
-    openni::VideoStream 	m_colorStream;
-    nite::UserTracker       m_pUserTracker;
-    openni::VideoFrameRef	m_colorFrame;
-
+    dai::DataInstance*      m_handler;
     DepthStreamScene*       m_depthScene;
-    BasicUsageScene*        m_scene;
-    Grill*                  m_grill;
-    HistogramScene*         m_histogram;
+
+    //BasicUsageScene*        m_scene;
+    //Grill*                  m_grill;
+    //HistogramScene*         m_histogram;
     QElapsedTimer           m_time;
     QMatrix4x4              matrix;
-    openni::VideoMode       videoMode;
 
     // Settings Flags
-    bool                    g_drawStatusLabel;
-    bool                    g_drawFrameId;
-    bool                    g_drawHistogram;
-
-    int                     m_frameId;
+    long long               m_frames;
     float                   m_fps;
-    long long               m_renderedFrames;
-
-    QString*                m_statusLabel;
+    bool                    m_initialised;
+    bool                    m_running;
+    QTimer                  m_timer;
+    qint64                  m_lastTime;
 };
 
 #endif // WINDOW_H
