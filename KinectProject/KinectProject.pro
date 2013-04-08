@@ -4,14 +4,10 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = KinectProject
 
 HEADERS += \
-    AbstractScene.h \
     dataset/MSR3Action3D.h \
     dataset/InstanceInfo.h \
-    BasicUsageScene.h \
-    DepthStreamScene.h \
     Grill.h \
     HistogramScene.h \
-    Skeleton.h \
     dataset/Dataset.h \
     dataset/DatasetEnums.h \
     dataset/NotSupportedDatasetException.h \
@@ -20,36 +16,48 @@ HEADERS += \
     DatasetBrowser.h \
     dataset/DatasetMetadata.h \
     dataset/MSRDailyActivity3D.h \
-    DepthFrame.h \
-    dataset/MSRDailyActivity3DInstance.h \
-    ColorFrame.h \
-    DataFrame.h \
     InstanceWidgetItem.h \
     dataset/DataInstance.h \
-    viewer/Viewer.h \
-    functions.h
+    viewer/DepthFramePainter.h \
+    dataset/MSRDailyDepthInstance.h \
+    viewer/ViewerPainter.h \
+    viewer/InstanceViewer.h \
+    dataset/MSRDailySkeletonInstance.h \
+    types/SkeletonJoint.h \
+    types/Skeleton.h \
+    types/Quaternion.h \
+    types/Point3f.h \
+    types/DepthFrame.h \
+    types/DataFrame.h \
+    types/ColorFrame.h \
+    viewer/SkeletonPainter.h
 
 SOURCES += \
     dataset/MSR3Action3D.cpp \
     dataset/InstanceInfo.cpp \
-    BasicUsageScene.cpp \
-    DepthStreamScene.cpp \
     Grill.cpp \
     HistogramScene.cpp \
     Main.cpp \
-    Skeleton.cpp \
     dataset/Dataset.cpp \
     MainWindow.cpp \
     DatasetBrowser.cpp \
     dataset/DatasetMetadata.cpp \
     dataset/MSRDailyActivity3D.cpp \
-    DepthFrame.cpp \
-    dataset/MSRDailyActivity3DInstance.cpp \
-    ColorFrame.cpp \
-    DataFrame.cpp \
     InstanceWidgetItem.cpp \
     dataset/DataInstance.cpp \
-    viewer/Viewer.cpp
+    viewer/DepthFramePainter.cpp \
+    dataset/MSRDailyDepthInstance.cpp \
+    viewer/InstanceViewer.cpp \
+    dataset/MSRDailySkeletonInstance.cpp \
+    types/SkeletonJoint.cpp \
+    types/Skeleton.cpp \
+    types/Quaternion.cpp \
+    types/Point3f.cpp \
+    types/DepthFrame.cpp \
+    types/DataFrame.cpp \
+    types/ColorFrame.cpp \
+    viewer/SkeletonPainter.cpp \
+    viewer/ViewerPainter.cpp
 
 RESOURCES += openglunderqml.qrc
 

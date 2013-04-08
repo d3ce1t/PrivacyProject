@@ -49,7 +49,7 @@ int DatasetMetadata::getNumberOfSampleTypes() const
     return m_numberOfSampleTypes;
 }
 
-const InstanceInfo DatasetMetadata::instance(InstanceType type, int activity, int actor, int sample)
+const InstanceInfo DatasetMetadata::instance(InstanceInfo::InstanceType type, int activity, int actor, int sample)
 {
     InstanceInfo* result = 0;
     QHash<int, InstanceInfoList*>& hashInstances = *(m_instances[type]);
@@ -78,7 +78,7 @@ const InstanceInfo DatasetMetadata::instance(InstanceType type, int activity, in
 }
 
 const InstanceInfoList* DatasetMetadata::instances(
-        InstanceType type, const QList<int>* activities, const QList<int>* actors, const QList<int>* samples) const
+        InstanceInfo::InstanceType type, const QList<int>* activities, const QList<int>* actors, const QList<int>* samples) const
 {
     QHash<int, InstanceInfoList*>& hashInstances = *(m_instances[type]);
     InstanceInfoList* result = new InstanceInfoList();
@@ -241,14 +241,14 @@ DatasetMetadata* DatasetMetadata::load(QString xmlPath)
                 reader.readNext(); // seek into text
                 QString file = reader.text().toString();
 
-                InstanceType type;
+                InstanceInfo::InstanceType type;
 
                 if (strType == "depth")
-                    type = Depth;
+                    type = InstanceInfo::Depth;
                 else if (strType == "color")
-                    type = Color;
+                    type = InstanceInfo::Color;
                 else if (strType == "skeleton")
-                    type = Skeleton;
+                    type = InstanceInfo::Skeleton;
 
                 InstanceInfo* instanceInfo = new InstanceInfo(type);
                 instanceInfo->setActivity(activity);

@@ -2,6 +2,7 @@
 #define DEPTHFRAME_H
 
 #include "DataFrame.h"
+#include <stdint.h>
 
 namespace dai {
 
@@ -15,26 +16,30 @@ namespace dai {
 class DepthFrame : public DataFrame
 {
 public:
+    // Static Class Methods
+    static void calculateHistogram(float* pHistogram, int histogramSize, const DepthFrame& frame);
+    static int maxValue(const DepthFrame& frame);
+    static int minValue(const DepthFrame& frame);
+
+    // Constructor, Destructors and Copy Constructor
     explicit DepthFrame(int width, int height);
     DepthFrame(const DepthFrame& other);
     virtual ~DepthFrame();
 
-    int maxValue() const;
-    int minValue() const;
-
+    // Member Methods
     int getWidth() const;
     int getHeight() const;
     int getItem(int row, int column) const;
-    void setIndex(int index);
     void setItem(int row, int column, int value);
 
+    // Overriden Operators
     DepthFrame& operator=(const DepthFrame& other);
 
 private:
     int m_width;
     int m_height;
-    int m_index;
     int* m_data;
+    uint8_t* m_skIDVals;
 };
 
 }

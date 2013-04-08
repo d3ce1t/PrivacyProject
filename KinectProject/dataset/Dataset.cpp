@@ -12,4 +12,4 @@ const DatasetMetadata& Dataset::getMetadata() const
     return *m_metadata;
 }
 
-}
+} // End Namespace

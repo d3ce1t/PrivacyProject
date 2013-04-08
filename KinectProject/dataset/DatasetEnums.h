@@ -8,13 +8,6 @@ enum DatasetType {
     Dataset_MSRDailyActivity3D
 };
 
-enum InstanceType {
-    Depth,
-    Color,
-    Skeleton,
-    Uninitialised
-};
-
 }
 
 #endif // DATASETENUMS_H

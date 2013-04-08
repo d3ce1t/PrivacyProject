@@ -1,22 +1,18 @@
 #include "MSRDailyActivity3D.h"
-#include "MSRDailyActivity3DInstance.h"
+#include "MSRDailyDepthInstance.h"
 
 namespace dai {
 
 MSRDailyActivity3D::MSRDailyActivity3D()
     : Dataset("/home/jose/Dropbox/DataSet_Descriptor/MSRDailyActivity3D.xml")
 {
-
 }
 
-DataInstance& MSRDailyActivity3D::getDepthInstance(int activity, int actor, int sample)
+MSRDailyDepthInstance &MSRDailyActivity3D::getDepthInstance(int activity, int actor, int sample)
 {
-    DataInstance* result = 0;
-    const InstanceInfo instanceInfo = m_metadata->instance(Depth, activity, actor, sample);
-
-    result = new MSRDailyActivity3DInstance(instanceInfo);
-
-
+    MSRDailyDepthInstance* result = 0;
+    const InstanceInfo instanceInfo = m_metadata->instance(InstanceInfo::Depth, activity, actor, sample);
+    result = new MSRDailyDepthInstance(instanceInfo);
     return *result;
 }
 

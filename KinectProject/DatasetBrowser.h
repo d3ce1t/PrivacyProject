@@ -4,6 +4,9 @@
 #include <QMainWindow>
 #include "dataset/Dataset.h"
 #include <QListWidgetItem>
+#include "types/DepthFrame.h"
+#include "viewer/InstanceViewer.h"
+#include "viewer/DepthFramePainter.h"
 
 namespace Ui {
 class DatasetBrowser;
@@ -17,17 +20,13 @@ public:
     explicit DatasetBrowser(QWidget *parent = 0);
     ~DatasetBrowser();
 
-public slots:
-    void listItemChange(QListWidgetItem * item);
-    void instanceItemActivated(QListWidgetItem * item);
-    void comboBoxChange(int index);
-
 protected:
     void closeEvent(QCloseEvent * event);
 
-
-    
 private slots:
+    void listItemChange(QListWidgetItem * item);
+    void instanceItemActivated(QListWidgetItem * item);
+    void comboBoxChange(int index);
     void on_btnSelectAllActivities_clicked();
     void on_btnUnselectAllActivities_clicked();
     void on_btnSelectAllActors_clicked();
@@ -38,8 +37,8 @@ private slots:
 private:
     void loadInstances();
 
-    Ui::DatasetBrowser *ui;
-    dai::Dataset* m_dataset;
+    Ui::DatasetBrowser*     ui;
+    dai::Dataset*           m_dataset;
 };
 
 #endif // DATASETBROWSER_H

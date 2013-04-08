@@ -32,7 +32,7 @@ InstanceInfo& InstanceInfo::operator=(const InstanceInfo& other)
     m_path = other.m_path;
 }
 
-InstanceType InstanceInfo::getType() const
+InstanceInfo::InstanceType InstanceInfo::getType() const
 {
     return m_type;
 }

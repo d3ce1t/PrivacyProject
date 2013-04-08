@@ -1,6 +1,8 @@
 #include "Grill.h"
 #include <QOpenGLShaderProgram>
 
+namespace dai {
+
 Grill::Grill()
 {
     m_shaderProgram = NULL;
@@ -94,3 +96,5 @@ void Grill::prepareShaderProgram()
 void Grill::setMatrix(QMatrix4x4& matrix) {
     this->m_matrix = matrix;
 }
+
+} // End Namespace

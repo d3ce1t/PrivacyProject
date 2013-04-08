@@ -2,6 +2,7 @@
 #define MSRDAILYACT3D_H
 
 #include "Dataset.h"
+#include "MSRDailyDepthInstance.h"
 #include <iostream>
 
 using namespace std;
@@ -12,7 +13,7 @@ class MSRDailyActivity3D : public Dataset
 {
 public:
     explicit MSRDailyActivity3D();
-    DataInstance& getDepthInstance(int activity, int actor, int sample);
+    MSRDailyDepthInstance& getDepthInstance(int activity, int actor, int sample);
     DataInstance& getColorInstance(int activity, int actor, int sample);
 };
 

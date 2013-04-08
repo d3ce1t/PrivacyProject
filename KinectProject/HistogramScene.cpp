@@ -1,6 +1,8 @@
 #include "HistogramScene.h"
 #include <QOpenGLShaderProgram>
 
+namespace dai {
+
 HistogramScene::HistogramScene()
 {
     m_shaderProgram = NULL;
@@ -112,3 +114,5 @@ void HistogramScene::setHistogram(float histogram[])
         }
     }
 }
+
+} // End Namespace

@@ -2,14 +2,13 @@
 #include "ui_DatasetBrowser.h"
 #include <QDebug>
 #include "dataset/MSRDailyActivity3D.h"
-#include "dataset/MSRDailyActivity3DInstance.h"
+#include "dataset/MSRDailyDepthInstance.h"
+#include "dataset/MSRDailySkeletonInstance.h"
 #include "InstanceWidgetItem.h"
-#include "viewer/basicviewer.h"
-#include "viewer/Viewer.h"
 #include <QGuiApplication>
 
-using namespace dai;
 
+using namespace dai;
 
 DatasetBrowser::DatasetBrowser(QWidget *parent) :
     QMainWindow(parent),
@@ -90,14 +89,18 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
 {
     InstanceWidgetItem* instanceItem = dynamic_cast<InstanceWidgetItem*>(item);
     InstanceInfo& info = instanceItem->getInfo();
-    DataInstance* instance = new MSRDailyActivity3DInstance(info);
 
-    //DataInstance& instance = m_dataset->getDepthInstance(info.getActivity(), info.getActor(), info.getSample());
+    DataInstance* instance = NULL;
 
-    Viewer* viewer = new Viewer;
-    viewer->setResizeMode( QQuickView::SizeRootObjectToView);
-    viewer->setSource(QUrl("qrc:///scenegraph/openglunderqml/main.qml"));
+    if (info.getType() == InstanceInfo::Depth)
+        instance = new MSRDailyDepthInstance(info);
+    else if (info.getType() == InstanceInfo::Skeleton) {
+        instance = new MSRDailySkeletonInstance(info);
+    }
+
+    InstanceViewer* viewer = new InstanceViewer;
     viewer->show();
+    //DataInstance& instance = m_dataset->getDepthInstance(info.getActivity(), info.getActor(), info.getSample());
     viewer->play(instance);
 }
 
@@ -107,14 +110,14 @@ void DatasetBrowser::loadInstances()
 
     ui->listInstances->clear();
 
-    InstanceType showType;
+    InstanceInfo::InstanceType showType;
 
     if (ui->comboType->currentIndex() == 0) {
-        showType = Depth;
+        showType = InstanceInfo::Depth;
     } else if (ui->comboType->currentIndex() == 1) {
-        showType = Color;
+        showType = InstanceInfo::Color;
     } else if (ui->comboType->currentIndex() == 2) {
-        showType = Skeleton;
+        showType = InstanceInfo::Skeleton;
     }
 
     // Prepare Filter
@@ -149,10 +152,6 @@ void DatasetBrowser::loadInstances()
         InstanceInfo* instanceInfo = instances->at(i);
         InstanceWidgetItem* item = new InstanceWidgetItem(instanceInfo->getFileName(), ui->listInstances);
         item->setInfo(*instanceInfo);
-
-
-        /*InstanceInfo* instance = instances->at(i);
-        ui->listInstances->addItem(instance->getFile());*/
     }
 }
 

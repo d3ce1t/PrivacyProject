@@ -1,15 +1,15 @@
 #ifndef HISTOGRAMSCENE_H
 #define HISTOGRAMSCENE_H
 
-#include "AbstractScene.h"
+#include "viewer/ViewerPainter.h"
 #include <QOpenGLBuffer>
 #include <QMatrix4x4>
 
 class QOpenGLShaderProgram;
 
+namespace dai {
 
-
-class HistogramScene : public AbstractScene
+class HistogramScene : public ViewerPainter
 {
 public:
     HistogramScene();
@@ -34,5 +34,7 @@ private:
     QMatrix4x4              m_matrix;
     GLubyte                 m_histogram[100][100];
 };
+
+} // End Namespace
 
 #endif // HISTOGRAMSCENE_H

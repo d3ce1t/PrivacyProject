@@ -1,13 +1,15 @@
 #ifndef GRILL_H
 #define GRILL_H
 
-#include "AbstractScene.h"
+#include "viewer/ViewerPainter.h"
 #include <QOpenGLBuffer>
 #include <QMatrix4x4>
 
 class QOpenGLShaderProgram;
 
-class Grill : public AbstractScene
+namespace dai {
+
+class Grill : public ViewerPainter
 {
 public:
     Grill();
@@ -28,5 +30,7 @@ private:
     GLuint                  m_pointSize;
     QMatrix4x4              m_matrix;
 };
+
+} // End Namespace
 
 #endif // GRILL_H

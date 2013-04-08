@@ -14,7 +14,6 @@ class Dataset
 public:
     explicit Dataset(QString path);
     const DatasetMetadata& getMetadata() const;
-
     virtual DataInstance& getDepthInstance(int activity, int actor, int sample) = 0;
     virtual DataInstance& getColorInstance(int activity, int actor, int sample) = 0;
 

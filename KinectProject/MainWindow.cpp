@@ -1,6 +1,6 @@
 #include "MainWindow.h"
 #include "ui_mainwindow.h"
-#include "viewer/Viewer.h"
+#include "viewer/InstanceViewer.h"
 #include "dataset/DatasetEnums.h"
 #include "dataset/Dataset.h"
 #include <QDebug>
@@ -23,10 +23,10 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_clicked()
 {
-    Viewer* mainWindow = new Viewer();
+    /*Viewer* mainWindow = new Viewer();
     mainWindow->setResizeMode( QQuickView::SizeRootObjectToView);
     mainWindow->setSource(QUrl("qrc:///scenegraph/openglunderqml/main.qml"));
-    mainWindow->show();
+    mainWindow->show();*/
 }
 
 void MainWindow::on_pushButton_2_clicked()

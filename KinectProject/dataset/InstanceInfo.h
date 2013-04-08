@@ -9,6 +9,14 @@ namespace dai {
 class InstanceInfo
 {
 public:
+
+    enum InstanceType {
+        Depth,
+        Color,
+        Skeleton,
+        Uninitialised
+    };
+
     InstanceInfo();
     explicit InstanceInfo(InstanceType type);
     InstanceInfo(const InstanceInfo& other);

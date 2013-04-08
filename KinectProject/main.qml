@@ -25,15 +25,6 @@ Item {
             spacing: 5
 
             Checkbox {
-                anchors.right: parent.right
-                label: "Enable Background drawing"
-                value: appSettings2.drawBackground
-                onClick : {
-                    appSettings2.drawBackground = value
-                }
-            }
-
-            Checkbox {
                 id: checkBoxXYRot
                 anchors.right: parent.right
                 label: "Enable XY rotation"
@@ -59,48 +50,12 @@ Item {
                 label: "Enable Y translation"
                 value: false
             }
-
-            Checkbox {
-                id: checkBoxOM1
-                anchors.right: parent.right
-                label: "Enable Depth Overlay"
-                value: appSettings2.overlayMode <= 1 ? true : false
-                onClick : {
-                    if (value === true && checkBoxOM2.value === true) {
-                        appSettings2.overlayMode = 1;
-                    }
-                    else if (value === false && checkBoxOM2.value === true)
-                        appSettings2.overlayMode = 2;
-                    else {
-                        appSettings2.overlayMode = 0;
-                        value = true
-                    }
-                }
-            }
-
-            Checkbox {
-                id: checkBoxOM2
-                anchors.right: parent.right
-                label: "Enable RGB Overlay"
-                value: appSettings2.overlayMode >= 1 ? true : false
-                onClick : {
-                    if (value === true && checkBoxOM1.value === true) {
-                        appSettings2.overlayMode = 1;
-                    }
-                    else if (value === false && checkBoxOM1.value === true)
-                        appSettings2.overlayMode = 0;
-                    else {
-                        appSettings2.overlayMode = 2;
-                        value = true
-                    }
-                }
-            }
         }
     }
 
-    // Draw Frames Id
+    // Draw FPS
     Rectangle {
-        color: Qt.rgba(0, 0.7, 1, 0.7)
+        color: Qt.rgba(0, 0.7, 1, 0.5)
         radius: 10
         anchors.fill: textFrameId
         anchors.margins: -10
@@ -108,7 +63,7 @@ Item {
 
     Text {
         id: textFrameId
-        text: "Frames " + winObject.frameId + " (" + Math.round(winObject.fps) + " fps)"
+        text: Math.round(winObject.fps) + " fps"
         color: "black"
         wrapMode: Text.WordWrap
         anchors.right: parent.right
