@@ -4,8 +4,8 @@
 namespace dai {
 
 enum DatasetType {
-    Dataset_MSRDailyAction3D,
-    Dataset_MSRDailyActivity3D
+    Dataset_MSRDailyActivity3D = 0,
+    Dataset_MSRAction3D
 };
 
 }

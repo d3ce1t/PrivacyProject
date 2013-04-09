@@ -1,26 +1,19 @@
 #ifndef MSR3ACTION3D_H
 #define MSR3ACTION3D_H
 
-/*namespace Dataset {
+#include "Dataset.h"
+#include "MSRActionDepthInstance.h"
 
-    class MSR3Action3D
-    {
-    public:
-        MSR3Action3D();
-        ~MSR3Action3D();
-        bool open(string fileName);
-        bool close();
-        bool hasNext();
-        Sample* next();
-        //DataSetInfo getInfo();
+namespace dai {
 
-    private:
-        FILE* fileDescriptor;
-        int nFrames;
-        int nColumns;
-        int nRows;
-        int frameIndex;
-    };
-}*/
+class MSR3Action3D : public Dataset
+{
+public:
+    explicit MSR3Action3D();
+    MSRActionDepthInstance& getDepthInstance(int activity, int actor, int sample);
+    DataInstance& getColorInstance(int activity, int actor, int sample) {}
+};
+
+} // End Namespace
 
 #endif // MSR3ACTION3D_H

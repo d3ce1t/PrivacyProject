@@ -1,5 +1,5 @@
-#ifndef MSRDAILYACTIVITY3DINSTANCE_H
-#define MSRDAILYACTIVITY3DINSTANCE_H
+#ifndef MSR_ACTION3D_INSTANCE_H
+#define MSR_ACTION3D_INSTANCE_H
 
 #include <iostream>
 #include <fstream>
@@ -10,16 +10,14 @@ using namespace std;
 
 namespace dai {
 
-class MSRDailyDepthInstance : public DataInstance
+class MSRActionDepthInstance : public DataInstance
 {
 public:
-    explicit MSRDailyDepthInstance(const InstanceInfo& info);
-    virtual ~MSRDailyDepthInstance();
+    explicit MSRActionDepthInstance(const InstanceInfo& info);
+    virtual ~MSRActionDepthInstance();
     void open();
     void close();
     int getTotalFrames();
-    /*int getResolutionX();
-    int getResolutionY();*/
     bool hasNext();
     const DepthFrame& nextFrame();
 
@@ -34,4 +32,4 @@ private:
 
 } // End Namespace
 
-#endif // MSRDAILYACTIVITY3DINSTANCE_H
+#endif // MSR_ACTION3D_INSTANCE_H

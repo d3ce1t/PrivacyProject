@@ -80,6 +80,9 @@ const InstanceInfo DatasetMetadata::instance(InstanceInfo::InstanceType type, in
 const InstanceInfoList* DatasetMetadata::instances(
         InstanceInfo::InstanceType type, const QList<int>* activities, const QList<int>* actors, const QList<int>* samples) const
 {
+    if (!m_instances.contains(type))
+        return new InstanceInfoList();
+
     QHash<int, InstanceInfoList*>& hashInstances = *(m_instances[type]);
     InstanceInfoList* result = new InstanceInfoList();
 

@@ -40,6 +40,9 @@ void SkeletonPainter::render()
     if (!m_isFrameAvailable)
         return;
 
+    qDebug() << "Skeleton Max value: " << Skeleton::maxValue(m_skeleton);
+    qDebug() << "Skeleton Min value: " << Skeleton::minValue(m_skeleton);
+
 
     drawLimb(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_HEAD), m_skeleton.getJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER));
     drawLimb(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER), m_skeleton.getJoint(dai::SkeletonJoint::JOINT_SPINE));

@@ -10,6 +10,9 @@ namespace dai {
 class Skeleton : public DataFrame
 {
 public:
+    static float maxValue(const Skeleton &frame);
+    static float minValue(const Skeleton& frame);
+
     Skeleton();
     virtual ~Skeleton();
     const SkeletonJoint& getJoint(SkeletonJoint::JointType type) const;

@@ -1,6 +1,6 @@
 #include "DepthFrame.h"
 #include <cstring>
-
+#include <limits>
 
 using namespace dai;
 
@@ -141,7 +141,7 @@ void DepthFrame::calculateHistogram(float* pHistogram, int histogramSize, const 
     {
         for (int nIndex=1; nIndex<histogramSize; nIndex++)
         {
-            pHistogram[nIndex] = (255 * (1.0f - (pHistogram[nIndex] / nNumberOfPoints)));
+            pHistogram[nIndex] = 1.0f - (pHistogram[nIndex] / nNumberOfPoints);
         }
     }
 }
@@ -149,7 +149,7 @@ void DepthFrame::calculateHistogram(float* pHistogram, int histogramSize, const 
 int DepthFrame::maxValue(const DepthFrame& frame)
 {
     int r,c;
-    int bestValue = 0;
+    int bestValue = std::numeric_limits<int>::min();
 
     for(r=0; r<frame.getHeight(); r++)
     {
@@ -170,7 +170,7 @@ int DepthFrame::maxValue(const DepthFrame& frame)
 int DepthFrame::minValue(const DepthFrame& frame)
 {
     int r,c;
-    int bestValue = 4096;
+    int bestValue = std::numeric_limits<int>::max();
 
     for(r=0; r<frame.getHeight(); r++)
     {

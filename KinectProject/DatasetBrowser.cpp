@@ -4,6 +4,7 @@
 #include "dataset/MSRDailyActivity3D.h"
 #include "dataset/MSRDailyDepthInstance.h"
 #include "dataset/MSRDailySkeletonInstance.h"
+#include "dataset/MSR3Action3D.h"
 #include "InstanceWidgetItem.h"
 #include <QGuiApplication>
 
@@ -16,40 +17,9 @@ DatasetBrowser::DatasetBrowser(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    // MSR Daily Activity 3D
-    if (ui->comboDataset->currentIndex() == 0) {
-        m_dataset = new MSRDailyActivity3D();
-    } else {
-        m_dataset = NULL;
-    }
-
     m_viewer = NULL;
-
-    // Load widgets with DataSet Info
-    const DatasetMetadata& info = m_dataset->getMetadata();
-
-    // Load Activities
-    for (int i=1; i<=info.getNumberOfActivities(); ++i) {
-        QListWidgetItem* item = new QListWidgetItem(info.getActivityName(i), ui->listActivities);
-        item->setFlags(item->flags() | Qt::ItemIsUserCheckable); // set checkable flag
-        item->setCheckState(Qt::Checked);
-    }
-
-    // Load Actors
-    for (int i=1; i<=info.getNumberOfActors(); ++i) {
-        QListWidgetItem* item = new QListWidgetItem(info.getActorName(i), ui->listActors);
-        item->setFlags(item->flags() | Qt::ItemIsUserCheckable); // set checkable flag
-        item->setCheckState(Qt::Checked); // AND initialize check state
-    }
-
-    // Load Samples
-    for (int i=1; i<=info.getNumberOfSampleTypes(); ++i) {
-        QListWidgetItem* item = new QListWidgetItem(info.getSampleName(i), ui->listSamples);
-        item->setFlags(item->flags() | Qt::ItemIsUserCheckable); // set checkable flag
-        item->setCheckState(Qt::Checked); // AND initialize check state
-    }
-
-    loadInstances();
+    m_dataset = NULL;
+    loadDataset( (DatasetType) ui->comboDataset->currentIndex());
 
     // Connect Signals
     connect(ui->listActivities, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(listItemChange(QListWidgetItem*)));
@@ -127,6 +97,49 @@ void DatasetBrowser::viewerClosed(InstanceViewer* viewer)
     if (m_viewer == viewer) {
         m_viewer = NULL;
     }
+}
+
+void DatasetBrowser::loadDataset(DatasetType type)
+{
+    if (m_dataset != NULL) {
+        delete m_dataset;
+        m_dataset = NULL;
+    }
+
+    if (type == Dataset_MSRDailyActivity3D) {
+        m_dataset = new MSRDailyActivity3D();
+    } else if (type == Dataset_MSRAction3D) {
+        m_dataset = new MSR3Action3D();
+    }
+
+    // Load widgets with DataSet Info
+    const DatasetMetadata& info = m_dataset->getMetadata();
+
+    // Load Activities
+    ui->listActivities->clear();
+    for (int i=1; i<=info.getNumberOfActivities(); ++i) {
+        QListWidgetItem* item = new QListWidgetItem(info.getActivityName(i), ui->listActivities);
+        item->setFlags(item->flags() | Qt::ItemIsUserCheckable); // set checkable flag
+        item->setCheckState(Qt::Checked);
+    }
+
+    // Load Actors
+    ui->listActors->clear();
+    for (int i=1; i<=info.getNumberOfActors(); ++i) {
+        QListWidgetItem* item = new QListWidgetItem(info.getActorName(i), ui->listActors);
+        item->setFlags(item->flags() | Qt::ItemIsUserCheckable); // set checkable flag
+        item->setCheckState(Qt::Checked); // AND initialize check state
+    }
+
+    // Load Samples
+    ui->listSamples->clear();
+    for (int i=1; i<=info.getNumberOfSampleTypes(); ++i) {
+        QListWidgetItem* item = new QListWidgetItem(info.getSampleName(i), ui->listSamples);
+        item->setFlags(item->flags() | Qt::ItemIsUserCheckable); // set checkable flag
+        item->setCheckState(Qt::Checked); // AND initialize check state
+    }
+
+    loadInstances();
 }
 
 void DatasetBrowser::loadInstances()
@@ -226,4 +239,9 @@ void DatasetBrowser::on_btnUnselectAllSamples_clicked()
         QListWidgetItem* item = ui->listSamples->item(i);
         item->setCheckState(Qt::Unchecked);
     }
+}
+
+void DatasetBrowser::on_comboDataset_activated(int index)
+{
+    loadDataset((DatasetType) index);
 }

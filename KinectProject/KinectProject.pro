@@ -30,7 +30,9 @@ HEADERS += \
     types/DepthFrame.h \
     types/DataFrame.h \
     types/ColorFrame.h \
-    viewer/SkeletonPainter.h
+    viewer/SkeletonPainter.h \
+    viewer/ColorFramePainter.h \
+    dataset/MSRActionDepthInstance.h
 
 SOURCES += \
     dataset/MSR3Action3D.cpp \
@@ -57,7 +59,9 @@ SOURCES += \
     types/DataFrame.cpp \
     types/ColorFrame.cpp \
     viewer/SkeletonPainter.cpp \
-    viewer/ViewerPainter.cpp
+    viewer/ViewerPainter.cpp \
+    viewer/ColorFramePainter.cpp \
+    dataset/MSRActionDepthInstance.cpp
 
 RESOURCES += openglunderqml.qrc
 

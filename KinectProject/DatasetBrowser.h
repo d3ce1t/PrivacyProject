@@ -7,6 +7,7 @@
 #include "types/DepthFrame.h"
 #include "viewer/InstanceViewer.h"
 #include "viewer/DepthFramePainter.h"
+#include "dataset/DatasetEnums.h"
 
 namespace Ui {
 class DatasetBrowser;
@@ -35,7 +36,10 @@ private slots:
     void on_btnUnselectAllSamples_clicked();
     void viewerClosed(InstanceViewer *viewer);
 
+    void on_comboDataset_activated(int index);
+
 private:
+    void loadDataset(dai::DatasetType type);
     void loadInstances();
 
     Ui::DatasetBrowser*     ui;
