@@ -65,8 +65,8 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
     DataInstance* instance = NULL;
 
     if (info.getType() == InstanceInfo::Depth)
-        //instance = m_dataset->getDepthInstance(info.getActivity(), info.getActor(), info.getSample());
-        instance = new MSRDailyDepthInstance(info);
+        instance = dynamic_cast<DataInstance*>(m_dataset->getDepthInstance(info.getActivity(), info.getActor(), info.getSample()));
+        //instance = new MSRDailyDepthInstance(info);
     else if (info.getType() == InstanceInfo::Skeleton) {
         instance = new MSRDailySkeletonInstance(info);
     }

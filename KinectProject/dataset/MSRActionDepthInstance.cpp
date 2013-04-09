@@ -90,12 +90,10 @@ const DepthFrame &MSRActionDepthInstance::nextFrame()
 
         // Read Data from File
         int* tempRow = new int[m_width];
-        uint8_t* tempRowID = new uint8_t[m_width];
 
         for(int r=0; r<m_height; r++)
         {
             m_file.read((char *) tempRow, 4*m_width);
-            m_file.read((char*) tempRowID, 1*m_width);
 
             for(int c=0; c<m_width; c++) {
                 m_currentFrame.setItem(r, c, tempRow[c]);
@@ -104,9 +102,6 @@ const DepthFrame &MSRActionDepthInstance::nextFrame()
 
         delete[] tempRow;
         tempRow = NULL;
-
-        delete[] tempRowID;
-        tempRowID = NULL;
 
         m_frameIndex++;
     }

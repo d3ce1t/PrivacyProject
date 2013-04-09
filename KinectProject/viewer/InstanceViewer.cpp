@@ -75,7 +75,7 @@ void InstanceViewer::play(dai::DataInstance* instance)
     }
 
     m_running = true;
-    m_timer.start(50);
+    m_timer.start(200);
     m_time.start();
     qDebug() << "Playing";
 }

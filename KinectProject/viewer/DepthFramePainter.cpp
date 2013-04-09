@@ -44,8 +44,8 @@ void DepthFramePainter::render()
     // Bind Shader
     m_shaderProgram->bind();
 
-    int minValue = DepthFrame::minValue(m_frame);
-    int maxValue = DepthFrame::maxValue(m_frame);
+    static int minValue = DepthFrame::minValue(m_frame);
+    static int maxValue = DepthFrame::maxValue(m_frame);
 
     qDebug() << "Depth Min value: " << minValue;
     qDebug() << "Depth Max value: " << maxValue;

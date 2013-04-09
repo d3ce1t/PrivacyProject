@@ -10,7 +10,7 @@ class MSR3Action3D : public Dataset
 {
 public:
     explicit MSR3Action3D();
-    MSRActionDepthInstance& getDepthInstance(int activity, int actor, int sample);
+    MSRActionDepthInstance* getDepthInstance(int activity, int actor, int sample);
     DataInstance& getColorInstance(int activity, int actor, int sample) {}
 };
 

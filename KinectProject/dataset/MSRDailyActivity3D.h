@@ -13,7 +13,7 @@ class MSRDailyActivity3D : public Dataset
 {
 public:
     explicit MSRDailyActivity3D();
-    MSRDailyDepthInstance& getDepthInstance(int activity, int actor, int sample);
+    MSRDailyDepthInstance* getDepthInstance(int activity, int actor, int sample);
     DataInstance& getColorInstance(int activity, int actor, int sample);
 };
 

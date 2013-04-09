@@ -8,12 +8,12 @@ MSR3Action3D::MSR3Action3D()
 {
 }
 
-MSRActionDepthInstance &MSR3Action3D::getDepthInstance(int activity, int actor, int sample)
+MSRActionDepthInstance *MSR3Action3D::getDepthInstance(int activity, int actor, int sample)
 {
     MSRActionDepthInstance* result = 0;
     const InstanceInfo instanceInfo = m_metadata->instance(InstanceInfo::Depth, activity, actor, sample);
     result = new MSRActionDepthInstance(instanceInfo);
-    return *result;
+    return result;
 }
 
 
