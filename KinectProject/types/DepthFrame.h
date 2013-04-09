@@ -22,6 +22,7 @@ public:
     static int minValue(const DepthFrame& frame);
 
     // Constructor, Destructors and Copy Constructor
+    explicit DepthFrame();
     explicit DepthFrame(int width, int height);
     DepthFrame(const DepthFrame& other);
     virtual ~DepthFrame();

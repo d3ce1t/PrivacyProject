@@ -25,7 +25,6 @@ InstanceViewer::InstanceViewer( QWindow *parent )
 
     // Viewer Setup
     this->setTitle("Instance Viewer");
-    m_instance = NULL;
     m_painters.append(new dai::DepthFramePainter);
     m_painters.append(new dai::SkeletonPainter);
     m_initialised = false;
@@ -65,10 +64,16 @@ void InstanceViewer::show() {
 void InstanceViewer::play(dai::DataInstance* instance)
 {
     stop();
-    m_instance = instance;
-    m_instance->setPlayLoop(true);
     this->setTitle("Instance Viewer (" + instance->getMetadata().getFileName() + ")");
-    m_instance->open();
+    m_playList.append(instance);
+
+    QListIterator<dai::DataInstance*> it(m_playList);
+
+    while (it.hasNext()) {
+        dai::DataInstance* instance = it.next();
+        instance->open();
+    }
+
     m_running = true;
     m_timer.start(50);
     m_time.start();
@@ -77,8 +82,11 @@ void InstanceViewer::play(dai::DataInstance* instance)
 
 void InstanceViewer::stop()
 {
-    if (m_instance != NULL) {
-        m_instance->close();
+    QListIterator<dai::DataInstance*> it(m_playList);
+
+    while (it.hasNext()) {
+        dai::DataInstance* instance = it.next();
+        instance->close();
     }
 
     m_frames = 0;
@@ -94,28 +102,35 @@ void InstanceViewer::stop()
 
 void InstanceViewer::playNextFrame()
 {
-    if (m_instance != NULL && m_instance->hasNext())
-    {
-        const dai::DataFrame& frame = m_instance->nextFrame();
-        dai::InstanceInfo::InstanceType instanceType = m_instance->getMetadata().getType();
+    QListIterator<dai::DataInstance*> it(m_playList);
 
-        if (instanceType == dai::InstanceInfo::Depth)
-        {
-            const dai::DepthFrame& depthFrame = static_cast<const dai::DepthFrame&>(frame);
-            this->getDepthPainter().setFrame(depthFrame);
-        }
-        else if (instanceType == dai::InstanceInfo::Skeleton)
-        {
-           const dai::Skeleton skeletonFrame = static_cast<const dai::Skeleton&>(frame);
-           this->getSkeletonPainter().setFrame(skeletonFrame);
-        }
+    while (it.hasNext()) {
 
-        QQuickView::update();
-    }
-    else if (m_instance != NULL)
-    {
-        stop();
-        qDebug() << "Closed";
+        dai::DataInstance* instance = it.next();
+
+        if (instance != NULL && instance->hasNext())
+        {
+            const dai::DataFrame& frame = instance->nextFrame();
+            dai::InstanceInfo::InstanceType instanceType = instance->getMetadata().getType();
+
+            if (instanceType == dai::InstanceInfo::Depth)
+            {
+                const dai::DepthFrame& depthFrame = static_cast<const dai::DepthFrame&>(frame);
+                this->getDepthPainter().setFrame(depthFrame);
+            }
+            else if (instanceType == dai::InstanceInfo::Skeleton)
+            {
+                const dai::Skeleton skeletonFrame = static_cast<const dai::Skeleton&>(frame);
+                this->getSkeletonPainter().setFrame(skeletonFrame);
+            }
+
+            QQuickView::update();
+        }
+        else if (instance != NULL)
+        {
+            stop();
+            qDebug() << "Closed";
+        }
     }
 }
 
@@ -243,7 +258,8 @@ bool InstanceViewer::event(QEvent* ev)
 {
     if (ev->type() == QEvent::Close) {
         this->stop();
-        this->hide();
+        this->destroy();
+        emit viewerClose(this);
         return true;
     }
     else return QQuickView::event(ev);

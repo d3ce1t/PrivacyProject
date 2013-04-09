@@ -23,6 +23,8 @@ DatasetBrowser::DatasetBrowser(QWidget *parent) :
         m_dataset = NULL;
     }
 
+    m_viewer = NULL;
+
     // Load widgets with DataSet Info
     const DatasetMetadata& info = m_dataset->getMetadata();
 
@@ -93,15 +95,38 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
     DataInstance* instance = NULL;
 
     if (info.getType() == InstanceInfo::Depth)
+        //instance = m_dataset->getDepthInstance(info.getActivity(), info.getActor(), info.getSample());
         instance = new MSRDailyDepthInstance(info);
     else if (info.getType() == InstanceInfo::Skeleton) {
         instance = new MSRDailySkeletonInstance(info);
     }
 
-    InstanceViewer* viewer = new InstanceViewer;
+    InstanceViewer* viewer = NULL;
+
+    if (ui->checkBoxSameViewer->isChecked()) {
+
+        if (m_viewer == NULL) {
+            m_viewer = new InstanceViewer;
+            connect(m_viewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
+        }
+
+        viewer = m_viewer;
+    }
+    else
+    {
+        viewer = new InstanceViewer;
+    }
+
     viewer->show();
-    //DataInstance& instance = m_dataset->getDepthInstance(info.getActivity(), info.getActor(), info.getSample());
+    instance->setPlayLoop(ui->checkBoxLoop->isChecked());
     viewer->play(instance);
+}
+
+void DatasetBrowser::viewerClosed(InstanceViewer* viewer)
+{
+    if (m_viewer == viewer) {
+        m_viewer = NULL;
+    }
 }
 
 void DatasetBrowser::loadInstances()

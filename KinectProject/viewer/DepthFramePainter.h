@@ -29,8 +29,7 @@ private:
     void loadVideoTexture(openni::RGB888Pixel* texture, GLsizei width, GLsizei height, GLuint glTextureId);
 
     const int               textureUnit;
-    QVector3D               colors[4];
-    const int               colorCount;
+    QVector3D               colors[1];
     bool                    m_isFrameAvailable;
 
     float                   m_pDepthHist[MAX_DEPTH];
@@ -46,6 +45,8 @@ private:
     GLuint                  m_texCoord; // Texture coord in the shader
     GLuint                  m_texSampler; // Texture Sampler in the shader
     GLuint                  m_sampler; // Sampler
+
+    DepthFrame              m_frame;
 };
 
 } // End Namespace

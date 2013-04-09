@@ -4,6 +4,14 @@
 
 using namespace dai;
 
+DepthFrame::DepthFrame()
+{
+    m_width = 0;
+    m_height = 0;
+    m_data = 0;
+    m_skIDVals = 0;
+}
+
 DepthFrame::DepthFrame(int width, int height)
 {
     m_width = width;

@@ -5,12 +5,9 @@
 namespace dai {
 
 DepthFramePainter::DepthFramePainter()
-    : textureUnit(0), colorCount(3)
+    : textureUnit(0)
 {
-    colors[0] = QVector3D(1, 0, 0); // Red
-    colors[1] = QVector3D(0, 1, 0); // Green
-    colors[2] = QVector3D(0, 0, 1); // Blue
-    colors[3] = QVector3D(1, 1, 1); // White
+    colors[0] = QVector3D(1, 1, 1); // White
 
     m_shaderProgram = NULL;
     m_pTexMap = NULL;
@@ -66,6 +63,32 @@ void DepthFramePainter::render()
 
     loadVideoTexture(m_pTexMap, m_pTexMapWidth, m_pTexMapHeight, m_frameTexture);
 
+
+   /* for (int y = 0; y < m_frame.getHeight(); ++y)
+    {
+        for (int x = 0; x < m_frame.getWidth(); ++x)
+        {
+            int distance = frame.getItem(y, x);
+
+            if (distance != 0)
+            {
+                int nHistValue = m_pDepthHist[distance]; // Get a Color
+
+                float color[] = {
+                    nHistValue, nHistValue, nHistValue
+                };
+
+                float vertice[] = {
+                    x, y, distance
+                };
+
+
+
+
+            }
+        }
+    }*/
+
     // Render
     glEnable(GL_TEXTURE_2D);
 
@@ -98,6 +121,8 @@ void DepthFramePainter::resize( float w, float h )
 void DepthFramePainter::setFrame(const DataFrame &frame)
 {
     const DepthFrame& depthFrame = static_cast<const DepthFrame&>(frame);
+
+    m_frame = depthFrame;
 
     // Texture map init (preserve memory if size matches)
     if (m_pTexMap == NULL || m_pTexMapWidth != depthFrame.getWidth() || m_pTexMapHeight != depthFrame.getHeight())
@@ -154,9 +179,9 @@ void DepthFramePainter::prepareFrameTexture(openni::RGB888Pixel* texture, const 
 
             if (distance != 0)
             {
-                factor[0] = colors[colorCount].x(); // 100%
-                factor[1] = colors[colorCount].y(); // 100%
-                factor[2] = colors[colorCount].z(); // 100%
+                factor[0] = colors[0].x(); // 100%
+                factor[1] = colors[0].y(); // 100%
+                factor[2] = colors[0].z(); // 100%
 
 
                 int nHistValue = m_pDepthHist[distance]; // Get a Color

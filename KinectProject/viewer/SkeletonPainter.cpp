@@ -97,9 +97,11 @@ void SkeletonPainter::prepareShaderProgram()
 
 void SkeletonPainter::drawLimb(const dai::SkeletonJoint& joint1, const dai::SkeletonJoint& joint2)
 {
+    float z_offset = m_skeleton.getJoint(dai::SkeletonJoint::JOINT_CENTER_HIP).getPosition().z();
+
     float coordinates[] = {
-        joint1.getPosition().x(), joint1.getPosition().y(), joint1.getPosition().z(),
-        joint2.getPosition().x(), joint2.getPosition().y(), joint2.getPosition().z()
+        joint1.getPosition().x(), joint1.getPosition().y(), -joint1.getPosition().z() + z_offset,
+        joint2.getPosition().x(), joint2.getPosition().y(), -joint2.getPosition().z() + z_offset
     };
 
     float coorColours[] = {
@@ -110,6 +112,7 @@ void SkeletonPainter::drawLimb(const dai::SkeletonJoint& joint1, const dai::Skel
     };
 
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+    glDisable(GL_DEPTH_TEST);
 
     // Bind Shader
     m_shaderProgram->bind();

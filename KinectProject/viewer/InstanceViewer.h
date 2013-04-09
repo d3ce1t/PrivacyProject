@@ -15,7 +15,7 @@ namespace dai {
     class ViewerPainter;
 }
 
-class InstanceViewer : private QQuickView
+class InstanceViewer : public QQuickView
 {
     Q_OBJECT
 
@@ -34,6 +34,7 @@ public:
 
 signals:
     void changeOfStatus();
+    void viewerClose(InstanceViewer* viewer);
 
 public slots:
     void resetPerspective();
@@ -57,16 +58,17 @@ private:
     void updatePaintersMatrix();
 
     // Private member attributes
+    QList<dai::DataInstance*>   m_playList;
     QList<dai::ViewerPainter*>  m_painters;
     QElapsedTimer               m_time;
     QTimer                      m_timer;
     QMatrix4x4                  matrix;
-    dai::DataInstance*          m_instance;
     qint64                      m_lastTime;
     long long                   m_frames;
     float                       m_fps;
     bool                        m_running;
     bool                        m_initialised;
+
 };
 
 #endif // VIEWER_H

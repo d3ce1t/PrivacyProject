@@ -170,6 +170,26 @@
          <widget class="QListWidget" name="listInstances"/>
         </item>
         <item>
+         <widget class="QCheckBox" name="checkBoxSameViewer">
+          <property name="text">
+           <string>Share last viewer</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBoxLoop">
+          <property name="text">
+           <string>Enable loop</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
          <layout class="QHBoxLayout" name="horizontalLayout_5">
           <item>
            <spacer name="horizontalSpacer_2">

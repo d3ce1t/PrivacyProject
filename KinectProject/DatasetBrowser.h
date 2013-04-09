@@ -33,12 +33,14 @@ private slots:
     void on_btnUnselectAllActors_clicked();
     void on_btnSelectAllSamples_clicked();
     void on_btnUnselectAllSamples_clicked();
+    void viewerClosed(InstanceViewer *viewer);
 
 private:
     void loadInstances();
 
     Ui::DatasetBrowser*     ui;
     dai::Dataset*           m_dataset;
+    InstanceViewer*         m_viewer;
 };
 
 #endif // DATASETBROWSER_H
