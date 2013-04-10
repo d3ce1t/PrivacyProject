@@ -5,6 +5,7 @@
 #include <fstream>
 #include "DataInstance.h"
 #include "types/DepthFrame.h"
+#include <stdint.h>
 
 using namespace std;
 
@@ -13,6 +14,11 @@ namespace dai {
 class MSRActionDepthInstance : public DataInstance
 {
 public:
+
+    struct BinaryDepthFrame {
+        int32_t depthRow[320];
+    };
+
     explicit MSRActionDepthInstance(const InstanceInfo& info);
     virtual ~MSRActionDepthInstance();
     void open();

@@ -47,11 +47,12 @@ public slots:
 
 private slots:
     void renderOpenGLScene();
+    void renderLater();
     void playNextFrame();
 
 protected:
     void resizeEvent(QResizeEvent* event);
-    bool event(QEvent * ev);
+    bool event(QEvent * event);
 
 private:
     // Private Functions
@@ -61,13 +62,14 @@ private:
     QList<dai::DataInstance*>   m_playList;
     QList<dai::ViewerPainter*>  m_painters;
     QElapsedTimer               m_time;
-    QTimer                      m_timer;
+    //QTimer                      m_timer;
     QMatrix4x4                  matrix;
     qint64                      m_lastTime;
     long long                   m_frames;
     float                       m_fps;
     bool                        m_running;
     bool                        m_initialised;
+    bool                        m_update_pending;
 
 };
 

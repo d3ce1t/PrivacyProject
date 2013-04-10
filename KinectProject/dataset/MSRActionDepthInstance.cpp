@@ -10,7 +10,7 @@ using namespace std;
 namespace dai {
 
 MSRActionDepthInstance::MSRActionDepthInstance(const InstanceInfo &info)
-    : DataInstance(info), m_currentFrame(1, 1)
+    : DataInstance(info), m_currentFrame(320, 240)
 {
     m_nFrames = 0;
     m_width = 0;
@@ -37,7 +37,8 @@ void MSRActionDepthInstance::open()
     m_file.read((char *) &m_width, 4);
     m_file.read((char *) &m_height, 4);
 
-    m_currentFrame = DepthFrame(m_width, m_height);
+    if (m_width != 320 || m_height != 240)
+        exit(1);
 }
 
 void MSRActionDepthInstance::close()
@@ -56,16 +57,6 @@ int MSRActionDepthInstance::getTotalFrames()
 {
     return m_nFrames;
 }
-
-/*int MSRDailyDepthInstance::getResolutionX()
-{
-    return m_width;
-}
-
-int MSRDailyDepthInstance::getResolutionY()
-{
-    return m_height;
-}*/
 
 bool MSRActionDepthInstance::hasNext()
 {
@@ -89,19 +80,15 @@ const DepthFrame &MSRActionDepthInstance::nextFrame()
         m_currentFrame.setIndex(m_frameIndex);
 
         // Read Data from File
-        int* tempRow = new int[m_width];
+        BinaryDepthFrame tempFrame[240]; // I know MSR Action 3D depth is 320 x 240
+        m_file.read( (char *) tempFrame, sizeof(tempFrame) );
+        int *data = m_currentFrame.getDataPtr();
 
-        for(int r=0; r<m_height; r++)
+        for (int r=0; r<m_height; r++)
         {
-            m_file.read((char *) tempRow, 4*m_width);
-
-            for(int c=0; c<m_width; c++) {
-                m_currentFrame.setItem(r, c, tempRow[c]);
-            }
+            memcpy(data, tempFrame[r].depthRow, m_width * sizeof(int));
+            data += m_width;
         }
-
-        delete[] tempRow;
-        tempRow = NULL;
 
         m_frameIndex++;
     }

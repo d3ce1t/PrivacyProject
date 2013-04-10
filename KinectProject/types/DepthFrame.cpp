@@ -1,6 +1,7 @@
 #include "DepthFrame.h"
 #include <cstring>
 #include <limits>
+#include <QDebug>
 
 using namespace dai;
 
@@ -10,6 +11,7 @@ DepthFrame::DepthFrame()
     m_height = 0;
     m_data = 0;
     m_skIDVals = 0;
+    m_nNonZeroOfPoints = 0;
 }
 
 DepthFrame::DepthFrame(int width, int height)
@@ -18,6 +20,7 @@ DepthFrame::DepthFrame(int width, int height)
     m_height = height;
     m_data = new int[width * height];
     m_skIDVals = new uint8_t[width * height];
+    m_nNonZeroOfPoints = 0;
 }
 
 DepthFrame::DepthFrame(const DepthFrame& other)
@@ -25,16 +28,9 @@ DepthFrame::DepthFrame(const DepthFrame& other)
     m_width = other.m_width;
     m_height = other.m_height;
     m_index = other.m_index;
+    m_nNonZeroOfPoints = other.m_nNonZeroOfPoints;
     m_data = new int[m_width * m_height];
-
-    int r,c;
-
-    for(r=0; r<other.m_height; r++) {
-        for(c=0; c<other.m_width; c++)
-        {
-            this->setItem(r,c, other.getItem(r, c));
-        }
-    }
+    memcpy(m_data, other.m_data, m_width * m_height * sizeof(int));
 }
 
 DepthFrame& DepthFrame::operator=(const DepthFrame& other)
@@ -52,17 +48,9 @@ DepthFrame& DepthFrame::operator=(const DepthFrame& other)
         m_data = new int[m_width * m_height];
     }
 
-    memset(m_data, 0, m_width * m_height * sizeof(int));
+    memcpy(m_data, other.m_data, m_width * m_height * sizeof(int));
     m_index = other.m_index;
-
-    int r,c;
-
-    for(r=0; r<other.m_height; r++) {
-        for(c=0; c<other.m_width; c++)
-        {
-            this->setItem(r,c, other.getItem(r, c));
-        }
-    }
+    m_nNonZeroOfPoints = other.m_nNonZeroOfPoints;
 
     return *this;
 }
@@ -88,12 +76,38 @@ int DepthFrame::getHeight() const
     return m_height;
 }
 
+unsigned int DepthFrame::getNumberOfNonZeroPoints()
+{
+    unsigned int nNonZeroPoints = 0;
+
+    if (m_nNonZeroOfPoints != 0) {
+        nNonZeroPoints = m_nNonZeroOfPoints;
+    } else {
+        // Count how may points there are in a given depth
+        for (int y = 0; y < m_height; ++y)
+        {
+            for (int x = 0; x < m_width; ++x)
+            {
+                float distance = m_data[y * m_width + x];
+
+                if (distance != 0) {
+                    nNonZeroPoints++;
+                }
+            }
+        }
+
+        m_nNonZeroOfPoints = nNonZeroPoints;
+    }
+
+    return nNonZeroPoints;
+}
+
 int DepthFrame::getItem(int row, int column) const
 {
     if (row < 0 || row >= m_height || column < 0 || column >= m_width )
         throw 1;
 
-    return m_data[row * m_width + column] ;
+    return m_data[row * m_width + column];
 }
 
 void DepthFrame::setItem(int row, int column, int value)
@@ -101,7 +115,13 @@ void DepthFrame::setItem(int row, int column, int value)
     if (row < 0 || row >= m_height || column < 0 || column >= m_width )
         throw 1;
 
+    m_nNonZeroOfPoints = 0;
     m_data[row * m_width + column] = value;
+}
+
+int *DepthFrame::getDataPtr()
+{
+    return m_data;
 }
 
 //
@@ -113,14 +133,14 @@ void DepthFrame::calculateHistogram(float* pHistogram, int histogramSize, const 
     // Calculate the accumulative histogram (the yellow display...)
     memset(pHistogram, 0, histogramSize*sizeof(float));
 
-    unsigned int nNumberOfPoints = 0;
+    int nNumberOfPoints = 0;
 
     // Count how may points there are in a given depth
-    for (int y = 0; y < frame.getHeight(); ++y)
+    for (int y = 0; y < frame.m_height; ++y)
     {
-        for (int x = 0; x < frame.getWidth(); ++x)
+        for (int x = 0; x < frame.m_width; ++x)
         {
-            int distance = frame.getItem(y, x);
+            int distance = frame.m_data[y * frame.m_width + x];
 
             if (distance != 0) {
                 pHistogram[distance]++;
@@ -151,11 +171,11 @@ int DepthFrame::maxValue(const DepthFrame& frame)
     int r,c;
     int bestValue = std::numeric_limits<int>::min();
 
-    for(r=0; r<frame.getHeight(); r++)
+    for(r=0; r<frame.m_height; r++)
     {
-        for(c=0; c<frame.getWidth(); c++)
+        for(c=0; c<frame.m_width; c++)
         {
-            int temp = frame.getItem(r,c);
+            int temp = frame.m_data[r * frame.m_width + c];
 
             if(temp > bestValue)
             {
@@ -172,11 +192,11 @@ int DepthFrame::minValue(const DepthFrame& frame)
     int r,c;
     int bestValue = std::numeric_limits<int>::max();
 
-    for(r=0; r<frame.getHeight(); r++)
+    for(r=0; r<frame.m_height; r++)
     {
-        for(c=0; c<frame.getWidth(); c++)
+        for(c=0; c<frame.m_width; c++)
         {
-            int temp = frame.getItem(r,c);
+            int temp = frame.m_data[r * frame.m_width + c];
 
             if(temp != 0 && temp < bestValue)
             {

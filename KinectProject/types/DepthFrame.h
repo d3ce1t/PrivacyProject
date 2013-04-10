@@ -17,7 +17,7 @@ class DepthFrame : public DataFrame
 {
 public:
     // Static Class Methods
-    static void calculateHistogram(float* pHistogram, int histogramSize, const DepthFrame& frame);
+    static void calculateHistogram(float* pHistogram, int histogramSize, const DepthFrame &frame);
     static int maxValue(const DepthFrame& frame);
     static int minValue(const DepthFrame& frame);
 
@@ -30,8 +30,10 @@ public:
     // Member Methods
     int getWidth() const;
     int getHeight() const;
+    unsigned int getNumberOfNonZeroPoints();
     int getItem(int row, int column) const;
     void setItem(int row, int column, int value);
+    int *getDataPtr();
 
     // Overriden Operators
     DepthFrame& operator=(const DepthFrame& other);
@@ -41,6 +43,7 @@ private:
     int m_height;
     int* m_data;
     uint8_t* m_skIDVals;
+    unsigned int m_nNonZeroOfPoints;
 };
 
 }

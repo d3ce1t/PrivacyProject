@@ -22,6 +22,7 @@ InstanceViewer::InstanceViewer( QWindow *parent )
     QQuickView::setSource(QUrl("qrc:///scenegraph/openglunderqml/main.qml"));
     setClearBeforeRendering( false );
     QObject::connect(this, SIGNAL(beforeRendering()), SLOT(renderOpenGLScene()), Qt::DirectConnection);
+    QObject::connect(this, SIGNAL(frameSwapped()), SLOT(renderLater()), Qt::DirectConnection);
 
     // Viewer Setup
     this->setTitle("Instance Viewer");
@@ -30,7 +31,7 @@ InstanceViewer::InstanceViewer( QWindow *parent )
     m_initialised = false;
     this->stop();
 
-    QObject::connect(&m_timer, SIGNAL(timeout()), this, SLOT(playNextFrame()));
+    //QObject::connect(&m_timer, SIGNAL(timeout()), this, SLOT(playNextFrame()));
 }
 
 InstanceViewer::~InstanceViewer()
@@ -75,8 +76,9 @@ void InstanceViewer::play(dai::DataInstance* instance)
     }
 
     m_running = true;
-    m_timer.start(200);
+    //m_timer.start(66);
     m_time.start();
+    QCoreApplication::postEvent(this, new QEvent(QEvent::UpdateRequest));
     qDebug() << "Playing";
 }
 
@@ -93,7 +95,7 @@ void InstanceViewer::stop()
     m_fps = 0;
     m_lastTime = 0;
     m_running = false;
-    m_timer.stop();
+    //m_timer.stop();
 
     emit changeOfStatus();
 
@@ -103,6 +105,8 @@ void InstanceViewer::stop()
 void InstanceViewer::playNextFrame()
 {
     QListIterator<dai::DataInstance*> it(m_playList);
+
+    m_update_pending = false;
 
     while (it.hasNext()) {
 
@@ -124,6 +128,7 @@ void InstanceViewer::playNextFrame()
                 this->getSkeletonPainter().setFrame(skeletonFrame);
             }
 
+            //renderOpenGLScene();
             QQuickView::update();
         }
         else if (instance != NULL)
@@ -131,6 +136,14 @@ void InstanceViewer::playNextFrame()
             stop();
             qDebug() << "Closed";
         }
+    }
+}
+
+void InstanceViewer::renderLater()
+{
+    if (!m_update_pending) {
+        m_update_pending = true;
+        QCoreApplication::postEvent(this, new QEvent(QEvent::UpdateRequest));
     }
 }
 
@@ -254,13 +267,19 @@ void InstanceViewer::translateAxisZ(float value)
     updatePaintersMatrix();
 }
 
-bool InstanceViewer::event(QEvent* ev)
+bool InstanceViewer::event(QEvent* event)
 {
-    if (ev->type() == QEvent::Close) {
+    switch (event->type()) {
+    case QEvent::UpdateRequest:
+        playNextFrame();
+        return true;
+    case QEvent::Close:
         this->stop();
         this->destroy();
         emit viewerClose(this);
         return true;
+        break;
+    default:
+        return QQuickView::event(event);
     }
-    else return QQuickView::event(ev);
 }

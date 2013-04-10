@@ -1,13 +1,13 @@
 #include "DepthFramePainter.h"
 #include <cstdio>
 #include <QOpenGLShaderProgram>
+#include "dataset/DataInstance.h"
 
 namespace dai {
 
 DepthFramePainter::DepthFramePainter()
 {
     colors[0] = QVector3D(1, 1, 1); // White
-
     m_shaderProgram = NULL;
     m_isFrameAvailable = false;
 }
@@ -28,11 +28,6 @@ void DepthFramePainter::initialise()
     prepareShaderProgram();
 }
 
-float DepthFramePainter::normalise(float value, float minValue, float maxValue, float newMax, float newMin)
-{
-    return ( (value - minValue) * (newMax - newMin) ) / (maxValue - minValue) + newMin;
-}
-
 void DepthFramePainter::render()
 {
     if (!m_isFrameAvailable)
@@ -44,11 +39,9 @@ void DepthFramePainter::render()
     // Bind Shader
     m_shaderProgram->bind();
 
-    static int minValue = DepthFrame::minValue(m_frame);
-    static int maxValue = DepthFrame::maxValue(m_frame);
-
-    qDebug() << "Depth Min value: " << minValue;
-    qDebug() << "Depth Max value: " << maxValue;
+    float* vertex = new float[m_frame.getNumberOfNonZeroPoints() * 3 * sizeof(float)];
+    float* color = new float[m_frame.getNumberOfNonZeroPoints() * 3 * sizeof(float)];
+    int index = 0;
 
     for (int y = 0; y < m_frame.getHeight(); ++y)
     {
@@ -58,35 +51,39 @@ void DepthFramePainter::render()
 
             if (distance > 0)
             {
-                float normDistance = normalise(distance, minValue, maxValue, 1, -1);
-                float normX = normalise(x, 0, m_frame.getWidth()-1, 1, -1);
-                float normY = normalise(y, 0, m_frame.getHeight()-1, 1, -1);
-                float nHistValue = m_pDepthHist[distance]; // Get a Color
+                float normDistance = DataInstance::normalise(distance, 0, 4000, 1, -1);
+                float normX = DataInstance::normalise(x, 0, m_frame.getWidth()-1, 1, -1);
+                float normY = DataInstance::normalise(y, 0, m_frame.getHeight()-1, 1, -1);
 
-                float color[] = {
-                    nHistValue, nHistValue, nHistValue
-                };
+                vertex[index] = normX;
+                vertex[index+1] = -normY;
+                vertex[index+2] = -normDistance;
 
-                float vertex[] = {
-                    normX, -normY, -normDistance
-                };
+                color[index] = m_pDepthHist[distance];
+                color[index+1] = m_pDepthHist[distance];
+                color[index+2] = m_pDepthHist[distance];
 
-                m_shaderProgram->setAttributeArray(m_posAttr, vertex, 3);
-                m_shaderProgram->setAttributeArray(m_colorAttr, color, 3);
-                m_shaderProgram->setUniformValue(m_pointSize, 2.0f);
-                m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
-                m_shaderProgram->enableAttributeArray(m_posAttr);
-                m_shaderProgram->enableAttributeArray(m_colorAttr);
-
-                glDrawArrays(GL_POINTS, m_posAttr, 1);
+                index+=3;
             }
         }
     }
+
+    m_shaderProgram->setAttributeArray(m_posAttr, vertex, 3);
+    m_shaderProgram->setAttributeArray(m_colorAttr, color, 3);
+    m_shaderProgram->setUniformValue(m_pointSize, 2.0f);
+    m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
+    m_shaderProgram->enableAttributeArray(m_posAttr);
+    m_shaderProgram->enableAttributeArray(m_colorAttr);
+
+    glDrawArrays(GL_POINTS, m_posAttr, m_frame.getNumberOfNonZeroPoints());
 
     // Release
     m_shaderProgram->disableAttributeArray(m_colorAttr);
     m_shaderProgram->disableAttributeArray(m_posAttr);
     m_shaderProgram->release();
+
+    delete[] vertex;
+    delete[] color;
 
     glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
 }

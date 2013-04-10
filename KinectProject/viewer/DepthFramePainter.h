@@ -25,7 +25,6 @@ public:
 
 private:
     void prepareShaderProgram();
-    float normalise(float value, float minValue, float maxValue, float newMax, float newMin);
 
     QVector3D               colors[1];
     bool                    m_isFrameAvailable;

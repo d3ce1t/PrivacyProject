@@ -4,14 +4,15 @@
 #include "DataFrame.h"
 #include "SkeletonJoint.h"
 #include <QHash>
+#include <QVector3D>
 
 namespace dai {
 
 class Skeleton : public DataFrame
 {
 public:
-    static float maxValue(const Skeleton &frame);
-    static float minValue(const Skeleton& frame);
+    static QVector3D maxValue(const Skeleton &frame);
+    static QVector3D minValue(const Skeleton& frame);
 
     Skeleton();
     virtual ~Skeleton();

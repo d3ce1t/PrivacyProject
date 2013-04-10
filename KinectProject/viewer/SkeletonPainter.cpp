@@ -1,6 +1,7 @@
 #include "SkeletonPainter.h"
 #include <QOpenGLShaderProgram>
 #include "types/Skeleton.h"
+#include "dataset/DataInstance.h"
 
 namespace dai {
 
@@ -40,9 +41,11 @@ void SkeletonPainter::render()
     if (!m_isFrameAvailable)
         return;
 
-    //qDebug() << "Skeleton Max value: " << Skeleton::maxValue(m_skeleton);
-    //qDebug() << "Skeleton Min value: " << Skeleton::minValue(m_skeleton);
+    QVector3D maxValue = Skeleton::maxValue(m_skeleton);
+    QVector3D minValue = Skeleton::minValue(m_skeleton);
 
+    //qDebug() << "Max: " << maxValue;
+    //qDebug() << "Min: " << minValue;
 
     drawLimb(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_HEAD), m_skeleton.getJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER));
     drawLimb(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER), m_skeleton.getJoint(dai::SkeletonJoint::JOINT_SPINE));
@@ -100,11 +103,12 @@ void SkeletonPainter::prepareShaderProgram()
 
 void SkeletonPainter::drawLimb(const dai::SkeletonJoint& joint1, const dai::SkeletonJoint& joint2)
 {
-    float z_offset = m_skeleton.getJoint(dai::SkeletonJoint::JOINT_CENTER_HIP).getPosition().z();
+    float normDistance1 = DataInstance::normalise(joint1.getPosition().z(), 0, 4, 1, -1);
+    float normDistance2 = DataInstance::normalise(joint2.getPosition().z(), 0, 4, 1, -1);
 
     float coordinates[] = {
-        joint1.getPosition().x(), joint1.getPosition().y(), -joint1.getPosition().z() + z_offset,
-        joint2.getPosition().x(), joint2.getPosition().y(), -joint2.getPosition().z() + z_offset
+        joint1.getPosition().x(), joint1.getPosition().y(), -normDistance1,
+        joint2.getPosition().x(), joint2.getPosition().y(), -normDistance2
     };
 
     float coorColours[] = {

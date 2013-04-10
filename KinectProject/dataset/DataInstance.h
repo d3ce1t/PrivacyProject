@@ -9,6 +9,9 @@ namespace dai {
 class DataInstance
 {
 public:
+
+    static float normalise(float value, float minValue, float maxValue, float newMax, float newMin);
+
     explicit DataInstance(const InstanceInfo& info);
     const InstanceInfo& getMetadata() const;
     virtual void open() = 0;
