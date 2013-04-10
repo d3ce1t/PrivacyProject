@@ -47,17 +47,17 @@ void DepthFramePainter::render()
     {
         for (int x = 0; x < m_frame.getWidth(); ++x)
         {
-            int distance = m_frame.getItem(y, x);
+            float distance = m_frame.getItem(y, x);
 
             if (distance > 0)
             {
-                float normDistance = DataInstance::normalise(distance, 0, 4000, 1, -1);
+                //float normDistance = DataInstance::normalise(distance, 0, 4000, 1, 0);
                 float normX = DataInstance::normalise(x, 0, m_frame.getWidth()-1, 1, -1);
                 float normY = DataInstance::normalise(y, 0, m_frame.getHeight()-1, 1, -1);
 
                 vertex[index] = normX;
                 vertex[index+1] = -normY;
-                vertex[index+2] = -normDistance;
+                vertex[index+2] = -distance;
 
                 color[index] = m_pDepthHist[distance];
                 color[index+1] = m_pDepthHist[distance];
@@ -98,7 +98,7 @@ void DepthFramePainter::setFrame(const DataFrame &frame)
 {
     const DepthFrame& depthFrame = static_cast<const DepthFrame&>(frame);
     m_frame = depthFrame;
-    DepthFrame::calculateHistogram(m_pDepthHist, MAX_DEPTH, depthFrame);
+    DepthFrame::calculateHistogram(m_pDepthHist/*, MAX_DEPTH*/, depthFrame);
     m_isFrameAvailable = true;
 }
 

@@ -103,12 +103,9 @@ void SkeletonPainter::prepareShaderProgram()
 
 void SkeletonPainter::drawLimb(const dai::SkeletonJoint& joint1, const dai::SkeletonJoint& joint2)
 {
-    float normDistance1 = DataInstance::normalise(joint1.getPosition().z(), 0, 4, 1, -1);
-    float normDistance2 = DataInstance::normalise(joint2.getPosition().z(), 0, 4, 1, -1);
-
     float coordinates[] = {
-        joint1.getPosition().x(), joint1.getPosition().y(), -normDistance1,
-        joint2.getPosition().x(), joint2.getPosition().y(), -normDistance2
+        joint1.getPosition().x(), joint1.getPosition().y(), -joint1.getPosition().z(),
+        joint2.getPosition().x(), joint2.getPosition().y(), -joint2.getPosition().z()
     };
 
     float coorColours[] = {

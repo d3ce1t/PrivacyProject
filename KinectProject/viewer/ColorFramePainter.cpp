@@ -136,7 +136,7 @@ void ColorFramePainter::setFrame(const DataFrame &frame)
         m_pTexMap = new openni::RGB888Pixel[m_pTexMapWidth * m_pTexMapHeight];
     }
 
-    DepthFrame::calculateHistogram(m_pDepthHist, MAX_DEPTH, depthFrame);
+    //DepthFrame::calculateHistogram(m_pDepthHist /*, MAX_DEPTH, depthFrame);
     prepareFrameTexture(m_pTexMap, depthFrame);
     m_isFrameAvailable = true;
 }

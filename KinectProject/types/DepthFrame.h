@@ -3,6 +3,7 @@
 
 #include "DataFrame.h"
 #include <stdint.h>
+#include <QMap>
 
 namespace dai {
 
@@ -17,7 +18,7 @@ class DepthFrame : public DataFrame
 {
 public:
     // Static Class Methods
-    static void calculateHistogram(float* pHistogram, int histogramSize, const DepthFrame &frame);
+    static void calculateHistogram(QMap<float, float> &pHistogram, const DepthFrame &frame);
     static int maxValue(const DepthFrame& frame);
     static int minValue(const DepthFrame& frame);
 
@@ -31,9 +32,9 @@ public:
     int getWidth() const;
     int getHeight() const;
     unsigned int getNumberOfNonZeroPoints();
-    int getItem(int row, int column) const;
-    void setItem(int row, int column, int value);
-    int *getDataPtr();
+    float getItem(int row, int column) const;
+    void setItem(int row, int column, float value);
+    float *getDataPtr();
 
     // Overriden Operators
     DepthFrame& operator=(const DepthFrame& other);
@@ -41,7 +42,7 @@ public:
 private:
     int m_width;
     int m_height;
-    int* m_data;
+    float* m_data;
     uint8_t* m_skIDVals;
     unsigned int m_nNonZeroOfPoints;
 };

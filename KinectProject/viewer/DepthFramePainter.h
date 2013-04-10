@@ -29,7 +29,7 @@ private:
     QVector3D               colors[1];
     bool                    m_isFrameAvailable;
 
-    float                   m_pDepthHist[MAX_DEPTH];
+    QMap<float, float>      m_pDepthHist;
     QOpenGLShaderProgram*   m_shaderProgram;
 
     // OpenGL identifiers

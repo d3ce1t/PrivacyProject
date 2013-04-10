@@ -18,7 +18,7 @@ DepthFrame::DepthFrame(int width, int height)
 {
     m_width = width;
     m_height = height;
-    m_data = new int[width * height];
+    m_data = new float[width * height];
     m_skIDVals = new uint8_t[width * height];
     m_nNonZeroOfPoints = 0;
 }
@@ -29,8 +29,8 @@ DepthFrame::DepthFrame(const DepthFrame& other)
     m_height = other.m_height;
     m_index = other.m_index;
     m_nNonZeroOfPoints = other.m_nNonZeroOfPoints;
-    m_data = new int[m_width * m_height];
-    memcpy(m_data, other.m_data, m_width * m_height * sizeof(int));
+    m_data = new float[m_width * m_height];
+    memcpy(m_data, other.m_data, m_width * m_height * sizeof(float));
 }
 
 DepthFrame& DepthFrame::operator=(const DepthFrame& other)
@@ -45,13 +45,12 @@ DepthFrame& DepthFrame::operator=(const DepthFrame& other)
 
         m_width = other.m_width;
         m_height = other.m_height;
-        m_data = new int[m_width * m_height];
+        m_data = new float[m_width * m_height];
     }
 
-    memcpy(m_data, other.m_data, m_width * m_height * sizeof(int));
+    memcpy(m_data, other.m_data, m_width * m_height * sizeof(float));
     m_index = other.m_index;
     m_nNonZeroOfPoints = other.m_nNonZeroOfPoints;
-
     return *this;
 }
 
@@ -102,7 +101,7 @@ unsigned int DepthFrame::getNumberOfNonZeroPoints()
     return nNonZeroPoints;
 }
 
-int DepthFrame::getItem(int row, int column) const
+float DepthFrame::getItem(int row, int column) const
 {
     if (row < 0 || row >= m_height || column < 0 || column >= m_width )
         throw 1;
@@ -110,7 +109,7 @@ int DepthFrame::getItem(int row, int column) const
     return m_data[row * m_width + column];
 }
 
-void DepthFrame::setItem(int row, int column, int value)
+void DepthFrame::setItem(int row, int column, float value)
 {
     if (row < 0 || row >= m_height || column < 0 || column >= m_width )
         throw 1;
@@ -119,7 +118,7 @@ void DepthFrame::setItem(int row, int column, int value)
     m_data[row * m_width + column] = value;
 }
 
-int *DepthFrame::getDataPtr()
+float *DepthFrame::getDataPtr()
 {
     return m_data;
 }
@@ -128,40 +127,58 @@ int *DepthFrame::getDataPtr()
 // Static Class Methods
 //
 
-void DepthFrame::calculateHistogram(float* pHistogram, int histogramSize, const DepthFrame& frame)
+void DepthFrame::calculateHistogram(QMap<float, float> &pHistogram, /*int histogramSize,*/ const DepthFrame& frame)
 {
-    // Calculate the accumulative histogram (the yellow display...)
-    memset(pHistogram, 0, histogramSize*sizeof(float));
-
     int nNumberOfPoints = 0;
+
+    pHistogram.clear();
 
     // Count how may points there are in a given depth
     for (int y = 0; y < frame.m_height; ++y)
     {
         for (int x = 0; x < frame.m_width; ++x)
         {
-            int distance = frame.m_data[y * frame.m_width + x];
+            float distance = frame.m_data[y * frame.m_width + x];
 
             if (distance != 0) {
-                pHistogram[distance]++;
+                if (pHistogram.contains(distance)) {
+                    pHistogram[distance]++;
+                } else {
+                    pHistogram.insert(distance, 1);
+                }
                 nNumberOfPoints++;
             }
         }
     }
 
     // Accumulate in the given depth all the points of previous depth layers
-    for (int nIndex=1; nIndex<histogramSize; nIndex++)
-    {
-        pHistogram[nIndex] += pHistogram[nIndex-1];
+    QMapIterator<float, float> it(pHistogram);
+    float previousKey;
+    float currentKey;
+
+    if (it.hasNext()) {
+        it.next();
+        previousKey = it.key();
+    }
+
+    while (it.hasNext()) {
+        it.next();
+        currentKey = it.key();
+        pHistogram[currentKey] += pHistogram[previousKey];
+        previousKey = currentKey;
     }
 
     // Normalize (0% -> 256 color value, whereas 100% -> 0 color value)
     // In other words, near objects are brighter than far objects
     if (nNumberOfPoints)
     {
-        for (int nIndex=1; nIndex<histogramSize; nIndex++)
-        {
-            pHistogram[nIndex] = 1.0f - (pHistogram[nIndex] / nNumberOfPoints);
+        QMapIterator<float, float> it(pHistogram);
+        float currentKey;
+
+        while (it.hasNext()) {
+            it.next();
+            currentKey = it.key();
+            pHistogram[currentKey] = 1.0f - (pHistogram[currentKey] / nNumberOfPoints);
         }
     }
 }

@@ -82,11 +82,11 @@ const DepthFrame &MSRActionDepthInstance::nextFrame()
         // Read Data from File
         BinaryDepthFrame tempFrame[240]; // I know MSR Action 3D depth is 320 x 240
         m_file.read( (char *) tempFrame, sizeof(tempFrame) );
-        int *data = m_currentFrame.getDataPtr();
+        float *data = m_currentFrame.getDataPtr();
 
         for (int r=0; r<m_height; r++)
         {
-            memcpy(data, tempFrame[r].depthRow, m_width * sizeof(int));
+            memcpy(data, tempFrame[r].depthRow, m_width * sizeof(float));
             data += m_width;
         }
 

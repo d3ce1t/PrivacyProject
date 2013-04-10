@@ -99,6 +99,9 @@ const Skeleton &MSRDailySkeletonInstance::nextFrame()
             m_file >> s_z;
             m_file >> s_confidence;
 
+            // Normalise Depth
+            w_z = DataInstance::normalise(w_z, 0, 4, 1, 0);
+
             SkeletonJoint* joint = new SkeletonJoint( Point3f(w_x, w_y, w_z) );
             joint->setScreenPosition( Point3f(s_x, s_y, s_z) );
             joint->setType(convertIntToType(i));
