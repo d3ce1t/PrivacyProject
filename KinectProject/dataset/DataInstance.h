@@ -10,7 +10,7 @@ class DataInstance
 {
 public:
 
-    static float normalise(float value, float minValue, float maxValue, float newMax, float newMin);
+    static float normalise(float value, float minValue, float maxValue, float newMin, float newMax);
 
     explicit DataInstance(const InstanceInfo& info);
     const InstanceInfo& getMetadata() const;

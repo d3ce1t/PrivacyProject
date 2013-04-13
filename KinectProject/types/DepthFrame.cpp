@@ -21,6 +21,7 @@ DepthFrame::DepthFrame(int width, int height)
     m_data = new float[width * height];
     m_skIDVals = new uint8_t[width * height];
     m_nNonZeroOfPoints = 0;
+    memset(m_data, 0, width*height*sizeof(float));
 }
 
 DepthFrame::DepthFrame(const DepthFrame& other)
@@ -183,16 +184,16 @@ void DepthFrame::calculateHistogram(QMap<float, float> &pHistogram, /*int histog
     }
 }
 
-int DepthFrame::maxValue(const DepthFrame& frame)
+float DepthFrame::maxValue(const DepthFrame& frame)
 {
     int r,c;
-    int bestValue = std::numeric_limits<int>::min();
+    float bestValue = std::numeric_limits<float>::min();
 
     for(r=0; r<frame.m_height; r++)
     {
         for(c=0; c<frame.m_width; c++)
         {
-            int temp = frame.m_data[r * frame.m_width + c];
+            float temp = frame.m_data[r * frame.m_width + c];
 
             if(temp > bestValue)
             {
@@ -204,18 +205,18 @@ int DepthFrame::maxValue(const DepthFrame& frame)
     return bestValue;
 }
 
-int DepthFrame::minValue(const DepthFrame& frame)
+float DepthFrame::minValue(const DepthFrame& frame)
 {
     int r,c;
-    int bestValue = std::numeric_limits<int>::max();
+    float bestValue = std::numeric_limits<float>::max();
 
     for(r=0; r<frame.m_height; r++)
     {
         for(c=0; c<frame.m_width; c++)
         {
-            int temp = frame.m_data[r * frame.m_width + c];
+            float temp = frame.m_data[r * frame.m_width + c];
 
-            if(temp != 0 && temp < bestValue)
+            if(temp < bestValue)
             {
                 bestValue = temp;
             }

@@ -16,12 +16,14 @@ namespace dai {
 class SkeletonPainter : public ViewerPainter
 {
 public:
-    explicit SkeletonPainter();
+    explicit SkeletonPainter(DataInstance* instance);
     virtual ~SkeletonPainter();
+    bool prepareNext();
+    void resize(float w, float h );
+
+protected:
     void initialise();
     void render();
-    void resize(float w, float h );
-    void setFrame(const DataFrame& frame);
 
 private:
     void prepareShaderProgram();

@@ -13,15 +13,17 @@ class QOpenGLShaderProgram;
 
 namespace dai {
 
-class ColorFramePainter : public ViewerPainter
+class ColorFramePainter
 {
 public:
     ColorFramePainter();
     virtual ~ColorFramePainter();
-    void initialise();
-    void render();
     void resize( float w, float h );
     void setFrame(const DataFrame &frame);
+
+protected:
+    void initialise();
+    void render();
 
 private:
     void prepareShaderProgram();

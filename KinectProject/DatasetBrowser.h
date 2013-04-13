@@ -7,10 +7,10 @@
 #include "types/DepthFrame.h"
 #include "viewer/InstanceViewer.h"
 #include "viewer/DepthFramePainter.h"
-#include "dataset/DatasetEnums.h"
+
 
 namespace Ui {
-class DatasetBrowser;
+    class DatasetBrowser;
 }
 
 class DatasetBrowser : public QMainWindow
@@ -39,7 +39,7 @@ private slots:
     void on_comboDataset_activated(int index);
 
 private:
-    void loadDataset(dai::DatasetType type);
+    void loadDataset(dai::Dataset::DatasetType type);
     void loadInstances();
 
     Ui::DatasetBrowser*     ui;

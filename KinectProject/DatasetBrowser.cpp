@@ -19,7 +19,7 @@ DatasetBrowser::DatasetBrowser(QWidget *parent) :
 
     m_viewer = NULL;
     m_dataset = NULL;
-    loadDataset( (DatasetType) ui->comboDataset->currentIndex());
+    loadDataset( (Dataset::DatasetType) ui->comboDataset->currentIndex());
 
     // Connect Signals
     connect(ui->listActivities, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(listItemChange(QListWidgetItem*)));
@@ -65,10 +65,9 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
     DataInstance* instance = NULL;
 
     if (info.getType() == InstanceInfo::Depth)
-        instance = dynamic_cast<DataInstance*>(m_dataset->getDepthInstance(info.getActivity(), info.getActor(), info.getSample()));
-        //instance = new MSRDailyDepthInstance(info);
+        instance = m_dataset->getDepthInstance(info);
     else if (info.getType() == InstanceInfo::Skeleton) {
-        instance = new MSRDailySkeletonInstance(info);
+        instance = m_dataset->getSkeletonInstance(info);
     }
 
     InstanceViewer* viewer = NULL;
@@ -85,6 +84,7 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
     else
     {
         viewer = new InstanceViewer;
+        connect(viewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
     }
 
     viewer->show();
@@ -97,18 +97,20 @@ void DatasetBrowser::viewerClosed(InstanceViewer* viewer)
     if (m_viewer == viewer) {
         m_viewer = NULL;
     }
+
+    delete viewer;
 }
 
-void DatasetBrowser::loadDataset(DatasetType type)
+void DatasetBrowser::loadDataset(Dataset::DatasetType type)
 {
     if (m_dataset != NULL) {
         delete m_dataset;
         m_dataset = NULL;
     }
 
-    if (type == Dataset_MSRDailyActivity3D) {
+    if (type == Dataset::Dataset_MSRDailyActivity3D) {
         m_dataset = new MSRDailyActivity3D();
-    } else if (type == Dataset_MSRAction3D) {
+    } else if (type == Dataset::Dataset_MSRAction3D) {
         m_dataset = new MSR3Action3D();
     }
 
@@ -243,5 +245,5 @@ void DatasetBrowser::on_btnUnselectAllSamples_clicked()
 
 void DatasetBrowser::on_comboDataset_activated(int index)
 {
-    loadDataset((DatasetType) index);
+    loadDataset((Dataset::DatasetType) index);
 }

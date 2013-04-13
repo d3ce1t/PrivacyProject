@@ -9,7 +9,7 @@ class QOpenGLShaderProgram;
 
 namespace dai {
 
-class Grill : public ViewerPainter
+class Grill
 {
 public:
     Grill();

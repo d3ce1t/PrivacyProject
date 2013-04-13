@@ -5,8 +5,12 @@
 
 namespace dai {
 
-DepthFramePainter::DepthFramePainter()
+DepthFramePainter::DepthFramePainter(DataInstance* instance)
+    : ViewerPainter(instance)
 {
+    if (instance->getMetadata().getType() != InstanceInfo::Depth)
+        throw 1;
+
     colors[0] = QVector3D(1, 1, 1); // White
     m_shaderProgram = NULL;
     m_isFrameAvailable = false;
@@ -20,12 +24,37 @@ DepthFramePainter::~DepthFramePainter()
     }
 
     m_isFrameAvailable = false;
+
+    qDebug() << "DepthFramePaiter destroyed";
 }
 
 void DepthFramePainter::initialise()
 {
     // Load, compile and link the shader program
     prepareShaderProgram();
+}
+
+bool DepthFramePainter::prepareNext()
+{
+    bool result = false;
+
+    if (m_instance != NULL && m_instance->hasNext())
+    {
+        const dai::DataFrame& frame = m_instance->nextFrame();
+        const DepthFrame& depthFrame = static_cast<const DepthFrame&>(frame);
+        // FIX: Frame copy. I should not copy.
+        m_frame = depthFrame;
+        DepthFrame::calculateHistogram(m_pDepthHist, depthFrame);
+        m_isFrameAvailable = true;
+        result = true;
+    }
+    else if (m_instance != NULL)
+    {
+        m_instance->close();
+        qDebug() << "Closed";
+    }
+
+    return result;
 }
 
 void DepthFramePainter::render()
@@ -35,6 +64,12 @@ void DepthFramePainter::render()
 
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
     //glDisable(GL_DEPTH_TEST);
+
+    static float min = DepthFrame::minValue(m_frame);
+    static float max = DepthFrame::maxValue(m_frame);
+
+    /*qDebug() << "Min: " << min;
+    qDebug() << "Max: " << max;*/
 
     // Bind Shader
     m_shaderProgram->bind();
@@ -51,9 +86,8 @@ void DepthFramePainter::render()
 
             if (distance > 0)
             {
-                //float normDistance = DataInstance::normalise(distance, 0, 4000, 1, 0);
-                float normX = DataInstance::normalise(x, 0, m_frame.getWidth()-1, 1, -1);
-                float normY = DataInstance::normalise(y, 0, m_frame.getHeight()-1, 1, -1);
+                float normX = DataInstance::normalise(x, 0, m_frame.getWidth()-1, -1, 1);
+                float normY = DataInstance::normalise(y, 0, m_frame.getHeight()-1, -1, 1);
 
                 vertex[index] = normX;
                 vertex[index+1] = -normY;
@@ -92,14 +126,6 @@ void DepthFramePainter::resize( float w, float h )
 {
     Q_UNUSED(w);
     Q_UNUSED(h);
-}
-
-void DepthFramePainter::setFrame(const DataFrame &frame)
-{
-    const DepthFrame& depthFrame = static_cast<const DepthFrame&>(frame);
-    m_frame = depthFrame;
-    DepthFrame::calculateHistogram(m_pDepthHist/*, MAX_DEPTH*/, depthFrame);
-    m_isFrameAvailable = true;
 }
 
 void DepthFramePainter::prepareShaderProgram()

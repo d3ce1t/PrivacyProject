@@ -3,20 +3,28 @@
 
 #include <QMatrix4x4>
 #include "types/DataFrame.h"
+#include "dataset/DataInstance.h"
 
 namespace dai {
 
 class ViewerPainter
 {
 public:
-    virtual void initialise() = 0;
-    virtual void render() = 0;
+    explicit ViewerPainter(DataInstance* instance);
+    virtual bool prepareNext() = 0;
     virtual void resize( float w, float h ) = 0;
-    virtual void setFrame(const dai::DataFrame& frame) = 0;
-    virtual void setMatrix(QMatrix4x4& m_matrix);
+    void setMatrix(QMatrix4x4& m_matrix);
+    void renderNow();
 
 protected:
+    virtual void initialise() = 0;
+    virtual void render() = 0;
+
     QMatrix4x4              m_matrix;
+    DataInstance*           m_instance;
+
+private:
+    bool                    m_initialised;
 };
 
 } // End Namespace

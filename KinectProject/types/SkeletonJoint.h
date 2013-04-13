@@ -1,7 +1,6 @@
 #ifndef SKELETONJOINT_H
 #define SKELETONJOINT_H
 
-#include "dataset/DatasetEnums.h"
 #include "Point3f.h"
 #include "Quaternion.h"
 

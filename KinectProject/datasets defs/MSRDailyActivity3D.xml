@@ -1,8 +1,6 @@
 <dataset name="MSRDailyActivity3D">
 
-	<description>
-	The dataset was captured by using a Kinect device. There are 16 activities: drink, eat, read book, call cellphone, write on a paper, use laptop, use vacuum cleaner, cheer up, sit still, toss paper, play game, lie down on sofa, walk, play guitar, stand up, sit down. There are 10 subjects. Each subject performs each activity twice, once in standing position, and once in sitting position. There is a sofa in the scene. Three channels are recorded: depth maps (.bin), skeleton joint positions (.txt), and RGB video (.avi). There are 16*10*2=320 files for each channel. In total, there are 320*3=960 files. Note that the RGB channel anddepth channel are recorded independently, so they are not strictly synchronized. The format of the skeleton file is as follows. The first integer is the number of frames. The second integer is the number of joints which is always 20. For each frame, the first integer is the number of rows. This integer is 40 when there is exactly one skeleton being detected in this frame. It is zero when no skeleton is detected. It is 80 when two skeletons are detected (in that case which is rare, we simply use the first skeleton in our experiments). For most of the frames, the number of rows is 40. Each joint corresponds to two rows. The first row is its real world coordinates (x,y,z) and the second row is its screen coordinates plus depth (u, v, depth) where u and v are normalized to be within [0,1]. For each row, the integer at the end is supposed to be the confidence value, but it is not useful.
-	</description>
+	<description>The dataset was captured by using a Kinect device. There are 16 activities: drink, eat, read book, call cellphone, write on a paper, use laptop, use vacuum cleaner, cheer up, sit still, toss paper, play game, lie down on sofa, walk, play guitar, stand up, sit down. There are 10 subjects. Each subject performs each activity twice, once in standing position, and once in sitting position. There is a sofa in the scene. Three channels are recorded: depth maps (.bin), skeleton joint positions (.txt), and RGB video (.avi). There are 16*10*2=320 files for each channel. In total, there are 320*3=960 files. Note that the RGB channel anddepth channel are recorded independently, so they are not strictly synchronized. The format of the skeleton file is as follows. The first integer is the number of frames. The second integer is the number of joints which is always 20. For each frame, the first integer is the number of rows. This integer is 40 when there is exactly one skeleton being detected in this frame. It is zero when no skeleton is detected. It is 80 when two skeletons are detected (in that case which is rare, we simply use the first skeleton in our experiments). For most of the frames, the number of rows is 40. Each joint corresponds to two rows. The first row is its real world coordinates (x,y,z) and the second row is its screen coordinates plus depth (u, v, depth) where u and v are normalized to be within [0,1]. For each row, the integer at the end is supposed to be the confidence value, but it is not useful.</description>
 
 	<path>/files/DataSets/MSRDailyAct3D/dataset</path>
 
@@ -27,7 +25,7 @@
 
 	<actors size="10" />
 
-	<samples>
+	<samples size="2">
 		<sample key="01">Sitting position</sample>
 		<sample key="02">Standing position</sample>
 	</samples>

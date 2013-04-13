@@ -5,8 +5,12 @@
 
 namespace dai {
 
-SkeletonPainter::SkeletonPainter()
+SkeletonPainter::SkeletonPainter(DataInstance *instance)
+    : ViewerPainter(instance)
 {
+    if (instance->getMetadata().getType() != InstanceInfo::Skeleton)
+        throw 1;
+
     m_shaderProgram = NULL;
     m_isFrameAvailable = false;
 }
@@ -29,11 +33,26 @@ void SkeletonPainter::initialise()
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
-void SkeletonPainter::setFrame(const DataFrame& frame)
+bool SkeletonPainter::prepareNext()
 {
-    const Skeleton& skeleton = static_cast<const Skeleton&>(frame);
-    m_skeleton = skeleton;
-    m_isFrameAvailable = true;
+    bool result = false;
+
+    if (m_instance != NULL && m_instance->hasNext())
+    {
+        const dai::DataFrame& frame = m_instance->nextFrame();
+        const dai::Skeleton skeletonFrame = static_cast<const dai::Skeleton&>(frame);
+        // FIX: Frame copy. And I'm not implementing operator=. I should not copy.
+        m_skeleton = skeletonFrame;
+        m_isFrameAvailable = true;
+        result = true;
+    }
+    else if (m_instance != NULL)
+    {
+        m_instance->close();
+        qDebug() << "Closed";
+    }
+
+    return result;
 }
 
 void SkeletonPainter::render()
@@ -41,8 +60,8 @@ void SkeletonPainter::render()
     if (!m_isFrameAvailable)
         return;
 
-    QVector3D maxValue = Skeleton::maxValue(m_skeleton);
-    QVector3D minValue = Skeleton::minValue(m_skeleton);
+    /*QVector3D maxValue = Skeleton::maxValue(m_skeleton);
+    QVector3D minValue = Skeleton::minValue(m_skeleton);*/
 
     //qDebug() << "Max: " << maxValue;
     //qDebug() << "Min: " << minValue;
@@ -72,6 +91,34 @@ void SkeletonPainter::render()
     drawLimb(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_HIP), m_skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_KNEE));
     drawLimb(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_KNEE), m_skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_ANKLE));
     drawLimb(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_ANKLE), m_skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_FOOT));
+
+    /*QVector3D red(1.0, 0.0, 0.0);
+    QVector3D green(0.0, 1.0, 0.0);
+    QVector3D blue(0.0, 0.0, 1.0);
+    QVector3D black(0.0, 0.0, 0.0);
+    QVector3D yellow(1.0, 1.0, 0.0);
+    QVector3D other(0.0, 1.0, 1.0);
+
+    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_HEAD), black);
+    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER), black);
+    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_SPINE), black);
+    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_CENTER_HIP), black);
+    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_SHOULDER), red);
+    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_ELBOW), red);
+    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_WRIST), yellow);
+    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_HAND), blue);
+    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_HIP), red);
+    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_KNEE), red);
+    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_ANKLE), red);
+    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_FOOT), red);
+    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_SHOULDER), green);
+    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_ELBOW), green);
+    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_WRIST), green);
+    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_HAND), green);
+    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_HIP), green);
+    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_KNEE), green);
+    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_ANKLE), green);
+    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_FOOT), green);*/
 }
 
 void SkeletonPainter::resize( float w, float h )
@@ -151,7 +198,7 @@ void SkeletonPainter::drawLimb(const dai::SkeletonJoint& joint1, const dai::Skel
 void SkeletonPainter::drawJoint(const dai::SkeletonJoint& joint, const QVector3D &color)
 {
     float coordinates[] = {
-        joint.getPosition().x(), joint.getPosition().y(), joint.getPosition().z()
+        joint.getPosition().x(), joint.getPosition().y(), -joint.getPosition().z()
     };
 
     float coorColours[] = {

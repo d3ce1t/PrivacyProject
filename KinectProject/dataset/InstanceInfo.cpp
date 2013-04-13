@@ -52,12 +52,12 @@ int InstanceInfo::getSample() const
     return m_sample;
 }
 
-const QString& InstanceInfo::getFileName() const
+QString InstanceInfo::getFileName() const
 {
     return m_file;
 }
 
-const QString& InstanceInfo::getDatasetPath() const
+QString InstanceInfo::getDatasetPath() const
 {
     return m_path;
 }

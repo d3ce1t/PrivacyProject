@@ -16,6 +16,14 @@ MSRDailyDepthInstance *MSRDailyActivity3D::getDepthInstance(int activity, int ac
     return result;
 }
 
+MSRDailySkeletonInstance* MSRDailyActivity3D::getSkeletonInstance(int activity, int actor, int sample)
+{
+    MSRDailySkeletonInstance* result = 0;
+    const InstanceInfo instanceInfo = m_metadata->instance(InstanceInfo::Skeleton, activity, actor, sample);
+    result = new MSRDailySkeletonInstance(instanceInfo);
+    return result;
+}
+
 DataInstance &MSRDailyActivity3D::getColorInstance(int activity, int actor, int sample)
 {
 

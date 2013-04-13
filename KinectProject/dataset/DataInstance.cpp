@@ -18,7 +18,7 @@ void DataInstance::setPlayLoop(bool value)
     m_playLoop = value;
 }
 
-float DataInstance::normalise(float value, float minValue, float maxValue, float newMax, float newMin)
+float DataInstance::normalise(float value, float minValue, float maxValue, float newMin, float newMax)
 {
     return ( (value - minValue) * (newMax - newMin) ) / (maxValue - minValue) + newMin;
 }

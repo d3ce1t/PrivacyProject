@@ -1,7 +1,6 @@
 #include "MainWindow.h"
 #include "ui_mainwindow.h"
 #include "viewer/InstanceViewer.h"
-#include "dataset/DatasetEnums.h"
 #include "dataset/Dataset.h"
 #include <QDebug>
 #include <QVector>

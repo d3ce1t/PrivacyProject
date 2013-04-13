@@ -9,7 +9,7 @@ class QOpenGLShaderProgram;
 
 namespace dai {
 
-class HistogramScene : public ViewerPainter
+class HistogramScene
 {
 public:
     HistogramScene();

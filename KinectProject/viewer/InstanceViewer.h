@@ -24,10 +24,7 @@ class InstanceViewer : public QQuickView
 public:
     explicit InstanceViewer( QWindow* parent = 0 );
     virtual ~InstanceViewer();
-    void initialise();
     float getFPS() {return m_fps;}
-    dai::DepthFramePainter &getDepthPainter() const;
-    dai::SkeletonPainter& getSkeletonPainter() const;
     void show();
     void play(dai::DataInstance* instance);
     void stop();
@@ -59,18 +56,14 @@ private:
     void updatePaintersMatrix();
 
     // Private member attributes
-    QList<dai::DataInstance*>   m_playList;
     QList<dai::ViewerPainter*>  m_painters;
     QElapsedTimer               m_time;
-    //QTimer                      m_timer;
     QMatrix4x4                  matrix;
     qint64                      m_lastTime;
     long long                   m_frames;
     float                       m_fps;
     bool                        m_running;
-    bool                        m_initialised;
     bool                        m_update_pending;
-
 };
 
 #endif // VIEWER_H

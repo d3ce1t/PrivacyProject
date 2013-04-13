@@ -97,7 +97,7 @@ void ColorFramePainter::render()
     m_shaderProgram->setAttributeArray(m_texCoord, texCoordsData, 2);
     m_shaderProgram->enableAttributeArray(m_posAttr);
     m_shaderProgram->enableAttributeArray(m_texCoord);
-    m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
+    //m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
 
     glActiveTexture(GL_TEXTURE0 + textureUnit);
     glBindTexture(GL_TEXTURE_2D, m_frameTexture);
@@ -158,7 +158,7 @@ void ColorFramePainter::prepareShaderProgram()
 
     m_shaderProgram->bind();
     m_shaderProgram->setUniformValue(m_texSampler, 0);
-    m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
+    //m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
     m_shaderProgram->release();
 }
 

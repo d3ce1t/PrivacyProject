@@ -19,8 +19,8 @@ class DepthFrame : public DataFrame
 public:
     // Static Class Methods
     static void calculateHistogram(QMap<float, float> &pHistogram, const DepthFrame &frame);
-    static int maxValue(const DepthFrame& frame);
-    static int minValue(const DepthFrame& frame);
+    static float maxValue(const DepthFrame& frame);
+    static float minValue(const DepthFrame& frame);
 
     // Constructor, Destructors and Copy Constructor
     explicit DepthFrame();

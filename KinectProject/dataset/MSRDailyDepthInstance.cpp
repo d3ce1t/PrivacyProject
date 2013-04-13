@@ -25,19 +25,25 @@ MSRDailyDepthInstance::~MSRDailyDepthInstance()
 void MSRDailyDepthInstance::open()
 {
     QString instancePath = m_info.getDatasetPath() + "/" + m_info.getFileName();
-    m_file.open(instancePath.toStdString().c_str(), ios::in|ios::binary);
 
-    if (!m_file.is_open()) {
-        cerr << "Error opening file" << endl;
-        return;
+    if (!m_file.is_open())
+    {
+        m_file.open(instancePath.toStdString().c_str(), ios::in|ios::binary);
+
+        if (!m_file.is_open()) {
+            cerr << "Error opening file" << endl;
+            return;
+        }
+
+        m_file.seekg(0, ios_base::beg);
+
+        m_file.read((char *) &m_nFrames, 4);
+        m_file.read((char *) &m_width, 4);
+        m_file.read((char *) &m_height, 4);
+
+        if (m_width != 320 || m_height != 240)
+            exit(1);
     }
-
-    m_file.read((char *) &m_nFrames, 4);
-    m_file.read((char *) &m_width, 4);
-    m_file.read((char *) &m_height, 4);
-
-    if (m_width != 320 || m_height != 240)
-        exit(1);
 }
 
 void MSRDailyDepthInstance::close()
@@ -59,7 +65,7 @@ int MSRDailyDepthInstance::getTotalFrames()
 
 bool MSRDailyDepthInstance::hasNext()
 {
-    if (m_frameIndex < m_nFrames || m_playLoop)
+    if (m_file.is_open() && (m_frameIndex < m_nFrames || m_playLoop))
         return true;
 
     return false;
@@ -86,7 +92,8 @@ const DepthFrame &MSRDailyDepthInstance::nextFrame()
         for (int y=0; y<m_height; ++y) {
             for (int x=0; x<m_width; ++x)
             {
-                m_currentFrame.setItem(y, x, DataInstance::normalise(tempFrame[y].depthRow[x], 0, 4000, 1, 0));
+                // Normalise: Kinect SDK provide depth values between 0 and 4000 in mm.
+                m_currentFrame.setItem(y, x, DataInstance::normalise(tempFrame[y].depthRow[x], 0, 4000, 0, 1));
             }
         }
 

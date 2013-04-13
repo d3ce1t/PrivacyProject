@@ -3,7 +3,6 @@
 #include "types/DepthFrame.h"
 #include "types/Skeleton.h"
 #include "ViewerPainter.h"
-
 #include <QDebug>
 #include <QQmlContext>
 #include <QtQml>
@@ -26,12 +25,8 @@ InstanceViewer::InstanceViewer( QWindow *parent )
 
     // Viewer Setup
     this->setTitle("Instance Viewer");
-    m_painters.append(new dai::DepthFramePainter);
-    m_painters.append(new dai::SkeletonPainter);
-    m_initialised = false;
     this->stop();
-
-    //QObject::connect(&m_timer, SIGNAL(timeout()), this, SLOT(playNextFrame()));
+    resetPerspective();
 }
 
 InstanceViewer::~InstanceViewer()
@@ -43,19 +38,8 @@ InstanceViewer::~InstanceViewer()
         delete painter;
     }*/
 
+    stop();
     m_painters.clear();
-}
-
-dai::DepthFramePainter& InstanceViewer::getDepthPainter() const
-{
-    dai::DepthFramePainter* painter = static_cast<dai::DepthFramePainter*>(m_painters.at(0));
-    return *painter;
-}
-
-dai::SkeletonPainter& InstanceViewer::getSkeletonPainter() const
-{
-    dai::SkeletonPainter* painter = static_cast<dai::SkeletonPainter*>(m_painters.at(1));
-    return *painter;
 }
 
 void InstanceViewer::show() {
@@ -64,19 +48,23 @@ void InstanceViewer::show() {
 
 void InstanceViewer::play(dai::DataInstance* instance)
 {
-    stop();
     this->setTitle("Instance Viewer (" + instance->getMetadata().getFileName() + ")");
-    m_playList.append(instance);
+    dai::InstanceInfo::InstanceType instanceType = instance->getMetadata().getType();
 
-    QListIterator<dai::DataInstance*> it(m_playList);
+    dai::ViewerPainter* painter;
 
-    while (it.hasNext()) {
-        dai::DataInstance* instance = it.next();
-        instance->open();
+    if (instanceType == dai::InstanceInfo::Depth) {
+        painter = new dai::DepthFramePainter(instance);
+    }
+    else if (instanceType == dai::InstanceInfo::Skeleton) {
+        painter = new dai::SkeletonPainter(instance);
     }
 
+    m_painters.append(painter);
+    updatePaintersMatrix();
+    instance->open();
+
     m_running = true;
-    //m_timer.start(66);
     m_time.start();
     QCoreApplication::postEvent(this, new QEvent(QEvent::UpdateRequest));
     qDebug() << "Playing";
@@ -84,90 +72,53 @@ void InstanceViewer::play(dai::DataInstance* instance)
 
 void InstanceViewer::stop()
 {
-    QListIterator<dai::DataInstance*> it(m_playList);
+    /*QListIterator<dai::DataInstance*> it(m_playList);
 
     while (it.hasNext()) {
         dai::DataInstance* instance = it.next();
         instance->close();
-    }
+    }*/
 
     m_frames = 0;
     m_fps = 0;
     m_lastTime = 0;
     m_running = false;
-    //m_timer.stop();
-
     emit changeOfStatus();
-
     qDebug() << "Stopped";
 }
 
 void InstanceViewer::playNextFrame()
 {
-    QListIterator<dai::DataInstance*> it(m_playList);
+    QListIterator<dai::ViewerPainter*> it(m_painters);
+    QList<dai::ViewerPainter*> closedPainters;
 
     m_update_pending = false;
 
     while (it.hasNext()) {
-
-        dai::DataInstance* instance = it.next();
-
-        if (instance != NULL && instance->hasNext())
-        {
-            const dai::DataFrame& frame = instance->nextFrame();
-            dai::InstanceInfo::InstanceType instanceType = instance->getMetadata().getType();
-
-            if (instanceType == dai::InstanceInfo::Depth)
-            {
-                const dai::DepthFrame& depthFrame = static_cast<const dai::DepthFrame&>(frame);
-                this->getDepthPainter().setFrame(depthFrame);
-            }
-            else if (instanceType == dai::InstanceInfo::Skeleton)
-            {
-                const dai::Skeleton skeletonFrame = static_cast<const dai::Skeleton&>(frame);
-                this->getSkeletonPainter().setFrame(skeletonFrame);
-            }
-
-            //renderOpenGLScene();
-            QQuickView::update();
-        }
-        else if (instance != NULL)
-        {
-            stop();
-            qDebug() << "Closed";
-        }
-    }
-}
-
-void InstanceViewer::renderLater()
-{
-    if (!m_update_pending) {
-        m_update_pending = true;
-        QCoreApplication::postEvent(this, new QEvent(QEvent::UpdateRequest));
-    }
-}
-
-void InstanceViewer::initialise()
-{
-    QListIterator<dai::ViewerPainter*> it(m_painters);
-
-    while (it.hasNext()) {
         dai::ViewerPainter* painter = it.next();
-        painter->initialise();
+        bool result = painter->prepareNext();
+
+        // Instance associated with this painter is closed or has failed. So I don't
+        // use this painter anymore.
+        if (result == false) {
+            closedPainters.append(painter);
+        }
     }
 
-    resetPerspective();
+    if (!closedPainters.isEmpty()) {
+        QListIterator<dai::ViewerPainter*> it(closedPainters);
+        while (it.hasNext()) {
+            dai::ViewerPainter* painter = it.next();
+            m_painters.removeAll(painter);
+        }
+        closedPainters.clear();
+    }
+
+    QQuickView::update();
 }
 
 void InstanceViewer::renderOpenGLScene()
 {
-    // First init (depends of video mode)
-    // Make here in order to use the OpenGLContext initalised by QtQuick
-    if ( !m_initialised ) {
-        initialise();
-        m_initialised = true;
-    }
-
     // Init Each Frame (because QtQuick could change it)
     glDepthRange(0.0f, 1.0f);
     glDepthMask(GL_TRUE);
@@ -192,7 +143,7 @@ void InstanceViewer::renderOpenGLScene()
 
         while (it.hasNext()) {
             dai::ViewerPainter* painter = it.next();
-            painter->render();
+            painter->renderNow();
         }
 
         // Emit signal at 30 Hz
@@ -219,8 +170,6 @@ void InstanceViewer::updatePaintersMatrix()
         dai::ViewerPainter* painter = it.next();
         painter->setMatrix(matrix);
     }
-
-    qDebug() << matrix;
 }
 
 void InstanceViewer::resetPerspective()
@@ -267,6 +216,14 @@ void InstanceViewer::translateAxisZ(float value)
     updatePaintersMatrix();
 }
 
+void InstanceViewer::renderLater()
+{
+    if (!m_update_pending) {
+        m_update_pending = true;
+        QCoreApplication::postEvent(this, new QEvent(QEvent::UpdateRequest));
+    }
+}
+
 bool InstanceViewer::event(QEvent* event)
 {
     switch (event->type()) {
@@ -274,7 +231,7 @@ bool InstanceViewer::event(QEvent* event)
         playNextFrame();
         return true;
     case QEvent::Close:
-        this->stop();
+        //this->stop();
         this->destroy();
         emit viewerClose(this);
         return true;

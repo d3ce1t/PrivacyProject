@@ -9,7 +9,6 @@ HEADERS += \
     Grill.h \
     HistogramScene.h \
     dataset/Dataset.h \
-    dataset/DatasetEnums.h \
     dataset/NotSupportedDatasetException.h \
     MainWindow.h \
     exceptions/NotSupportedDatasetException.h \
@@ -32,7 +31,8 @@ HEADERS += \
     types/ColorFrame.h \
     viewer/SkeletonPainter.h \
     viewer/ColorFramePainter.h \
-    dataset/MSRActionDepthInstance.h
+    dataset/MSRActionDepthInstance.h \
+    dataset/MSRActionSkeletonInstance.h
 
 SOURCES += \
     dataset/MSR3Action3D.cpp \
@@ -61,7 +61,8 @@ SOURCES += \
     viewer/SkeletonPainter.cpp \
     viewer/ViewerPainter.cpp \
     viewer/ColorFramePainter.cpp \
-    dataset/MSRActionDepthInstance.cpp
+    dataset/MSRActionDepthInstance.cpp \
+    dataset/MSRActionSkeletonInstance.cpp
 
 RESOURCES += openglunderqml.qrc
 
