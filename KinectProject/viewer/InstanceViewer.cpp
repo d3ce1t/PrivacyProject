@@ -50,7 +50,6 @@ void InstanceViewer::play(dai::DataInstance* instance)
 {
     this->setTitle("Instance Viewer (" + instance->getMetadata().getFileName() + ")");
     dai::InstanceInfo::InstanceType instanceType = instance->getMetadata().getType();
-
     dai::ViewerPainter* painter;
 
     if (instanceType == dai::InstanceInfo::Depth) {
@@ -64,57 +63,76 @@ void InstanceViewer::play(dai::DataInstance* instance)
     updatePaintersMatrix();
     instance->open();
 
+    stop();
     m_running = true;
     m_time.start();
-    QCoreApplication::postEvent(this, new QEvent(QEvent::UpdateRequest));
+    m_update_pending = false;
+    renderLater();
     qDebug() << "Playing";
 }
 
 void InstanceViewer::stop()
 {
-    /*QListIterator<dai::DataInstance*> it(m_playList);
-
-    while (it.hasNext()) {
-        dai::DataInstance* instance = it.next();
-        instance->close();
-    }*/
-
+    // FIX: I'm not closing the opened painters!!
     m_frames = 0;
     m_fps = 0;
     m_lastTime = 0;
     m_running = false;
+    m_update_pending = false;
     emit changeOfStatus();
     qDebug() << "Stopped";
 }
 
 void InstanceViewer::playNextFrame()
 {
-    QListIterator<dai::ViewerPainter*> it(m_painters);
-    QList<dai::ViewerPainter*> closedPainters;
+    // Compute time since last update
+    const qint64 sleepTime = 100;
+    qint64 timeNow = m_time.elapsed();
+    qint64 diffTime = timeNow - m_lastTime;
 
-    m_update_pending = false;
+    if (m_running && diffTime >= sleepTime)
+    {
+        // Compute Frame Per Seconds
+        m_frames++;
+        m_fps = 1.0 / (diffTime / 1000.0f);
+        m_lastTime = timeNow;
 
-    while (it.hasNext()) {
-        dai::ViewerPainter* painter = it.next();
-        bool result = painter->prepareNext();
+        // Do Job
+        QListIterator<dai::ViewerPainter*> it(m_painters);
+        QList<dai::ViewerPainter*> closedPainters;
 
-        // Instance associated with this painter is closed or has failed. So I don't
-        // use this painter anymore.
-        if (result == false) {
-            closedPainters.append(painter);
-        }
-    }
-
-    if (!closedPainters.isEmpty()) {
-        QListIterator<dai::ViewerPainter*> it(closedPainters);
         while (it.hasNext()) {
             dai::ViewerPainter* painter = it.next();
-            m_painters.removeAll(painter);
-        }
-        closedPainters.clear();
-    }
+            bool result = painter->prepareNext();
 
-    QQuickView::update();
+            // Instance associated with this painter is closed or has failed. So I don't
+            // use this painter anymore.
+            if (result == false) {
+                closedPainters.append(painter);
+            }
+        }
+
+        // Remove closed painters
+        if (!closedPainters.isEmpty()) {
+            QListIterator<dai::ViewerPainter*> it(closedPainters);
+            while (it.hasNext()) {
+                dai::ViewerPainter* painter = it.next();
+                m_painters.removeAll(painter);
+            }
+            closedPainters.clear();
+        }
+
+        // Update Viewer
+        if (!m_painters.isEmpty()) {
+            emit changeOfStatus();
+            QQuickView::update();
+        } else {
+            stop();
+        }
+    }
+    else if (m_running) {
+         QTimer::singleShot(sleepTime - diffTime, this, SLOT(playNextFrame()));
+    }
 }
 
 void InstanceViewer::renderOpenGLScene()
@@ -131,30 +149,19 @@ void InstanceViewer::renderOpenGLScene()
     glClearDepth(1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-    if (m_running)
-    {
-        // Compute Frame Per Seconds
-        qint64 timeNow = m_time.elapsed();
-        m_fps = m_frames / (timeNow / 1000.0f);
-        m_frames++;
-
-        // Draw
+    // Draw
+    if (m_update_pending) {
         QListIterator<dai::ViewerPainter*> it(m_painters);
 
         while (it.hasNext()) {
             dai::ViewerPainter* painter = it.next();
             painter->renderNow();
         }
-
-        // Emit signal at 30 Hz
-        if ( (timeNow - m_lastTime) >= 400) {
-            m_lastTime = timeNow;
-            emit changeOfStatus();
-        }
     }
 
     // Restore
     glDisable(GL_DEPTH_TEST);
+    m_update_pending = false;
 }
 
 void InstanceViewer::resizeEvent(QResizeEvent *event)
@@ -218,7 +225,7 @@ void InstanceViewer::translateAxisZ(float value)
 
 void InstanceViewer::renderLater()
 {
-    if (!m_update_pending) {
+    if (m_running && !m_update_pending) {
         m_update_pending = true;
         QCoreApplication::postEvent(this, new QEvent(QEvent::UpdateRequest));
     }
