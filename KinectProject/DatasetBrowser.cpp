@@ -84,7 +84,7 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
 
     viewer->show();
     instance->setPlayLoop(ui->checkBoxLoop->isChecked());
-    viewer->play(instance, ui->checkSync->isChecked());
+    viewer->play(instance, ui->checkSync->isEnabled() && ui->checkSync->isChecked());
 }
 
 void DatasetBrowser::viewerClosed(InstanceViewer* viewer)

@@ -180,9 +180,9 @@
          </widget>
         </item>
         <item>
-         <widget class="QCheckBox" name="checkBoxLoop">
+         <widget class="QCheckBox" name="checkSync">
           <property name="text">
-           <string>Enable loop</string>
+           <string>Synchronize</string>
           </property>
           <property name="checked">
            <bool>true</bool>
@@ -190,9 +190,9 @@
          </widget>
         </item>
         <item>
-         <widget class="QCheckBox" name="checkSync">
+         <widget class="QCheckBox" name="checkBoxLoop">
           <property name="text">
-           <string>Synchronize</string>
+           <string>Enable loop</string>
           </property>
           <property name="checked">
            <bool>true</bool>
@@ -261,5 +261,22 @@
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>checkBoxSameViewer</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>checkSync</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>772</x>
+     <y>445</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>772</x>
+     <y>473</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
