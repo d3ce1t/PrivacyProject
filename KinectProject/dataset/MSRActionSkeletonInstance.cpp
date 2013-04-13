@@ -63,12 +63,12 @@ void MSRActionSkeletonInstance::close()
     m_nJoints = 0;
 }
 
-int MSRActionSkeletonInstance::getTotalFrames()
+int MSRActionSkeletonInstance::getTotalFrames() const
 {
     return m_nFrames;
 }
 
-bool MSRActionSkeletonInstance::hasNext()
+bool MSRActionSkeletonInstance::hasNext() const
 {
     if (m_file.is_open() && (m_frameIndex < m_nFrames || m_playLoop))
         return true;

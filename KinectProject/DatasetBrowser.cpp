@@ -61,7 +61,6 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
 {
     InstanceWidgetItem* instanceItem = dynamic_cast<InstanceWidgetItem*>(item);
     InstanceInfo& info = instanceItem->getInfo();
-
     DataInstance* instance = NULL;
 
     if (info.getType() == InstanceInfo::Depth)
@@ -73,23 +72,19 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
     InstanceViewer* viewer = NULL;
 
     if (ui->checkBoxSameViewer->isChecked()) {
-
         if (m_viewer == NULL) {
             m_viewer = new InstanceViewer;
             connect(m_viewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
         }
-
         viewer = m_viewer;
-    }
-    else
-    {
+    } else {
         viewer = new InstanceViewer;
         connect(viewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
     }
 
     viewer->show();
     instance->setPlayLoop(ui->checkBoxLoop->isChecked());
-    viewer->play(instance);
+    viewer->play(instance, ui->checkSync->isChecked());
 }
 
 void DatasetBrowser::viewerClosed(InstanceViewer* viewer)

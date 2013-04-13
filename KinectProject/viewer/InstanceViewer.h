@@ -8,6 +8,7 @@
 #include <QMatrix4x4>
 #include "DepthFramePainter.h"
 #include "SkeletonPainter.h"
+#include <QMutex>
 
 
 namespace dai {
@@ -26,7 +27,7 @@ public:
     virtual ~InstanceViewer();
     float getFPS() {return m_fps;}
     void show();
-    void play(dai::DataInstance* instance);
+    void play(dai::DataInstance* instance, bool restartAll = false);
     void stop();
 
 signals:
@@ -64,6 +65,7 @@ private:
     float                       m_fps;
     bool                        m_running;
     bool                        m_update_pending;
+    QMutex                      m_mutex;
 };
 
 #endif // VIEWER_H

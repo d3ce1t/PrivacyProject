@@ -16,8 +16,8 @@ public:
     virtual ~MSRActionSkeletonInstance();
     void open();
     void close();
-    int getTotalFrames();
-    bool hasNext();
+    int getTotalFrames() const;
+    bool hasNext() const;
     const Skeleton &nextFrame();
 
 private:

@@ -50,12 +50,12 @@ void MSRDailySkeletonInstance::close()
     m_nJoints = 0;
 }
 
-int MSRDailySkeletonInstance::getTotalFrames()
+int MSRDailySkeletonInstance::getTotalFrames() const
 {
     return m_nFrames;
 }
 
-bool MSRDailySkeletonInstance::hasNext()
+bool MSRDailySkeletonInstance::hasNext() const
 {
     if (m_file.is_open() && (m_frameIndex < m_nFrames || m_playLoop))
         return true;

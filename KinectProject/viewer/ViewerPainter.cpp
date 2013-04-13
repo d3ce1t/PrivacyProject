@@ -23,4 +23,9 @@ void ViewerPainter::renderNow()
     render();
 }
 
+DataInstance &ViewerPainter::instance() const
+{
+    return *m_instance;
+}
+
 } // End Namespace

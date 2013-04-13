@@ -15,6 +15,7 @@ public:
     virtual void resize( float w, float h ) = 0;
     void setMatrix(QMatrix4x4& m_matrix);
     void renderNow();
+    DataInstance& instance() const;
 
 protected:
     virtual void initialise() = 0;

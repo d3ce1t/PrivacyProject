@@ -14,12 +14,10 @@ public:
 
     explicit DataInstance(const InstanceInfo& info);
     const InstanceInfo& getMetadata() const;
+    virtual int getTotalFrames() const = 0;
+    virtual bool hasNext() const = 0;
     virtual void open() = 0;
     virtual void close() = 0;
-    virtual int getTotalFrames() = 0;
-    /*virtual int getResolutionX() = 0;
-    virtual int getResolutionY() = 0;*/
-    virtual bool hasNext() = 0;
     virtual const DataFrame& nextFrame() = 0;
     void setPlayLoop(bool value);
 

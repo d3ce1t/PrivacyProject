@@ -23,8 +23,8 @@ public:
     virtual ~MSRActionDepthInstance();
     void open();
     void close();
-    int getTotalFrames();
-    bool hasNext();
+    int getTotalFrames() const;
+    bool hasNext() const;
     const DepthFrame& nextFrame();
 
 private:

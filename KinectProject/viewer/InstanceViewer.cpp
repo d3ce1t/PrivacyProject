@@ -39,14 +39,16 @@ InstanceViewer::~InstanceViewer()
     }*/
 
     stop();
+    m_mutex.lock();
     m_painters.clear();
+    m_mutex.unlock();
 }
 
 void InstanceViewer::show() {
     QQuickView::show();
 }
 
-void InstanceViewer::play(dai::DataInstance* instance)
+void InstanceViewer::play(dai::DataInstance* instance, bool restartAll)
 {
     this->setTitle("Instance Viewer (" + instance->getMetadata().getFileName() + ")");
     dai::InstanceInfo::InstanceType instanceType = instance->getMetadata().getType();
@@ -59,21 +61,45 @@ void InstanceViewer::play(dai::DataInstance* instance)
         painter = new dai::SkeletonPainter(instance);
     }
 
+    m_mutex.lock();
     m_painters.append(painter);
+    m_mutex.unlock();
+
     updatePaintersMatrix();
     instance->open();
 
-    stop();
+    if (restartAll) {
+        m_mutex.lock();
+        QListIterator<dai::ViewerPainter*> it(m_painters);
+        while (it.hasNext()) {
+            dai::ViewerPainter* painter = it.next();
+            dai::DataInstance& instance = painter->instance();
+            instance.close();
+            instance.open();
+        }
+        m_mutex.unlock();
+    }
+
+    m_frames = 0;
+    m_lastTime = 0;
+    m_update_pending = false;
     m_running = true;
     m_time.start();
-    m_update_pending = false;
     renderLater();
     qDebug() << "Playing";
 }
 
 void InstanceViewer::stop()
 {
-    // FIX: I'm not closing the opened painters!!
+    m_mutex.lock();
+    QListIterator<dai::ViewerPainter*> it(m_painters);
+    while (it.hasNext()) {
+        dai::ViewerPainter* painter = it.next();
+        dai::DataInstance& instance = painter->instance();
+        instance.close();
+    }
+    m_mutex.unlock();
+
     m_frames = 0;
     m_fps = 0;
     m_lastTime = 0;
@@ -86,7 +112,7 @@ void InstanceViewer::stop()
 void InstanceViewer::playNextFrame()
 {
     // Compute time since last update
-    const qint64 sleepTime = 100;
+    const qint64 sleepTime = 70;
     qint64 timeNow = m_time.elapsed();
     qint64 diffTime = timeNow - m_lastTime;
 
@@ -98,6 +124,7 @@ void InstanceViewer::playNextFrame()
         m_lastTime = timeNow;
 
         // Do Job
+        m_mutex.lock();
         QListIterator<dai::ViewerPainter*> it(m_painters);
         QList<dai::ViewerPainter*> closedPainters;
 
@@ -129,6 +156,8 @@ void InstanceViewer::playNextFrame()
         } else {
             stop();
         }
+
+         m_mutex.unlock();
     }
     else if (m_running) {
          QTimer::singleShot(sleepTime - diffTime, this, SLOT(playNextFrame()));
@@ -151,12 +180,14 @@ void InstanceViewer::renderOpenGLScene()
 
     // Draw
     if (m_update_pending) {
+        m_mutex.lock();
         QListIterator<dai::ViewerPainter*> it(m_painters);
 
         while (it.hasNext()) {
             dai::ViewerPainter* painter = it.next();
             painter->renderNow();
         }
+        m_mutex.unlock();
     }
 
     // Restore
@@ -171,12 +202,14 @@ void InstanceViewer::resizeEvent(QResizeEvent *event)
 
 void InstanceViewer::updatePaintersMatrix()
 {
+    m_mutex.lock();
     QListIterator<dai::ViewerPainter*> it(m_painters);
 
     while (it.hasNext()) {
         dai::ViewerPainter* painter = it.next();
         painter->setMatrix(matrix);
     }
+    m_mutex.unlock();
 }
 
 void InstanceViewer::resetPerspective()

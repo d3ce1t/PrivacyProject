@@ -58,12 +58,12 @@ void MSRActionDepthInstance::close()
     m_frameIndex = 0;
 }
 
-int MSRActionDepthInstance::getTotalFrames()
+int MSRActionDepthInstance::getTotalFrames() const
 {
     return m_nFrames;
 }
 
-bool MSRActionDepthInstance::hasNext()
+bool MSRActionDepthInstance::hasNext() const
 {   
     if (m_file.is_open() && (m_frameIndex < m_nFrames || m_playLoop))
         return true;

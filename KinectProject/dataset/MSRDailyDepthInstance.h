@@ -24,10 +24,8 @@ public:
     virtual ~MSRDailyDepthInstance();
     void open();
     void close();
-    int getTotalFrames();
-    /*int getResolutionX();
-    int getResolutionY();*/
-    bool hasNext();
+    int getTotalFrames() const;
+    bool hasNext() const;
     const DepthFrame& nextFrame();
 
 private:

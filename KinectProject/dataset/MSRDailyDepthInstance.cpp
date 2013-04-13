@@ -58,12 +58,12 @@ void MSRDailyDepthInstance::close()
     m_frameIndex = 0;
 }
 
-int MSRDailyDepthInstance::getTotalFrames()
+int MSRDailyDepthInstance::getTotalFrames() const
 {
     return m_nFrames;
 }
 
-bool MSRDailyDepthInstance::hasNext()
+bool MSRDailyDepthInstance::hasNext() const
 {
     if (m_file.is_open() && (m_frameIndex < m_nFrames || m_playLoop))
         return true;
