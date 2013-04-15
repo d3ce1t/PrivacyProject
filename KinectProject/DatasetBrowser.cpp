@@ -68,6 +68,9 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
     else if (info.getType() == InstanceInfo::Skeleton) {
         instance = m_dataset->getSkeletonInstance(info);
     }
+    else {
+        return;
+    }
 
     InstanceViewer* viewer = NULL;
 
