@@ -13,6 +13,7 @@ public:
     static float normalise(float value, float minValue, float maxValue, float newMin, float newMax);
 
     explicit DataInstance(const InstanceInfo& info);
+    virtual ~DataInstance();
     const InstanceInfo& getMetadata() const;
     virtual int getTotalFrames() const = 0;
     virtual bool hasNext() const = 0;

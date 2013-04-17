@@ -8,15 +8,53 @@ using namespace std;
 
 DatasetMetadata::DatasetMetadata()
 {
-
 }
 
 DatasetMetadata::~DatasetMetadata()
 {
+    foreach (QString* str, m_activities) {
+        delete str;
+    }
     m_activities.clear();
+
+    foreach (QString* str, m_actors) {
+        delete str;
+    }
     m_actors.clear();
+
+    foreach (QString* str, m_sampleTypes) {
+        delete str;
+    }
     m_sampleTypes.clear();
+
+
+    QHashIterator<InstanceInfo::InstanceType, QHash<int, InstanceInfoList*>* > it(m_instances);
+
+    while (it.hasNext()) {
+        it.next();
+        QHash<int, InstanceInfoList*>* activities = it.value();
+        QHashIterator<int, InstanceInfoList*> it2(*activities);
+
+        while (it2.hasNext()) {
+            it2.next();
+            InstanceInfoList* list = it2.value();
+
+            for (int i=0; i<list->count(); ++i) {
+                InstanceInfo* instance = list->at(i);
+                delete instance;
+            }
+
+            list->clear(); // InstanceInfo stored still exists
+            delete list;
+        }
+
+        activities->clear(); // Remove all pointers to InstanceInfoList
+        delete activities;
+    }
+
     m_instances.clear();
+
+    // InstanceInfo will be deleted when DatasetMetadata is deleted
 }
 
 const QString DatasetMetadata::getName() const
@@ -80,11 +118,12 @@ const InstanceInfo DatasetMetadata::instance(InstanceInfo::InstanceType type, in
 const InstanceInfoList* DatasetMetadata::instances(
         InstanceInfo::InstanceType type, const QList<int>* activities, const QList<int>* actors, const QList<int>* samples) const
 {
+    InstanceInfoList* result = new InstanceInfoList();
+
     if (!m_instances.contains(type))
-        return new InstanceInfoList();
+        return result;
 
     QHash<int, InstanceInfoList*>& hashInstances = *(m_instances[type]);
-    InstanceInfoList* result = new InstanceInfoList();
 
     for (int i=1; i<=m_numberOfActivities; ++i)
     {
@@ -122,13 +161,6 @@ const QString& DatasetMetadata::getActivityName(int key) const
 
 const QString& DatasetMetadata::getActorName(int key) const
 {
-
-    if (m_actors.isEmpty()) {
-        QString* str = new QString();
-        str->setNum(key);
-        return *str;
-    }
-
     return *(m_actors.value(key));
 }
 
@@ -207,14 +239,19 @@ DatasetMetadata* DatasetMetadata::load(QString xmlPath)
             else if (reader.name() == "activity" && insideActivities) {
                 int key = reader.attributes().value("key").toString().toInt();
                 reader.readNext();
-                QString value = reader.text().toString();
-                result->m_activities[key] = new QString(value);
+                result->m_activities[key] = new QString(reader.text().toString());
             }
             // Actors tag
             else if (reader.name() == "actors") {
                 int number = reader.attributes().value("size").toString().toInt();
                 result->m_numberOfActors = number;
                 insideActors = true;
+            }
+            // Actor tag
+            else if (reader.name() == "actor" && insideActors) {
+                int key = reader.attributes().value("key").toString().toInt();
+                reader.readNext();
+                result->m_actors[key] = new QString(reader.text().toString());
             }
             // Samples tag
             else if (reader.name() == "samples") {
@@ -226,8 +263,7 @@ DatasetMetadata* DatasetMetadata::load(QString xmlPath)
             else if (reader.name() == "sample" && insideSamples) {
                 int key = reader.attributes().value("key").toString().toInt();
                 reader.readNext();
-                QString value = reader.text().toString();
-                result->m_sampleTypes[key] = new QString(value);
+                result->m_sampleTypes[key] = new QString(reader.text().toString());
             }
             // Instances tag
             else if (reader.name() == "instances") {

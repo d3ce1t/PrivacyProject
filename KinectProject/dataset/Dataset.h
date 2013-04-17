@@ -19,6 +19,7 @@ public:
     };
 
     explicit Dataset(QString path);
+    virtual ~Dataset();
     const DatasetMetadata& getMetadata() const;
     virtual DataInstance* getDepthInstance(int activity, int actor, int sample) = 0;
     virtual DataInstance* getSkeletonInstance(int activity, int actor, int sample) = 0;

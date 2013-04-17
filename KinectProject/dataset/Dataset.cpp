@@ -7,6 +7,14 @@ Dataset::Dataset(QString path)
     m_metadata = DatasetMetadata::load(path);
 }
 
+Dataset::~Dataset()
+{
+    if (m_metadata != NULL) {
+        delete m_metadata;
+        m_metadata = NULL;
+    }
+}
+
 const DatasetMetadata& Dataset::getMetadata() const
 {
     return *m_metadata;

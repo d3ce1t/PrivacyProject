@@ -3,11 +3,15 @@
 
 #include "Point3f.h"
 #include "Quaternion.h"
+#include <QObject>
 
 namespace dai {
 
-class SkeletonJoint
+class SkeletonJoint : public QObject
 {
+    Q_OBJECT
+    Q_ENUMS(JointType)
+
 public:
     enum JointType {
         JOINT_HEAD,
@@ -44,19 +48,22 @@ public:
     explicit SkeletonJoint();
     explicit SkeletonJoint(const Point3f point);
     explicit SkeletonJoint(const Point3f point, const Quaternion orientation);
+    SkeletonJoint(const SkeletonJoint& other);
+    void setPosition(const Point3f point);
     void setScreenPosition(const Point3f point);
     void setType(JointType type);
 
-
     JointType getType() const;
     const Point3f& getPosition() const;
-    const Quaternion& getOrientation() const;
     const Point3f& getScreenPosition() const;
+    const Quaternion& getOrientation() const;
+
+    SkeletonJoint& operator=(const SkeletonJoint& other);
 
 private:
     JointType   m_type;
-    Point3f     m_point;    // Real World Point
-    Point3f     m_screenPoint; // Screen Point
+    Point3f     m_realworld_point;    // Real World Point
+    Point3f     m_screen_point; // Screen Point
     Quaternion  m_orientation;
 };
 

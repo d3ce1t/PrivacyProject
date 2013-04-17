@@ -15,7 +15,7 @@ namespace dai {
 class DepthFramePainter : public ViewerPainter
 {
 public:
-    DepthFramePainter(DataInstance* instance);
+    DepthFramePainter(DataInstance* instance, InstanceViewer* parent = 0);
     virtual ~DepthFramePainter();
     bool prepareNext();
     void resize( float w, float h );

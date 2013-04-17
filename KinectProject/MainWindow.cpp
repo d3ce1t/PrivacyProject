@@ -6,7 +6,6 @@
 #include <QVector>
 
 
-
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -17,6 +16,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    if (m_browser != NULL) {
+        delete m_browser;
+        m_browser = NULL;
+    }
+
     delete ui;
 }
 
@@ -34,7 +38,6 @@ void MainWindow::on_pushButton_2_clicked()
         m_browser = new DatasetBrowser(this);
     }
 
-    //m_browser->setWindowModality(Qt::WindowModal);
     m_browser->show();
     m_browser->activateWindow();
     this->hide();

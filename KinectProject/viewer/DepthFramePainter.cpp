@@ -5,8 +5,8 @@
 
 namespace dai {
 
-DepthFramePainter::DepthFramePainter(DataInstance* instance)
-    : ViewerPainter(instance)
+DepthFramePainter::DepthFramePainter(DataInstance* instance, InstanceViewer *parent)
+    : ViewerPainter(instance, parent)
 {
     if (instance->getMetadata().getType() != InstanceInfo::Depth)
         throw 1;
@@ -24,8 +24,6 @@ DepthFramePainter::~DepthFramePainter()
     }
 
     m_isFrameAvailable = false;
-
-    qDebug() << "DepthFramePaiter destroyed";
 }
 
 void DepthFramePainter::initialise()

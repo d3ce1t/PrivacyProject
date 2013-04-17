@@ -6,6 +6,13 @@ namespace dai {
 class Point3f
 {
 public:
+
+    enum DistanceType {
+        DISTANCE_EUCLIDEAN
+    };
+
+    static float distance(const Point3f& point1, const Point3f& point2, DistanceType option = DISTANCE_EUCLIDEAN);
+
     explicit Point3f();
     explicit Point3f(float x, float y, float z);
     Point3f(const Point3f& other);
@@ -18,7 +25,9 @@ public:
     float y() const;
     float z() const;
 
-private:
+private:    
+    static float euclideanDistance(const Point3f& point1, const Point3f& point2);
+
     float m_x, m_y, m_z;
 };
 

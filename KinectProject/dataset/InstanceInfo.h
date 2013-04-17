@@ -19,6 +19,7 @@ public:
     InstanceInfo();
     explicit InstanceInfo(InstanceType type);
     InstanceInfo(const InstanceInfo& other);
+    virtual ~InstanceInfo();
 
     InstanceType getType() const;
 

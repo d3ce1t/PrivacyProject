@@ -2,10 +2,18 @@
 
 namespace dai {
 
-ViewerPainter::ViewerPainter(DataInstance *instance)
+ViewerPainter::ViewerPainter(DataInstance *instance, InstanceViewer* parent)
 {
     m_initialised = false;
     m_instance = instance;
+    m_viewer = parent;
+}
+
+ViewerPainter::~ViewerPainter()
+{
+    m_initialised = false;
+    m_instance = NULL;
+    m_viewer = NULL;
 }
 
 void ViewerPainter::setMatrix(QMatrix4x4& matrix) {

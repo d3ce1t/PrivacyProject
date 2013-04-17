@@ -76,6 +76,7 @@ const Skeleton &MSRDailySkeletonInstance::nextFrame()
 
     if (m_frameIndex < m_nFrames)
     {
+        m_currentFrame.clear();
         m_currentFrame.setIndex(m_frameIndex);
 
         // Read Data from File
@@ -105,16 +106,16 @@ const Skeleton &MSRDailySkeletonInstance::nextFrame()
             m_file >> s_z;
             m_file >> s_confidence;
 
-            // Normalise Depth
-            // In skeleton, depth values are in meters. In order to match with depth values I have
-            // to normalise it to be between 0 and 1. Like depth values, Kinect range is 0 to 4 meters.
-            w_z = DataInstance::normalise(w_z, 0, 4, 0, 1);
-
-            SkeletonJoint* joint = new SkeletonJoint( Point3f(w_x, w_y, w_z) );
-            joint->setScreenPosition( Point3f(s_x, s_y, s_z) );
-            joint->setType(convertIntToType(i));
-            m_currentFrame.addJoint(joint->getType(), joint);
+            SkeletonJoint& joint = m_currentFrame.getJoint(convertIntToType(i));
+            joint.setPosition(Point3f(w_x, w_y, w_z));
+            joint.setScreenPosition( Point3f(s_x, s_y, s_z) );
+            joint.setType(convertIntToType(i));
         }
+
+        // Normalise Depth
+        // In skeleton, depth values are in meters. In order to match with depth values I have
+        // to normalise it to be between 0 and 1. Like depth values, Kinect range is 0 to 4 meters.
+        m_currentFrame.normaliseDepth(0, 4, 0, 1);
 
         m_frameIndex++;
     }

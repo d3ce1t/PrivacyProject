@@ -13,7 +13,7 @@ public:
     explicit MSR3Action3D();
     MSRActionDepthInstance* getDepthInstance(int activity, int actor, int sample);
     MSRActionSkeletonInstance* getSkeletonInstance(int activity, int actor, int sample);
-    DataInstance& getColorInstance(int activity, int actor, int sample) {}
+    DataInstance& getColorInstance(int activity, int actor, int sample);
 };
 
 } // End Namespace

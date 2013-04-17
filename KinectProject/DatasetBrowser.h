@@ -19,7 +19,7 @@ class DatasetBrowser : public QMainWindow
     
 public:
     explicit DatasetBrowser(QWidget *parent = 0);
-    ~DatasetBrowser();
+    virtual ~DatasetBrowser();
 
 protected:
     void closeEvent(QCloseEvent * event);

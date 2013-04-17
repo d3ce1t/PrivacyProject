@@ -22,6 +22,11 @@ InstanceInfo::InstanceInfo(const InstanceInfo& other)
     m_path = other.m_path;
 }
 
+InstanceInfo::~InstanceInfo()
+{
+    m_type = Uninitialised;
+}
+
 InstanceInfo& InstanceInfo::operator=(const InstanceInfo& other)
 {
     m_type = other.m_type;

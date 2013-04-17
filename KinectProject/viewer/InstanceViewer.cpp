@@ -13,7 +13,7 @@
 
 
 InstanceViewer::InstanceViewer( QWindow *parent )
-    : QQuickView( parent )//, g_poseTimeoutToExit(2000)
+    : QQuickView( parent )
 {
     // QML Setup
     rootContext()->setContextProperty("winObject", (QObject *) this);
@@ -31,15 +31,13 @@ InstanceViewer::InstanceViewer( QWindow *parent )
 
 InstanceViewer::~InstanceViewer()
 {
-    /*QListIterator<dai::ViewerPainter*> it(m_painters);
-
-    while (it.hasNext()) {
-        dai::ViewerPainter* painter = it.next();
-        delete painter;
-    }*/
-
     stop();
+
     m_mutex.lock();
+    foreach (dai::ViewerPainter* painter, m_painters) {
+        delete &(painter->instance());
+        delete painter;
+    }
     m_painters.clear();
     m_mutex.unlock();
 }
@@ -55,10 +53,10 @@ void InstanceViewer::play(dai::DataInstance* instance, bool restartAll)
     dai::ViewerPainter* painter;
 
     if (instanceType == dai::InstanceInfo::Depth) {
-        painter = new dai::DepthFramePainter(instance);
+        painter = new dai::DepthFramePainter(instance, this);
     }
     else if (instanceType == dai::InstanceInfo::Skeleton) {
-        painter = new dai::SkeletonPainter(instance);
+        painter = new dai::SkeletonPainter(instance, this);
     }
 
     m_mutex.lock();
@@ -92,9 +90,8 @@ void InstanceViewer::play(dai::DataInstance* instance, bool restartAll)
 void InstanceViewer::stop()
 {
     m_mutex.lock();
-    QListIterator<dai::ViewerPainter*> it(m_painters);
-    while (it.hasNext()) {
-        dai::ViewerPainter* painter = it.next();
+    foreach (dai::ViewerPainter* painter, m_painters)
+    {
         dai::DataInstance& instance = painter->instance();
         instance.close();
     }
@@ -271,8 +268,7 @@ bool InstanceViewer::event(QEvent* event)
         playNextFrame();
         return true;
     case QEvent::Close:
-        //this->stop();
-        this->destroy();
+        // PATCH
         emit viewerClose(this);
         return true;
         break;

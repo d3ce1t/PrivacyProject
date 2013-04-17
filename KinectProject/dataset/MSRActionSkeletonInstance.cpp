@@ -87,6 +87,7 @@ const Skeleton &MSRActionSkeletonInstance::nextFrame()
 
     if (m_frameIndex < m_nFrames)
     {
+        m_currentFrame.clear();
         m_currentFrame.setIndex(m_frameIndex);
 
         // Read Data from File
@@ -103,13 +104,13 @@ const Skeleton &MSRActionSkeletonInstance::nextFrame()
             m_file >> w_z;
             m_file >> w_confidence;
 
-            // Normalise Depth. I assume is between 0 and 10 meters. But I don't know.
-            w_z = DataInstance::normalise(w_z, 0, 10, 0, 1);
-
-            SkeletonJoint* joint = new SkeletonJoint( Point3f(w_x, w_y, w_z) );
-            joint->setType(convertIntToType(i));
-            m_currentFrame.addJoint(joint->getType(), joint);
+            SkeletonJoint& joint = m_currentFrame.getJoint(convertIntToType(i));
+            joint.setPosition(Point3f(w_x, w_y, w_z));
+            joint.setType(convertIntToType(i));
         }
+
+        // Normalise Depth. I assume is between 0 and 10 meters. But I don't know.
+        m_currentFrame.normaliseDepth(0, 10, 0, 1);
 
         m_frameIndex++;
     }

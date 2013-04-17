@@ -31,10 +31,17 @@ DatasetBrowser::DatasetBrowser(QWidget *parent) :
 
 DatasetBrowser::~DatasetBrowser()
 {
+    if (m_dataset != NULL) {
+        delete m_dataset;
+        m_dataset = NULL;
+    }
+
     ui->listActivities->clear();
     ui->listActors->clear();
     ui->listSamples->clear();
     ui->listInstances->clear();
+    ui->comboDataset->clear();
+    ui->comboType->clear();
     delete ui;
 }
 
@@ -183,7 +190,7 @@ void DatasetBrowser::loadInstances()
             samples.append(i+1);
     }
 
-    // Get and Load Instances
+    // Get and Load Instances (I'm responsible to free this memory)
     const InstanceInfoList* instances = dsMetadata.instances(showType, &activities, &actors, &samples);
 
     for (int i=0; i<instances->count(); ++i) {
@@ -191,6 +198,8 @@ void DatasetBrowser::loadInstances()
         InstanceWidgetItem* item = new InstanceWidgetItem(instanceInfo->getFileName(), ui->listInstances);
         item->setInfo(*instanceInfo);
     }
+
+    delete instances;
 }
 
 void DatasetBrowser::on_btnSelectAllActivities_clicked()

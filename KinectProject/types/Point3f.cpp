@@ -1,4 +1,6 @@
 #include "Point3f.h"
+#include <limits>
+#include <cmath>
 
 namespace dai {
 
@@ -54,6 +56,29 @@ float Point3f::y() const
 float Point3f::z() const
 {
     return m_z;
+}
+
+//
+// Static methods
+//
+
+float Point3f::distance(const Point3f& point1, const Point3f& point2, DistanceType option)
+{
+    float result = std::numeric_limits<float>::max();
+
+    if (option == DISTANCE_EUCLIDEAN) {
+        result = euclideanDistance(point1, point2);
+    }
+
+    return result;
+}
+
+float Point3f::euclideanDistance(const Point3f& point1, const Point3f& point2)
+{
+    float dx = point2.m_x - point1.m_x;
+    float dy = point2.m_y - point1.m_y;
+    float dz = point2.m_z - point1.m_z;
+    return sqrt(pow(dx, 2) + pow(dy, 2) + pow(dz, 2));
 }
 
 } // End Namespace

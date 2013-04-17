@@ -14,11 +14,11 @@ typedef QList<InstanceInfo*> InstanceInfoList;
 
 class DatasetMetadata
 {
+
 public:
     static DatasetMetadata* load(QString xmlPath);
 
     virtual ~DatasetMetadata();
-
     const QString getName() const;
     const QString getDescription() const;
     const QString getPath() const;
