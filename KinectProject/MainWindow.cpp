@@ -12,6 +12,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     m_browser = NULL;
+    QWidget::setFixedSize(this->width(), this->height());
 }
 
 MainWindow::~MainWindow()

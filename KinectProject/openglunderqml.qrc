@@ -10,4 +10,7 @@
         <file>simpleFragment.fsh</file>
         <file>simpleVertex.vsh</file>
     </qresource>
+    <qresource prefix="/icons">
+        <file>kinect.png</file>
+    </qresource>
 </RCC>

@@ -66,7 +66,9 @@ SkeletonPainter::SkeletonPainter(DataInstance *instance, InstanceViewer *parent)
     }
 
     // Show Tables
+    m_joints_table_view.setWindowOpacity(0.85);
     m_joints_table_view.show();
+    m_distances_table_view.setWindowOpacity(0.85);
     m_distances_table_view.show();
 }
 
