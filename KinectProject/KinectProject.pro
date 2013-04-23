@@ -24,7 +24,6 @@ HEADERS += \
     dataset/MSRDailySkeletonInstance.h \
     types/SkeletonJoint.h \
     types/Skeleton.h \
-    types/Quaternion.h \
     types/Point3f.h \
     types/DepthFrame.h \
     types/DataFrame.h \
@@ -32,7 +31,9 @@ HEADERS += \
     viewer/SkeletonPainter.h \
     viewer/ColorFramePainter.h \
     dataset/MSRActionDepthInstance.h \
-    dataset/MSRActionSkeletonInstance.h
+    dataset/MSRActionSkeletonInstance.h \
+    types/SkeletonVector.h \
+    types/Quaternion.h
 
 SOURCES += \
     dataset/MSR3Action3D.cpp \
@@ -53,7 +54,6 @@ SOURCES += \
     dataset/MSRDailySkeletonInstance.cpp \
     types/SkeletonJoint.cpp \
     types/Skeleton.cpp \
-    types/Quaternion.cpp \
     types/Point3f.cpp \
     types/DepthFrame.cpp \
     types/DataFrame.cpp \
@@ -62,7 +62,9 @@ SOURCES += \
     viewer/ViewerPainter.cpp \
     viewer/ColorFramePainter.cpp \
     dataset/MSRActionDepthInstance.cpp \
-    dataset/MSRActionSkeletonInstance.cpp
+    dataset/MSRActionSkeletonInstance.cpp \
+    types/SkeletonVector.cpp \
+    types/Quaternion.cpp
 
 RESOURCES += openglunderqml.qrc
 

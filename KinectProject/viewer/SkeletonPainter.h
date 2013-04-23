@@ -31,6 +31,8 @@ private:
     void prepareShaderProgram();
     void drawLimb(const dai::SkeletonJoint& joint1, const dai::SkeletonJoint& joint2);
     void drawJoint(const dai::SkeletonJoint& joint, const QVector3D& color);
+    void drawQuaternions();
+
 
     bool                    m_isFrameAvailable;
     Skeleton                m_skeleton;
@@ -43,8 +45,10 @@ private:
     float                   m_height;
     QStandardItemModel      m_joints_model;
     QStandardItemModel      m_distances_model;
+    QStandardItemModel      m_quaternions_model;
     QTableView              m_joints_table_view;
     QTableView              m_distances_table_view;
+    QTableView              m_quaternions_table_view;
 
 };
 

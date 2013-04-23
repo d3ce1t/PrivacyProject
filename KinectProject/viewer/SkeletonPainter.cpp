@@ -20,7 +20,7 @@ SkeletonPainter::SkeletonPainter(DataInstance *instance, InstanceViewer *parent)
     m_joints_model.setColumnCount(3);
     m_joints_table_view.setWindowTitle("Joints info for " + instance->getMetadata().getFileName());
     m_joints_table_view.setModel(&m_joints_model);
-    m_joints_table_view.setMinimumSize(500, 600);
+    m_joints_table_view.setMinimumSize(460, 630);
 
     QStringList list;
     list << "pos X" << "pos Y" << "pos Z";
@@ -40,13 +40,13 @@ SkeletonPainter::SkeletonPainter(DataInstance *instance, InstanceViewer *parent)
     m_distances_model.setColumnCount(20);
     m_distances_table_view.setWindowTitle("Distances info for " + instance->getMetadata().getFileName());
     m_distances_table_view.setModel(&m_distances_model);
-    m_distances_table_view.setMinimumSize(600, 600);
+    m_distances_table_view.setMinimumSize(600, 640);
 
-    const QMetaObject &mo = dai::SkeletonJoint::staticMetaObject;
-    int index = mo.indexOfEnumerator("JointType"); // watch out during refactorings
-    QMetaEnum metaEnum = mo.enumerator(index);
+    const QMetaObject &skeletonJointMetaObject = dai::SkeletonJoint::staticMetaObject;
+    int index = skeletonJointMetaObject.indexOfEnumerator("JointType"); // watch out during refactorings
+    QMetaEnum metaEnum = skeletonJointMetaObject.enumerator(index);
 
-    list.clear();;
+    list.clear();
 
     for (int i=0; i<20; ++i) {
         QString name(metaEnum.valueToKey(i));
@@ -65,9 +65,42 @@ SkeletonPainter::SkeletonPainter(DataInstance *instance, InstanceViewer *parent)
         }
     }
 
+    // Setup Quaternions Model
+    m_quaternions_model.setRowCount(17);
+    m_quaternions_model.setColumnCount(4);
+    m_quaternions_table_view.setWindowTitle("Quaternions info for " + instance->getMetadata().getFileName());
+    m_quaternions_table_view.setModel(&m_quaternions_model);
+    m_quaternions_table_view.setMinimumSize(510, 545);
+
+    const QMetaObject &quaternionMetaObject = dai::Quaternion::staticMetaObject;
+    index = quaternionMetaObject.indexOfEnumerator("QuaternionType");
+    metaEnum = quaternionMetaObject.enumerator(index);
+
+    list.clear();
+    list << "Tensor" <<  "pos X" << "pos Y" << "pos Z";
+    m_quaternions_model.setHorizontalHeaderLabels(list);
+
+    list.clear();
+
+    for (int i=0; i<17; ++i) {
+        QString name(metaEnum.valueToKey(i));
+        list << name.mid(11);
+    }
+
+    for (int i=0; i<17; ++i) {
+        QStandardItem *item = new QStandardItem;
+        item->setText(list.at(i));
+        m_quaternions_model.setVerticalHeaderItem(i, item);
+        for (int j=0; j<4; ++j) {
+            QStandardItem *item = new QStandardItem;
+            m_quaternions_model.setItem(i, j, item);
+        }
+    }
+
     // Show Tables
     m_joints_table_view.show();
     m_distances_table_view.show();
+    m_quaternions_table_view.show();
 }
 
 SkeletonPainter::~SkeletonPainter()
@@ -121,15 +154,14 @@ void SkeletonPainter::loadModels()
     QListIterator<dai::SkeletonJoint*> it(joints);
     int row = 0;
 
+    const QMetaObject &mo = dai::SkeletonJoint::staticMetaObject;
+    int index = mo.indexOfEnumerator("JointType"); // watch out during refactorings
+    QMetaEnum metaEnum = mo.enumerator(index);
 
     while (it.hasNext())
-    {
-        const QMetaObject &mo = dai::SkeletonJoint::staticMetaObject;
-        int index = mo.indexOfEnumerator("JointType"); // watch out during refactorings
-        QMetaEnum metaEnum = mo.enumerator(index);
+    {        
         dai::SkeletonJoint* joint = it.next();
 
-        //QStandardItem* itemName = m_model.item(row, 0);
         QStandardItem* itemX = m_joints_model.item(row, 0);
         QStandardItem* itemY = m_joints_model.item(row, 1);
         QStandardItem* itemZ = m_joints_model.item(row, 2);
@@ -162,6 +194,26 @@ void SkeletonPainter::loadModels()
     }
 
     m_distances_table_view.resizeColumnsToContents();
+
+    const QMetaObject &quaternionMetaObject = dai::Quaternion::staticMetaObject;
+    index = quaternionMetaObject.indexOfEnumerator("QuaternionType");
+    metaEnum = quaternionMetaObject.enumerator(index);
+
+    // Quaternions Model
+    for (int i=0; i<17; ++i)
+    {
+        const Quaternion& quaternion = m_skeleton.getQuaternion( (Quaternion::QuaternionType) i);
+
+        QStandardItem* itemTensor = m_quaternions_model.item(i, 0);
+        QStandardItem* itemX = m_quaternions_model.item(i, 1);
+        QStandardItem* itemY = m_quaternions_model.item(i, 2);
+        QStandardItem* itemZ = m_quaternions_model.item(i, 3);
+
+        itemTensor->setText(QString::number(quaternion.scalar()));
+        itemX->setText(QString::number(quaternion.vector().x()));
+        itemY->setText(QString::number(quaternion.vector().y()));
+        itemZ->setText(QString::number(quaternion.vector().z()));
+    }
 }
 
 void SkeletonPainter::render()
@@ -195,33 +247,94 @@ void SkeletonPainter::render()
     drawLimb(m_skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_KNEE), m_skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_ANKLE));
     drawLimb(m_skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_ANKLE), m_skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_FOOT));
 
-    /*QVector3D red(1.0, 0.0, 0.0);
+    QVector3D red(1.0, 0.0, 0.0);
     QVector3D green(0.0, 1.0, 0.0);
-    QVector3D blue(0.0, 0.0, 1.0);
     QVector3D black(0.0, 0.0, 0.0);
-    QVector3D yellow(1.0, 1.0, 0.0);
-    QVector3D other(0.0, 1.0, 1.0);
 
-    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_HEAD), black);
-    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER), black);
-    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_SPINE), black);
-    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_CENTER_HIP), black);
-    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_SHOULDER), red);
-    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_ELBOW), red);
-    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_WRIST), yellow);
-    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_HAND), blue);
-    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_HIP), red);
-    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_KNEE), red);
-    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_ANKLE), red);
-    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_FOOT), red);
-    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_SHOULDER), green);
-    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_ELBOW), green);
-    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_WRIST), green);
-    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_HAND), green);
-    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_HIP), green);
-    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_KNEE), green);
-    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_ANKLE), green);
-    drawJoint(m_skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_FOOT), green);*/
+    drawJoint(m_skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_HEAD), black);
+    drawJoint(m_skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER), black);
+    drawJoint(m_skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_SPINE), black);
+    drawJoint(m_skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_CENTER_HIP), black);
+    drawJoint(m_skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_SHOULDER), red);
+    drawJoint(m_skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_ELBOW), red);
+    drawJoint(m_skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_WRIST), red);
+    drawJoint(m_skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_HAND), red);
+    drawJoint(m_skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_HIP), red);
+    drawJoint(m_skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_KNEE), red);
+    drawJoint(m_skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_ANKLE), red);
+    drawJoint(m_skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_FOOT), red);
+    drawJoint(m_skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_SHOULDER), green);
+    drawJoint(m_skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_ELBOW), green);
+    drawJoint(m_skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_WRIST), green);
+    drawJoint(m_skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_HAND), green);
+    drawJoint(m_skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_HIP), green);
+    drawJoint(m_skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_KNEE), green);
+    drawJoint(m_skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_ANKLE), green);
+    drawJoint(m_skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_FOOT), green);
+
+    //drawQuaternions();
+}
+
+void SkeletonPainter::drawQuaternions()
+{
+    for (int i=0; i<MAX_JOINTS-3; ++i)
+    {
+        const Quaternion& quaternion = m_skeleton.getQuaternion( (Quaternion::QuaternionType) i);
+
+        SkeletonVector::VectorType v1_offset;
+        SkeletonVector::VectorType v2_offset;
+        m_skeleton.mapQuaternionToVectors( (Quaternion::QuaternionType) i, &v1_offset, &v2_offset);
+
+        const SkeletonVector& v1 = m_skeleton.getVector(v1_offset);
+        const SkeletonVector& v2 = m_skeleton.getVector(v2_offset);
+        Point3f point;
+
+        // Search origin
+        if (v1.joint1().getType() == v2.joint1().getType()) {
+            point = v1.joint1().getPosition();
+        } else if (v1.joint1().getType() == v2.joint2().getType()) {
+            point = v1.joint1().getPosition();
+        } else if (v1.joint2().getType() == v2.joint1().getType()) {
+            point = v1.joint1().getPosition();
+        } else if (v2.joint2().getType() == v2.joint2().getType()) {
+            point = v1.joint1().getPosition();
+        }
+
+        float coordinates[] = {
+            point.x() + quaternion.vector().x(), point.y() + quaternion.vector().y(), - (point.z() + quaternion.vector().z()),
+            -(point.x() + quaternion.vector().x()), -(point.y() + quaternion.vector().y()), point.z() + quaternion.vector().z(),
+        };
+
+        float coorColours[] = {
+            0.0, 0.0, 0.0,
+            0.0, 0.0, 0.0,
+            0.0, 0.0, 0.0,
+            0.0, 0.0, 0.0
+        };
+
+
+        glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+        glDisable(GL_DEPTH_TEST);
+
+        // Bind Shader
+        m_shaderProgram->bind();
+
+         // Draw Line from joint1 to joint2
+        m_shaderProgram->setAttributeArray(m_posAttr, coordinates, 3);
+        m_shaderProgram->setAttributeArray(m_colorAttr, coorColours, 3);
+        m_shaderProgram->setUniformValue(m_pointSize, 8.0f);
+        m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
+        m_shaderProgram->enableAttributeArray(m_posAttr);
+        m_shaderProgram->enableAttributeArray(m_colorAttr);
+        glDrawArrays(GL_LINES, m_posAttr, 2);
+
+        // Release
+        m_shaderProgram->disableAttributeArray(m_colorAttr);
+        m_shaderProgram->disableAttributeArray(m_posAttr);
+        m_shaderProgram->release();
+
+        glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
+    }
 }
 
 void SkeletonPainter::resize( float w, float h )
