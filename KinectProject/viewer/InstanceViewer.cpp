@@ -17,7 +17,7 @@ InstanceViewer::InstanceViewer( QWindow *parent )
 {
     // QML Setup
     rootContext()->setContextProperty("winObject", (QObject *) this);
-    QQuickView::setResizeMode( QQuickView::SizeRootObjectToView);
+    //QQuickView::setResizeMode( QQuickView::SizeRootObjectToView);
     QQuickView::setSource(QUrl("qrc:///scenegraph/openglunderqml/main.qml"));
     setClearBeforeRendering( false );
     QObject::connect(this, SIGNAL(beforeRendering()), SLOT(renderOpenGLScene()), Qt::DirectConnection);

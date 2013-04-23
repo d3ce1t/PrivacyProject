@@ -1,0 +1,7 @@
+[Desktop Entry]
+Version=1.0
+Name=Kinect Project
+Exec=/home/jose/qt-workspace/KinectProject-build-Desktop_Qt_5_0_1_GCC_64bit-Debug/KinectProject
+Terminal=false
+Icon=kinect
+Type=Application
