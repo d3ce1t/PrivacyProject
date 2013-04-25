@@ -3,6 +3,8 @@
 #include "types/Skeleton.h"
 #include "dataset/DataInstance.h"
 #include <QMetaEnum>
+#include "CustomItem.h"
+#include <cmath>
 
 namespace dai {
 
@@ -30,7 +32,7 @@ SkeletonPainter::SkeletonPainter(DataInstance *instance, InstanceViewer *parent)
         QStandardItem *item = new QStandardItem;
         m_joints_model.setVerticalHeaderItem(i, item);
         for (int j=0; j<3; ++j) {
-            QStandardItem *item = new QStandardItem;
+            CustomItem *item = new CustomItem;
             m_joints_model.setItem(i, j, item);
         }
     }
@@ -60,14 +62,14 @@ SkeletonPainter::SkeletonPainter(DataInstance *instance, InstanceViewer *parent)
         item->setText(list.at(i));
         m_distances_model.setVerticalHeaderItem(i, item);
         for (int j=0; j<20; ++j) {
-            QStandardItem *item = new QStandardItem;
+            CustomItem *item = new CustomItem;
             m_distances_model.setItem(i, j, item);
         }
     }
 
     // Setup Quaternions Model
     m_quaternions_model.setRowCount(17);
-    m_quaternions_model.setColumnCount(4);
+    m_quaternions_model.setColumnCount(5);
     m_quaternions_table_view.setWindowTitle("Quaternions info for " + instance->getMetadata().getFileName());
     m_quaternions_table_view.setModel(&m_quaternions_model);
     m_quaternions_table_view.setMinimumSize(510, 545);
@@ -77,7 +79,7 @@ SkeletonPainter::SkeletonPainter(DataInstance *instance, InstanceViewer *parent)
     metaEnum = quaternionMetaObject.enumerator(index);
 
     list.clear();
-    list << "Tensor" <<  "pos X" << "pos Y" << "pos Z";
+    list << "Tensor" <<  "pos X" << "pos Y" << "pos Z" << "angle";
     m_quaternions_model.setHorizontalHeaderLabels(list);
 
     list.clear();
@@ -91,17 +93,18 @@ SkeletonPainter::SkeletonPainter(DataInstance *instance, InstanceViewer *parent)
         QStandardItem *item = new QStandardItem;
         item->setText(list.at(i));
         m_quaternions_model.setVerticalHeaderItem(i, item);
-        for (int j=0; j<4; ++j) {
-            QStandardItem *item = new QStandardItem;
+        for (int j=0; j<5; ++j) {
+            CustomItem *item = new CustomItem;
             m_quaternions_model.setItem(i, j, item);
         }
     }
 
     // Show Tables
-    m_joints_table_view.setWindowOpacity(0.85);
+    //m_joints_table_view.setWindowOpacity(0.85);
     m_joints_table_view.show();
-    m_distances_table_view.setWindowOpacity(0.85);
+    //m_distances_table_view.setWindowOpacity(0.85);
     m_distances_table_view.show();
+    //m_quaternions_table_view.setWindowOpacity(0.85);
     m_quaternions_table_view.show();
 }
 
@@ -164,17 +167,17 @@ void SkeletonPainter::loadModels()
     {        
         dai::SkeletonJoint* joint = it.next();
 
-        QStandardItem* itemX = m_joints_model.item(row, 0);
-        QStandardItem* itemY = m_joints_model.item(row, 1);
-        QStandardItem* itemZ = m_joints_model.item(row, 2);
+        CustomItem* itemX = dynamic_cast<CustomItem*>(m_joints_model.item(row, 0));
+        CustomItem* itemY = dynamic_cast<CustomItem*>(m_joints_model.item(row, 1));
+        CustomItem* itemZ = dynamic_cast<CustomItem*>(m_joints_model.item(row, 2));
 
         QString name(metaEnum.valueToKey(joint->getType()));
         name = name.mid(6);
 
-        m_joints_model.verticalHeaderItem(row)->setText(name);
-        itemX->setText(QString::number(joint->getPosition().x()));
-        itemY->setText(QString::number(joint->getPosition().y()));
-        itemZ->setText(QString::number(joint->getPosition().z()));
+        (m_joints_model.verticalHeaderItem(row))->setText(name);
+        itemX->setNumber(joint->getPosition().x());
+        itemY->setNumber(joint->getPosition().y());
+        itemZ->setNumber(joint->getPosition().z());
 
         row++;
     }
@@ -190,8 +193,8 @@ void SkeletonPainter::loadModels()
             } else if (j > i) {
                 distance = -1;
             }
-            QStandardItem* item = m_distances_model.item(i, j);
-            item->setText(QString::number(distance));
+            CustomItem* item = dynamic_cast<CustomItem*>(m_distances_model.item(i, j));
+            item->setNumber(distance);
         }
     }
 
@@ -206,15 +209,17 @@ void SkeletonPainter::loadModels()
     {
         const Quaternion& quaternion = m_skeleton.getQuaternion( (Quaternion::QuaternionType) i);
 
-        QStandardItem* itemTensor = m_quaternions_model.item(i, 0);
-        QStandardItem* itemX = m_quaternions_model.item(i, 1);
-        QStandardItem* itemY = m_quaternions_model.item(i, 2);
-        QStandardItem* itemZ = m_quaternions_model.item(i, 3);
+        CustomItem* itemTensor = dynamic_cast<CustomItem*>(m_quaternions_model.item(i, 0));
+        CustomItem* itemX = dynamic_cast<CustomItem*>(m_quaternions_model.item(i, 1));
+        CustomItem* itemY = dynamic_cast<CustomItem*>(m_quaternions_model.item(i, 2));
+        CustomItem* itemZ = dynamic_cast<CustomItem*>(m_quaternions_model.item(i, 3));
+        CustomItem* itemAngle = dynamic_cast<CustomItem*>(m_quaternions_model.item(i, 4));
 
-        itemTensor->setText(QString::number(quaternion.scalar()));
-        itemX->setText(QString::number(quaternion.vector().x()));
-        itemY->setText(QString::number(quaternion.vector().y()));
-        itemZ->setText(QString::number(quaternion.vector().z()));
+        itemTensor->setNumber(quaternion.scalar());
+        itemX->setNumber(quaternion.vector().x());
+        itemY->setNumber(quaternion.vector().y());
+        itemZ->setNumber(quaternion.vector().z());
+        itemAngle->setNumber((quaternion.getAngle()*180)/M_PI);
     }
 }
 

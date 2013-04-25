@@ -33,7 +33,8 @@ HEADERS += \
     dataset/MSRActionDepthInstance.h \
     dataset/MSRActionSkeletonInstance.h \
     types/SkeletonVector.h \
-    types/Quaternion.h
+    types/Quaternion.h \
+    viewer/CustomItem.h
 
 SOURCES += \
     dataset/MSR3Action3D.cpp \
@@ -64,7 +65,8 @@ SOURCES += \
     dataset/MSRActionDepthInstance.cpp \
     dataset/MSRActionSkeletonInstance.cpp \
     types/SkeletonVector.cpp \
-    types/Quaternion.cpp
+    types/Quaternion.cpp \
+    viewer/CustomItem.cpp
 
 RESOURCES += openglunderqml.qrc
 

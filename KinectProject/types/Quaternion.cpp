@@ -19,11 +19,41 @@ Quaternion::~Quaternion()
 
 }
 
+float Quaternion::getAngle() const
+{
+    return m_theta;
+}
+
 Quaternion& Quaternion::operator=(const Quaternion& other)
 {
     this->setScalar(other.scalar());
     this->setVector(other.vector());
     return *this;
+}
+
+void Quaternion::setScalar(float value)
+{
+    // From q2rot function of Octave Quaternions package
+    m_theta = acos(value) * 2;
+
+    if (fabs(m_theta) > M_PI)
+        m_theta = m_theta - sign (m_theta) * M_PI;
+
+    QQuaternion::setScalar(value);
+}
+
+float Quaternion::sign(float value) const
+{
+    float result = 0;
+
+    if (value < 0)
+        result = -1;
+    else if (value == 0)
+        result = 0;
+    else if (value > 0)
+        result = 1;
+
+    return result;
 }
 
 

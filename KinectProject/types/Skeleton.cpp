@@ -30,21 +30,21 @@ Skeleton::Skeleton()
 
     int map[17][2] = {
         {3, 1}, // Q1
-        {3, 5}, // Q2
-        {5, 7}, // Q3
-        {7, 9}, // Q4
-        {2, 1}, // Q5
-        {2, 4}, // Q6
-        {4, 6}, // Q7
+        {2, 1}, // Q2
+        {3, 5}, // Q3
+        {2, 4}, // Q4
+        {5, 7}, // Q5
+        {4, 6}, // Q6
+        {7, 9}, // Q7
         {6, 8}, // Q8
         {11, 10}, // Q9
         {13, 11}, // Q10
-        {13, 15}, // Q11
-        {15, 17}, // Q12
-        {17, 19}, // Q13
-        {12, 11}, // Q14
-        {12, 14}, // Q15
-        {14, 16}, // Q16
+        {12, 11}, // Q11
+        {13, 15}, // Q12
+        {12, 14}, // Q13
+        {15, 17}, // Q14
+        {14, 16}, // Q15
+        {17, 19}, // Q16
         {16, 18} // Q17
     };
 
@@ -77,7 +77,6 @@ Skeleton::Skeleton(const Skeleton& other)
     for (int i=0; i<MAX_JOINTS-3; ++i) {
         m_quaternions[i] = other.m_quaternions[i];
     }
-
 }
 
 Skeleton::~Skeleton()
@@ -162,7 +161,7 @@ void Skeleton::normaliseDepth(float min, float max, float new_min, float new_max
 
 void Skeleton::computeVectors()
 {
-    // Vectors in Real World Coordinates
+    // Unitary Vectors computed by real world coordinates
     m_vectors[SkeletonVector::VECTOR_V1].setVector(&m_joints[SkeletonJoint::JOINT_CENTER_SHOULDER], &m_joints[SkeletonJoint::JOINT_HEAD]);
     m_vectors[SkeletonVector::VECTOR_V2].setVector(&m_joints[SkeletonJoint::JOINT_CENTER_SHOULDER], &m_joints[SkeletonJoint::JOINT_RIGHT_SHOULDER]);
     m_vectors[SkeletonVector::VECTOR_V3].setVector(&m_joints[SkeletonJoint::JOINT_CENTER_SHOULDER], &m_joints[SkeletonJoint::JOINT_LEFT_SHOULDER]);
@@ -187,10 +186,11 @@ void Skeleton::computeVectors()
     for (int i=0; i<17; ++i) {
         int offset_v1 = m_map[i][0]-1;
         int offset_v2 = m_map[i][1]-1;
-        QVector3D v1 = m_vectors[offset_v1].vector();
-        QVector3D v2 = m_vectors[offset_v2].vector();
+        const QVector3D& v1 = m_vectors[offset_v1].vector();
+        const QVector3D& v2 = m_vectors[offset_v2].vector();
         m_quaternions[i] = Quaternion::getRotationBetween(v1, v2);
     }
+
 }
 
 void Skeleton::mapQuaternionToVectors(Quaternion::QuaternionType type, SkeletonVector::VectorType* v1, SkeletonVector::VectorType* v2)

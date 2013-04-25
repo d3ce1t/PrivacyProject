@@ -145,52 +145,52 @@ SkeletonJoint::JointType MSRDailySkeletonInstance::convertIntToType(int value)
         result = SkeletonJoint::JOINT_HEAD; // Checked
         break;
     case 4:
-        result = SkeletonJoint::JOINT_LEFT_SHOULDER; // Checked
-        break;
-    case 5:
-        result = SkeletonJoint::JOINT_LEFT_ELBOW; // Checked
-        break;
-    case 6:
-        result = SkeletonJoint::JOINT_LEFT_WRIST; // Checked
-        break;
-    case 7:
-        result = SkeletonJoint::JOINT_LEFT_HAND; // Checked
-        break;
-    case 8:
         result = SkeletonJoint::JOINT_RIGHT_SHOULDER; // Checked
         break;
-    case 9:
+    case 5:
         result = SkeletonJoint::JOINT_RIGHT_ELBOW; // Checked
         break;
-    case 10:
+    case 6:
         result = SkeletonJoint::JOINT_RIGHT_WRIST; // Checked
         break;
-    case 11:
+    case 7:
         result = SkeletonJoint::JOINT_RIGHT_HAND; // Checked
         break;
+    case 8:
+        result = SkeletonJoint::JOINT_LEFT_SHOULDER; // Checked
+        break;
+    case 9:
+        result = SkeletonJoint::JOINT_LEFT_ELBOW; // Checked
+        break;
+    case 10:
+        result = SkeletonJoint::JOINT_LEFT_WRIST; // Checked
+        break;
+    case 11:
+        result = SkeletonJoint::JOINT_LEFT_HAND; // Checked
+        break;
     case 12:
-        result = SkeletonJoint::JOINT_LEFT_HIP;
-        break;
-    case 13:
-        result = SkeletonJoint::JOINT_LEFT_KNEE;
-        break;
-    case 14:
-        result = SkeletonJoint::JOINT_LEFT_ANKLE;
-        break;
-    case 15:
-        result = SkeletonJoint::JOINT_LEFT_FOOT;
-        break;
-    case 16:
         result = SkeletonJoint::JOINT_RIGHT_HIP;
         break;
-    case 17:
+    case 13:
         result = SkeletonJoint::JOINT_RIGHT_KNEE;
         break;
-    case 18:
+    case 14:
         result = SkeletonJoint::JOINT_RIGHT_ANKLE;
         break;
-    case 19:
+    case 15:
         result = SkeletonJoint::JOINT_RIGHT_FOOT;
+        break;
+    case 16:
+        result = SkeletonJoint::JOINT_LEFT_HIP;
+        break;
+    case 17:
+        result = SkeletonJoint::JOINT_LEFT_KNEE;
+        break;
+    case 18:
+        result = SkeletonJoint::JOINT_LEFT_ANKLE;
+        break;
+    case 19:
+        result = SkeletonJoint::JOINT_LEFT_FOOT;
         break;
     default:
         qDebug() << "No se deberia entrar aqui";

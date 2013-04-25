@@ -128,10 +128,10 @@ SkeletonJoint::JointType MSRActionSkeletonInstance::convertIntToType(int value)
 
     switch (value) {
     case 0:
-        result = SkeletonJoint::JOINT_LEFT_SHOULDER; // Checked
+        result = SkeletonJoint::JOINT_RIGHT_SHOULDER; // Checked
         break;
     case 1:
-        result = SkeletonJoint::JOINT_RIGHT_SHOULDER; // Checked
+        result = SkeletonJoint::JOINT_LEFT_SHOULDER; // Checked
         break;
     case 2:
         result = SkeletonJoint::JOINT_CENTER_SHOULDER; // Checked
@@ -140,49 +140,49 @@ SkeletonJoint::JointType MSRActionSkeletonInstance::convertIntToType(int value)
         result = SkeletonJoint::JOINT_SPINE; // Checked
         break;
     case 4:
-        result = SkeletonJoint::JOINT_LEFT_HIP; // Checked
+        result = SkeletonJoint::JOINT_RIGHT_HIP; // Checked
         break;
     case 5:
-        result = SkeletonJoint::JOINT_RIGHT_HIP; // Checked
+        result = SkeletonJoint::JOINT_LEFT_HIP; // Checked
         break;
     case 6:
         result = SkeletonJoint::JOINT_CENTER_HIP; // Checked
         break;
     case 7:
-        result = SkeletonJoint::JOINT_LEFT_ELBOW; // Checked
-        break;
-    case 8:
         result = SkeletonJoint::JOINT_RIGHT_ELBOW; // Checked
         break;
-    case 9:
-        result = SkeletonJoint::JOINT_LEFT_WRIST; // Checked
+    case 8:
+        result = SkeletonJoint::JOINT_LEFT_ELBOW; // Checked
         break;
-    case 10:
+    case 9:
         result = SkeletonJoint::JOINT_RIGHT_WRIST; // Checked
         break;
-    case 11:
-        result = SkeletonJoint::JOINT_LEFT_HAND; // Checked
+    case 10:
+        result = SkeletonJoint::JOINT_LEFT_WRIST; // Checked
         break;
-    case 12:
+    case 11:
         result = SkeletonJoint::JOINT_RIGHT_HAND; // Checked
         break;
-    case 13:
-        result = SkeletonJoint::JOINT_LEFT_KNEE; // Checked
+    case 12:
+        result = SkeletonJoint::JOINT_LEFT_HAND; // Checked
         break;
-    case 14:
+    case 13:
         result = SkeletonJoint::JOINT_RIGHT_KNEE; // Checked
         break;
-    case 15:
-        result = SkeletonJoint::JOINT_LEFT_ANKLE; // Checked
+    case 14:
+        result = SkeletonJoint::JOINT_LEFT_KNEE; // Checked
         break;
-    case 16:
+    case 15:
         result = SkeletonJoint::JOINT_RIGHT_ANKLE; // Checked
         break;
+    case 16:
+        result = SkeletonJoint::JOINT_LEFT_ANKLE; // Checked
+        break;
     case 17:
-        result = SkeletonJoint::JOINT_LEFT_FOOT; // Checked
+        result = SkeletonJoint::JOINT_RIGHT_FOOT; // Checked
         break;
     case 18:
-        result = SkeletonJoint::JOINT_RIGHT_FOOT; // Checked
+        result = SkeletonJoint::JOINT_LEFT_FOOT; // Checked
         break;
     case 19:
         result = SkeletonJoint::JOINT_HEAD; // Checked
