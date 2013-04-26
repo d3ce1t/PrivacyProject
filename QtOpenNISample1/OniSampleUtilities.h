@@ -24,6 +24,9 @@
 #include <stdio.h>
 #include <OpenNI.h>
 #include <iostream>
+#include <limits>
+
+using namespace std;
 
 #ifdef WIN32
 #include <conio.h>
@@ -93,6 +96,9 @@ void calculateHistogram(float* pHistogram, int histogramSize, const openni::Vide
 	unsigned int nNumberOfPoints = 0;
 
 
+    uint16_t bestMaxValue =  std::numeric_limits<uint16_t>::min();
+    uint16_t bestMinValue =  std::numeric_limits<uint16_t>::max();
+
     // Count how may points there are in a given depth
 	for (int y = 0; y < height; ++y)
 	{
@@ -100,12 +106,20 @@ void calculateHistogram(float* pHistogram, int histogramSize, const openni::Vide
 		{
 			if (*pDepth != 0)
 			{
+                if (*pDepth > bestMaxValue)
+                    bestMaxValue = *pDepth;
+                else if (*pDepth < bestMinValue)
+                    bestMinValue = *pDepth;
+
 				pHistogram[*pDepth]++;
                 nNumberOfPoints++;
 			}
 		}
 		pDepth += restOfRow;
     }
+
+    cerr << "Min: " << bestMinValue << endl;
+    cerr << "Max: " << bestMaxValue << endl;
 
     // Accumulate in the given depth all the points of previous depth layers
 	for (int nIndex=1; nIndex<histogramSize; nIndex++)
