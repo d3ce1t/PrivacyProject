@@ -48,7 +48,7 @@ public:
 
 private:
     QVector3D m_vector;
-    float  m_length;
+    float  m_length; // length before normalise
     SkeletonJoint* m_joint1;
     SkeletonJoint* m_joint2;
 };

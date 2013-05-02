@@ -109,7 +109,7 @@ void InstanceViewer::stop()
 void InstanceViewer::playNextFrame()
 {
     // Compute time since last update
-    const qint64 sleepTime = 1000;
+    const qint64 sleepTime = 500;
     qint64 timeNow = m_time.elapsed();
     qint64 diffTime = timeNow - m_lastTime;
 

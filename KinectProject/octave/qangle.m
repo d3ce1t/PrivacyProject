@@ -8,8 +8,9 @@ function theta = qangle(q)
 	vv = [q.x, q.y, q.z];
 	theta = acos (s) * 2;
 
-	if (abs (theta) > pi)
-		theta = theta - sign (theta) * pi;
-	endif
+	% Set in the range 0 - pi
+	%if (abs (theta) > pi)
+	%	theta = theta - sign (theta) * pi;
+	%endif
 
 endfunction

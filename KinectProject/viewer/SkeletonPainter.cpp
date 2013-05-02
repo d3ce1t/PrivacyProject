@@ -215,12 +215,49 @@ void SkeletonPainter::loadModels()
         CustomItem* itemZ = dynamic_cast<CustomItem*>(m_quaternions_model.item(i, 3));
         CustomItem* itemAngle = dynamic_cast<CustomItem*>(m_quaternions_model.item(i, 4));
 
+        float angle = quaternion.getAngle()*180/M_PI;
+        float lastAngle = itemAngle->text().toFloat();
+        float diff = 0;
+
+        if (angle < lastAngle && lastAngle != 0) {
+            diff = 1 - (angle / lastAngle);
+        }
+        else if (angle != 0) {
+            diff = 1 - (lastAngle / angle);
+        }
+
         itemTensor->setNumber(quaternion.scalar());
         itemX->setNumber(quaternion.vector().x());
         itemY->setNumber(quaternion.vector().y());
         itemZ->setNumber(quaternion.vector().z());
-        itemAngle->setNumber((quaternion.getAngle()*180)/M_PI);
+        itemAngle->setNumber(angle);
+
+        QBrush brush;
+        brush.setStyle(Qt::SolidPattern);
+        QColor color(255, 255, 255);
+        color.setRgb(255, 0, 0);
+        color.setAlphaF(colorIntensity(diff));
+
+       /* if (angle > lastAngle + 0.3) {
+            qDebug() << angle << lastAngle << diff;
+        }*/
+
+        brush.setColor(color);
+        itemTensor->setBackground(brush);
+        itemX->setBackground(brush);
+        itemY->setBackground(brush);
+        itemZ->setBackground(brush);
+        itemAngle->setBackground(brush);
     }
+}
+
+float SkeletonPainter::colorIntensity(float x)
+{
+    const double b = 2.30258509299405;
+    const double max = 2.39789527279837;
+    // max =  1.79175946922805
+    // b =  2.99573227355399
+    return (log(100*(x+0.1)) - b)/max;
 }
 
 void SkeletonPainter::render()
