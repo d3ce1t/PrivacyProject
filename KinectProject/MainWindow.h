@@ -15,6 +15,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     virtual ~MainWindow();
+    QString number(int value);
     
 private slots:
     void on_pushButton_clicked();

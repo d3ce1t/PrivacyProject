@@ -127,7 +127,7 @@ const InstanceInfoList* DatasetMetadata::instances(
 
     for (int i=1; i<=m_numberOfActivities; ++i)
     {
-        InstanceInfoList* instancesList = hashInstances.value(i);
+        InstanceInfoList* instancesList = hashInstances.value(i); // instances with actors and samples
 
         for (int l=0; l<instancesList->size(); ++l)
         {

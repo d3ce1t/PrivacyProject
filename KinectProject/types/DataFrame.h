@@ -9,7 +9,7 @@ public:
     DataFrame();
     DataFrame(const DataFrame& other);
     void setIndex(int index);
-    int getIndex() {return m_index;}
+    int getIndex() const {return m_index;}
 
     // Overriden operators
     DataFrame& operator=(const DataFrame& other);

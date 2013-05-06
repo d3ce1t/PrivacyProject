@@ -94,7 +94,7 @@ SkeletonPainter::SkeletonPainter(DataInstance *instance, InstanceViewer *parent)
         item->setText(list.at(i));
         m_quaternions_model.setVerticalHeaderItem(i, item);
         for (int j=0; j<5; ++j) {
-            CustomItem *item = new CustomItem;
+            QStandardItem *item = new QStandardItem;
             m_quaternions_model.setItem(i, j, item);
         }
     }
@@ -209,11 +209,11 @@ void SkeletonPainter::loadModels()
     {
         const Quaternion& quaternion = m_skeleton.getQuaternion( (Quaternion::QuaternionType) i);
 
-        CustomItem* itemTensor = dynamic_cast<CustomItem*>(m_quaternions_model.item(i, 0));
-        CustomItem* itemX = dynamic_cast<CustomItem*>(m_quaternions_model.item(i, 1));
-        CustomItem* itemY = dynamic_cast<CustomItem*>(m_quaternions_model.item(i, 2));
-        CustomItem* itemZ = dynamic_cast<CustomItem*>(m_quaternions_model.item(i, 3));
-        CustomItem* itemAngle = dynamic_cast<CustomItem*>(m_quaternions_model.item(i, 4));
+        QStandardItem* itemTensor = m_quaternions_model.item(i, 0);
+        QStandardItem* itemX = m_quaternions_model.item(i, 1);
+        QStandardItem* itemY = m_quaternions_model.item(i, 2);
+        QStandardItem* itemZ = m_quaternions_model.item(i, 3);
+        QStandardItem* itemAngle = m_quaternions_model.item(i, 4);
 
         float angle = quaternion.getAngle()*180/M_PI;
         float lastAngle = itemAngle->text().toFloat();
@@ -226,11 +226,11 @@ void SkeletonPainter::loadModels()
             diff = 1 - (lastAngle / angle);
         }
 
-        itemTensor->setNumber(quaternion.scalar());
-        itemX->setNumber(quaternion.vector().x());
-        itemY->setNumber(quaternion.vector().y());
-        itemZ->setNumber(quaternion.vector().z());
-        itemAngle->setNumber(angle);
+        itemTensor->setText(QString::number(quaternion.scalar()));
+        itemX->setText(QString::number(quaternion.vector().x()));
+        itemY->setText(QString::number(quaternion.vector().y()));
+        itemZ->setText(QString::number(quaternion.vector().z()));
+        itemAngle->setText(QString::number(angle));
 
         QBrush brush;
         brush.setStyle(Qt::SolidPattern);
