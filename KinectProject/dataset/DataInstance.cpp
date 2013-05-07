@@ -5,6 +5,15 @@ using namespace dai;
 DataInstance::DataInstance(const InstanceInfo &info)
     : m_info(info)
 {
+    if (info.getType() == InstanceInfo::Depth) {
+        this->m_type = StreamInstance::Depth;
+    } else if (info.getType() == InstanceInfo::Skeleton) {
+        this->m_type = StreamInstance::Skeleton;
+    } if (info.getType() == InstanceInfo::Color) {
+        this->m_type = StreamInstance::Color;
+    }
+
+    this->m_title = info.getFileName();
     m_playLoop = false;
 }
 

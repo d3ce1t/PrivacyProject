@@ -18,7 +18,7 @@ public:
     void close();
     int getTotalFrames() const;
     bool hasNext() const;
-    const Skeleton &nextFrame();
+    const dai::Skeleton &nextFrame();
 
 private:
     static SkeletonJoint::JointType convertIntToType(int value);
@@ -27,7 +27,7 @@ private:
     int         m_nFrames;
     int         m_frameIndex;
     int         m_nJoints;
-    Skeleton    m_currentFrame;
+    dai::Skeleton    m_currentFrame;
 };
 
 } // End of namespace

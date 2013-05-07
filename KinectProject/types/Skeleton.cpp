@@ -56,6 +56,7 @@ Skeleton::Skeleton()
 }
 
 Skeleton::Skeleton(const Skeleton& other)
+    : DataFrame(other)
 {
     for (int i=0; i<MAX_JOINTS; ++i) {
         m_joints[i] = other.m_joints[i];

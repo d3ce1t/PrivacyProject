@@ -2,11 +2,11 @@
 #define DATA_INSTANCE_H
 
 #include "InstanceInfo.h"
-#include "types/DataFrame.h"
+#include "types/StreamInstance.h"
 
 namespace dai {
 
-class DataInstance
+class DataInstance : public StreamInstance
 {
 public:
 
@@ -16,10 +16,6 @@ public:
     virtual ~DataInstance();
     const InstanceInfo& getMetadata() const;
     virtual int getTotalFrames() const = 0;
-    virtual bool hasNext() const = 0;
-    virtual void open() = 0;
-    virtual void close() = 0;
-    virtual const DataFrame& nextFrame() = 0;
     void setPlayLoop(bool value);
 
 protected:

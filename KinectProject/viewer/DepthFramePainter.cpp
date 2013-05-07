@@ -1,15 +1,18 @@
 #include "DepthFramePainter.h"
 #include <cstdio>
+#include <iostream>
 #include <QOpenGLShaderProgram>
 #include "dataset/DataInstance.h"
 
 namespace dai {
 
-DepthFramePainter::DepthFramePainter(DataInstance* instance, InstanceViewer *parent)
+DepthFramePainter::DepthFramePainter(StreamInstance *instance, InstanceViewer *parent)
     : ViewerPainter(instance, parent)
 {
-    if (instance->getMetadata().getType() != InstanceInfo::Depth)
+    if (instance->getType() != StreamInstance::Depth) {
+        std::cerr << "Invalid instance type" << std::endl;
         throw 1;
+    }
 
     colors[0] = QVector3D(1, 1, 1); // White
     m_shaderProgram = NULL;

@@ -89,26 +89,15 @@ const DepthFrame &MSRActionDepthInstance::nextFrame()
         m_file.read( (char *) tempFrame, sizeof(tempFrame) );
         //float *data = m_currentFrame.getDataPtr();
 
-        static int bestMaxValue = std::numeric_limits<int>::min();
-        static int bestMinValue = std::numeric_limits<int>::max();
-
         for (int y=0; y<m_height; ++y) {
             for (int x=0; x<m_width; ++x)
             {
-                if (tempFrame[y].depthRow[x] > bestMaxValue)
-                    bestMaxValue = tempFrame[y].depthRow[x];
-                else if (tempFrame[y].depthRow[x] < bestMinValue)
-                    bestMinValue = tempFrame[y].depthRow[x];
-
                 // FIX: I assume depth value is between 0 a 10000. But I'm not sure. This dataset
                 // is recorder using a kinect like device, but I dont'know which.
                 m_currentFrame.setItem(y, x, DataInstance::normalise(tempFrame[y].depthRow[x], 0, 10000, 0, 1));
                 // m_currentFrame.setItem(y, x, tempFrame[y].depthRow[x]);
             }
         }
-
-        //cerr << "Min:" << bestMinValue << endl;
-        //cerr << "Max:" << bestMaxValue << endl;
 
         /*for (int r=0; r<m_height; r++)
         {

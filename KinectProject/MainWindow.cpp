@@ -6,6 +6,7 @@
 #include <QVector>
 #include "dataset/MSR3Action3D.h"
 #include <fstream>
+#include "OpenNIDepthInstance.h"
 
 using namespace std;
 
@@ -31,10 +32,43 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_clicked()
 {
-    /*Viewer* mainWindow = new Viewer();
-    mainWindow->setResizeMode( QQuickView::SizeRootObjectToView);
-    mainWindow->setSource(QUrl("qrc:///scenegraph/openglunderqml/main.qml"));
-    mainWindow->show();*/
+    InstanceViewer* viewer = new InstanceViewer;
+    connect(viewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
+    dai::OpenNIDepthInstance* instance = new dai::OpenNIDepthInstance;
+
+    viewer->show();
+    //instance->setPlayLoop(ui->checkBoxLoop->isChecked());
+    viewer->play(instance, false);
+}
+
+void MainWindow::viewerClosed(InstanceViewer *viewer)
+{
+    delete viewer;
+}
+
+QString MainWindow::number(int value)
+{
+    QString result = QString::number(value);
+
+    if (value < 10)
+        result = "0" + QString::number(value);
+
+    return result;
+}
+
+void MainWindow::on_pushButton_2_clicked()
+{
+    if (m_browser == NULL) {
+        m_browser = new DatasetBrowser(this);
+    }
+
+    m_browser->show();
+    m_browser->activateWindow();
+    this->hide();
+}
+
+void MainWindow::on_pushButton_3_clicked()
+{
     dai::MSR3Action3D* dataset = new dai::MSR3Action3D();
     const dai::DatasetMetadata& dsMetadata = dataset->getMetadata();
     const dai::InstanceInfoList* instances = dsMetadata.instances(dai::InstanceInfo::Skeleton);
@@ -52,8 +86,8 @@ void MainWindow::on_pushButton_clicked()
         int framesProcessed = 0;
 
         QString fileName = "a" + number(info->getActivity()) +
-                          "_s" + number(info->getActor()) +
-                          "_e" + number(info->getSample()) + "_quaternion.txt";
+                "_s" + number(info->getActor()) +
+                "_e" + number(info->getSample()) + "_quaternion.txt";
 
         ofstream of;
         of.open( (dsMetadata.getPath() + "/" + fileName).toStdString().c_str(), ios::out | ios::trunc );
@@ -86,25 +120,4 @@ void MainWindow::on_pushButton_clicked()
         dataInstance->close();
         of.close();
     }
-}
-
-QString MainWindow::number(int value)
-{
-    QString result = QString::number(value);
-
-    if (value < 10)
-        result = "0" + QString::number(value);
-
-    return result;
-}
-
-void MainWindow::on_pushButton_2_clicked()
-{
-    if (m_browser == NULL) {
-        m_browser = new DatasetBrowser(this);
-    }
-
-    m_browser->show();
-    m_browser->activateWindow();
-    this->hide();
 }

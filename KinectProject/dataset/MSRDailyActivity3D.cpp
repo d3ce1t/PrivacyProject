@@ -26,7 +26,9 @@ MSRDailySkeletonInstance* MSRDailyActivity3D::getSkeletonInstance(int activity, 
 
 DataInstance &MSRDailyActivity3D::getColorInstance(int activity, int actor, int sample)
 {
-
+    Q_UNUSED(activity);
+    Q_UNUSED(actor);
+    Q_UNUSED(sample);
 }
 
 }

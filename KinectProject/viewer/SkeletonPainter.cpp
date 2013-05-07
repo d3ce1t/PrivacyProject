@@ -8,10 +8,10 @@
 
 namespace dai {
 
-SkeletonPainter::SkeletonPainter(DataInstance *instance, InstanceViewer *parent)
+SkeletonPainter::SkeletonPainter(StreamInstance *instance, InstanceViewer *parent)
     : ViewerPainter(instance, parent)
 {
-    if (instance->getMetadata().getType() != InstanceInfo::Skeleton)
+    if (instance->getType() != InstanceInfo::Skeleton)
         throw 1;
 
     m_shaderProgram = NULL;
@@ -20,7 +20,7 @@ SkeletonPainter::SkeletonPainter(DataInstance *instance, InstanceViewer *parent)
     // Setup Joints Model
     m_joints_model.setRowCount(20);
     m_joints_model.setColumnCount(3);
-    m_joints_table_view.setWindowTitle("Joints info for " + instance->getMetadata().getFileName());
+    m_joints_table_view.setWindowTitle("Joints info for "); // + instance->getMetadata().getFileName());
     m_joints_table_view.setModel(&m_joints_model);
     m_joints_table_view.setMinimumSize(460, 630);
 
@@ -40,7 +40,7 @@ SkeletonPainter::SkeletonPainter(DataInstance *instance, InstanceViewer *parent)
     // Setup Distances model
     m_distances_model.setRowCount(20);
     m_distances_model.setColumnCount(20);
-    m_distances_table_view.setWindowTitle("Distances info for " + instance->getMetadata().getFileName());
+    m_distances_table_view.setWindowTitle("Distances info for "); // + instance->getMetadata().getFileName());
     m_distances_table_view.setModel(&m_distances_model);
     m_distances_table_view.setMinimumSize(600, 640);
 
@@ -70,7 +70,7 @@ SkeletonPainter::SkeletonPainter(DataInstance *instance, InstanceViewer *parent)
     // Setup Quaternions Model
     m_quaternions_model.setRowCount(17);
     m_quaternions_model.setColumnCount(5);
-    m_quaternions_table_view.setWindowTitle("Quaternions info for " + instance->getMetadata().getFileName());
+    m_quaternions_table_view.setWindowTitle("Quaternions info for "); // + instance->getMetadata().getFileName());
     m_quaternions_table_view.setModel(&m_quaternions_model);
     m_quaternions_table_view.setMinimumSize(510, 545);
 

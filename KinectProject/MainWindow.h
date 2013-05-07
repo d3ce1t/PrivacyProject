@@ -18,9 +18,10 @@ public:
     QString number(int value);
     
 private slots:
+    void viewerClosed(InstanceViewer *viewer);
     void on_pushButton_clicked();
-
     void on_pushButton_2_clicked();
+    void on_pushButton_3_clicked();
 
 private:
     Ui::MainWindow *ui;

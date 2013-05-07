@@ -3,7 +3,7 @@
 
 #include <QMatrix4x4>
 #include "types/DataFrame.h"
-#include "dataset/DataInstance.h"
+#include "types/StreamInstance.h"
 
 class InstanceViewer;
 
@@ -12,20 +12,20 @@ namespace dai {
 class ViewerPainter
 {
 public:
-    explicit ViewerPainter(DataInstance* instance, InstanceViewer* parent = 0);
+    explicit ViewerPainter(StreamInstance *instance, InstanceViewer* parent = 0);
     virtual ~ViewerPainter();
     virtual bool prepareNext() = 0;
     virtual void resize( float w, float h ) = 0;
     void setMatrix(QMatrix4x4& m_matrix);
     void renderNow();
-    DataInstance& instance() const;
+    StreamInstance& instance() const;
 
 protected:
     virtual void initialise() = 0;
     virtual void render() = 0;
 
     QMatrix4x4              m_matrix;
-    DataInstance*           m_instance;
+    StreamInstance*         m_instance;
     InstanceViewer*         m_viewer;
 
 private:

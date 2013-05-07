@@ -7,6 +7,7 @@
 #include <QOpenGLBuffer>
 #include "types/Skeleton.h"
 #include "types/SkeletonJoint.h"
+#include "types/StreamInstance.h"
 #include <QStandardItemModel>
 #include <QTableView>
 
@@ -17,7 +18,7 @@ namespace dai {
 class SkeletonPainter : public ViewerPainter
 {
 public:
-    explicit SkeletonPainter(DataInstance* instance, InstanceViewer* parent = 0);
+    explicit SkeletonPainter(StreamInstance* instance, InstanceViewer* parent = 0);
     virtual ~SkeletonPainter();
     bool prepareNext();
     void resize(float w, float h );
@@ -50,7 +51,6 @@ private:
     QTableView              m_joints_table_view;
     QTableView              m_distances_table_view;
     QTableView              m_quaternions_table_view;
-
 };
 
 } // End Namespace

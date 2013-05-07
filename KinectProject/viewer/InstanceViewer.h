@@ -27,7 +27,7 @@ public:
     virtual ~InstanceViewer();
     float getFPS() {return m_fps;}
     void show();
-    void play(dai::DataInstance* instance, bool restartAll = false);
+    void play(dai::StreamInstance* instance, bool restartAll = false);
     void stop();
 
 signals:

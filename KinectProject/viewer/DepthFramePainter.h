@@ -6,6 +6,7 @@
 #include <QOpenGLBuffer>
 #include <QMatrix4x4>
 #include "types/DepthFrame.h"
+#include "types/StreamInstance.h"
 
 
 class QOpenGLShaderProgram;
@@ -15,7 +16,7 @@ namespace dai {
 class DepthFramePainter : public ViewerPainter
 {
 public:
-    DepthFramePainter(DataInstance* instance, InstanceViewer* parent = 0);
+    DepthFramePainter(StreamInstance* instance, InstanceViewer* parent = 0);
     virtual ~DepthFramePainter();
     bool prepareNext();
     void resize( float w, float h );

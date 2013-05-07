@@ -2,7 +2,7 @@
 
 namespace dai {
 
-ViewerPainter::ViewerPainter(DataInstance *instance, InstanceViewer* parent)
+ViewerPainter::ViewerPainter(StreamInstance *instance, InstanceViewer* parent)
 {
     m_initialised = false;
     m_instance = instance;
@@ -31,7 +31,7 @@ void ViewerPainter::renderNow()
     render();
 }
 
-DataInstance &ViewerPainter::instance() const
+StreamInstance &ViewerPainter::instance() const
 {
     return *m_instance;
 }

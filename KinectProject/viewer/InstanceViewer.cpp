@@ -25,7 +25,11 @@ InstanceViewer::InstanceViewer( QWindow *parent )
 
     // Viewer Setup
     this->setTitle("Instance Viewer");
-    this->stop();
+    m_frames = 0;
+    m_fps = 0;
+    m_lastTime = 0;
+    m_running = false;
+    m_update_pending = false;
     resetPerspective();
 }
 
@@ -46,16 +50,16 @@ void InstanceViewer::show() {
     QQuickView::show();
 }
 
-void InstanceViewer::play(dai::DataInstance* instance, bool restartAll)
+void InstanceViewer::play(dai::StreamInstance *instance, bool restartAll)
 {
-    this->setTitle("Instance Viewer (" + instance->getMetadata().getFileName() + ")");
-    dai::InstanceInfo::InstanceType instanceType = instance->getMetadata().getType();
+    this->setTitle("Instance Viewer (" + instance->getTitle() + ")");
+    dai::StreamInstance::StreamType streamType = instance->getType();
     dai::ViewerPainter* painter;
 
-    if (instanceType == dai::InstanceInfo::Depth) {
+    if (streamType == dai::StreamInstance::Depth) {
         painter = new dai::DepthFramePainter(instance, this);
     }
-    else if (instanceType == dai::InstanceInfo::Skeleton) {
+    else if (streamType == dai::StreamInstance::Skeleton) {
         painter = new dai::SkeletonPainter(instance, this);
     }
 
@@ -71,7 +75,7 @@ void InstanceViewer::play(dai::DataInstance* instance, bool restartAll)
         QListIterator<dai::ViewerPainter*> it(m_painters);
         while (it.hasNext()) {
             dai::ViewerPainter* painter = it.next();
-            dai::DataInstance& instance = painter->instance();
+            dai::StreamInstance& instance = painter->instance();
             instance.close();
             instance.open();
         }
@@ -92,7 +96,7 @@ void InstanceViewer::stop()
     m_mutex.lock();
     foreach (dai::ViewerPainter* painter, m_painters)
     {
-        dai::DataInstance& instance = painter->instance();
+        dai::StreamInstance& instance = painter->instance();
         instance.close();
     }
     m_mutex.unlock();
