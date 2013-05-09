@@ -47,10 +47,10 @@ void HistogramScene::render()
     };
 
     glBindTexture(GL_TEXTURE_2D, m_frameTexture);
-    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+    //glTexParameteri(GL_TEXTURE_2D, GL_GEN, GL_TRUE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 100, 100, 0, GL_BLUE, GL_UNSIGNED_BYTE, m_histogram);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 100, 100, 0, GL_RGB, GL_UNSIGNED_BYTE, m_histogram);
     glBindTexture(GL_TEXTURE_2D, 0);
 
     // Render

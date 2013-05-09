@@ -15,6 +15,7 @@ DataFrame::DataFrame(const DataFrame& other)
 DataFrame& DataFrame::operator=(const DataFrame& other)
 {
     m_index = other.m_index;
+    return *this;
 }
 
 void DataFrame::setIndex(int index)

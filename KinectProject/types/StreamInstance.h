@@ -2,7 +2,7 @@
 #define STREAMINSTANCE_H
 
 #include <QString>
-#include "types/DataFrame.h"
+#include "DataFrame.h"
 
 namespace dai {
 

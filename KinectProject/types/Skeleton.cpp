@@ -1,7 +1,7 @@
 #include "Skeleton.h"
 #include <limits>
 #include <QDebug>
-#include <dataset/DataInstance.h>
+#include "../dataset/DataInstance.h"
 
 namespace dai {
 
@@ -211,9 +211,9 @@ void Skeleton::mapQuaternionToVectors(Quaternion::QuaternionType type, SkeletonV
 //
 QVector3D Skeleton::maxValue(const Skeleton& frame)
 {
-    float bestXValue = std::numeric_limits<int>::min();
-    float bestYValue = std::numeric_limits<int>::min();
-    float bestZValue = std::numeric_limits<int>::min();
+    float bestXValue = std::numeric_limits<float>::min();
+    float bestYValue = std::numeric_limits<float>::min();
+    float bestZValue = std::numeric_limits<float>::min();
 
     for (int i=0; i<MAX_JOINTS; ++i)
     {
@@ -250,9 +250,9 @@ QVector3D Skeleton::maxValue(const Skeleton& frame)
 
 QVector3D Skeleton::minValue(const Skeleton &frame)
 {
-    float bestXValue = std::numeric_limits<int>::max();
-    float bestYValue = std::numeric_limits<int>::max();
-    float bestZValue = std::numeric_limits<int>::max();
+    float bestXValue = std::numeric_limits<float>::max();
+    float bestYValue = std::numeric_limits<float>::max();
+    float bestZValue = std::numeric_limits<float>::max();
 
     for (int i=0; i<MAX_JOINTS; ++i)
     {

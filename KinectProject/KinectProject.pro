@@ -1,4 +1,4 @@
-QT += qml quick
+QT += qml quick gui
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = KinectProject
@@ -74,17 +74,31 @@ SOURCES += \
 
 RESOURCES += openglunderqml.qrc
 
-
-# OpenNI2
-LIBS += -L/opt/OpenNI-2.1.0-x64/Tools/ -lOpenNI2
-INCLUDEPATH += /opt/OpenNI-2.1.0-x64/Include
-DEPENDPATH += /opt/OpenNI-2.1.0-x64/Include
-
-# NiTE2
-LIBS += -L/opt/NiTE-2.0.0/Redist/ -lNiTE2
-INCLUDEPATH += /opt/NiTE-2.0.0/Include
-DEPENDPATH += /opt/NiTE-2.0.0/Include
-
 FORMS += \
     mainwindow.ui \
     DatasetBrowser.ui
+
+
+linux-g++ {
+    # OpenNI2
+    LIBS += -L/opt/OpenNI-2.1.0-x64/Tools/ -lOpenNI2
+    INCLUDEPATH += $/opt/OpenNI-2.1.0-x64/Include
+    DEPENDPATH += /opt/OpenNI-2.1.0-x64/Include
+
+    # NiTE2
+    LIBS += -L/opt/NiTE-2.0.0/Redist/ -lNiTE2
+    INCLUDEPATH += /opt/NiTE-2.0.0/Include
+    DEPENDPATH += /opt/NiTE-2.0.0/Include
+}
+
+win32 {
+    # OpenNI2
+    LIBS += -L"C:/Program Files (x86)/OpenNI2/Lib" -lOpenNI2
+    INCLUDEPATH += "C:/Program Files (x86)/OpenNI2/Include"
+    DEPENDPATH += "C:/Program Files (x86)/OpenNI2/Include"
+
+    # NiTE2
+    LIBS += -L"C:/Program Files (x86)/PrimeSense/NiTE2/Lib" -lNiTE2
+    INCLUDEPATH += "C:/Program Files (x86)/PrimeSense/NiTE2/Include"
+    DEPENDPATH += "C:/Program Files (x86)/PrimeSense/NiTE2/Include"
+}

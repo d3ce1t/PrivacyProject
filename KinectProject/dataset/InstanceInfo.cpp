@@ -35,6 +35,7 @@ InstanceInfo& InstanceInfo::operator=(const InstanceInfo& other)
     m_sample = other.m_sample;
     m_file = other.m_file;
     m_path = other.m_path;
+    return *this;
 }
 
 InstanceInfo::InstanceType InstanceInfo::getType() const

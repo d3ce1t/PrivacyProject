@@ -1,7 +1,6 @@
-#version 130
-smooth in vec4 theColor;
-out vec4 outputColor;
+varying highp vec4 theColor;
+
 void main()
 {
-    outputColor = theColor;
+    gl_FragColor = theColor;
 }

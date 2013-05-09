@@ -1,5 +1,5 @@
 #include "MSRDailyDepthInstance.h"
-#include "types/DepthFrame.h"
+#include "../types/DepthFrame.h"
 #include <cstddef>
 #include <math.h>
 #include <QDebug>

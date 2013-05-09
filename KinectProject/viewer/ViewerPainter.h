@@ -2,8 +2,12 @@
 #define ABSTRACTSCENE_H
 
 #include <QMatrix4x4>
-#include "types/DataFrame.h"
-#include "types/StreamInstance.h"
+#include "../types/DataFrame.h"
+#include "../types/StreamInstance.h"
+
+#ifndef M_PI
+    #define M_PI 3.14159265359
+#endif
 
 class InstanceViewer;
 

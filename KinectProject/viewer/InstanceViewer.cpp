@@ -1,15 +1,15 @@
 #include "InstanceViewer.h"
-#include "dataset/DataInstance.h"
-#include "types/DepthFrame.h"
-#include "types/Skeleton.h"
+#include "../dataset/DataInstance.h"
+#include "../types/DepthFrame.h"
+#include "../types/Skeleton.h"
 #include "ViewerPainter.h"
 #include <QDebug>
 #include <QQmlContext>
 #include <QtQml>
 #include <iostream>
-#include <Grill.h>
-#include <HistogramScene.h>
-#include "dataset/InstanceInfo.h"
+#include "../Grill.h"
+#include "../HistogramScene.h"
+#include "../dataset/InstanceInfo.h"
 
 
 InstanceViewer::InstanceViewer( QWindow *parent )
@@ -168,7 +168,7 @@ void InstanceViewer::playNextFrame()
 void InstanceViewer::renderOpenGLScene()
 {
     // Init Each Frame (because QtQuick could change it)
-    glDepthRange(0.0f, 1.0f);
+    glDepthRangef(0.0f, 1.0f);
     glDepthMask(GL_TRUE);
     glDepthFunc(GL_LEQUAL);
     glEnable(GL_DEPTH_TEST);
@@ -176,7 +176,7 @@ void InstanceViewer::renderOpenGLScene()
     // Configure ViewPort and Clear Screen
     glViewport(0, 0, width(), height());
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-    glClearDepth(1.0f);
+    glClearDepthf(1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     // Draw

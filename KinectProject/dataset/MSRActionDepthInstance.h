@@ -4,7 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include "DataInstance.h"
-#include "types/DepthFrame.h"
+#include "../types/DepthFrame.h"
 #include <stdint.h>
 
 using namespace std;

@@ -29,6 +29,7 @@ DataInstance& MSR3Action3D::getColorInstance(int activity, int actor, int sample
     Q_UNUSED(activity);
     Q_UNUSED(actor);
     Q_UNUSED(sample);
+    return *(new MSRActionSkeletonInstance(   *(new InstanceInfo) ) );
 }
 
 } // End namespace

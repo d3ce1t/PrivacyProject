@@ -23,6 +23,7 @@ SkeletonJoint& SkeletonJoint::operator=(const SkeletonJoint& other)
     m_type = other.m_type;
     m_realworld_point = other.m_realworld_point;
     m_screen_point = other.m_screen_point;
+    return *this;
 }
 
 void SkeletonJoint::setPosition(const Point3f point)

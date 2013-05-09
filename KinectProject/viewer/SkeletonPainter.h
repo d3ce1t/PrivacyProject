@@ -1,13 +1,13 @@
 #ifndef BASICUSAGESCENE_H
 #define BASICUSAGESCENE_H
 
-#include "viewer/ViewerPainter.h"
+#include "ViewerPainter.h"
 #include <QMatrix4x4>
 #include <QObject>
 #include <QOpenGLBuffer>
-#include "types/Skeleton.h"
-#include "types/SkeletonJoint.h"
-#include "types/StreamInstance.h"
+#include "../types/Skeleton.h"
+#include "../types/SkeletonJoint.h"
+#include "../types/StreamInstance.h"
 #include <QStandardItemModel>
 #include <QTableView>
 

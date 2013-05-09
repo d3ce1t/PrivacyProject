@@ -1,5 +1,6 @@
 #include "Grill.h"
 #include <QOpenGLShaderProgram>
+#include <QOpenGLContext>
 
 namespace dai {
 
@@ -44,7 +45,7 @@ void Grill::render()
     };
 
     // Render
-    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+    //glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
     //glEnableClientState(GL_VERTEX_ARRAY);
     //glEnableClientState(GL_COLOR_ARRAY);
 
@@ -62,7 +63,7 @@ void Grill::render()
     m_shaderProgram->disableAttributeArray(m_posAttr);
     m_shaderProgram->release();
 
-    glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
+    //glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
     //glDisableClientState(GL_VERTEX_ARRAY);
     //glDisableClientState(GL_COLOR_ARRAY);
 }

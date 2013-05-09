@@ -5,7 +5,7 @@
 #include <OpenNI.h>
 #include <QOpenGLBuffer>
 #include <QMatrix4x4>
-#include "types/DepthFrame.h"
+#include "../types/DepthFrame.h"
 
 #define MAX_DEPTH 10000
 

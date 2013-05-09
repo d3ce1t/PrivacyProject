@@ -2,7 +2,7 @@
 #define MSRDAILYSKELETONINSTANCE_H
 
 #include "DataInstance.h"
-#include "types/Skeleton.h"
+#include "../types/Skeleton.h"
 #include <fstream>
 
 using namespace std;

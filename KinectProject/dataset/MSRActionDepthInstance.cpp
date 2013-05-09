@@ -1,5 +1,5 @@
 #include "MSRActionDepthInstance.h"
-#include "types/DepthFrame.h"
+#include "../types/DepthFrame.h"
 #include <cstddef>
 #include <math.h>
 #include <stdint.h>

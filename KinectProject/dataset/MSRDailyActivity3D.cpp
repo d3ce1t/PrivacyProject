@@ -29,6 +29,8 @@ DataInstance &MSRDailyActivity3D::getColorInstance(int activity, int actor, int 
     Q_UNUSED(activity);
     Q_UNUSED(actor);
     Q_UNUSED(sample);
+    // TODO: Fix this
+    return *(new MSRDailySkeletonInstance( *(new InstanceInfo) ));
 }
 
 }

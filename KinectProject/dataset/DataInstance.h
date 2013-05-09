@@ -2,7 +2,7 @@
 #define DATA_INSTANCE_H
 
 #include "InstanceInfo.h"
-#include "types/StreamInstance.h"
+#include "../types/StreamInstance.h"
 
 namespace dai {
 

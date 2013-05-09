@@ -2,7 +2,8 @@
 #include <cstdio>
 #include <iostream>
 #include <QOpenGLShaderProgram>
-#include "dataset/DataInstance.h"
+//#include <qopenglext.h>
+#include "../dataset/DataInstance.h"
 
 namespace dai {
 
@@ -63,7 +64,7 @@ void DepthFramePainter::render()
     if (!m_isFrameAvailable)
         return;
 
-    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+    //glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
     //glDisable(GL_DEPTH_TEST);
 
     static float min = DepthFrame::minValue(m_frame);
@@ -120,7 +121,7 @@ void DepthFramePainter::render()
     delete[] vertex;
     delete[] color;
 
-    glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
+    //glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
 }
 
 void DepthFramePainter::resize( float w, float h )
