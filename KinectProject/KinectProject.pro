@@ -79,10 +79,10 @@ FORMS += \
     DatasetBrowser.ui
 
 
-linux-g++ {
+unix:!macx {
     # OpenNI2
     LIBS += -L/opt/OpenNI-2.1.0-x64/Tools/ -lOpenNI2
-    INCLUDEPATH += $/opt/OpenNI-2.1.0-x64/Include
+    INCLUDEPATH += /opt/OpenNI-2.1.0-x64/Include
     DEPENDPATH += /opt/OpenNI-2.1.0-x64/Include
 
     # NiTE2

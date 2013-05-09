@@ -9,6 +9,7 @@
 #include "DepthFramePainter.h"
 #include "SkeletonPainter.h"
 #include <QMutex>
+#include <QtGui/QOpenGLFunctions>
 
 
 namespace dai {
@@ -16,7 +17,7 @@ namespace dai {
     class ViewerPainter;
 }
 
-class InstanceViewer : public QQuickView
+class InstanceViewer : public QQuickView, protected QOpenGLFunctions
 {
     Q_OBJECT
 
