@@ -12,7 +12,7 @@ public:
     static const KMeans *execute(const float* sample, const int n, const int k, int times = 5);
 
     virtual ~KMeans();
-    const int* getClusterMask() const;
+    float *getClusterMask() const;
     const QList<float>* getClusterValues() const;
     const float* getSamples() const;
     const QList<float> &getCentroids() const;
@@ -25,6 +25,7 @@ private:
 
     // Private constructor
     KMeans(const float *sample, const int n, const int k);
+    //KMeans(const float *sample, const int dim, const int n, const int k);
 
     // Private Methods
     void reset();
@@ -38,10 +39,11 @@ private:
 
     // Class atributes
     const float* m_sample;
+    const int m_dim;
     const int m_n;
     const int m_k;
     QList<float> m_centroid;
-    int* m_clusters_mask;
+    float* m_clusters_mask;
     QList<float>* m_clusters_list; // List vector
     float m_compactness;
 };

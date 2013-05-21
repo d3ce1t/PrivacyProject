@@ -38,6 +38,7 @@ private:
     GLuint                  m_perspectiveMatrix; // Matrix in the shader
     GLuint                  m_posAttr; // Pos attr in the shader
     GLuint                  m_colorAttr; // Texture coord in the shader
+    GLuint                  m_maskAttr;
     GLuint                  m_pointSize;
 };
 

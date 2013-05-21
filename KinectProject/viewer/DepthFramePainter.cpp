@@ -68,18 +68,30 @@ void DepthFramePainter::render()
     //glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
     //glDisable(GL_DEPTH_TEST);
 
-    int size = m_frame.getHeight() * m_frame.getWidth();
-    const float* data = m_frame.getDataPtr();
+    // Filter data
+    float* data = new float[m_frame.getNumOfNonZeroPoints()];
+    int index = 0;
 
-    const KMeans* kmeans = KMeans::execute(data, size, 3);
-    qDebug() << "Centroids" << kmeans->getCentroids();
+    for (int i=0; i<m_frame.getHeight(); ++i) {
+        for (int j=0; j<m_frame.getWidth(); ++j) {
+            float value = m_frame.getItem(i, j);
+            if (value != 0) {
+                data[index] = value;
+                index++;
+            }
+        }
+    }
+
+    const KMeans* kmeans = KMeans::execute(data, m_frame.getNumOfNonZeroPoints(), 3);
 
     // Bind Shader
     m_shaderProgram->bind();
 
-    float* vertex = new float[m_frame.getNumOfNonZeroPoints() * 3 * sizeof(float)];
-    float* color = new float[m_frame.getNumOfNonZeroPoints() * 3 * sizeof(float)];
-    int index = 0;
+    float* vertex = new float[m_frame.getNumOfNonZeroPoints() * 3];
+    float* color = new float[m_frame.getNumOfNonZeroPoints() * 3];
+
+    index = 0;
+    int offset = 0;
 
     for (int y = 0; y < m_frame.getHeight(); ++y)
     {
@@ -92,35 +104,40 @@ void DepthFramePainter::render()
                 float normX = DataInstance::normalise(x, 0, m_frame.getWidth()-1, -1, 1);
                 float normY = DataInstance::normalise(y, 0, m_frame.getHeight()-1, -1, 1);
 
-                vertex[index] = normX;
-                vertex[index+1] = -normY;
-                vertex[index+2] = -distance;
+                vertex[offset] = normX;
+                vertex[offset+1] = -normY;
+                vertex[offset+2] = -distance;
 
-                color[index] = m_pDepthHist[distance];
-                color[index+1] = m_pDepthHist[distance];
-                color[index+2] = m_pDepthHist[distance];
+                color[offset] = m_pDepthHist[distance];
+                color[offset+1] = m_pDepthHist[distance];
+                color[offset+2] = m_pDepthHist[distance];
 
-                index+=3;
+                offset+=3;
+                index++;
             }
         }
     }
 
     m_shaderProgram->setAttributeArray(m_posAttr, vertex, 3);
     m_shaderProgram->setAttributeArray(m_colorAttr, color, 3);
+    m_shaderProgram->setAttributeArray(m_maskAttr, kmeans->getClusterMask(), 1);
     m_shaderProgram->setUniformValue(m_pointSize, 2.0f);
     m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
     m_shaderProgram->enableAttributeArray(m_posAttr);
     m_shaderProgram->enableAttributeArray(m_colorAttr);
+    m_shaderProgram->enableAttributeArray(m_maskAttr);
 
     glDrawArrays(GL_POINTS, m_posAttr, m_frame.getNumOfNonZeroPoints());
 
     // Release
     m_shaderProgram->disableAttributeArray(m_colorAttr);
     m_shaderProgram->disableAttributeArray(m_posAttr);
+    m_shaderProgram->disableAttributeArray(m_maskAttr);
     m_shaderProgram->release();
 
     delete[] vertex;
     delete[] color;
+    delete[] data;
 
     //glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
 }
@@ -138,11 +155,13 @@ void DepthFramePainter::prepareShaderProgram()
     m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/glsl/simpleFragment.fsh");
     m_shaderProgram->bindAttributeLocation("posAttr", 0);
     m_shaderProgram->bindAttributeLocation("colAttr", 1);
+    m_shaderProgram->bindAttributeLocation("maskAttr", 2);
 
     m_shaderProgram->link();
 
     m_posAttr = m_shaderProgram->attributeLocation("posAttr");
     m_colorAttr = m_shaderProgram->attributeLocation("colAttr");
+    m_maskAttr = m_shaderProgram->attributeLocation("maskAttr");
     m_pointSize = m_shaderProgram->uniformLocation("sizeAttr");
     m_perspectiveMatrix = m_shaderProgram->uniformLocation("perspectiveMatrix");
 

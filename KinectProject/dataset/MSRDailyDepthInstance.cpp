@@ -87,7 +87,6 @@ const DepthFrame &MSRDailyDepthInstance::nextFrame()
         // Read Data from File
         BinaryDepthFrame tempFrame[240]; // I know MSR Daily Activity 3D depth is 320 x 240
         m_file.read( (char *) tempFrame, sizeof(tempFrame) );
-        //float *data = m_currentFrame.getDataPtr();
 
         for (int y=0; y<m_height; ++y) {
             for (int x=0; x<m_width; ++x)
@@ -102,8 +101,6 @@ const DepthFrame &MSRDailyDepthInstance::nextFrame()
     else {
         close();
     }
-
-
 
     return m_currentFrame;
 }

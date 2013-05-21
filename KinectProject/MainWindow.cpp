@@ -125,10 +125,10 @@ void MainWindow::on_pushButton_3_clicked()
 
 void MainWindow::on_pushButton_4_clicked()
 {
-    float data[] = {0.1, 0.3, 0.2, 0.5, 0.6, 0.2, 0.3, 0.1, 0.30, 0.36, 0.45, 0.3, 0.15, 0.17};
+    float data[] = {0.1, 0.3, 0.2, 0.5, 0.6, 0.2, 0.3, 0.1, 0.30, 0.36, 0.45, 0.3, 0.15, 0.17, -0.1, -0.3, -0.2, -0.5, -0.6, -0.2, -0.3, -0.1, -0.30, -0.36, -0.45, -0.3, -0.15, -0.17};
     //float data[] = {1, 3, 2, 5, 6, 2, 3, 1, 30, 36, 45, 3, 15, 17};
     float n = sizeof(data) / sizeof(float);
-    const dai::KMeans* kmeans = dai::KMeans::execute(data, n, 4, 100);
+    const dai::KMeans* kmeans = dai::KMeans::execute(data, n, 4);
 
     qDebug() << "--------------------------------------";
     qDebug() << "Centroids" << kmeans->getCentroids();
