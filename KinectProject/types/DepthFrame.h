@@ -29,12 +29,13 @@ public:
     virtual ~DepthFrame();
 
     // Member Methods
+    void setItem(int row, int column, float value);
+    unsigned int getNumOfNonZeroPoints();
+    float getItem(int row, int column) const;
     int getWidth() const;
     int getHeight() const;
-    unsigned int getNumberOfNonZeroPoints();
-    float getItem(int row, int column) const;
-    void setItem(int row, int column, float value);
-    float *getDataPtr();
+    const float *getDataPtr() const;
+    void toArray(float dst[][3], int size) const;
 
     // Overriden Operators
     DepthFrame& operator=(const DepthFrame& other);

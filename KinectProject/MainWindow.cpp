@@ -7,6 +7,7 @@
 #include "dataset/MSR3Action3D.h"
 #include <fstream>
 #include "OpenNIDepthInstance.h"
+#include "KMeans.h"
 
 using namespace std;
 
@@ -119,5 +120,22 @@ void MainWindow::on_pushButton_3_clicked()
         qDebug() << "Close instance";
         dataInstance->close();
         of.close();
+    }
+}
+
+void MainWindow::on_pushButton_4_clicked()
+{
+    float data[] = {0.1, 0.3, 0.2, 0.5, 0.6, 0.2, 0.3, 0.1, 0.30, 0.36, 0.45, 0.3, 0.15, 0.17};
+    //float data[] = {1, 3, 2, 5, 6, 2, 3, 1, 30, 36, 45, 3, 15, 17};
+    float n = sizeof(data) / sizeof(float);
+    const dai::KMeans* kmeans = dai::KMeans::execute(data, n, 4, 100);
+
+    qDebug() << "--------------------------------------";
+    qDebug() << "Centroids" << kmeans->getCentroids();
+    qDebug() << "Compactness" << kmeans->getCompactness();
+
+    const QList<float>* values = kmeans->getClusterValues();
+    for (int i=0; i<kmeans->getK(); ++i) {
+        qDebug() << "Cluster" << i << values[i];
     }
 }

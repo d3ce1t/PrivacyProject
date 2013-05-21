@@ -4,6 +4,7 @@
 #include <QOpenGLShaderProgram>
 //#include <qopenglext.h>
 #include "../dataset/DataInstance.h"
+#include "KMeans.h"
 
 namespace dai {
 
@@ -67,17 +68,17 @@ void DepthFramePainter::render()
     //glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
     //glDisable(GL_DEPTH_TEST);
 
-    static float min = DepthFrame::minValue(m_frame);
-    static float max = DepthFrame::maxValue(m_frame);
+    int size = m_frame.getHeight() * m_frame.getWidth();
+    const float* data = m_frame.getDataPtr();
 
-    /*qDebug() << "Min: " << min;
-    qDebug() << "Max: " << max;*/
+    const KMeans* kmeans = KMeans::execute(data, size, 3);
+    qDebug() << "Centroids" << kmeans->getCentroids();
 
     // Bind Shader
     m_shaderProgram->bind();
 
-    float* vertex = new float[m_frame.getNumberOfNonZeroPoints() * 3 * sizeof(float)];
-    float* color = new float[m_frame.getNumberOfNonZeroPoints() * 3 * sizeof(float)];
+    float* vertex = new float[m_frame.getNumOfNonZeroPoints() * 3 * sizeof(float)];
+    float* color = new float[m_frame.getNumOfNonZeroPoints() * 3 * sizeof(float)];
     int index = 0;
 
     for (int y = 0; y < m_frame.getHeight(); ++y)
@@ -111,7 +112,7 @@ void DepthFramePainter::render()
     m_shaderProgram->enableAttributeArray(m_posAttr);
     m_shaderProgram->enableAttributeArray(m_colorAttr);
 
-    glDrawArrays(GL_POINTS, m_posAttr, m_frame.getNumberOfNonZeroPoints());
+    glDrawArrays(GL_POINTS, m_posAttr, m_frame.getNumOfNonZeroPoints());
 
     // Release
     m_shaderProgram->disableAttributeArray(m_colorAttr);

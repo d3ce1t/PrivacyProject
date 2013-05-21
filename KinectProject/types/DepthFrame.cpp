@@ -1,6 +1,7 @@
 #include "DepthFrame.h"
 #include <cstring>
 #include <limits>
+#include "../dataset/DataInstance.h"
 #include <QDebug>
 
 using namespace dai;
@@ -76,7 +77,7 @@ int DepthFrame::getHeight() const
     return m_height;
 }
 
-unsigned int DepthFrame::getNumberOfNonZeroPoints()
+unsigned int DepthFrame::getNumOfNonZeroPoints()
 {
     unsigned int nNonZeroPoints = 0;
 
@@ -119,9 +120,29 @@ void DepthFrame::setItem(int row, int column, float value)
     m_data[row * m_width + column] = value;
 }
 
-float *DepthFrame::getDataPtr()
+const float *DepthFrame::getDataPtr() const
 {
     return m_data;
+}
+
+void DepthFrame::toArray(float dst[][3], int size) const
+{
+    float *dstPtr = &dst[0][0];
+    float *endPtr = &dst[size-1][2];
+
+    for (int i=0; i<m_height && dstPtr < endPtr; ++i)
+    {
+        for (int j=0; j<m_width && dstPtr < endPtr; ++j)
+        {
+            float distance = getItem(i, j);
+            float normX = DataInstance::normalise(j, 0, m_width-1, -1, 1);
+            float normY = -DataInstance::normalise(i, 0, m_height-1, -1, 1);
+
+            *dstPtr++ = normX;
+            *dstPtr++ = normY;
+            *dstPtr++ = distance;
+        }
+    }
 }
 
 //

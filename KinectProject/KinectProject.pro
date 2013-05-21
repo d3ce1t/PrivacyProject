@@ -36,7 +36,9 @@ HEADERS += \
     types/Quaternion.h \
     viewer/CustomItem.h \
     types/StreamInstance.h \
-    OpenNIDepthInstance.h
+    OpenNIDepthInstance.h \
+    KMeans.h \
+    Utils.h
 
 SOURCES += \
     dataset/MSR3Action3D.cpp \
@@ -70,7 +72,8 @@ SOURCES += \
     types/Quaternion.cpp \
     viewer/CustomItem.cpp \
     types/StreamInstance.cpp \
-    OpenNIDepthInstance.cpp
+    OpenNIDepthInstance.cpp \
+    KMeans.cpp
 
 RESOURCES += openglunderqml.qrc
 
