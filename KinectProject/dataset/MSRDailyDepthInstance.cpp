@@ -97,12 +97,6 @@ const DepthFrame &MSRDailyDepthInstance::nextFrame()
             }
         }
 
-        /*for (int r=0; r<m_height; r++)
-        {
-            memcpy(data, tempFrame[r].depthRow, m_width * sizeof(float));
-            data += m_width;
-        }*/
-
         m_frameIndex++;
     }
     else {

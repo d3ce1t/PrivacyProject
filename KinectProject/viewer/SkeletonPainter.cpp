@@ -11,7 +11,7 @@ namespace dai {
 SkeletonPainter::SkeletonPainter(StreamInstance *instance, InstanceViewer *parent)
     : ViewerPainter(instance, parent)
 {
-    if (instance->getType() != InstanceInfo::Skeleton)
+    if (instance->getType() != StreamInstance::Skeleton)
         throw 1;
 
     m_shaderProgram = NULL;

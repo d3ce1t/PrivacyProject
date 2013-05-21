@@ -30,7 +30,7 @@ public:
 
     // Member Methods
     void setItem(int row, int column, float value);
-    unsigned int getNumOfNonZeroPoints();
+    unsigned int getNumOfNonZeroPoints() const;
     float getItem(int row, int column) const;
     int getWidth() const;
     int getHeight() const;

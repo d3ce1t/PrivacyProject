@@ -21,11 +21,12 @@ DepthFrame::DepthFrame(int width, int height)
     m_height = height;
     m_data = new float[width * height];
     m_skIDVals = new uint8_t[width * height];
-    m_nNonZeroOfPoints = 0;
     memset(m_data, 0, width*height*sizeof(float));
+    m_nNonZeroOfPoints = 0;
 }
 
 DepthFrame::DepthFrame(const DepthFrame& other)
+    : DataFrame(other)
 {
     m_width = other.m_width;
     m_height = other.m_height;
@@ -77,30 +78,9 @@ int DepthFrame::getHeight() const
     return m_height;
 }
 
-unsigned int DepthFrame::getNumOfNonZeroPoints()
+unsigned int DepthFrame::getNumOfNonZeroPoints() const
 {
-    unsigned int nNonZeroPoints = 0;
-
-    if (m_nNonZeroOfPoints != 0) {
-        nNonZeroPoints = m_nNonZeroOfPoints;
-    } else {
-        // Count how may points there are in a given depth
-        for (int y = 0; y < m_height; ++y)
-        {
-            for (int x = 0; x < m_width; ++x)
-            {
-                float distance = m_data[y * m_width + x];
-
-                if (distance != 0) {
-                    nNonZeroPoints++;
-                }
-            }
-        }
-
-        m_nNonZeroOfPoints = nNonZeroPoints;
-    }
-
-    return nNonZeroPoints;
+    return m_nNonZeroOfPoints;
 }
 
 float DepthFrame::getItem(int row, int column) const
@@ -116,7 +96,15 @@ void DepthFrame::setItem(int row, int column, float value)
     if (row < 0 || row >= m_height || column < 0 || column >= m_width )
         throw 1;
 
-    m_nNonZeroOfPoints = 0;
+    int index = row * m_width + column;
+    float current_value = m_data[index];
+
+    if (value != 0 && current_value == 0) {
+        m_nNonZeroOfPoints++;
+    } else if (value == 0 && current_value != 0) {
+        m_nNonZeroOfPoints--;
+    }
+
     m_data[row * m_width + column] = value;
 }
 
