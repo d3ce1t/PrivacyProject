@@ -8,6 +8,9 @@
 #include <fstream>
 #include "OpenNIDepthInstance.h"
 #include "KMeans.h"
+#include "types/DepthFrame.h"
+#include "DepthSeg.h"
+#include <iostream>
 
 using namespace std;
 
@@ -125,7 +128,7 @@ void MainWindow::on_pushButton_3_clicked()
 
 void MainWindow::on_pushButton_4_clicked()
 {
-    float data[] = {0.1, 0.3, 0.2, 0.5, 0.6, 0.2, 0.3, 0.1, 0.30, 0.36, 0.45, 0.3, 0.15, 0.17, -0.1, -0.3, -0.2, -0.5, -0.6, -0.2, -0.3, -0.1, -0.30, -0.36, -0.45, -0.3, -0.15, -0.17};
+    /*float data[] = {0.1, 0.3, 0.2, 0.5, 0.6, 0.2, 0.3, 0.1, 0.30, 0.36, 0.45, 0.3, 0.15, 0.17, -0.1, -0.3, -0.2, -0.5, -0.6, -0.2, -0.3, -0.1, -0.30, -0.36, -0.45, -0.3, -0.15, -0.17};
     //float data[] = {1, 3, 2, 5, 6, 2, 3, 1, 30, 36, 45, 3, 15, 17};
     float n = sizeof(data) / sizeof(float);
     const dai::KMeans* kmeans = dai::KMeans::execute(data, n, 4);
@@ -137,5 +140,44 @@ void MainWindow::on_pushButton_4_clicked()
     const QList<float>* values = kmeans->getClusterValues();
     for (int i=0; i<kmeans->getK(); ++i) {
         qDebug() << "Cluster" << i << values[i];
+    }*/
+
+
+    int width = 12;
+    int height = 12;
+    dai::DepthFrame depth_frame(width, height);
+
+    float my_frame[] = {
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0,
+        0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0,
+        0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0,
+        0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0,
+        0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0,
+        0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0,
+        0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0,
+        0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0,
+        0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    };
+
+    for (int i=0; i<12; ++i)
+    {
+        for (int j=0; j<12; ++j)
+        {
+            depth_frame.setItem(i, j, my_frame[i*12 + j ]);
+        }
+    }
+
+    dai::DepthSeg dseg(depth_frame);
+    dseg.execute();
+    //dseg.print_cluster_mask(3, 3);
+
+    for (int i=0; i<height; ++i) {
+        for (int j=0; j<width; ++j) {
+            cout << dseg.getCluster(i, j) + 1 << " ";
+        }
+        cout << endl;
     }
 }

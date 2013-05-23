@@ -5,6 +5,9 @@
 //#include <qopenglext.h>
 #include "../dataset/DataInstance.h"
 #include "KMeans.h"
+#include "DepthSeg.h"
+#include "Utils.h"
+#include <QColor>
 
 namespace dai {
 
@@ -69,7 +72,7 @@ void DepthFramePainter::render()
     //glDisable(GL_DEPTH_TEST);
 
     // Filter data
-    float* data = new float[m_frame.getNumOfNonZeroPoints()];
+    /*float* data = new float[m_frame.getNumOfNonZeroPoints()];
     int index = 0;
 
     for (int i=0; i<m_frame.getHeight(); ++i) {
@@ -82,7 +85,17 @@ void DepthFramePainter::render()
         }
     }
 
-    const KMeans* kmeans = KMeans::execute(data, m_frame.getNumOfNonZeroPoints(), 3);
+    float min_distance = dai::min_element(data, m_frame.getNumOfNonZeroPoints());
+    float max_distance = dai::max_element(data, m_frame.getNumOfNonZeroPoints());
+    */
+
+    //float max_cluster = 3;
+    //const KMeans* kmeans = KMeans::execute(data, m_frame.getNumOfNonZeroPoints(), max_cluster);
+    DepthSeg* dseg = new DepthSeg(m_frame);
+    dseg->execute();
+    float max_cluster = dai::max_element(dseg->getClusterMask(), m_frame.getWidth() * m_frame.getHeight());
+
+    qDebug() << max_cluster;
 
     // Bind Shader
     m_shaderProgram->bind();
@@ -90,7 +103,6 @@ void DepthFramePainter::render()
     float* vertex = new float[m_frame.getNumOfNonZeroPoints() * 3];
     float* color = new float[m_frame.getNumOfNonZeroPoints() * 3];
 
-    index = 0;
     int offset = 0;
 
     for (int y = 0; y < m_frame.getHeight(); ++y)
@@ -108,36 +120,43 @@ void DepthFramePainter::render()
                 vertex[offset+1] = -normY;
                 vertex[offset+2] = -distance;
 
-                color[offset] = m_pDepthHist[distance];
-                color[offset+1] = m_pDepthHist[distance];
-                color[offset+2] = m_pDepthHist[distance];
+                float cluster = dseg->getCluster(y, x);
+
+                if (cluster != -1) {
+                    float norm_color = DataInstance::normalise(cluster / max_cluster, 0, 1, 0, 0.83);
+                    QColor cluster_color = QColor::fromHsvF(norm_color, 1.0, 1.0);
+                    color[offset] = cluster_color.redF();
+                    color[offset+1] = cluster_color.greenF();
+                    color[offset+2] = cluster_color.blueF();
+                }
+                else {
+                    color[offset] = m_pDepthHist[distance];
+                    color[offset+1] = m_pDepthHist[distance];
+                    color[offset+2] = m_pDepthHist[distance];
+                }
 
                 offset+=3;
-                index++;
             }
         }
     }
 
     m_shaderProgram->setAttributeArray(m_posAttr, vertex, 3);
     m_shaderProgram->setAttributeArray(m_colorAttr, color, 3);
-    m_shaderProgram->setAttributeArray(m_maskAttr, kmeans->getClusterMask(), 1);
     m_shaderProgram->setUniformValue(m_pointSize, 2.0f);
     m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
     m_shaderProgram->enableAttributeArray(m_posAttr);
     m_shaderProgram->enableAttributeArray(m_colorAttr);
-    m_shaderProgram->enableAttributeArray(m_maskAttr);
 
     glDrawArrays(GL_POINTS, m_posAttr, m_frame.getNumOfNonZeroPoints());
 
     // Release
     m_shaderProgram->disableAttributeArray(m_colorAttr);
     m_shaderProgram->disableAttributeArray(m_posAttr);
-    m_shaderProgram->disableAttributeArray(m_maskAttr);
     m_shaderProgram->release();
 
     delete[] vertex;
     delete[] color;
-    delete[] data;
+    //delete[] data;
 
     //glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
 }
@@ -155,13 +174,11 @@ void DepthFramePainter::prepareShaderProgram()
     m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/glsl/simpleFragment.fsh");
     m_shaderProgram->bindAttributeLocation("posAttr", 0);
     m_shaderProgram->bindAttributeLocation("colAttr", 1);
-    m_shaderProgram->bindAttributeLocation("maskAttr", 2);
 
     m_shaderProgram->link();
 
     m_posAttr = m_shaderProgram->attributeLocation("posAttr");
     m_colorAttr = m_shaderProgram->attributeLocation("colAttr");
-    m_maskAttr = m_shaderProgram->attributeLocation("maskAttr");
     m_pointSize = m_shaderProgram->uniformLocation("sizeAttr");
     m_perspectiveMatrix = m_shaderProgram->uniformLocation("perspectiveMatrix");
 
