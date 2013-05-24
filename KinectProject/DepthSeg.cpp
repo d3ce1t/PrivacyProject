@@ -2,6 +2,7 @@
 #include <QDebug>
 #include <iostream>
 #include <limits>
+#include <cmath>
 
 using namespace std;
 
@@ -88,12 +89,12 @@ void DepthSeg::execute()
                 }
 
                 // Propagate selection to my neighbourhood
-                for (int i=0; i<8; ++i)
+                /*for (int i=0; i<8; ++i)
                 {
                     int neighbour_row = row + neighbour_offset[i].y;
                     int neighbour_column = column + neighbour_offset[i].x;
 
-                    if (neighbourhood[i] != 0 && getCluster(neighbour_row, neighbour_column) == -1)
+                    if (is_continuous(row, column, neighbour_row, neighbour_column) && getCluster(neighbour_row, neighbour_column) == -1)
                     {
                         setCluster(neighbour_row, neighbour_column, current_cluster);
 
@@ -105,12 +106,29 @@ void DepthSeg::execute()
 
                         m_clusters_size[current_cluster]++;
                     }
-                }
+                }*/
             }
         }
     }
 
-    qDebug() << "Clusters size" << m_clusters_size.size() << m_clusters_size;
+    //qDebug() << "Clusters size" << m_clusters_size.size() << m_clusters_size;
+}
+
+bool DepthSeg::is_continuous(int row1, int col1, int row2, int col2) const
+{
+    bool  result = false;
+    float value1 = m_frame.getItem(row1, col1);
+    float value2 = m_frame.getItem(row2, col2);
+
+    if (value1 != 0 && value2 != 0 && fabs(value1 - value2) == 0) {
+
+        for (int i=0; i<8 && !result; ++i) {
+            if (row2 == row1 + neighbour_offset[i].y && col2 == col1 +neighbour_offset[i].x)
+                result = true;
+        }
+    }
+
+    return result;
 }
 
 void DepthSeg::merge_clusters(int row, int column, float src_cluster, float merge_cluster)

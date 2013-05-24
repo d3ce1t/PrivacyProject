@@ -23,7 +23,7 @@ private:
 
     const static NeighbourOffset neighbour_offset[8];
 
-
+    bool is_continuous(int row1, int col1, int row2, int col2) const;
     void setCluster(int row, int column, float value);
     void load_neighbourhood(int row, int column, float neighbourhood[8]) const;
     int num_assigned_neighbourhood(int row, int column) const;

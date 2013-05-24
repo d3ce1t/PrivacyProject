@@ -169,7 +169,6 @@ void InstanceViewer::playNextFrame()
 void InstanceViewer::renderOpenGLScene()
 {
     // Init Each Frame (because QtQuick could change it)
-
     glDepthRangef(0.0f, 1.0f);
     glDepthMask(GL_TRUE);
     glDepthFunc(GL_LEQUAL);

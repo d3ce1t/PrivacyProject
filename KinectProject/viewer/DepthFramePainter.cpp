@@ -86,16 +86,14 @@ void DepthFramePainter::render()
     }
 
     float min_distance = dai::min_element(data, m_frame.getNumOfNonZeroPoints());
-    float max_distance = dai::max_element(data, m_frame.getNumOfNonZeroPoints());
-    */
+    float max_distance = dai::max_element(data, m_frame.getNumOfNonZeroPoints());*/
+
 
     //float max_cluster = 3;
     //const KMeans* kmeans = KMeans::execute(data, m_frame.getNumOfNonZeroPoints(), max_cluster);
     DepthSeg* dseg = new DepthSeg(m_frame);
     dseg->execute();
     float max_cluster = dai::max_element(dseg->getClusterMask(), m_frame.getWidth() * m_frame.getHeight());
-
-    qDebug() << max_cluster;
 
     // Bind Shader
     m_shaderProgram->bind();
@@ -115,6 +113,7 @@ void DepthFramePainter::render()
             {
                 float normX = DataInstance::normalise(x, 0, m_frame.getWidth()-1, -1, 1);
                 float normY = DataInstance::normalise(y, 0, m_frame.getHeight()-1, -1, 1);
+                //float norm_color = DataInstance::normalise(distance, min_distance, max_distance, 0, 0.83);
 
                 vertex[offset] = normX;
                 vertex[offset+1] = -normY;
@@ -129,11 +128,11 @@ void DepthFramePainter::render()
                     color[offset+1] = cluster_color.greenF();
                     color[offset+2] = cluster_color.blueF();
                 }
-                else {
+                /*else {
                     color[offset] = m_pDepthHist[distance];
                     color[offset+1] = m_pDepthHist[distance];
                     color[offset+2] = m_pDepthHist[distance];
-                }
+                //}*/
 
                 offset+=3;
             }

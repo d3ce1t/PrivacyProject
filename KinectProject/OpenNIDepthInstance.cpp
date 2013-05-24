@@ -38,6 +38,10 @@ void OpenNIDepthInstance::open()
         if (m_colorStream.start() != openni::STATUS_OK)
             throw 5;*/
 
+
+
+
+
         if (m_pUserTracker.create(&m_device) != nite::STATUS_OK) {
             printf("algo fallo\n");
             throw 6;
@@ -79,7 +83,7 @@ const DepthFrame& OpenNIDepthInstance::nextFrame()
     m_currentFrame.setIndex(m_frameIndex);
     nite::UserTrackerFrameRef userTrackerFrame;
 
-    m_pUserTracker.setSkeletonSmoothingFactor(0.7);
+    //m_pUserTracker.setSkeletonSmoothingFactor(0.7);
 
     if (m_pUserTracker.readFrame(&userTrackerFrame) != nite::STATUS_OK) {
         throw 1;
