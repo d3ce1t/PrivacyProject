@@ -5,7 +5,7 @@
 #include <QtGui/QOpenGLContext>
 #include <QtGui/QOpenGLPaintDevice>
 #include <QtGui/QPainter>
-
+#include <QDebug>
 
 OpenGLWindow::OpenGLWindow(QWindow *parent)
     : QWindow(parent)
@@ -100,11 +100,20 @@ void OpenGLWindow::renderNow()
     m_context->makeCurrent(this);
 
     if (needsInitialize) {
+        m_time.start();
+        m_lastTime = 0;
         initializeOpenGLFunctions();
         initialize();
     }
 
     render();
+
+    qint64 timeNow = m_time.elapsed();
+    qint64 diffTime = timeNow - m_lastTime;
+    m_fps = 1.0 / (diffTime / 1000.0f);
+    m_lastTime = timeNow;
+
+    qDebug() << m_fps << diffTime;
 
     m_context->swapBuffers(this);
 

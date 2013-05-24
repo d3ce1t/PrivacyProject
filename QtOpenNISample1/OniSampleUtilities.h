@@ -118,8 +118,8 @@ void calculateHistogram(float* pHistogram, int histogramSize, const openni::Vide
 		pDepth += restOfRow;
     }
 
-    cerr << "Min: " << bestMinValue << endl;
-    cerr << "Max: " << bestMaxValue << endl;
+    /*cerr << "Min: " << bestMinValue << endl;
+    cerr << "Max: " << bestMaxValue << endl;*/
 
     // Accumulate in the given depth all the points of previous depth layers
 	for (int nIndex=1; nIndex<histogramSize; nIndex++)

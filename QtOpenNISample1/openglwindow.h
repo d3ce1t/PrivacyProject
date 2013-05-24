@@ -3,6 +3,7 @@
 
 #include <QtGui/QWindow>
 #include <QtGui/QOpenGLFunctions>
+#include <QElapsedTimer>
 
 class QPainter;
 class QOpenGLContext;
@@ -33,6 +34,9 @@ protected:
 private:
     bool m_update_pending;
     bool m_animating;
+    QElapsedTimer               m_time;
+    qint64                      m_lastTime;
+    float                       m_fps;
 
     QOpenGLContext *m_context;
     QOpenGLPaintDevice *m_device;
