@@ -5,6 +5,7 @@
 #include "types/DepthFrame.h"
 #include <NiTE.h>
 #include <OpenNI.h>
+#include <fstream>
 
 namespace dai {
 
@@ -17,6 +18,7 @@ public:
     void close();
     bool hasNext() const;
     const DepthFrame& nextFrame();
+    bool setOutputFile(QString file);
 
 private:
     openni::Device			m_device;
@@ -26,6 +28,8 @@ private:
     openni::VideoFrameRef	m_colorFrame;
     DepthFrame              m_currentFrame;
     int                     m_frameIndex;
+    std::ofstream           m_of;
+    QString                 m_outputFile;
 };
 
 } // End namespace

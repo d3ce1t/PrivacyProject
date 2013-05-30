@@ -30,7 +30,7 @@ DataInstance* Dataset::getDepthInstance(InstanceInfo info)
     return getDepthInstance(info.getActivity(), info.getActor(), info.getSample());
 }
 
-DataInstance &Dataset::getColorInstance(InstanceInfo info)
+DataInstance* Dataset::getColorInstance(InstanceInfo info)
 {
     return getColorInstance(info.getActivity(), info.getActor(), info.getSample());
 }

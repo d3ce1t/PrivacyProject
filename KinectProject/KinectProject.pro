@@ -36,10 +36,14 @@ HEADERS += \
     types/Quaternion.h \
     viewer/CustomItem.h \
     types/StreamInstance.h \
-    OpenNIDepthInstance.h \
+    openni/OpenNIDepthInstance.h \
     KMeans.h \
     Utils.h \
-    DepthSeg.h
+    DepthSeg.h \
+    dataset/DAIDataset.h \
+    dataset/DAIDepthInstance.h \
+    exceptions/NotImplementedException.h \
+    openni/OpenNIColorInstance.h
 
 SOURCES += \
     dataset/MSR3Action3D.cpp \
@@ -73,9 +77,12 @@ SOURCES += \
     types/Quaternion.cpp \
     viewer/CustomItem.cpp \
     types/StreamInstance.cpp \
-    OpenNIDepthInstance.cpp \
+    openni/OpenNIDepthInstance.cpp \
     KMeans.cpp \
-    DepthSeg.cpp
+    DepthSeg.cpp \
+    dataset/DAIDataset.cpp \
+    dataset/DAIDepthInstance.cpp \
+    openni/OpenNIColorInstance.cpp
 
 RESOURCES += openglunderqml.qrc
 
@@ -94,6 +101,19 @@ unix:!macx {
     LIBS += -L/opt/NiTE-2.0.0/Redist/ -lNiTE2
     INCLUDEPATH += /opt/NiTE-2.0.0/Include
     DEPENDPATH += /opt/NiTE-2.0.0/Include
+
+    # VTK
+    INCLUDEPATH += /usr/include/vtk-5.8
+    DEPENDPATH += /usr/include/vtk-5.8
+
+    # Eigen
+    INCLUDEPATH += /usr/include/eigen3/
+    DEPENDPATH += /usr/include/eigen3/
+
+    # PCL
+    LIBS += -lpcl_common -lpcl_visualization -lboost_system -lpcl_io -lvtkCommon -lvtkFiltering
+    INCLUDEPATH += /usr/local/include/pcl-1.7/
+    DEPENDPATH += /usr/local/include/pcl-1.7/
 }
 
 win32 {

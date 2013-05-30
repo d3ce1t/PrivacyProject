@@ -11,6 +11,7 @@ DepthFrame::DepthFrame()
     m_width = 0;
     m_height = 0;
     m_data = 0;
+    m_label = 0;
     m_skIDVals = 0;
     m_nNonZeroOfPoints = 0;
 }
@@ -20,8 +21,11 @@ DepthFrame::DepthFrame(int width, int height)
     m_width = width;
     m_height = height;
     m_data = new float[width * height];
+    m_label = new short int[width * height];
     m_skIDVals = new uint8_t[width * height];
     memset(m_data, 0, width*height*sizeof(float));
+    memset(m_label, 0, width*height*sizeof(short int));
+    memset(m_skIDVals, 0, width*height*sizeof(uint8_t));
     m_nNonZeroOfPoints = 0;
 }
 
@@ -33,7 +37,9 @@ DepthFrame::DepthFrame(const DepthFrame& other)
     m_index = other.m_index;
     m_nNonZeroOfPoints = other.m_nNonZeroOfPoints;
     m_data = new float[m_width * m_height];
+    m_label = new short int[m_width * m_height];
     memcpy(m_data, other.m_data, m_width * m_height * sizeof(float));
+    memcpy(m_label, other.m_label, m_width * m_height * sizeof(short int));
 }
 
 DepthFrame& DepthFrame::operator=(const DepthFrame& other)
@@ -49,9 +55,11 @@ DepthFrame& DepthFrame::operator=(const DepthFrame& other)
         m_width = other.m_width;
         m_height = other.m_height;
         m_data = new float[m_width * m_height];
+        m_label = new short int[m_width * m_height];
     }
 
     memcpy(m_data, other.m_data, m_width * m_height * sizeof(float));
+    memcpy(m_label, other.m_label, m_width * m_height * sizeof(short int));
     m_index = other.m_index;
     m_nNonZeroOfPoints = other.m_nNonZeroOfPoints;
     return *this;
@@ -61,6 +69,10 @@ DepthFrame::~DepthFrame()
 {
     if (m_data != 0) {
         delete[] m_data;
+    }
+
+    if (m_label != 0) {
+        delete[] m_label;
     }
 
     if (m_skIDVals != 0) {
@@ -91,6 +103,14 @@ float DepthFrame::getItem(int row, int column) const
     return m_data[row * m_width + column];
 }
 
+short int DepthFrame::getLabel(int row, int column) const
+{
+    if (row < 0 || row >= m_height || column < 0 || column >= m_width )
+        throw 1;
+
+    return m_label[row * m_width + column];
+}
+
 void DepthFrame::setItem(int row, int column, float value)
 {
     if (row < 0 || row >= m_height || column < 0 || column >= m_width )
@@ -105,7 +125,25 @@ void DepthFrame::setItem(int row, int column, float value)
         m_nNonZeroOfPoints--;
     }
 
-    m_data[row * m_width + column] = value;
+    m_data[index] = value;
+}
+
+void DepthFrame::setItem(int row, int column, float value, short int label)
+{
+    if (row < 0 || row >= m_height || column < 0 || column >= m_width )
+        throw 1;
+
+    int index = row * m_width + column;
+    float current_value = m_data[index];
+
+    if (value != 0 && current_value == 0) {
+        m_nNonZeroOfPoints++;
+    } else if (value == 0 && current_value != 0) {
+        m_nNonZeroOfPoints--;
+    }
+
+    m_data[index] = value;
+    m_label[index] = label;
 }
 
 const float *DepthFrame::getDataPtr() const
@@ -131,6 +169,14 @@ void DepthFrame::toArray(float dst[][3], int size) const
             *dstPtr++ = distance;
         }
     }
+}
+
+void DepthFrame::write(std::ofstream& of) const
+{
+    char* buffer = (char *) m_data;
+    of.write(buffer, m_width * m_height * sizeof(float));
+    buffer = (char *) m_label;
+    of.write(buffer, m_width * m_height * sizeof(short int));
 }
 
 //

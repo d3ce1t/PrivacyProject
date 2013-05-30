@@ -4,6 +4,7 @@
 #include "DataFrame.h"
 #include <stdint.h>
 #include <QMap>
+#include <fstream>
 
 namespace dai {
 
@@ -30,8 +31,10 @@ public:
 
     // Member Methods
     void setItem(int row, int column, float value);
+    void setItem(int row, int column, float value, short int label);
     unsigned int getNumOfNonZeroPoints() const;
     float getItem(int row, int column) const;
+    short int getLabel(int row, int column) const;
     int getWidth() const;
     int getHeight() const;
     const float *getDataPtr() const;
@@ -40,10 +43,18 @@ public:
     // Overriden Operators
     DepthFrame& operator=(const DepthFrame& other);
 
+    /**
+     * Write the depth frame into the output stream
+     * @brief write
+     * @param of
+     */
+    void write(std::ofstream &of) const;
+
 private:
     int m_width;
     int m_height;
     float* m_data;
+    short int* m_label;
     uint8_t* m_skIDVals;
     unsigned int m_nNonZeroOfPoints;
 };

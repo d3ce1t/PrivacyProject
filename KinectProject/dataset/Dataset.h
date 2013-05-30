@@ -15,7 +15,8 @@ public:
 
     enum DatasetType {
         Dataset_MSRDailyActivity3D = 0,
-        Dataset_MSRAction3D
+        Dataset_MSRAction3D,
+        Dataset_DAI
     };
 
     explicit Dataset(QString path);
@@ -23,11 +24,11 @@ public:
     const DatasetMetadata& getMetadata() const;
     virtual DataInstance* getDepthInstance(int activity, int actor, int sample) = 0;
     virtual DataInstance* getSkeletonInstance(int activity, int actor, int sample) = 0;
-    virtual DataInstance& getColorInstance(int activity, int actor, int sample) = 0;
+    virtual DataInstance* getColorInstance(int activity, int actor, int sample) = 0;
 
     DataInstance* getSkeletonInstance(InstanceInfo info);
     DataInstance* getDepthInstance(InstanceInfo info);
-    DataInstance& getColorInstance(InstanceInfo info);
+    DataInstance* getColorInstance(InstanceInfo info);
 
 protected:
     DatasetMetadata* m_metadata;

@@ -6,7 +6,7 @@
 #include <QVector>
 #include "dataset/MSR3Action3D.h"
 #include <fstream>
-#include "OpenNIDepthInstance.h"
+#include "openni/OpenNIDepthInstance.h"
 #include "KMeans.h"
 #include "types/DepthFrame.h"
 #include "DepthSeg.h"
@@ -39,6 +39,7 @@ void MainWindow::on_pushButton_clicked()
     InstanceViewer* viewer = new InstanceViewer;
     connect(viewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
     dai::OpenNIDepthInstance* instance = new dai::OpenNIDepthInstance;
+    //instance->setOutputFile("/files/capture/capture.bin");
 
     viewer->show();
     //instance->setPlayLoop(ui->checkBoxLoop->isChecked());

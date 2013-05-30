@@ -1,4 +1,5 @@
 #include "DataInstance.h"
+#include "../exceptions/NotImplementedException.h"
 
 using namespace dai;
 
@@ -30,6 +31,31 @@ const InstanceInfo& DataInstance::getMetadata() const
 void DataInstance::setPlayLoop(bool value)
 {
     m_playLoop = value;
+}
+
+int DataInstance::getTotalFrames() const
+{
+    throw NotImplementedException();
+}
+
+bool DataInstance::hasNext() const
+{
+    throw NotImplementedException();
+}
+
+void DataInstance::open()
+{
+    throw NotImplementedException();
+}
+
+void DataInstance::close()
+{
+    throw NotImplementedException();
+}
+
+const DataFrame& DataInstance::nextFrame()
+{
+    throw NotImplementedException();
 }
 
 //

@@ -15,8 +15,12 @@ public:
     explicit DataInstance(const InstanceInfo& info);
     virtual ~DataInstance();
     const InstanceInfo& getMetadata() const;
-    virtual int getTotalFrames() const = 0;
+    virtual int getTotalFrames() const;
     void setPlayLoop(bool value);
+    bool hasNext() const;
+    void open();
+    void close();
+    const DataFrame& nextFrame();
 
 protected:
     InstanceInfo m_info;

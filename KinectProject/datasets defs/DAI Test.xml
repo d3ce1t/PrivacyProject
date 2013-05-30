@@ -1,0 +1,24 @@
+<dataset name="MSRAction3D">
+
+	<description>This is a test dataset only for my own experimental purposes</description>
+
+	<path>/files/capture</path>
+
+	<activities size="1">
+		<activity key="01">Test</activity>
+	</activities>
+
+	<actors size="1">
+		<actor key="01">01</actor>
+	</actors>
+
+	<samples size="1">
+		<sample key="01">First repetition</sample>
+	</samples>
+
+	<instances>
+		<instance type="depth" activity="01" actor="01" sample="01">
+			<file>test1.bin</file>
+		</instance>
+	</instances>
+</dataset>

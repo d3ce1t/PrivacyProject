@@ -35,7 +35,6 @@ private slots:
     void on_btnSelectAllSamples_clicked();
     void on_btnUnselectAllSamples_clicked();
     void viewerClosed(InstanceViewer *viewer);
-
     void on_comboDataset_activated(int index);
 
 private:

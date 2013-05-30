@@ -24,12 +24,10 @@ MSRActionSkeletonInstance* MSR3Action3D::getSkeletonInstance(int activity, int a
     return result;
 }
 
-DataInstance& MSR3Action3D::getColorInstance(int activity, int actor, int sample)
+DataInstance* MSR3Action3D::getColorInstance(int activity, int actor, int sample)
 {
-    Q_UNUSED(activity);
-    Q_UNUSED(actor);
-    Q_UNUSED(sample);
-    return *(new MSRActionSkeletonInstance(   *(new InstanceInfo) ) );
+    const InstanceInfo instanceInfo = m_metadata->instance(InstanceInfo::Skeleton, activity, actor, sample);
+    return new DataInstance(instanceInfo);
 }
 
 } // End namespace

@@ -11,6 +11,14 @@
 
 namespace dai {
 
+const QVector3D DepthFramePainter::m_colors[5] = {
+    QVector3D(1.0, 0.0, 0.0),
+    QVector3D(0.0, 1.0, 0.0),
+    QVector3D(0.0, 0.0, 1.0),
+    QVector3D(1.0, 1.0, 0.0),
+    QVector3D(0.0, 1.0, 1.0)
+};
+
 DepthFramePainter::DepthFramePainter(StreamInstance *instance, InstanceViewer *parent)
     : ViewerPainter(instance, parent)
 {
@@ -19,7 +27,6 @@ DepthFramePainter::DepthFramePainter(StreamInstance *instance, InstanceViewer *p
         throw 1;
     }
 
-    colors[0] = QVector3D(1, 1, 1); // White
     m_shaderProgram = NULL;
     m_isFrameAvailable = false;
 }
@@ -91,9 +98,9 @@ void DepthFramePainter::render()
 
     //float max_cluster = 3;
     //const KMeans* kmeans = KMeans::execute(data, m_frame.getNumOfNonZeroPoints(), max_cluster);
-    DepthSeg* dseg = new DepthSeg(m_frame);
-    dseg->execute();
-    float max_cluster = dai::max_element(dseg->getClusterMask(), m_frame.getWidth() * m_frame.getHeight());
+    //DepthSeg* dseg = new DepthSeg(m_frame);
+    //dseg->execute();
+    //float max_cluster = dai::max_element(dseg->getClusterMask(), m_frame.getWidth() * m_frame.getHeight());
 
     // Bind Shader
     m_shaderProgram->bind();
@@ -119,20 +126,28 @@ void DepthFramePainter::render()
                 vertex[offset+1] = -normY;
                 vertex[offset+2] = -distance;
 
-                float cluster = dseg->getCluster(y, x);
+                //float cluster = dseg->getCluster(y, x);
 
-                if (cluster != -1) {
+                /*if (cluster != -1) {
                     float norm_color = DataInstance::normalise(cluster / max_cluster, 0, 1, 0, 0.83);
                     QColor cluster_color = QColor::fromHsvF(norm_color, 1.0, 1.0);
                     color[offset] = cluster_color.redF();
                     color[offset+1] = cluster_color.greenF();
                     color[offset+2] = cluster_color.blueF();
-                }
-                /*else {
+                }*/
+                /*else {*/
+
+                short int label = m_frame.getLabel(y, x);
+
+                if (label == 0) {
                     color[offset] = m_pDepthHist[distance];
                     color[offset+1] = m_pDepthHist[distance];
                     color[offset+2] = m_pDepthHist[distance];
-                //}*/
+                } else {
+                    color[offset] = m_colors[label-1 % 5].x();
+                    color[offset+1] = m_colors[label-1 % 5].y();
+                    color[offset+2] = m_colors[label-1 % 5].z();
+                }
 
                 offset+=3;
             }
@@ -169,8 +184,8 @@ void DepthFramePainter::resize( float w, float h )
 void DepthFramePainter::prepareShaderProgram()
 {
     m_shaderProgram = new QOpenGLShaderProgram();
-    m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/glsl/simpleVertex.vsh");
-    m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/glsl/simpleFragment.fsh");
+    m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/glsl/glsl/simpleVertex.vsh");
+    m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/glsl/glsl/simpleFragment.fsh");
     m_shaderProgram->bindAttributeLocation("posAttr", 0);
     m_shaderProgram->bindAttributeLocation("colAttr", 1);
 

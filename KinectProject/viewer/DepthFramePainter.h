@@ -28,7 +28,7 @@ protected:
 private:
     void prepareShaderProgram();
 
-    QVector3D               colors[1];
+    const static QVector3D  m_colors[5];
     bool                    m_isFrameAvailable;
     DepthFrame              m_frame;
     QMap<float, float>      m_pDepthHist;

@@ -5,6 +5,7 @@
 #include "dataset/MSRDailyDepthInstance.h"
 #include "dataset/MSRDailySkeletonInstance.h"
 #include "dataset/MSR3Action3D.h"
+#include "dataset/DAIDataset.h"
 #include "InstanceWidgetItem.h"
 #include <QGuiApplication>
 
@@ -117,6 +118,8 @@ void DatasetBrowser::loadDataset(Dataset::DatasetType type)
         m_dataset = new MSRDailyActivity3D();
     } else if (type == Dataset::Dataset_MSRAction3D) {
         m_dataset = new MSR3Action3D();
+    } else if (type == Dataset::Dataset_DAI) {
+        m_dataset = new DAIDataset();
     }
 
     // Load widgets with DataSet Info
@@ -163,6 +166,8 @@ void DatasetBrowser::loadInstances()
         showType = InstanceInfo::Color;
     } else if (ui->comboType->currentIndex() == 2) {
         showType = InstanceInfo::Skeleton;
+    } else {
+        showType = InstanceInfo::Uninitialised;
     }
 
     // Prepare Filter

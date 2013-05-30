@@ -24,13 +24,10 @@ MSRDailySkeletonInstance* MSRDailyActivity3D::getSkeletonInstance(int activity, 
     return result;
 }
 
-DataInstance &MSRDailyActivity3D::getColorInstance(int activity, int actor, int sample)
+DataInstance* MSRDailyActivity3D::getColorInstance(int activity, int actor, int sample)
 {
-    Q_UNUSED(activity);
-    Q_UNUSED(actor);
-    Q_UNUSED(sample);
-    // TODO: Fix this
-    return *(new MSRDailySkeletonInstance( *(new InstanceInfo) ));
+    const InstanceInfo instanceInfo = m_metadata->instance(InstanceInfo::Skeleton, activity, actor, sample);
+    return new DataInstance(instanceInfo);
 }
 
 }

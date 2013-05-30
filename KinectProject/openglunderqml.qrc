@@ -1,14 +1,14 @@
 <RCC>
-    <qresource prefix="/scenegraph/openglunderqml">
-        <file>main.qml</file>
-        <file>Button.qml</file>
-        <file>Checkbox.qml</file>
+    <qresource prefix="/qml">
+        <file>qml/main.qml</file>
+        <file>qml/Button.qml</file>
+        <file>qml/Checkbox.qml</file>
     </qresource>
     <qresource prefix="/glsl">
-        <file>textureVertex.vsh</file>
-        <file>textureFragment.fsh</file>
-        <file>simpleFragment.fsh</file>
-        <file>simpleVertex.vsh</file>
+        <file>glsl/textureVertex.vsh</file>
+        <file>glsl/textureFragment.fsh</file>
+        <file>glsl/simpleFragment.fsh</file>
+        <file>glsl/simpleVertex.vsh</file>
     </qresource>
     <qresource prefix="/icons">
         <file>kinect.png</file>
