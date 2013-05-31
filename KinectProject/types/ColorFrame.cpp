@@ -6,4 +6,27 @@ ColorFrame::ColorFrame()
 {
 }
 
+ColorFrame::ColorFrame(int width, int height)
+    : GenericFrame<RGBAColor>(width, height)
+{
+}
+
+ColorFrame::~ColorFrame()
+{
+}
+
+ColorFrame::ColorFrame(const ColorFrame& other)
+    : GenericFrame<RGBAColor>(other)
+{
+}
+
+ColorFrame& ColorFrame::operator=(const ColorFrame& other)
+{
+    GenericFrame<RGBAColor>::operator=(other);
+    return *this;
+}
+
+
 } // End Namespace
+
+

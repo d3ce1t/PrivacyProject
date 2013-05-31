@@ -43,7 +43,8 @@ HEADERS += \
     dataset/DAIDataset.h \
     dataset/DAIDepthInstance.h \
     exceptions/NotImplementedException.h \
-    openni/OpenNIColorInstance.h
+    openni/OpenNIColorInstance.h \
+    types/GenericFrame.h
 
 SOURCES += \
     dataset/MSR3Action3D.cpp \

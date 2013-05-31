@@ -146,6 +146,7 @@ void MainWindow::on_pushButton_4_clicked()
 
     int width = 12;
     int height = 12;
+
     dai::DepthFrame depth_frame(width, height);
 
     float my_frame1[] = {

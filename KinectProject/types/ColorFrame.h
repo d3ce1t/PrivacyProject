@@ -1,16 +1,30 @@
-#ifndef COLORFRAME_H
-#define COLORFRAME_H
+#ifndef COLOR_FRAME_H
+#define COLOR_FRAME_H
 
-#include "DataFrame.h"
+#include "GenericFrame.h"
 
 namespace dai {
 
-class ColorFrame : public DataFrame
+struct RGBAColor {
+    float red;
+    float green;
+    float blue;
+    float alpha;
+};
+
+class ColorFrame : public GenericFrame<RGBAColor>
 {
 public:
+    // Constructors
     ColorFrame();
+    ColorFrame(int width, int height);
+    virtual ~ColorFrame();
+    ColorFrame(const ColorFrame& other);
+
+    // Overriden operators
+    ColorFrame& operator=(const ColorFrame& other);
 };
 
 } // End Namespace
 
-#endif // COLORFRAME_H
+#endif // COLOR_FRAME_H

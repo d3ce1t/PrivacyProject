@@ -117,7 +117,7 @@ void DepthFramePainter::render()
             float distance = m_frame.getItem(y, x);
 
             if (distance > 0)
-            {
+            {                
                 float normX = DataInstance::normalise(x, 0, m_frame.getWidth()-1, -1, 1);
                 float normY = DataInstance::normalise(y, 0, m_frame.getHeight()-1, -1, 1);
                 //float norm_color = DataInstance::normalise(distance, min_distance, max_distance, 0, 0.83);

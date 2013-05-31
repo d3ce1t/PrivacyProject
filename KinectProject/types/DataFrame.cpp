@@ -4,7 +4,7 @@ namespace dai {
 
 DataFrame::DataFrame()
 {
-    m_index = -1;
+    m_index = -1;   
 }
 
 DataFrame::DataFrame(const DataFrame& other)
@@ -18,11 +18,14 @@ DataFrame& DataFrame::operator=(const DataFrame& other)
     return *this;
 }
 
+int DataFrame::getIndex() const
+{
+    return m_index;
+}
+
 void DataFrame::setIndex(int index)
 {
     m_index = index;
 }
-
-
 
 } // End Namespace
