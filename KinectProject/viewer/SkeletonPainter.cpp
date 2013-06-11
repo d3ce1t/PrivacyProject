@@ -357,7 +357,7 @@ void SkeletonPainter::drawQuaternions()
         };
 
 
-        //glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+        glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
         glDisable(GL_DEPTH_TEST);
 
         // Bind Shader
@@ -377,7 +377,7 @@ void SkeletonPainter::drawQuaternions()
         m_shaderProgram->disableAttributeArray(m_posAttr);
         m_shaderProgram->release();
 
-        //glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
+        glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
     }
 }
 
@@ -422,7 +422,7 @@ void SkeletonPainter::drawLimb(const dai::SkeletonJoint& joint1, const dai::Skel
         0.0, 0.0, 0.0
     };
 
-    //glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
     glDisable(GL_DEPTH_TEST);
 
     // Bind Shader
@@ -452,7 +452,7 @@ void SkeletonPainter::drawLimb(const dai::SkeletonJoint& joint1, const dai::Skel
     m_shaderProgram->disableAttributeArray(m_posAttr);
     m_shaderProgram->release();
 
-    //glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
+    glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
 }
 
 void SkeletonPainter::drawJoint(const dai::SkeletonJoint& joint, const QVector3D &color)
@@ -465,7 +465,7 @@ void SkeletonPainter::drawJoint(const dai::SkeletonJoint& joint, const QVector3D
         color.x(), color.y(), color.z()
     };
 
-    //glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
 
     // Bind Shader
     m_shaderProgram->bind();
@@ -484,7 +484,7 @@ void SkeletonPainter::drawJoint(const dai::SkeletonJoint& joint, const QVector3D
     m_shaderProgram->disableAttributeArray(m_posAttr);
     m_shaderProgram->release();
 
-    //glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
+    glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
 }
 
 } // End Namespace

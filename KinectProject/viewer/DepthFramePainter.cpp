@@ -175,12 +175,6 @@ void DepthFramePainter::render()
     //glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
 }
 
-void DepthFramePainter::resize( float w, float h )
-{
-    Q_UNUSED(w);
-    Q_UNUSED(h);
-}
-
 void DepthFramePainter::prepareShaderProgram()
 {
     m_shaderProgram = new QOpenGLShaderProgram();

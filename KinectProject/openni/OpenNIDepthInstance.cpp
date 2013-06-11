@@ -21,7 +21,7 @@ OpenNIDepthInstance::~OpenNIDepthInstance()
     //openni::OpenNI::shutdown();
 }
 
-bool OpenNIDepthInstance::setOutputFile(QString file)
+void OpenNIDepthInstance::setOutputFile(QString file)
 {
     m_outputFile = file;
 }

@@ -61,7 +61,6 @@ float Quaternion::sign(float value) const
     return result;
 }
 
-
 Quaternion Quaternion::getRotationBetween(const QVector3D& v1, const QVector3D& v2)
 {
     float k_cos_theta = QVector3D::dotProduct(v1, v2);

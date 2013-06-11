@@ -2,7 +2,7 @@
 #define OPENNICOLORINSTANCE_H
 
 #include "types/StreamInstance.h"
-#include "types/DepthFrame.h"
+#include "types/ColorFrame.h"
 #include <NiTE.h>
 #include <OpenNI.h>
 #include <fstream>
@@ -17,16 +17,14 @@ public:
     void open();
     void close();
     bool hasNext() const;
-    const DepthFrame& nextFrame();
-    bool setOutputFile(QString file);
+    const ColorFrame& nextFrame();
+    void setOutputFile(QString file);
 
 private:
     openni::Device			m_device;
-    openni::VideoMode       videoMode;
     openni::VideoStream 	m_colorStream;
-    nite::UserTracker       m_pUserTracker;
     openni::VideoFrameRef	m_colorFrame;
-    DepthFrame              m_currentFrame;
+    ColorFrame              m_currentFrame;
     int                     m_frameIndex;
     std::ofstream           m_of;
     QString                 m_outputFile;

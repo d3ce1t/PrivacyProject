@@ -1,5 +1,5 @@
-#ifndef BASICUSAGESCENE_H
-#define BASICUSAGESCENE_H
+#ifndef SKELETON_PAINTER_H
+#define SKELETON_PAINTER_H
 
 #include "ViewerPainter.h"
 #include <QMatrix4x4>
@@ -55,4 +55,4 @@ private:
 
 } // End Namespace
 
-#endif // BASICUSAGESCENE_H
+#endif // SKELETON_PAINTER_H

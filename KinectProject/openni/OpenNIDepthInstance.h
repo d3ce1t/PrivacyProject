@@ -18,7 +18,7 @@ public:
     void close();
     bool hasNext() const;
     const DepthFrame& nextFrame();
-    bool setOutputFile(QString file);
+    void setOutputFile(QString file);
 
 private:
     openni::Device			m_device;

@@ -1,5 +1,5 @@
-#ifndef DEPTHSTREAMSCENE_H
-#define DEPTHSTREAMSCENE_H
+#ifndef DEPTH_FRAME_PAINTER_H
+#define DEPTH_FRAME_PAINTER_H
 
 #include "ViewerPainter.h"
 #include <OpenNI.h>
@@ -19,7 +19,6 @@ public:
     DepthFramePainter(StreamInstance* instance, InstanceViewer* parent = 0);
     virtual ~DepthFramePainter();
     bool prepareNext();
-    void resize( float w, float h );
 
 protected:
     void initialise();
@@ -43,4 +42,4 @@ private:
 
 } // End Namespace
 
-#endif // DEPTHSTREAMSCENE_H
+#endif // DEPTH_FRAME_PAINTER_H

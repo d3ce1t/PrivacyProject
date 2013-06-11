@@ -6,16 +6,11 @@
 #include <QElapsedTimer>
 #include <QTimer>
 #include <QMatrix4x4>
-#include "DepthFramePainter.h"
-#include "SkeletonPainter.h"
 #include <QMutex>
 #include <QtGui/QOpenGLFunctions>
+#include "../types/StreamInstance.h"
+#include "ViewerPainter.h"
 
-
-namespace dai {
-    class DataInstance;
-    class ViewerPainter;
-}
 
 class InstanceViewer : public QQuickView, protected QOpenGLFunctions
 {

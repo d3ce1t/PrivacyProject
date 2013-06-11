@@ -1,8 +1,6 @@
 #include "InstanceViewer.h"
 #include "../dataset/DataInstance.h"
-#include "../types/DepthFrame.h"
-#include "../types/Skeleton.h"
-#include "ViewerPainter.h"
+
 #include <QDebug>
 #include <QQmlContext>
 #include <QtQml>
@@ -10,6 +8,9 @@
 #include "../Grill.h"
 #include "../HistogramScene.h"
 #include "../dataset/InstanceInfo.h"
+#include "DepthFramePainter.h"
+#include "SkeletonPainter.h"
+#include "ColorFramePainter.h"
 
 
 InstanceViewer::InstanceViewer( QWindow *parent )
@@ -62,6 +63,9 @@ void InstanceViewer::play(dai::StreamInstance *instance, bool restartAll)
     }
     else if (streamType == dai::StreamInstance::Skeleton) {
         painter = new dai::SkeletonPainter(instance, this);
+    }
+    else if (streamType == dai::StreamInstance::Color) {
+        painter = new dai::ColorFramePainter(instance, this);
     }
 
     m_mutex.lock();

@@ -11,8 +11,8 @@ namespace dai {
 OpenNIColorInstance::OpenNIColorInstance()
     : m_currentFrame(640, 480)
 {
-    this->m_type = StreamInstance::Depth;
-    this->m_title = "Depth Live Stream";
+    this->m_type = StreamInstance::Color;
+    this->m_title = "Color Live Stream";
 }
 
 OpenNIColorInstance::~OpenNIColorInstance()
@@ -21,7 +21,7 @@ OpenNIColorInstance::~OpenNIColorInstance()
     //openni::OpenNI::shutdown();
 }
 
-bool OpenNIColorInstance::setOutputFile(QString file)
+void OpenNIColorInstance::setOutputFile(QString file)
 {
     m_outputFile = file;
 }
@@ -41,19 +41,14 @@ void OpenNIColorInstance::open()
         if (nite::NiTE::initialize() != nite::STATUS_OK)
             throw 3;
 
-        /*if (m_colorStream.create(m_device, openni::SENSOR_COLOR) != openni::STATUS_OK)
+        if (m_colorStream.create(m_device, openni::SENSOR_COLOR) != openni::STATUS_OK)
             throw 4;
 
         if (m_colorStream.start() != openni::STATUS_OK)
-            throw 5;*/
+            throw 5;
 
-        if (m_pUserTracker.create(&m_device) != nite::STATUS_OK) {
-            printf("algo fallo\n");
+        if (!m_colorStream.isValid())
             throw 6;
-        }
-
-        if (!m_pUserTracker.isValid() /*|| !m_colorStream.isValid()*/)
-            throw 7;
 
         if (!m_of.is_open() && !m_outputFile.isEmpty())
         {
@@ -61,7 +56,7 @@ void OpenNIColorInstance::open()
 
             if (!m_of.is_open()) {
                 cerr << "Error opening file" << endl;
-                throw 8;
+                throw 7;
             }
 
             int width = m_currentFrame.getWidth();
@@ -107,44 +102,41 @@ bool OpenNIColorInstance::hasNext() const
     return true;
 }
 
-const DepthFrame& OpenNIColorInstance::nextFrame()
+const ColorFrame &OpenNIColorInstance::nextFrame()
 {
-    // Read Depth Frame
-    m_currentFrame.setIndex(m_frameIndex);
-    nite::UserTrackerFrameRef userTrackerFrame;
-
-    //m_pUserTracker.setSkeletonSmoothingFactor(0.7);
-
-    if (m_pUserTracker.readFrame(&userTrackerFrame) != nite::STATUS_OK) {
+    // Read Color Frame
+    if (m_colorStream.readFrame(&m_colorFrame) != openni::STATUS_OK) {
         throw 1;
     }
 
-    //m_colorStream.readFrame(&m_colorFrame);
-    videoMode = userTrackerFrame.getDepthFrame().getVideoMode();
-
-    openni::VideoFrameRef frameRef = userTrackerFrame.getDepthFrame();
-    const nite::UserMap& userLabels = userTrackerFrame.getUserMap();
-    const nite::UserId* pLabel = userLabels.getPixels();
-    const openni::DepthPixel* pDepth = (const openni::DepthPixel*)frameRef.getData();
-    int restOfRow = frameRef.getStrideInBytes() / sizeof(openni::DepthPixel) - frameRef.getWidth();
-    int height = frameRef.getHeight();
-    int width = frameRef.getWidth();
-
-    for (int y=0; y<height; ++y)
+    // RGB Frame
+    if ( m_colorFrame.isValid())
     {
-        for (int x=0; x<width; ++x, ++pLabel)
+        m_currentFrame.setIndex(m_frameIndex);
+
+        const openni::RGB888Pixel* pImageRow = (const openni::RGB888Pixel*) m_colorFrame.getData();
+        int rowSize = m_colorFrame.getStrideInBytes() / sizeof(openni::RGB888Pixel);
+
+        for (int y = 0; y < m_colorFrame.getHeight(); ++y)
         {
-            // FIX: I assume depth value is between 0 a 10000.
-            m_currentFrame.setItem(y, x, DataInstance::normalise(*pDepth, 0, 10000, 0, 1), *pLabel);
-            pDepth++;
+            const openni::RGB888Pixel* pImage = pImageRow;
+
+            for (int x = 0; x < m_colorFrame.getWidth(); ++x, ++pImage)
+            {
+                RGBAColor color;
+                color.red = pImage->r / 255.0f;
+                color.green = pImage->g / 255.0f;
+                color.blue = pImage->b / 255.0f;
+                color.alpha = 1.0;
+                m_currentFrame.setItem(y, x, color);
+            }
+
+            pImageRow += rowSize;
         }
 
-        // Skip rest of row (in case it exists)
-        pDepth += restOfRow;
-    }
-
-    if (m_of.is_open()) {
-        m_currentFrame.write(m_of);
+        if (m_of.is_open()) {
+            m_currentFrame.write(m_of);
+        }
     }
 
     m_frameIndex++;

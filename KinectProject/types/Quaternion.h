@@ -50,9 +50,10 @@ public:
     float getAngle() const;
 
 private:
+    // Private methods
     float sign(float value) const;
 
-
+    // Private attributes
     float m_theta;
 };
 

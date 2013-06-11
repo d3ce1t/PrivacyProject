@@ -24,8 +24,8 @@ public:
     T getItem(int row, int column) const;
     short int getLabel(int row, int column) const;
     const T* getDataPtr() const;
-    void setItem(int row, int column, T value);
-    void setItem(int row, int column, T value, short int label);
+    void setItem(int row, int column, T &value);
+    void setItem(int row, int column, T &value, short int label);
 
     // Overriden Operators
     GenericFrame<T>& operator=(const GenericFrame<T>& other);
@@ -144,7 +144,7 @@ short int GenericFrame<T>::getLabel(int row, int column) const
 }
 
 template <class T>
-void GenericFrame<T>::setItem(int row, int column, T value)
+void GenericFrame<T>::setItem(int row, int column, T &value)
 {
     if (row < 0 || row >= this->m_height || column < 0 || column >= this->m_width )
         throw 1;
@@ -153,7 +153,7 @@ void GenericFrame<T>::setItem(int row, int column, T value)
 }
 
 template <class T>
-void GenericFrame<T>::setItem(int row, int column, T value, short int label)
+void GenericFrame<T>::setItem(int row, int column, T &value, short int label)
 {
     if (row < 0 || row >= this->m_height || column < 0 || column >= this->m_width )
         throw 1;

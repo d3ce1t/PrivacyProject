@@ -7,6 +7,7 @@
 #include "dataset/MSR3Action3D.h"
 #include <fstream>
 #include "openni/OpenNIDepthInstance.h"
+#include "openni/OpenNIColorInstance.h"
 #include "KMeans.h"
 #include "types/DepthFrame.h"
 #include "DepthSeg.h"
@@ -38,8 +39,10 @@ void MainWindow::on_pushButton_clicked()
 {
     InstanceViewer* viewer = new InstanceViewer;
     connect(viewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
-    dai::OpenNIDepthInstance* instance = new dai::OpenNIDepthInstance;
+    //dai::OpenNIDepthInstance* instance = new dai::OpenNIDepthInstance;
     //instance->setOutputFile("/files/capture/capture.bin");
+
+    dai::OpenNIColorInstance* instance = new dai::OpenNIColorInstance;
 
     viewer->show();
     //instance->setPlayLoop(ui->checkBoxLoop->isChecked());

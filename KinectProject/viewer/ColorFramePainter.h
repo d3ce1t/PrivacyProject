@@ -1,25 +1,21 @@
-#ifndef DEPTHSTREAMSCENE_H
-#define DEPTHSTREAMSCENE_H
+#ifndef COLOR_FRAME_PAINTER_H
+#define COLOR_FRAME_PAINTER_H
 
 #include "ViewerPainter.h"
-#include <OpenNI.h>
 #include <QOpenGLBuffer>
 #include <QMatrix4x4>
-#include "../types/DepthFrame.h"
-
-#define MAX_DEPTH 10000
+#include "../types/ColorFrame.h"
 
 class QOpenGLShaderProgram;
 
 namespace dai {
 
-class ColorFramePainter
+class ColorFramePainter : public ViewerPainter
 {
 public:
-    ColorFramePainter();
+    ColorFramePainter(StreamInstance* instance, InstanceViewer* parent = 0);
     virtual ~ColorFramePainter();
-    void resize( float w, float h );
-    void setFrame(const DataFrame &frame);
+    bool prepareNext();
 
 protected:
     void initialise();
@@ -27,17 +23,10 @@ protected:
 
 private:
     void prepareShaderProgram();
-    void prepareFrameTexture(openni::RGB888Pixel* texture, const dai::DepthFrame &frame);
-    void loadVideoTexture(openni::RGB888Pixel* texture, GLsizei width, GLsizei height, GLuint glTextureId);
+    void loadVideoTexture(void *texture, GLsizei width, GLsizei height, GLuint glTextureId);
 
     const int               textureUnit;
-    QVector3D               colors[1];
     bool                    m_isFrameAvailable;
-
-    float                   m_pDepthHist[MAX_DEPTH];
-    openni::RGB888Pixel*	m_pTexMap;
-    int                     m_pTexMapWidth;
-    int                     m_pTexMapHeight;
     QOpenGLShaderProgram*   m_shaderProgram;
 
     // OpenGL identifiers
@@ -48,9 +37,9 @@ private:
     GLuint                  m_texSampler; // Texture Sampler in the shader
     GLuint                  m_sampler; // Sampler
 
-    DepthFrame              m_frame;
+    ColorFrame              m_frame;
 };
 
 } // End Namespace
 
-#endif // DEPTHSTREAMSCENE_H
+#endif // COLOR_FRAME_PAINTER_H

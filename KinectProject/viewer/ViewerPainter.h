@@ -19,7 +19,6 @@ public:
     explicit ViewerPainter(StreamInstance *instance, InstanceViewer* parent = 0);
     virtual ~ViewerPainter();
     virtual bool prepareNext() = 0;
-    virtual void resize( float w, float h ) = 0;
     void setMatrix(QMatrix4x4& m_matrix);
     void renderNow();
     StreamInstance& instance() const;
