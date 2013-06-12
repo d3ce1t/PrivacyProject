@@ -15,12 +15,6 @@ OpenNIColorInstance::OpenNIColorInstance()
     this->m_title = "Color Live Stream";
 }
 
-OpenNIColorInstance::~OpenNIColorInstance()
-{
-    //nite::NiTE::shutdown();
-    //openni::OpenNI::shutdown();
-}
-
 void OpenNIColorInstance::setOutputFile(QString file)
 {
     m_outputFile = file;
@@ -28,20 +22,10 @@ void OpenNIColorInstance::setOutputFile(QString file)
 
 void OpenNIColorInstance::open()
 {
-    const char* deviceURI = openni::ANY_DEVICE;
     m_frameIndex = 0;
 
     try {
-        if (openni::OpenNI::initialize() != openni::STATUS_OK)
-            throw 1;
-
-        if (m_device.open(deviceURI) != openni::STATUS_OK)
-            throw 2;
-
-        if (nite::NiTE::initialize() != nite::STATUS_OK)
-            throw 3;
-
-        if (m_colorStream.create(m_device, openni::SENSOR_COLOR) != openni::STATUS_OK)
+        if (m_colorStream.create(OpenNICoreShared::device, openni::SENSOR_COLOR) != openni::STATUS_OK)
             throw 4;
 
         if (m_colorStream.start() != openni::STATUS_OK)
@@ -72,8 +56,6 @@ void OpenNIColorInstance::open()
     catch (int ex)
     {
         printf("OpenNI init error:\n%s\n", openni::OpenNI::getExtendedError());
-        nite::NiTE::shutdown();
-        openni::OpenNI::shutdown();
         throw ex;
     }
 }
@@ -86,10 +68,6 @@ void OpenNIColorInstance::close()
             m_of.write( (char*) &m_frameIndex, sizeof(m_frameIndex) );
             m_of.close();
         }
-
-        //m_device.close();
-        //nite::NiTE::shutdown();
-        //openni::OpenNI::shutdown();
     }
     catch (std::exception& ex)
     {

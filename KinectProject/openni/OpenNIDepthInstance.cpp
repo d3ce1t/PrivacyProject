@@ -15,12 +15,6 @@ OpenNIDepthInstance::OpenNIDepthInstance()
     this->m_title = "Depth Live Stream";
 }
 
-OpenNIDepthInstance::~OpenNIDepthInstance()
-{
-    //nite::NiTE::shutdown();
-    //openni::OpenNI::shutdown();
-}
-
 void OpenNIDepthInstance::setOutputFile(QString file)
 {
     m_outputFile = file;
@@ -28,31 +22,15 @@ void OpenNIDepthInstance::setOutputFile(QString file)
 
 void OpenNIDepthInstance::open()
 {
-    const char* deviceURI = openni::ANY_DEVICE;
     m_frameIndex = 0;
 
     try {
-        if (openni::OpenNI::initialize() != openni::STATUS_OK)
-            throw 1;
-
-        if (m_device.open(deviceURI) != openni::STATUS_OK)
-            throw 2;
-
-        if (nite::NiTE::initialize() != nite::STATUS_OK)
-            throw 3;
-
-        /*if (m_colorStream.create(m_device, openni::SENSOR_COLOR) != openni::STATUS_OK)
-            throw 4;
-
-        if (m_colorStream.start() != openni::STATUS_OK)
-            throw 5;*/
-
-        if (m_pUserTracker.create(&m_device) != nite::STATUS_OK) {
+        if (m_pUserTracker.create(&OpenNICoreShared::device) != nite::STATUS_OK) {
             printf("algo fallo\n");
             throw 6;
         }
 
-        if (!m_pUserTracker.isValid() /*|| !m_colorStream.isValid()*/)
+        if (!m_pUserTracker.isValid())
             throw 7;
 
         if (!m_of.is_open() && !m_outputFile.isEmpty())
@@ -77,8 +55,6 @@ void OpenNIDepthInstance::open()
     catch (int ex)
     {
         printf("OpenNI init error:\n%s\n", openni::OpenNI::getExtendedError());
-        nite::NiTE::shutdown();
-        openni::OpenNI::shutdown();
         throw ex;
     }
 }
@@ -91,10 +67,6 @@ void OpenNIDepthInstance::close()
             m_of.write( (char*) &m_frameIndex, sizeof(m_frameIndex) );
             m_of.close();
         }
-
-        //m_device.close();
-        //nite::NiTE::shutdown();
-        //openni::OpenNI::shutdown();
     }
     catch (std::exception& ex)
     {

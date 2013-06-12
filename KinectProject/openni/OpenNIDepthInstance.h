@@ -1,6 +1,7 @@
 #ifndef OPENNIDEPTHINSTANCE_H
 #define OPENNIDEPTHINSTANCE_H
 
+#include "OpenNICoreShared.h"
 #include "types/StreamInstance.h"
 #include "types/DepthFrame.h"
 #include <NiTE.h>
@@ -9,11 +10,10 @@
 
 namespace dai {
 
-class OpenNIDepthInstance : public StreamInstance
+class OpenNIDepthInstance : public StreamInstance, public OpenNICoreShared
 {
 public:
     OpenNIDepthInstance();
-    virtual ~OpenNIDepthInstance();
     void open();
     void close();
     bool hasNext() const;
@@ -21,7 +21,6 @@ public:
     void setOutputFile(QString file);
 
 private:
-    openni::Device			m_device;
     openni::VideoMode       videoMode;
     openni::VideoStream 	m_colorStream;
     nite::UserTracker       m_pUserTracker;

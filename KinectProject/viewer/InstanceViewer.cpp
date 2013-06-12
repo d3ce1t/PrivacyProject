@@ -1,6 +1,5 @@
 #include "InstanceViewer.h"
 #include "../dataset/DataInstance.h"
-
 #include <QDebug>
 #include <QQmlContext>
 #include <QtQml>

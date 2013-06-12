@@ -37,16 +37,20 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_clicked()
 {
-    InstanceViewer* viewer = new InstanceViewer;
-    connect(viewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
-    //dai::OpenNIDepthInstance* instance = new dai::OpenNIDepthInstance;
-    //instance->setOutputFile("/files/capture/capture.bin");
+    // Show color instance
+    InstanceViewer* colorViewer = new InstanceViewer;
+    connect(colorViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
+    dai::OpenNIColorInstance* colorInstance = new dai::OpenNIColorInstance;
+    colorViewer->show();
+    colorViewer->play(colorInstance, false);
 
-    dai::OpenNIColorInstance* instance = new dai::OpenNIColorInstance;
-
-    viewer->show();
-    //instance->setPlayLoop(ui->checkBoxLoop->isChecked());
-    viewer->play(instance, false);
+    // Show depth instance
+    InstanceViewer* depthViewer = new InstanceViewer;
+    connect(depthViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
+    dai::OpenNIColorInstance* depthInstance = new dai::OpenNIColorInstance;
+    //depthInstance->setOutputFile("/files/capture/capture.bin");
+    depthViewer->show();
+    depthViewer->play(depthInstance, false);
 }
 
 void MainWindow::viewerClosed(InstanceViewer *viewer)
