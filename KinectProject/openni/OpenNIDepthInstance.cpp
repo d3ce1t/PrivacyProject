@@ -13,6 +13,12 @@ OpenNIDepthInstance::OpenNIDepthInstance()
 {
     this->m_type = StreamInstance::Depth;
     this->m_title = "Depth Live Stream";
+    m_openni = OpenNIRuntime::getInstance();
+}
+
+OpenNIDepthInstance::~OpenNIDepthInstance()
+{
+    m_openni->releaseInstance();
 }
 
 void OpenNIDepthInstance::setOutputFile(QString file)
@@ -25,14 +31,6 @@ void OpenNIDepthInstance::open()
     m_frameIndex = 0;
 
     try {
-        if (m_pUserTracker.create(&OpenNICoreShared::device) != nite::STATUS_OK) {
-            printf("algo fallo\n");
-            throw 6;
-        }
-
-        if (!m_pUserTracker.isValid())
-            throw 7;
-
         if (!m_of.is_open() && !m_outputFile.isEmpty())
         {
             m_of.open(m_outputFile.toStdString().c_str(), ios::out|ios::binary);
@@ -83,18 +81,12 @@ const DepthFrame& OpenNIDepthInstance::nextFrame()
 {
     // Read Depth Frame
     m_currentFrame.setIndex(m_frameIndex);
-    nite::UserTrackerFrameRef userTrackerFrame;
+    nite::UserTrackerFrameRef userTrackerFrame = m_openni->readUserTrackerFrame();
 
     //m_pUserTracker.setSkeletonSmoothingFactor(0.7);
-
-    if (m_pUserTracker.readFrame(&userTrackerFrame) != nite::STATUS_OK) {
-        throw 1;
-    }
-
-    //m_colorStream.readFrame(&m_colorFrame);
     videoMode = userTrackerFrame.getDepthFrame().getVideoMode();
 
-    openni::VideoFrameRef frameRef = userTrackerFrame.getDepthFrame();
+    openni::VideoFrameRef frameRef = m_openni->readDepthFrame();
     const nite::UserMap& userLabels = userTrackerFrame.getUserMap();
     const nite::UserId* pLabel = userLabels.getPixels();
     const openni::DepthPixel* pDepth = (const openni::DepthPixel*)frameRef.getData();

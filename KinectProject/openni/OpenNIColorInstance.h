@@ -1,19 +1,18 @@
 #ifndef OPENNICOLORINSTANCE_H
 #define OPENNICOLORINSTANCE_H
 
-#include "OpenNICoreShared.h"
+#include "OpenNIRuntime.h"
 #include "types/StreamInstance.h"
 #include "types/ColorFrame.h"
-#include <NiTE.h>
-#include <OpenNI.h>
 #include <fstream>
 
 namespace dai {
 
-class OpenNIColorInstance : public OpenNICoreShared, public StreamInstance
+class OpenNIColorInstance : public StreamInstance
 {
 public:
     OpenNIColorInstance();
+    virtual ~OpenNIColorInstance();
     void open();
     void close();
     bool hasNext() const;
@@ -21,12 +20,11 @@ public:
     void setOutputFile(QString file);
 
 private:
-    openni::VideoStream 	m_colorStream;
-    openni::VideoFrameRef	m_colorFrame;
-    ColorFrame              m_currentFrame;
-    int                     m_frameIndex;
-    std::ofstream           m_of;
-    QString                 m_outputFile;
+    OpenNIRuntime*       m_openni;
+    ColorFrame           m_currentFrame;
+    int                  m_frameIndex;
+    std::ofstream        m_of;
+    QString              m_outputFile;
 };
 
 } // End namespace

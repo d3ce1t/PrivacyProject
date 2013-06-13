@@ -13,6 +13,12 @@ OpenNIColorInstance::OpenNIColorInstance()
 {
     this->m_type = StreamInstance::Color;
     this->m_title = "Color Live Stream";
+    m_openni = OpenNIRuntime::getInstance();
+}
+
+OpenNIColorInstance::~OpenNIColorInstance()
+{
+    m_openni->releaseInstance();
 }
 
 void OpenNIColorInstance::setOutputFile(QString file)
@@ -25,15 +31,6 @@ void OpenNIColorInstance::open()
     m_frameIndex = 0;
 
     try {
-        if (m_colorStream.create(OpenNICoreShared::device, openni::SENSOR_COLOR) != openni::STATUS_OK)
-            throw 4;
-
-        if (m_colorStream.start() != openni::STATUS_OK)
-            throw 5;
-
-        if (!m_colorStream.isValid())
-            throw 6;
-
         if (!m_of.is_open() && !m_outputFile.isEmpty())
         {
             m_of.open(m_outputFile.toStdString().c_str(), ios::out|ios::binary);
@@ -82,24 +79,21 @@ bool OpenNIColorInstance::hasNext() const
 
 const ColorFrame &OpenNIColorInstance::nextFrame()
 {
-    // Read Color Frame
-    if (m_colorStream.readFrame(&m_colorFrame) != openni::STATUS_OK) {
-        throw 1;
-    }
+    openni::VideoFrameRef colorFrame = m_openni->readColorFrame();
 
     // RGB Frame
-    if ( m_colorFrame.isValid())
+    if ( colorFrame.isValid())
     {
         m_currentFrame.setIndex(m_frameIndex);
 
-        const openni::RGB888Pixel* pImageRow = (const openni::RGB888Pixel*) m_colorFrame.getData();
-        int rowSize = m_colorFrame.getStrideInBytes() / sizeof(openni::RGB888Pixel);
+        const openni::RGB888Pixel* pImageRow = (const openni::RGB888Pixel*) colorFrame.getData();
+        int rowSize = colorFrame.getStrideInBytes() / sizeof(openni::RGB888Pixel);
 
-        for (int y = 0; y < m_colorFrame.getHeight(); ++y)
+        for (int y = 0; y < colorFrame.getHeight(); ++y)
         {
             const openni::RGB888Pixel* pImage = pImageRow;
 
-            for (int x = 0; x < m_colorFrame.getWidth(); ++x, ++pImage)
+            for (int x = 0; x < colorFrame.getWidth(); ++x, ++pImage)
             {
                 RGBAColor color;
                 color.red = pImage->r / 255.0f;

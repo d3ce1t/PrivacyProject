@@ -45,7 +45,8 @@ HEADERS += \
     exceptions/NotImplementedException.h \
     openni/OpenNIColorInstance.h \
     types/GenericFrame.h \
-    openni/OpenNICoreShared.h
+    openni/OpenNIListener.h \
+    openni/OpenNIRuntime.h
 
 SOURCES += \
     dataset/MSR3Action3D.cpp \
@@ -85,7 +86,8 @@ SOURCES += \
     dataset/DAIDataset.cpp \
     dataset/DAIDepthInstance.cpp \
     openni/OpenNIColorInstance.cpp \
-    openni/OpenNICoreShared.cpp
+    openni/OpenNIListener.cpp \
+    openni/OpenNIRuntime.cpp
 
 RESOURCES += openglunderqml.qrc
 

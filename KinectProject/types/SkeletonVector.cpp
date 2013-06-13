@@ -14,6 +14,7 @@ SkeletonVector::SkeletonVector(SkeletonJoint* p1, SkeletonJoint* p2)
 
 void SkeletonVector::setVector(SkeletonJoint* p1, SkeletonJoint* p2)
 {
+    // Here p1 is the vertex
     m_vector.setX(p2->getPosition().x() - p1->getPosition().x());
     m_vector.setY(p2->getPosition().y() - p1->getPosition().y());
     m_vector.setZ(p2->getPosition().z() - p1->getPosition().z());
