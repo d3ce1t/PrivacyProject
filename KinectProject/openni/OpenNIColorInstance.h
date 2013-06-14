@@ -4,7 +4,7 @@
 #include "OpenNIRuntime.h"
 #include "types/StreamInstance.h"
 #include "types/ColorFrame.h"
-#include <fstream>
+#include <QFile>
 
 namespace dai {
 
@@ -22,8 +22,8 @@ public:
 private:
     OpenNIRuntime*       m_openni;
     ColorFrame           m_currentFrame;
-    int                  m_frameIndex;
-    std::ofstream        m_of;
+    unsigned int         m_frameIndex;
+    QFile                m_of;
     QString              m_outputFile;
 };
 

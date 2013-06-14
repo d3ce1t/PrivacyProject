@@ -76,6 +76,9 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
     else if (info.getType() == InstanceInfo::Skeleton) {
         instance = m_dataset->getSkeletonInstance(info);
     }
+    else if (info.getType() == InstanceInfo::Color) {
+        instance = m_dataset->getColorInstance(info);
+    }
     else {
         return;
     }

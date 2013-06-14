@@ -2,7 +2,6 @@
 #include "dataset/DataInstance.h"
 #include <exception>
 #include <iostream>
-#include <QDebug>
 
 using namespace std;
 
@@ -31,11 +30,12 @@ void OpenNIDepthInstance::open()
     m_frameIndex = 0;
 
     try {
-        if (!m_of.is_open() && !m_outputFile.isEmpty())
+        if (!m_of.isOpen() && !m_outputFile.isEmpty())
         {
-            m_of.open(m_outputFile.toStdString().c_str(), ios::out|ios::binary);
+            m_of.setFileName(m_outputFile);
+            m_of.open(QIODevice::WriteOnly | QIODevice::Truncate);
 
-            if (!m_of.is_open()) {
+            if (!m_of.isOpen()) {
                 cerr << "Error opening file" << endl;
                 throw 8;
             }
@@ -44,7 +44,7 @@ void OpenNIDepthInstance::open()
             int height = m_currentFrame.getHeight();
             int numFrames = 0;
 
-            m_of.seekp(0, ios_base::beg);
+            m_of.seek(0);
             m_of.write( (char*) &numFrames, sizeof(numFrames) );
             m_of.write( (char*) &width, sizeof(width) );
             m_of.write( (char*) &height, sizeof(height) );
@@ -60,8 +60,8 @@ void OpenNIDepthInstance::open()
 void OpenNIDepthInstance::close()
 {
     try {
-        if (m_of.is_open()) {
-            m_of.seekp(0, ios_base::beg);
+        if (m_of.isOpen()) {
+            m_of.seek(0);
             m_of.write( (char*) &m_frameIndex, sizeof(m_frameIndex) );
             m_of.close();
         }
@@ -107,7 +107,7 @@ const DepthFrame& OpenNIDepthInstance::nextFrame()
         pDepth += restOfRow;
     }
 
-    if (m_of.is_open()) {
+    if (m_of.isOpen()) {
         m_currentFrame.write(m_of);
     }
 

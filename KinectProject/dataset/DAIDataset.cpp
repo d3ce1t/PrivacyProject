@@ -9,10 +9,8 @@ DAIDataset::DAIDataset()
 
 DAIDepthInstance* DAIDataset::getDepthInstance(int activity, int actor, int sample)
 {
-    DAIDepthInstance* result = 0;
     const InstanceInfo instanceInfo = m_metadata->instance(InstanceInfo::Depth, activity, actor, sample);
-    result = new DAIDepthInstance(instanceInfo);
-    return result;
+    return new DAIDepthInstance(instanceInfo);
 }
 
 DataInstance* DAIDataset::getSkeletonInstance(int activity, int actor, int sample)
@@ -21,10 +19,10 @@ DataInstance* DAIDataset::getSkeletonInstance(int activity, int actor, int sampl
     return new DataInstance(instanceInfo);
 }
 
-DataInstance* DAIDataset::getColorInstance(int activity, int actor, int sample)
+DAIColorInstance *DAIDataset::getColorInstance(int activity, int actor, int sample)
 {
-    const InstanceInfo instanceInfo = m_metadata->instance(InstanceInfo::Depth, activity, actor, sample);
-    return new DataInstance(instanceInfo);
+    const InstanceInfo instanceInfo = m_metadata->instance(InstanceInfo::Color, activity, actor, sample);
+    return new DAIColorInstance(instanceInfo);
 }
 
 } // End namespace

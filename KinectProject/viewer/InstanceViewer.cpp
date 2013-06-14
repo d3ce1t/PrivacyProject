@@ -215,6 +215,7 @@ void InstanceViewer::updatePaintersMatrix()
         painter->setMatrix(matrix);
     }
     m_mutex.unlock();
+    QQuickView::update();
 }
 
 void InstanceViewer::resetPerspective()

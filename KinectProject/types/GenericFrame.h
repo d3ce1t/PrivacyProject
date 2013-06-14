@@ -4,7 +4,7 @@
 #include "DataFrame.h"
 #include <stdint.h>
 #include <QMap>
-#include <fstream>
+#include <QFile>
 
 namespace dai {
 
@@ -35,7 +35,7 @@ public:
      * @brief write
      * @param of
      */
-    void write(std::ofstream &of) const;
+    void write(QFile &of, bool writeLabels) const;
 
 
 private:
@@ -170,12 +170,17 @@ const T* GenericFrame<T>::getDataPtr() const
 }
 
 template <class T>
-void GenericFrame<T>::write(std::ofstream& of) const
+void GenericFrame<T>::write(QFile& of, bool writeLabels = true) const
 {
     char* buffer = (char *) this->m_data;
     of.write(buffer, this->m_width * this->m_height * sizeof(T));
-    buffer = (char *) this->m_label;
-    of.write(buffer, this->m_width * this->m_height * sizeof(short int));
+
+    if (writeLabels) {
+        buffer = (char *) this->m_label;
+        of.write(buffer, this->m_width * this->m_height * sizeof(short int));
+    }
+
+    of.flush();
 }
 
 } // End Namespace

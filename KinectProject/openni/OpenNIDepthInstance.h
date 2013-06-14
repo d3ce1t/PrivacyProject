@@ -4,7 +4,7 @@
 #include "OpenNIRuntime.h"
 #include "types/StreamInstance.h"
 #include "types/DepthFrame.h"
-#include <fstream>
+#include <QFile>
 
 namespace dai {
 
@@ -23,8 +23,8 @@ private:
     OpenNIRuntime*          m_openni;
     openni::VideoMode       videoMode;
     DepthFrame              m_currentFrame;
-    int                     m_frameIndex;
-    std::ofstream           m_of;
+    unsigned int            m_frameIndex;
+    QFile                   m_of;
     QString                 m_outputFile;
 };
 

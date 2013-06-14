@@ -74,6 +74,15 @@ void OpenNIRuntime::initOpenNI()
         if (m_colorStream.create(m_device, openni::SENSOR_COLOR) != openni::STATUS_OK)
             throw 4;
 
+        /*const openni::SensorInfo* info = m_device.getSensorInfo(openni::SENSOR_COLOR);
+        const openni::Array<openni::VideoMode>& videoModes = info->getSupportedVideoModes();
+
+        std::cout << "Video Modes: " << videoModes.getSize() << std::endl;
+
+        for (int i=0; i<videoModes.getSize(); ++i) {
+            std::cout << i << ") " << videoModes[i].getResolutionX() << "x" << videoModes[i].getResolutionY() << std::endl;
+        }*/
+
         if (m_colorStream.start() != openni::STATUS_OK)
             throw 5;
 
@@ -82,10 +91,6 @@ void OpenNIRuntime::initOpenNI()
 
         if (!m_pUserTracker.isValid() || !m_colorStream.isValid())
             throw 8;
-
-        /*if (m_pUserTracker.readFrame(&m_userTrackerFrame) != nite::STATUS_OK) {
-            throw 9;
-        }*/
 
         m_colorStream.addNewFrameListener(m_listener);
         m_pUserTracker.addNewFrameListener(m_listener);

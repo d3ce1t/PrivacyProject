@@ -42,16 +42,19 @@ void MainWindow::on_pushButton_clicked()
     connect(colorViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
     dai::OpenNIColorInstance* colorInstance = new dai::OpenNIColorInstance;
     //colorInstance->setOutputFile("/files/capture/capture.rgb");
+    //colorInstance->setOutputFile("/ramfs/jose/capture.rgb");
     colorViewer->show();
     colorViewer->play(colorInstance, false);
 
     // Show depth instance
-    InstanceViewer* depthViewer = new InstanceViewer;
-    connect(depthViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
+    //InstanceViewer* depthViewer = new InstanceViewer;
+    //connect(depthViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
     dai::OpenNIDepthInstance* depthInstance = new dai::OpenNIDepthInstance;
-    depthInstance->setOutputFile("/files/capture/capture.bin");
-    depthViewer->show();
-    depthViewer->play(depthInstance, false);
+    //depthInstance->setOutputFile("/files/capture/capture.bin");
+    //depthInstance->setOutputFile("/ramfs/jose/capture.bin");
+    //depthViewer->show();
+    //depthViewer->play(depthInstance, false);
+    colorViewer->play(depthInstance, false);
 }
 
 void MainWindow::viewerClosed(InstanceViewer *viewer)

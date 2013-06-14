@@ -3,6 +3,7 @@
 
 #include "Dataset.h"
 #include "DAIDepthInstance.h"
+#include "DAIColorInstance.h"
 
 namespace dai {
 
@@ -12,7 +13,7 @@ public:
     explicit DAIDataset();
     DAIDepthInstance* getDepthInstance(int activity, int actor, int sample);
     DataInstance* getSkeletonInstance(int activity, int actor, int sample);
-    DataInstance* getColorInstance(int activity, int actor, int sample);
+    DAIColorInstance* getColorInstance(int activity, int actor, int sample);
 };
 
 } // End namespace
