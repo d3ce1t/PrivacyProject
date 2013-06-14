@@ -2,10 +2,9 @@
 
 namespace dai {
 
-OpenNIListener::OpenNIListener()
+OpenNIListener::OpenNIListener(OpenNIRuntime* openni)
 {
-    m_openni = OpenNIRuntime::getInstance();
-    m_openni->_instance_counter--;
+    m_openni = openni;
 }
 
 void OpenNIListener::onNewFrame(openni::VideoStream& stream)

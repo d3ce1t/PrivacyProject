@@ -7,12 +7,15 @@ namespace dai {
 
 OpenNIRuntime* OpenNIRuntime::_instance = NULL;
 int OpenNIRuntime::_instance_counter = 0;
+QMutex             OpenNIRuntime::mutex;
 
 OpenNIRuntime* OpenNIRuntime::getInstance()
 {
+    mutex.lock();
     if (_instance == NULL) {
         _instance = new OpenNIRuntime();
     }
+    mutex.unlock();
 
     _instance_counter++;
     return _instance;
@@ -28,6 +31,7 @@ void OpenNIRuntime::releaseInstance()
 
 OpenNIRuntime::OpenNIRuntime()
 {
+    m_listener = new OpenNIListener(this);
     initOpenNI();
 }
 
@@ -79,9 +83,12 @@ void OpenNIRuntime::initOpenNI()
         if (!m_pUserTracker.isValid() || !m_colorStream.isValid())
             throw 8;
 
-        m_listener = new OpenNIListener;
+        /*if (m_pUserTracker.readFrame(&m_userTrackerFrame) != nite::STATUS_OK) {
+            throw 9;
+        }*/
+
         m_colorStream.addNewFrameListener(m_listener);
-        m_pUserTracker.addListener(m_listener);
+        m_pUserTracker.addNewFrameListener(m_listener);
     }
     catch (int ex)
     {

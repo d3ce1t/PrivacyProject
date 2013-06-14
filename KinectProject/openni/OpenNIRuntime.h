@@ -3,6 +3,7 @@
 
 #include <NiTE.h>
 #include <OpenNI.h>
+#include <QMutex>
 
 namespace dai {
 
@@ -32,12 +33,14 @@ private:
     void initOpenNI();
 
     openni::Device            m_device;
+    openni::VideoStream       m_depthStream;
     openni::VideoStream       m_colorStream;
     nite::UserTracker         m_pUserTracker;
     openni::VideoFrameRef	  m_colorFrame;
     openni::VideoFrameRef     m_depthFrame;
     nite::UserTrackerFrameRef m_userTrackerFrame;
     OpenNIListener*           m_listener;
+    static QMutex             mutex;
 
 };
 

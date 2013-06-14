@@ -41,14 +41,15 @@ void MainWindow::on_pushButton_clicked()
     InstanceViewer* colorViewer = new InstanceViewer;
     connect(colorViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
     dai::OpenNIColorInstance* colorInstance = new dai::OpenNIColorInstance;
+    //colorInstance->setOutputFile("/files/capture/capture.rgb");
     colorViewer->show();
     colorViewer->play(colorInstance, false);
 
     // Show depth instance
     InstanceViewer* depthViewer = new InstanceViewer;
     connect(depthViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
-    dai::OpenNIColorInstance* depthInstance = new dai::OpenNIColorInstance;
-    //depthInstance->setOutputFile("/files/capture/capture.bin");
+    dai::OpenNIDepthInstance* depthInstance = new dai::OpenNIDepthInstance;
+    depthInstance->setOutputFile("/files/capture/capture.bin");
     depthViewer->show();
     depthViewer->play(depthInstance, false);
 }

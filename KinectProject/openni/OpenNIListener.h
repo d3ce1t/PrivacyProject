@@ -7,10 +7,10 @@
 
 namespace dai {
 
-class OpenNIListener : public openni::VideoStream::NewFrameListener, public nite::UserTracker::Listener
+class OpenNIListener : public openni::VideoStream::NewFrameListener, public nite::UserTracker::NewFrameListener
 {
 public:
-    OpenNIListener();
+    OpenNIListener(OpenNIRuntime* openni);
     void onNewFrame(openni::VideoStream& stream);
     void onNewFrame(nite::UserTracker& userTracker);
 
