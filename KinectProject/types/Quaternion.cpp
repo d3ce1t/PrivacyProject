@@ -6,9 +6,70 @@
     #define M_PI 3.14159265359
 #endif
 
+#include <cstdlib>
+#include <QDebug>
+#include <QQuaternion>
+
 using namespace std;
 
 namespace dai {
+
+void Quaternion::test()
+{
+    // Initializing seed for rand() function
+    srand(time(NULL));
+
+    QVector3D* vector = new QVector3D[200];
+    qDebug() << "Generating 200 unit vectors";
+
+    for (int i=0; i<200; ++i)
+    {
+        float pos_x = rand() / (float) RAND_MAX;
+        float pos_y = rand() / (float) RAND_MAX;
+        float pos_z = rand() / (float) RAND_MAX;
+
+        vector[i].setX(pos_x);
+        vector[i].setY(pos_y);
+        vector[i].setZ(pos_z);
+        vector[i].normalize();
+    }
+
+    Quaternion* q = new Quaternion[100];
+    qDebug() << "Computing quaternion between pairs of vectors";
+
+    for (int i=0; i<100; ++i)
+    {
+        QVector3D& v1 = vector[i*2];
+        QVector3D& v2 = vector[i*2+1];
+        q[i] = Quaternion::getRotationBetween(v1, v2);
+    }
+
+    qDebug() << "Validating results";
+
+    for (int i=0; i<100; ++i)
+    {
+        QVector3D& v1 = vector[i*2];
+        QVector3D& v2 = vector[i*2+1];
+        QQuaternion rot(q[i].scalar(), q[i].vector());
+        QVector3D result = rot.rotatedVector(v1);
+
+        if (fuzzyCompare(result, v2)) {
+            qDebug() << "Test " << i+1 << "\t" << "OK";
+        } else {
+            qDebug() << "Test " << i+1 << "\t" << "Error";
+            qDebug() << "Expected" << v2;
+            qDebug() << "Obtained" << result;
+        }
+    }
+
+    delete[] vector;
+    delete[] q;
+}
+
+bool Quaternion::fuzzyCompare(const QVector3D& v1, const QVector3D& v2)
+{
+    return qFuzzyCompare(v1.x(), v2.x()) && qFuzzyCompare(v1.y(), v2.y()) && qFuzzyCompare(v1.z(), v2.z());
+}
 
 
 Quaternion::Quaternion()

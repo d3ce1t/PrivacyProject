@@ -37,6 +37,17 @@ public:
     };
 
     /**
+     * Test the quaternion class method getRotationBetween. In that aspect, it creates 200 vectors in a
+     * random way and then computes the quaternion for each pair of vectors. Finally, it uses QQuaternion class
+     * to rotate the first vector of the pair. Comparing the obtained result with the second vector of the pair
+     * it is determined the right behaviour of this class.
+     *
+     * @brief test
+     */
+    static void test();
+    static bool fuzzyCompare(const QVector3D& v1, const QVector3D& v2);
+
+    /**
      * Get rotation quaternion between two vectors. Vectors not necessarily must be unit vectors
      *
      * @brief getRotationBetween
