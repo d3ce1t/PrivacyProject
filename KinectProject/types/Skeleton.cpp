@@ -28,27 +28,31 @@ Skeleton::Skeleton()
     m_joints[SkeletonJoint::JOINT_LEFT_FOOT].setType(SkeletonJoint::JOINT_LEFT_FOOT);
     m_joints[SkeletonJoint::JOINT_RIGHT_FOOT].setType(SkeletonJoint::JOINT_RIGHT_FOOT);
 
-    int map[17][2] = {
-        {2, 1}, // Q1
-        {3, 1}, // Q2
-        {2, 4}, // Q3
-        {3, 5}, // Q4
-        {4, 6}, // Q5
-        {5, 7}, // Q6
-        {6, 8}, // Q7
-        {7, 9}, // Q8
-        {11, 10}, // Q9
-        {12, 11}, // Q10
-        {13, 11}, // Q11
-        {12, 14}, // Q12
-        {13, 15}, // Q13
-        {14, 16}, // Q14
-        {15, 17}, // Q15
-        {16, 18}, // Q16
-        {17, 19} // Q17
+
+    SkeletonJoint::JointType map[20][3] = {
+        {SkeletonJoint::JOINT_HEAD,             SkeletonJoint::JOINT_CENTER_SHOULDER,   SkeletonJoint::JOINT_SPINE}, // Q1
+        {SkeletonJoint::JOINT_HEAD,             SkeletonJoint::JOINT_CENTER_SHOULDER,   SkeletonJoint::JOINT_LEFT_SHOULDER}, // Q2
+        {SkeletonJoint::JOINT_HEAD,             SkeletonJoint::JOINT_CENTER_SHOULDER,   SkeletonJoint::JOINT_RIGHT_SHOULDER}, // Q3
+        {SkeletonJoint::JOINT_CENTER_SHOULDER,  SkeletonJoint::JOINT_LEFT_SHOULDER,     SkeletonJoint::JOINT_LEFT_ELBOW}, // Q4
+        {SkeletonJoint::JOINT_CENTER_SHOULDER,  SkeletonJoint::JOINT_RIGHT_SHOULDER,    SkeletonJoint::JOINT_RIGHT_ELBOW}, // Q5
+        {SkeletonJoint::JOINT_LEFT_SHOULDER,    SkeletonJoint::JOINT_LEFT_ELBOW,        SkeletonJoint::JOINT_LEFT_WRIST}, // Q6
+        {SkeletonJoint::JOINT_RIGHT_SHOULDER,   SkeletonJoint::JOINT_RIGHT_ELBOW,       SkeletonJoint::JOINT_RIGHT_WRIST}, // Q7
+        {SkeletonJoint::JOINT_LEFT_ELBOW,       SkeletonJoint::JOINT_LEFT_WRIST,        SkeletonJoint::JOINT_LEFT_HAND}, // Q8
+        {SkeletonJoint::JOINT_RIGHT_ELBOW,      SkeletonJoint::JOINT_RIGHT_WRIST,       SkeletonJoint::JOINT_RIGHT_HAND}, // Q9
+        {SkeletonJoint::JOINT_LEFT_SHOULDER,    SkeletonJoint::JOINT_CENTER_SHOULDER,   SkeletonJoint::JOINT_RIGHT_SHOULDER}, // Q10
+        {SkeletonJoint::JOINT_CENTER_SHOULDER,  SkeletonJoint::JOINT_SPINE,             SkeletonJoint::JOINT_CENTER_HIP}, // Q11
+        {SkeletonJoint::JOINT_SPINE,            SkeletonJoint::JOINT_CENTER_HIP,        SkeletonJoint::JOINT_LEFT_HIP}, // Q12
+        {SkeletonJoint::JOINT_SPINE,            SkeletonJoint::JOINT_CENTER_HIP,        SkeletonJoint::JOINT_RIGHT_HIP}, // Q13
+        {SkeletonJoint::JOINT_CENTER_HIP,       SkeletonJoint::JOINT_LEFT_HIP,          SkeletonJoint::JOINT_LEFT_KNEE}, // Q14
+        {SkeletonJoint::JOINT_CENTER_HIP,       SkeletonJoint::JOINT_RIGHT_HIP,         SkeletonJoint::JOINT_RIGHT_KNEE}, // Q15
+        {SkeletonJoint::JOINT_LEFT_HIP,         SkeletonJoint::JOINT_LEFT_KNEE,         SkeletonJoint::JOINT_LEFT_ANKLE}, // Q16
+        {SkeletonJoint::JOINT_RIGHT_HIP,        SkeletonJoint::JOINT_RIGHT_KNEE,        SkeletonJoint::JOINT_RIGHT_ANKLE}, // Q17
+        {SkeletonJoint::JOINT_LEFT_KNEE,        SkeletonJoint::JOINT_LEFT_ANKLE,        SkeletonJoint::JOINT_LEFT_FOOT}, // Q18
+        {SkeletonJoint::JOINT_RIGHT_KNEE,       SkeletonJoint::JOINT_RIGHT_ANKLE,       SkeletonJoint::JOINT_RIGHT_FOOT}, // Q19
+        {SkeletonJoint::JOINT_LEFT_HIP,         SkeletonJoint::JOINT_CENTER_HIP,        SkeletonJoint::JOINT_RIGHT_HIP} // Q20
     };
 
-    memcpy(m_map, map, 17*2*sizeof(int));
+    memcpy(m_map, map, 20*3*sizeof(SkeletonJoint::JointType));
 
     for (int i=0; i<MAX_JOINTS; ++i) {
         m_normalised_joints[i].setType(m_joints[i].getType());
@@ -71,11 +75,7 @@ Skeleton::Skeleton(const Skeleton& other)
 
     depthNormEnabled = other.depthNormEnabled;
 
-    for (int i=0; i<MAX_JOINTS-1; ++i) {
-        m_vectors[i] = other.m_vectors[i];
-    }
-
-    for (int i=0; i<MAX_JOINTS-3; ++i) {
+    for (int i=0; i<MAX_JOINTS; ++i) {
         m_quaternions[i] = other.m_quaternions[i];
     }
 }
@@ -100,11 +100,7 @@ Skeleton& Skeleton::operator=(const Skeleton& other)
 
     depthNormEnabled = other.depthNormEnabled;
 
-    for (int i=0; i<MAX_JOINTS-1; ++i) {
-        m_vectors[i] = other.m_vectors[i];
-    }
-
-    for (int i=0; i<MAX_JOINTS-3; ++i) {
+    for (int i=0; i<MAX_JOINTS; ++i) {
         m_quaternions[i] = other.m_quaternions[i];
     }
 
@@ -137,11 +133,6 @@ const Quaternion& Skeleton::getQuaternion(Quaternion::QuaternionType type) const
     return m_quaternions[type];
 }
 
-const SkeletonVector& Skeleton::getVector(SkeletonVector::VectorType type) const
-{
-    return m_vectors[type];
-}
-
 void Skeleton::normaliseDepth(float min, float max, float new_min, float new_max)
 {
     depth_norm_factors[0] = min;
@@ -160,44 +151,18 @@ void Skeleton::normaliseDepth(float min, float max, float new_min, float new_max
     }
 }
 
-void Skeleton::computeVectors()
+void Skeleton::computeQuaternions()
 {
-    // Unitary Vectors computed by real world coordinates
-    m_vectors[SkeletonVector::VECTOR_V1].setVector(&m_joints[SkeletonJoint::JOINT_CENTER_SHOULDER], &m_joints[SkeletonJoint::JOINT_HEAD]);
-    m_vectors[SkeletonVector::VECTOR_V2].setVector(&m_joints[SkeletonJoint::JOINT_CENTER_SHOULDER], &m_joints[SkeletonJoint::JOINT_RIGHT_SHOULDER]);
-    m_vectors[SkeletonVector::VECTOR_V3].setVector(&m_joints[SkeletonJoint::JOINT_CENTER_SHOULDER], &m_joints[SkeletonJoint::JOINT_LEFT_SHOULDER]);
-    m_vectors[SkeletonVector::VECTOR_V4].setVector(&m_joints[SkeletonJoint::JOINT_RIGHT_SHOULDER], &m_joints[SkeletonJoint::JOINT_RIGHT_ELBOW]);
-    m_vectors[SkeletonVector::VECTOR_V5].setVector(&m_joints[SkeletonJoint::JOINT_LEFT_SHOULDER], &m_joints[SkeletonJoint::JOINT_LEFT_ELBOW]);
-    m_vectors[SkeletonVector::VECTOR_V6].setVector(&m_joints[SkeletonJoint::JOINT_RIGHT_ELBOW], &m_joints[SkeletonJoint::JOINT_RIGHT_WRIST]);
-    m_vectors[SkeletonVector::VECTOR_V7].setVector(&m_joints[SkeletonJoint::JOINT_LEFT_ELBOW], &m_joints[SkeletonJoint::JOINT_LEFT_WRIST]);
-    m_vectors[SkeletonVector::VECTOR_V8].setVector(&m_joints[SkeletonJoint::JOINT_RIGHT_WRIST], &m_joints[SkeletonJoint::JOINT_RIGHT_HAND]);
-    m_vectors[SkeletonVector::VECTOR_V9].setVector(&m_joints[SkeletonJoint::JOINT_LEFT_WRIST], &m_joints[SkeletonJoint::JOINT_LEFT_HAND]);
-    m_vectors[SkeletonVector::VECTOR_V10].setVector(&m_joints[SkeletonJoint::JOINT_SPINE], &m_joints[SkeletonJoint::JOINT_CENTER_SHOULDER]);
-    m_vectors[SkeletonVector::VECTOR_V11].setVector(&m_joints[SkeletonJoint::JOINT_CENTER_HIP], &m_joints[SkeletonJoint::JOINT_SPINE]);
-    m_vectors[SkeletonVector::VECTOR_V12].setVector(&m_joints[SkeletonJoint::JOINT_CENTER_HIP], &m_joints[SkeletonJoint::JOINT_RIGHT_HIP]);
-    m_vectors[SkeletonVector::VECTOR_V13].setVector(&m_joints[SkeletonJoint::JOINT_CENTER_HIP], &m_joints[SkeletonJoint::JOINT_LEFT_HIP]);
-    m_vectors[SkeletonVector::VECTOR_V14].setVector(&m_joints[SkeletonJoint::JOINT_RIGHT_HIP], &m_joints[SkeletonJoint::JOINT_RIGHT_KNEE]);
-    m_vectors[SkeletonVector::VECTOR_V15].setVector(&m_joints[SkeletonJoint::JOINT_LEFT_HIP], &m_joints[SkeletonJoint::JOINT_LEFT_KNEE]);
-    m_vectors[SkeletonVector::VECTOR_V16].setVector(&m_joints[SkeletonJoint::JOINT_RIGHT_KNEE], &m_joints[SkeletonJoint::JOINT_RIGHT_ANKLE]);
-    m_vectors[SkeletonVector::VECTOR_V17].setVector(&m_joints[SkeletonJoint::JOINT_LEFT_KNEE], &m_joints[SkeletonJoint::JOINT_LEFT_ANKLE]);
-    m_vectors[SkeletonVector::VECTOR_V18].setVector(&m_joints[SkeletonJoint::JOINT_RIGHT_ANKLE], &m_joints[SkeletonJoint::JOINT_RIGHT_FOOT]);
-    m_vectors[SkeletonVector::VECTOR_V19].setVector(&m_joints[SkeletonJoint::JOINT_LEFT_ANKLE], &m_joints[SkeletonJoint::JOINT_LEFT_FOOT]);
-
     // Quaternions
-    for (int i=0; i<17; ++i) {
-        int offset_v1 = m_map[i][0]-1;
-        int offset_v2 = m_map[i][1]-1;
-        const QVector3D& v1 = m_vectors[offset_v1].vector();
-        const QVector3D& v2 = m_vectors[offset_v2].vector();
-        m_quaternions[i] = Quaternion::getRotationBetween(v1, v2);
+    for (int i=0; i<20; ++i) {
+        SkeletonJoint::JointType joint1 = m_map[i][0];
+        SkeletonJoint::JointType joint2 = m_map[i][1]; // vertex
+        SkeletonJoint::JointType joint3 = m_map[i][2];
+        m_quaternions[i] = Quaternion::getRotationBetween(m_joints[joint1].getPosition(),
+                                                          m_joints[joint3].getPosition(),
+                                                          m_joints[joint2].getPosition());
     }
 
-}
-
-void Skeleton::mapQuaternionToVectors(Quaternion::QuaternionType type, SkeletonVector::VectorType* v1, SkeletonVector::VectorType* v2)
-{
-    *v1 = (SkeletonVector::VectorType) (m_map[type][0]-1);
-    *v2 = (SkeletonVector::VectorType) (m_map[type][1]-1);
 }
 
  void Skeleton::clear()

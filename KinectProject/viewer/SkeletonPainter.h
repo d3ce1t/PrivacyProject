@@ -32,7 +32,7 @@ private:
     void prepareShaderProgram();
     void drawLimb(const dai::SkeletonJoint& joint1, const dai::SkeletonJoint& joint2);
     void drawJoint(const dai::SkeletonJoint& joint, const QVector3D& color);
-    void drawQuaternions();
+    //void drawQuaternions();
     float colorIntensity(float value);
 
 

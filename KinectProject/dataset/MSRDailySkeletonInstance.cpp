@@ -116,7 +116,7 @@ const Skeleton &MSRDailySkeletonInstance::nextFrame()
         // In skeleton, depth values are in meters. In order to match with depth values I have
         // to normalise it to be between 0 and 1. Like depth values, Kinect range is 0 to 4 meters.
         m_currentFrame.normaliseDepth(0, 4, 0, 1);
-        m_currentFrame.computeVectors();
+        m_currentFrame.computeQuaternions();
 
         m_frameIndex++;
     }

@@ -111,7 +111,7 @@ const Skeleton &MSRActionSkeletonInstance::nextFrame()
 
         // Normalise Depth. I assume is between 0 and 10 meters. But I don't know.
         m_currentFrame.normaliseDepth(0, 10, 0, 1);
-        m_currentFrame.computeVectors();
+        m_currentFrame.computeQuaternions();
 
         m_frameIndex++;
     }

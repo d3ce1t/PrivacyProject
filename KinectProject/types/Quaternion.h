@@ -14,23 +14,26 @@ class Quaternion : public QObject
 
 public:
     enum QuaternionType {
-        QUATERNION_Q1_V2_V1,
-        QUATERNION_Q2_V3_V1,
-        QUATERNION_Q3_V2_V4,
-        QUATERNION_Q4_V3_V5,
-        QUATERNION_Q5_V4_V6,
-        QUATERNION_Q6_V5_V7,
-        QUATERNION_Q7_V6_V8,
-        QUATERNION_Q8_V7_V9,
-        QUATERNION_Q9_V11_V10,        
-        QUATERNION_Q10_V12_V11,
-        QUATERNION_Q11_V13_V11,
-        QUATERNION_Q12_V12_V14,
-        QUATERNION_Q13_V13_V15,
-        QUATERNION_Q14_V14_V16,
-        QUATERNION_Q15_V15_V17,
-        QUATERNION_Q16_V16_V18,
-        QUATERNION_Q17_V17_V19
+        QUATERNION_Q1,
+        QUATERNION_Q2,
+        QUATERNION_Q3,
+        QUATERNION_Q4,
+        QUATERNION_Q5,
+        QUATERNION_Q6,
+        QUATERNION_Q7,
+        QUATERNION_Q8,
+        QUATERNION_Q9,
+        QUATERNION_Q10,
+        QUATERNION_Q11,
+        QUATERNION_Q12,
+        QUATERNION_Q13,
+        QUATERNION_Q14,
+        QUATERNION_Q15,
+        QUATERNION_Q16,
+        QUATERNION_Q17,
+        QUATERNION_Q18,
+        QUATERNION_Q19,
+        QUATERNION_Q20
     };
 
     /**

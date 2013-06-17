@@ -32,7 +32,6 @@ HEADERS += \
     viewer/ColorFramePainter.h \
     dataset/MSRActionDepthInstance.h \
     dataset/MSRActionSkeletonInstance.h \
-    types/SkeletonVector.h \
     types/Quaternion.h \
     viewer/CustomItem.h \
     types/StreamInstance.h \
@@ -77,7 +76,6 @@ SOURCES += \
     viewer/ColorFramePainter.cpp \
     dataset/MSRActionDepthInstance.cpp \
     dataset/MSRActionSkeletonInstance.cpp \
-    types/SkeletonVector.cpp \
     types/Quaternion.cpp \
     viewer/CustomItem.cpp \
     types/StreamInstance.cpp \

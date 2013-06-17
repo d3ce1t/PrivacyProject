@@ -68,7 +68,7 @@ SkeletonPainter::SkeletonPainter(StreamInstance *instance, InstanceViewer *paren
     }
 
     // Setup Quaternions Model
-    m_quaternions_model.setRowCount(17);
+    m_quaternions_model.setRowCount(20);
     m_quaternions_model.setColumnCount(5);
     m_quaternions_table_view.setWindowTitle("Quaternions info for " + instance->getTitle());
     m_quaternions_table_view.setModel(&m_quaternions_model);
@@ -84,12 +84,12 @@ SkeletonPainter::SkeletonPainter(StreamInstance *instance, InstanceViewer *paren
 
     list.clear();
 
-    for (int i=0; i<17; ++i) {
+    for (int i=0; i<20; ++i) {
         QString name(metaEnum.valueToKey(i));
         list << name.mid(11);
     }
 
-    for (int i=0; i<17; ++i) {
+    for (int i=0; i<20; ++i) {
         QStandardItem *item = new QStandardItem;
         item->setText(list.at(i));
         m_quaternions_model.setVerticalHeaderItem(i, item);
@@ -205,7 +205,7 @@ void SkeletonPainter::loadModels()
     metaEnum = quaternionMetaObject.enumerator(index);
 
     // Quaternions Model
-    for (int i=0; i<17; ++i)
+    for (int i=0; i<20; ++i)
     {
         const Quaternion& quaternion = m_skeleton.getQuaternion( (Quaternion::QuaternionType) i);
 
@@ -319,7 +319,7 @@ void SkeletonPainter::render()
     //drawQuaternions();
 }
 
-void SkeletonPainter::drawQuaternions()
+/*void SkeletonPainter::drawQuaternions()
 {
     for (int i=0; i<MAX_JOINTS-3; ++i)
     {
@@ -379,7 +379,7 @@ void SkeletonPainter::drawQuaternions()
 
         glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
     }
-}
+}*/
 
 void SkeletonPainter::resize( float w, float h )
 {
