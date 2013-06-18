@@ -9,7 +9,7 @@ Point3f::Point3f()
     m_x = m_y = m_z = 0.0f;
 }
 
-Point3f::Point3f(float x, float y, float z)
+Point3f::Point3f(double x, double y, double z)
 {
     this->set(x, y, z);
 }
@@ -19,7 +19,7 @@ Point3f::Point3f(const Point3f& other)
     *this = other;
 }
 
-void Point3f::set(float x, float y, float z)
+void Point3f::set(double x, double y, double z)
 {
     m_x = x;
     m_y = y;
@@ -29,7 +29,6 @@ void Point3f::set(float x, float y, float z)
 Point3f& Point3f::operator=(const Point3f& other)
 {
     set(other.m_x, other.m_y, other.m_z);
-
     return *this;
 }
 
@@ -43,17 +42,17 @@ bool Point3f::operator!=(const Point3f& other) const
     return !operator==(other);
 }
 
-float Point3f::x() const
+double Point3f::x() const
 {
     return m_x;
 }
 
-float Point3f::y() const
+double Point3f::y() const
 {
     return m_y;
 }
 
-float Point3f::z() const
+double Point3f::z() const
 {
     return m_z;
 }
@@ -62,9 +61,9 @@ float Point3f::z() const
 // Static methods
 //
 
-float Point3f::distance(const Point3f& point1, const Point3f& point2, DistanceType option)
+double Point3f::distance(const Point3f& point1, const Point3f& point2, DistanceType option)
 {
-    float result = std::numeric_limits<float>::max();
+    double result = std::numeric_limits<double>::max();
 
     if (option == DISTANCE_EUCLIDEAN) {
         result = euclideanDistance(point1, point2);
@@ -73,11 +72,11 @@ float Point3f::distance(const Point3f& point1, const Point3f& point2, DistanceTy
     return result;
 }
 
-float Point3f::euclideanDistance(const Point3f& point1, const Point3f& point2)
+double Point3f::euclideanDistance(const Point3f& point1, const Point3f& point2)
 {
-    float dx = point2.m_x - point1.m_x;
-    float dy = point2.m_y - point1.m_y;
-    float dz = point2.m_z - point1.m_z;
+    double dx = point2.m_x - point1.m_x;
+    double dy = point2.m_y - point1.m_y;
+    double dz = point2.m_z - point1.m_z;
     return sqrt(pow(dx, 2) + pow(dy, 2) + pow(dz, 2));
 }
 

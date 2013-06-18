@@ -10,6 +10,7 @@
 #include "../types/StreamInstance.h"
 #include <QStandardItemModel>
 #include <QTableView>
+#include "../types/Quaternion.h"
 
 class QOpenGLShaderProgram;
 
@@ -35,7 +36,6 @@ private:
     //void drawQuaternions();
     float colorIntensity(float value);
 
-
     bool                    m_isFrameAvailable;
     Skeleton                m_skeleton;
     QOpenGLShaderProgram*   m_shaderProgram;
@@ -51,6 +51,8 @@ private:
     QTableView              m_joints_table_view;
     QTableView              m_distances_table_view;
     QTableView              m_quaternions_table_view;
+
+    Quaternion              m_lastQuaternions[20];
 };
 
 } // End Namespace

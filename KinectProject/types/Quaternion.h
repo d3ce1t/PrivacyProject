@@ -2,8 +2,8 @@
 #define SKELETONQUATERNION_H
 
 #include <QObject>
-#include <QVector3D>
-#include "types/Point3f.h"
+#include "Vector3D.h"
+#include "Point3f.h"
 
 namespace dai {
 
@@ -45,7 +45,7 @@ public:
      * @brief test
      */
     static void test();
-    static bool fuzzyCompare(const QVector3D& v1, const QVector3D& v2);
+    static bool fuzzyCompare(const QVector3D& v1, const Vector3D &v2);
 
     /**
      * Get rotation quaternion between two vectors. Vectors not necessarily must be unit vectors
@@ -55,7 +55,7 @@ public:
      * @param v2
      * @return Return the quaternion that express the rotation over v1 to get the same orientation as v2.
      */
-    static Quaternion getRotationBetween(const QVector3D &v1, const QVector3D &v2);
+    static Quaternion getRotationBetween(const Vector3D &v1, const Vector3D &v2);
 
     /**
      * Get rotation quaternion between points p1 and p2, where both points share de same vertex. In other words,
@@ -78,32 +78,32 @@ public:
      * @param q2
      * @return Returns 0 when same orientation and 1 when 180º apart.
      */
-    static float getDistanceBetween(const Quaternion &q1, const Quaternion &q2);
-    static float dotProduct(const Quaternion &q1, const Quaternion &q2);
+    static double getDistanceBetween(const Quaternion &q1, const Quaternion &q2);
+    static double dotProduct(const Quaternion &q1, const Quaternion &q2);
 
     Quaternion();
     Quaternion(const Quaternion& other);
     Quaternion& operator=(const Quaternion& other);
 
-    float scalar() const;
-    QVector3D vector() const;
-    float getAngle() const;
-    float norm() const;
+    double scalar() const;
+    Vector3D vector() const;
+    double getAngle() const;
+    double norm() const;
     void print() const;
 
-    void setScalar(float value);
-    void setVector(QVector3D vector);
-    void setVector(float i, float j, float k);
+    void setScalar(double value);
+    void setVector(Vector3D vector);
+    void setVector(double i, double j, double k);
     void normalize();
 
 private:
     // Private methods
-    float sign(float value) const;
+    double sign(double value) const;
 
     // Private attributes
-    float m_theta;
-    float m_scalarPart;
-    QVector3D m_vectorialPart; // i, j, k or x, y, z
+    double m_theta;
+    double m_scalarPart;
+    Vector3D m_vectorialPart; // i, j, k or x, y, z
 };
 
 } // End Namespace

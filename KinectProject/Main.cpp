@@ -6,9 +6,9 @@
 
 int main(int argc, char *argv[])
 {
-    /*QApplication app(argc, argv);
+    QApplication app(argc, argv);
     MainWindow* window = new MainWindow();
     window->show();
-    return app.exec();*/
-    dai::Quaternion::test();
+    return app.exec();
+    //dai::Quaternion::test();
 }

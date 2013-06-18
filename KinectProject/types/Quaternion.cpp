@@ -19,19 +19,19 @@ void Quaternion::test()
     // Initializing seed for rand() function
     srand(time(NULL));
 
-    QVector3D* vector = new QVector3D[200];
+    Vector3D* vector = new Vector3D[200];
     qDebug() << "Generating 200 unit vectors";
 
     for (int i=0; i<200; ++i)
     {
-        float pos_x = rand() / (float) RAND_MAX;
-        float pos_y = rand() / (float) RAND_MAX;
-        float pos_z = rand() / (float) RAND_MAX;
+        double pos_x = rand() / (double) RAND_MAX;
+        double pos_y = rand() / (double) RAND_MAX;
+        double pos_z = rand() / (double) RAND_MAX;
 
         vector[i].setX(pos_x);
         vector[i].setY(pos_y);
         vector[i].setZ(pos_z);
-        vector[i].normalize();
+        vector[i].normalize(); // Get unit vector
     }
 
     Quaternion* q = new Quaternion[100];
@@ -39,8 +39,8 @@ void Quaternion::test()
 
     for (int i=0; i<100; ++i)
     {
-        QVector3D& v1 = vector[i*2];
-        QVector3D& v2 = vector[i*2+1];
+        Vector3D& v1 = vector[i*2];
+        Vector3D& v2 = vector[i*2+1];
         q[i] = Quaternion::getRotationBetween(v1, v2);
     }
 
@@ -48,16 +48,18 @@ void Quaternion::test()
 
     for (int i=0; i<100; ++i)
     {
-        QVector3D& v1 = vector[i*2];
-        QVector3D& v2 = vector[i*2+1];
-        QQuaternion rot(q[i].scalar(), q[i].vector());
-        QVector3D result = rot.rotatedVector(v1);
+        Vector3D& v1 = vector[i*2];
+        Vector3D& v2 = vector[i*2+1];
+        QQuaternion rot(q[i].scalar(), QVector3D(q[i].vector().x(), q[i].vector().y(), q[i].vector().z())); // set up QQuaternion with my computed values
+        QVector3D rotateVector(v1.x(), v1.y(), v1.z());
+        QVector3D result = rot.rotatedVector(rotateVector); // rotate v1 vector with QQuaternion
 
+        // Now I compare result and v2, they must be the same
         if (fuzzyCompare(result, v2)) {
             qDebug() << "Test " << i+1 << "\t" << "OK";
         } else {
             qDebug() << "Test " << i+1 << "\t" << "Error";
-            qDebug() << "Expected" << v2;
+            qDebug() << "Expected" << QVector3D(v2.x(), v2.y(), v2.z());
             qDebug() << "Obtained" << result;
         }
     }
@@ -66,18 +68,17 @@ void Quaternion::test()
     delete[] q;
 }
 
-bool Quaternion::fuzzyCompare(const QVector3D& v1, const QVector3D& v2)
+bool Quaternion::fuzzyCompare(const QVector3D& v1, const Vector3D& v2)
 {
-    return qFuzzyCompare(v1.x(), v2.x()) && qFuzzyCompare(v1.y(), v2.y()) && qFuzzyCompare(v1.z(), v2.z());
+    return qFuzzyCompare(v1.x(), (float) v2.x()) && qFuzzyCompare(v1.y(), (float) v2.y()) && qFuzzyCompare(v1.z(), (float) v2.z());
 }
-
 
 Quaternion::Quaternion()
     : QObject(0)
 {
     // Identity quaternion
     m_scalarPart = 1.0f;
-    m_vectorialPart = QVector3D(0, 0, 0);
+    m_vectorialPart = Vector3D(0, 0, 0);
 }
 
 Quaternion::Quaternion(const Quaternion& other)
@@ -94,7 +95,7 @@ Quaternion& Quaternion::operator=(const Quaternion& other)
     return *this;
 }
 
-void Quaternion::setScalar(float value)
+void Quaternion::setScalar(double value)
 {
     // Calculate the rotation angle for this quaternion
     // in order to get it cached.
@@ -108,49 +109,53 @@ void Quaternion::setScalar(float value)
     m_scalarPart = value;
 }
 
-void Quaternion::setVector(QVector3D vector)
+void Quaternion::setVector(Vector3D vector)
 {
     m_vectorialPart = vector;
 }
 
-void Quaternion::setVector(float i, float j, float k)
+void Quaternion::setVector(double i, double j, double k)
 {
-    m_vectorialPart = QVector3D(i, j, k);
+    m_vectorialPart = Vector3D(i, j, k);
 }
 
-float Quaternion::scalar() const
+double Quaternion::scalar() const
 {
     return m_scalarPart;
 }
 
-QVector3D Quaternion::vector() const
+Vector3D Quaternion::vector() const
 {
     return m_vectorialPart;
 }
 
-float Quaternion::getAngle() const
+double Quaternion::getAngle() const
 {
     return m_theta;
 }
 
-float Quaternion::norm() const
+double Quaternion::norm() const
 {
-    return sqrt(powf(m_scalarPart, 2) +
-                powf(m_vectorialPart.x(), 2) +
-                powf(m_vectorialPart.y(), 2) +
-                powf(m_vectorialPart.z(), 2));
+    return sqrt(pow(m_scalarPart, 2) +
+                pow(m_vectorialPart.x(), 2) +
+                pow(m_vectorialPart.y(), 2) +
+                pow(m_vectorialPart.z(), 2));
 }
 
 void Quaternion::normalize()
 {
-    float norm = this->norm();
+    double norm = this->norm();
     m_scalarPart = m_scalarPart / norm;
-    float norm_i = m_vectorialPart.x() / norm;
-    float norm_j = m_vectorialPart.y() / norm;
-    float norm_k = m_vectorialPart.z() / norm;
+    double norm_i = m_vectorialPart.x() / norm;
+    double norm_j = m_vectorialPart.y() / norm;
+    double norm_k = m_vectorialPart.z() / norm;
     m_vectorialPart.setX(norm_i);
     m_vectorialPart.setY(norm_j);
     m_vectorialPart.setZ(norm_k);
+
+    if (fabs(this->norm() - 1) > 1e-12) {
+        qDebug() << "Quaternion::normalize() -> Not a normalized quaternion";
+    }
 }
 
 void Quaternion::print() const
@@ -158,9 +163,9 @@ void Quaternion::print() const
     cout << m_scalarPart << " + " << m_vectorialPart.x() << "i + " << m_vectorialPart.y() << "j + " << m_vectorialPart.z() << "k" << endl;
 }
 
-float Quaternion::sign(float value) const
+double Quaternion::sign(double value) const
 {
-    float result = 0;
+    double result = 0;
 
     if (value < 0)
         result = -1;
@@ -175,17 +180,17 @@ float Quaternion::sign(float value) const
 //
 // Public static methods
 //
-Quaternion Quaternion::getRotationBetween(const QVector3D& v1, const QVector3D& v2)
+Quaternion Quaternion::getRotationBetween(const Vector3D& v1, const Vector3D& v2)
 {
-    float k_cos_theta = QVector3D::dotProduct(v1, v2);
-    float k = sqrt( v1.lengthSquared() * v2.lengthSquared() );
+    double k_cos_theta = Vector3D::dotProduct(v1, v2);
+    double k = sqrt( v1.lengthSquared() * v2.lengthSquared() );
     //float k = 1; // Only for unit vectors!
     Quaternion result;
 
     if (k_cos_theta / k != -1)
     {
-        float scalarPart = k + k_cos_theta;
-        QVector3D vectorialPart = QVector3D::crossProduct(v1, v2); // Not unit vector
+        double scalarPart = k + k_cos_theta;
+        Vector3D vectorialPart = Vector3D::crossProduct(v1, v2); // Not unit vector
         result.setScalar(scalarPart);
         result.setVector(vectorialPart);
         result.normalize();
@@ -202,22 +207,42 @@ Quaternion Quaternion::getRotationBetween(const QVector3D& v1, const QVector3D& 
 
 Quaternion Quaternion::getRotationBetween(const Point3f &p1, const Point3f &p2, const Point3f &vertex)
 {
-    QVector3D v1( p1.x() - vertex.x(), p1.y() - vertex.y(), p1.z() - vertex.z() );
-    QVector3D v2( p2.x() - vertex.x(), p2.y() - vertex.y(), p2.z() - vertex.z() );
+    Vector3D v1( p1.x() - vertex.x(), p1.y() - vertex.y(), p1.z() - vertex.z() );
+    Vector3D v2( p2.x() - vertex.x(), p2.y() - vertex.y(), p2.z() - vertex.z() );
     return Quaternion::getRotationBetween(v1, v2);
 }
 
-float Quaternion::getDistanceBetween(const Quaternion &q1, const Quaternion &q2)
+double Quaternion::getDistanceBetween(const Quaternion &q1, const Quaternion &q2)
 {
-    return 1 - powf(dotProduct(q1, q2), 2);
+    double dotProduct = Quaternion::dotProduct(q1, q2);
+    double result = 1 - pow(dotProduct, 2);
+
+    if (result < 0) {
+        qDebug() << "Quaternion distance cannot be lower than 0";
+    } else if (result > 1) {
+        qDebug() << "Quaternion distance cannot be higher than 1";
+    }
+
+    return result;
 }
 
-float Quaternion::dotProduct(const Quaternion &q1, const Quaternion &q2)
+double Quaternion::dotProduct(const Quaternion &q1, const Quaternion &q2)
 {
-    return q1.scalar() * q2.scalar() +
-           q1.vector().x() * q2.vector().x() +
-           q1.vector().y() * q2.vector().y() +
-           q1.vector().z() * q2.vector().z();
+    double result = q1.scalar() * q2.scalar() +
+                    q1.vector().x() * q2.vector().x() +
+                    q1.vector().y() * q2.vector().y() +
+                    q1.vector().z() * q2.vector().z();
+
+    // Assume q1 and q2 are normalized, so dot product must be in the range [0, 1]
+    if (fabs(q1.norm() - 1) > 1e-12) {
+        qDebug() << "Q1 is not a normalized quaternion";
+    }
+
+    if (fabs(q2.norm() - 1) > 1e-12) {
+        qDebug() << "Q2 is Not a normalized quaternion";
+    }
+
+    return result;
 }
 
 } // End Namespace

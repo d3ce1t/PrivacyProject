@@ -204,10 +204,18 @@ void SkeletonPainter::loadModels()
     index = quaternionMetaObject.indexOfEnumerator("QuaternionType");
     metaEnum = quaternionMetaObject.enumerator(index);
 
+    static long frameCounter = 0;
+
     // Quaternions Model
     for (int i=0; i<20; ++i)
     {
         const Quaternion& quaternion = m_skeleton.getQuaternion( (Quaternion::QuaternionType) i);
+        Quaternion& lastQuaternion = m_lastQuaternions[i];
+        double distance = Quaternion::getDistanceBetween(lastQuaternion, quaternion);
+        float diff = distance;
+
+        if (frameCounter % 5 == 0)
+            m_lastQuaternions[i] = quaternion;
 
         QStandardItem* itemTensor = m_quaternions_model.item(i, 0);
         QStandardItem* itemX = m_quaternions_model.item(i, 1);
@@ -215,32 +223,17 @@ void SkeletonPainter::loadModels()
         QStandardItem* itemZ = m_quaternions_model.item(i, 3);
         QStandardItem* itemAngle = m_quaternions_model.item(i, 4);
 
-        float angle = quaternion.getAngle()*180/M_PI;
-        float lastAngle = itemAngle->text().toFloat();
-        float diff = 0;
-
-        if (angle < lastAngle && lastAngle != 0) {
-            diff = 1 - (angle / lastAngle);
-        }
-        else if (angle != 0) {
-            diff = 1 - (lastAngle / angle);
-        }
-
         itemTensor->setText(QString::number(quaternion.scalar()));
         itemX->setText(QString::number(quaternion.vector().x()));
         itemY->setText(QString::number(quaternion.vector().y()));
         itemZ->setText(QString::number(quaternion.vector().z()));
-        itemAngle->setText(QString::number(angle));
+        itemAngle->setText(QString::number(distance));
 
         QBrush brush;
         brush.setStyle(Qt::SolidPattern);
         QColor color(255, 255, 255);
         color.setRgb(255, 0, 0);
-        color.setAlphaF(colorIntensity(diff));
-
-       /* if (angle > lastAngle + 0.3) {
-            qDebug() << angle << lastAngle << diff;
-        }*/
+        color.setAlphaF(diff);
 
         brush.setColor(color);
         itemTensor->setBackground(brush);
@@ -249,6 +242,8 @@ void SkeletonPainter::loadModels()
         itemZ->setBackground(brush);
         itemAngle->setBackground(brush);
     }
+
+    frameCounter++;
 }
 
 float SkeletonPainter::colorIntensity(float x)
@@ -411,8 +406,8 @@ void SkeletonPainter::prepareShaderProgram()
 void SkeletonPainter::drawLimb(const dai::SkeletonJoint& joint1, const dai::SkeletonJoint& joint2)
 {
     float coordinates[] = {
-        joint1.getPosition().x(), joint1.getPosition().y(), -joint1.getPosition().z(),
-        joint2.getPosition().x(), joint2.getPosition().y(), -joint2.getPosition().z()
+        (float) joint1.getPosition().x(), (float) joint1.getPosition().y(), (float) -joint1.getPosition().z(),
+        (float) joint2.getPosition().x(), (float) joint2.getPosition().y(), (float) -joint2.getPosition().z()
     };
 
     float coorColours[] = {
@@ -458,7 +453,7 @@ void SkeletonPainter::drawLimb(const dai::SkeletonJoint& joint1, const dai::Skel
 void SkeletonPainter::drawJoint(const dai::SkeletonJoint& joint, const QVector3D &color)
 {
     float coordinates[] = {
-        joint.getPosition().x(), joint.getPosition().y(), -joint.getPosition().z()
+        (float) joint.getPosition().x(), (float) joint.getPosition().y(), (float) -joint.getPosition().z()
     };
 
     float coorColours[] = {

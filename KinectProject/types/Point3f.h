@@ -11,24 +11,24 @@ public:
         DISTANCE_EUCLIDEAN
     };
 
-    static float distance(const Point3f& point1, const Point3f& point2, DistanceType option = DISTANCE_EUCLIDEAN);
+    static double distance(const Point3f& point1, const Point3f& point2, DistanceType option = DISTANCE_EUCLIDEAN);
 
     explicit Point3f();
-    explicit Point3f(float x, float y, float z);
+    explicit Point3f(double x, double y, double z);
     Point3f(const Point3f& other);
-    void set(float x, float y, float z);
+    void set(double x, double y, double z);
     Point3f& operator=(const Point3f& other);
     bool operator==(const Point3f& other) const;
     bool operator!=(const Point3f& other) const;
 
-    float x() const;
-    float y() const;
-    float z() const;
+    double x() const;
+    double y() const;
+    double z() const;
 
 private:    
-    static float euclideanDistance(const Point3f& point1, const Point3f& point2);
+    static double euclideanDistance(const Point3f& point1, const Point3f& point2);
 
-    float m_x, m_y, m_z;
+    double m_x, m_y, m_z;
 };
 
 } // End Namepsace
