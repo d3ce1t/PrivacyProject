@@ -53,8 +53,7 @@ bool DepthFramePainter::prepareNext()
 
     if (m_instance != NULL && m_instance->hasNext())
     {
-        const dai::DataFrame& frame = m_instance->nextFrame();
-        const DepthFrame& depthFrame = static_cast<const DepthFrame&>(frame);
+        const DepthFrame& depthFrame = (const DepthFrame&) m_instance->nextFrame();
         // FIX: Frame copy. I should not copy.
         m_frame = depthFrame;
         DepthFrame::calculateHistogram(m_pDepthHist, depthFrame);
@@ -68,6 +67,11 @@ bool DepthFramePainter::prepareNext()
     }
 
     return result;
+}
+
+DepthFrame& DepthFramePainter::frame()
+{
+    return m_frame;
 }
 
 void DepthFramePainter::render()

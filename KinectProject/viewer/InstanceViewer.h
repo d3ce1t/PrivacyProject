@@ -11,11 +11,16 @@
 #include "../types/StreamInstance.h"
 #include "ViewerPainter.h"
 
+namespace dai {
+    class DataFrame;
+}
+
+typedef QList<dai::DataFrame*> DataFrameList;
+
 
 class InstanceViewer : public QQuickView, protected QOpenGLFunctions
 {
     Q_OBJECT
-
     Q_PROPERTY(float fps READ getFPS NOTIFY changeOfStatus)
 
 public:
@@ -29,6 +34,7 @@ public:
 signals:
     void changeOfStatus();
     void viewerClose(InstanceViewer* viewer);
+    void beforeDisplaying(DataFrameList frameList, InstanceViewer* viewer);
 
 public slots:
     void resetPerspective();

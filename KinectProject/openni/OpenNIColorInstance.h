@@ -17,6 +17,7 @@ public:
     void close();
     bool hasNext() const;
     const ColorFrame& nextFrame();
+    ColorFrame& frame();
     void setOutputFile(QString file);
 
 private:

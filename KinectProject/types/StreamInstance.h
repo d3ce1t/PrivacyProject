@@ -22,6 +22,7 @@ public:
     virtual void open() = 0;
     virtual void close() = 0;
     virtual const DataFrame& nextFrame() = 0;
+    virtual DataFrame& frame() = 0;
     StreamType getType() const;
     const QString& getTitle() const;
 

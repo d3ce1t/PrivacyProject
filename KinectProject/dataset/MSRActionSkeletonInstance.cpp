@@ -122,6 +122,11 @@ const Skeleton &MSRActionSkeletonInstance::nextFrame()
     return m_currentFrame;
 }
 
+Skeleton& MSRActionSkeletonInstance::frame()
+{
+    return m_currentFrame;
+}
+
 SkeletonJoint::JointType MSRActionSkeletonInstance::convertIntToType(int value)
 {
     SkeletonJoint::JointType result = SkeletonJoint::JOINT_HEAD;

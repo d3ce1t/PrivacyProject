@@ -127,6 +127,11 @@ const Skeleton &MSRDailySkeletonInstance::nextFrame()
     return m_currentFrame;
 }
 
+dai::Skeleton& MSRDailySkeletonInstance::frame()
+{
+    return m_currentFrame;
+}
+
 SkeletonJoint::JointType MSRDailySkeletonInstance::convertIntToType(int value)
 {
     SkeletonJoint::JointType result = SkeletonJoint::JOINT_HEAD;

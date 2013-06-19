@@ -135,8 +135,7 @@ bool SkeletonPainter::prepareNext()
 
     if (m_instance != NULL && m_instance->hasNext())
     {
-        const dai::DataFrame& frame = m_instance->nextFrame();
-        const dai::Skeleton skeletonFrame = static_cast<const dai::Skeleton&>(frame);
+        const dai::Skeleton skeletonFrame = (const dai::Skeleton&) m_instance->nextFrame();
         // FIX: Frame copy. And I'm not implementing operator=. I should not copy.
         m_skeleton = skeletonFrame;
         loadModels();
@@ -150,6 +149,11 @@ bool SkeletonPainter::prepareNext()
     }
 
     return result;
+}
+
+Skeleton& SkeletonPainter::frame()
+{
+    return m_skeleton;
 }
 
 void SkeletonPainter::loadModels()
@@ -375,12 +379,6 @@ void SkeletonPainter::render()
         glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
     }
 }*/
-
-void SkeletonPainter::resize( float w, float h )
-{
-    m_width = w;
-    m_height = h;
-}
 
 void SkeletonPainter::prepareShaderProgram()
 {

@@ -22,7 +22,7 @@ public:
     explicit SkeletonPainter(StreamInstance* instance, InstanceViewer* parent = 0);
     virtual ~SkeletonPainter();
     bool prepareNext();
-    void resize(float w, float h );
+    Skeleton& frame();
 
 protected:
     void initialise();
@@ -51,7 +51,6 @@ private:
     QTableView              m_joints_table_view;
     QTableView              m_distances_table_view;
     QTableView              m_quaternions_table_view;
-
     Quaternion              m_lastQuaternions[20];
 };
 

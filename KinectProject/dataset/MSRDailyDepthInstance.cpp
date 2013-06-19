@@ -105,4 +105,9 @@ const DepthFrame &MSRDailyDepthInstance::nextFrame()
     return m_currentFrame;
 }
 
+DepthFrame& MSRDailyDepthInstance::frame()
+{
+    return m_currentFrame;
+}
+
 } // End Namespace

@@ -114,4 +114,9 @@ const DepthFrame &MSRActionDepthInstance::nextFrame()
     return m_currentFrame;
 }
 
+DepthFrame& MSRActionDepthInstance::frame()
+{
+    return m_currentFrame;
+}
+
 } // End Namespace

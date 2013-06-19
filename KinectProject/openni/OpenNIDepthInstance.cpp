@@ -115,4 +115,9 @@ const DepthFrame& OpenNIDepthInstance::nextFrame()
     return m_currentFrame;
 }
 
+DepthFrame& OpenNIDepthInstance::frame()
+{
+    return m_currentFrame;
+}
+
 } // End namespace

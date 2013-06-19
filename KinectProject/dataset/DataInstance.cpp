@@ -58,6 +58,11 @@ const DataFrame& DataInstance::nextFrame()
     throw NotImplementedException();
 }
 
+DataFrame& DataInstance::frame()
+{
+    throw NotImplementedException();
+}
+
 //
 // Static methods
 //

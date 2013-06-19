@@ -19,6 +19,7 @@ public:
     DepthFramePainter(StreamInstance* instance, InstanceViewer* parent = 0);
     virtual ~DepthFramePainter();
     bool prepareNext();
+    DepthFrame& frame();
 
 protected:
     void initialise();

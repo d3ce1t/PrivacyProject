@@ -42,8 +42,7 @@ bool ColorFramePainter::prepareNext()
 
     if (m_instance != NULL && m_instance->hasNext())
     {
-        const dai::DataFrame& frame = m_instance->nextFrame();
-        const ColorFrame& colorFrame = static_cast<const ColorFrame&>(frame);
+        const ColorFrame& colorFrame = (const ColorFrame&) m_instance->nextFrame();;
         // FIX: Frame copy. I should not copy.
         m_frame = colorFrame;
         m_isFrameAvailable = true;
@@ -56,6 +55,11 @@ bool ColorFramePainter::prepareNext()
     }
 
     return result;
+}
+
+ColorFrame& ColorFramePainter::frame()
+{
+    return m_frame;
 }
 
 

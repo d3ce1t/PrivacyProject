@@ -118,4 +118,9 @@ const ColorFrame &OpenNIColorInstance::nextFrame()
     return m_currentFrame;
 }
 
+ColorFrame& OpenNIColorInstance::frame()
+{
+    return m_currentFrame;
+}
+
 } // End namespace

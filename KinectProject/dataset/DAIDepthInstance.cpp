@@ -104,5 +104,10 @@ const DepthFrame& DAIDepthInstance::nextFrame()
     return m_currentFrame;
 }
 
+DepthFrame& DAIDepthInstance::frame()
+{
+    return m_currentFrame;
+}
+
 
 } // End namespace

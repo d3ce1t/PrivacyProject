@@ -16,6 +16,7 @@ public:
     ColorFramePainter(StreamInstance* instance, InstanceViewer* parent = 0);
     virtual ~ColorFramePainter();
     bool prepareNext();
+    ColorFrame& frame();
 
 protected:
     void initialise();

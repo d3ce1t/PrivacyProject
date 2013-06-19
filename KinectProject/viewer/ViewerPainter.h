@@ -22,6 +22,7 @@ public:
     void setMatrix(QMatrix4x4& m_matrix);
     void renderNow();
     StreamInstance& instance() const;
+    virtual DataFrame& frame() = 0;
 
 protected:
     virtual void initialise() = 0;

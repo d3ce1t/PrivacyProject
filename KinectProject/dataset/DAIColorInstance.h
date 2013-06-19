@@ -26,6 +26,7 @@ public:
     int getTotalFrames() const;
     bool hasNext() const;
     const ColorFrame& nextFrame();
+    ColorFrame& frame();
 
 private:
     ifstream    m_file;

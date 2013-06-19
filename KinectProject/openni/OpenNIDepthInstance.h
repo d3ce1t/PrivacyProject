@@ -17,6 +17,7 @@ public:
     void close();
     bool hasNext() const;
     const DepthFrame& nextFrame();
+    DepthFrame& frame();
     void setOutputFile(QString file);
 
 private:

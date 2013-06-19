@@ -19,6 +19,7 @@ public:
     int getTotalFrames() const;
     bool hasNext() const;
     const dai::Skeleton &nextFrame();
+    dai::Skeleton& frame();
 
 private:
     static SkeletonJoint::JointType convertIntToType(int value);

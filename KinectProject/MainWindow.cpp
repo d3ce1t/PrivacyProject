@@ -3,14 +3,15 @@
 #include "viewer/InstanceViewer.h"
 #include "dataset/Dataset.h"
 #include <QDebug>
-#include <QVector>
 #include "dataset/MSR3Action3D.h"
-#include <fstream>
+#include "dataset/DAIDataset.h"
 #include "openni/OpenNIDepthInstance.h"
 #include "openni/OpenNIColorInstance.h"
-#include "KMeans.h"
 #include "types/DepthFrame.h"
+#include "filters/BasicFilter.h"
+#include "KMeans.h"
 #include "DepthSeg.h"
+#include <fstream>
 #include <iostream>
 
 using namespace std;
@@ -139,6 +140,34 @@ void MainWindow::on_pushButton_3_clicked()
 }
 
 void MainWindow::on_pushButton_4_clicked()
+{
+    dai::DAIDataset* dataset = new dai::DAIDataset();
+    dai::DAIColorInstance* colorInstance = dataset->getColorInstance(1, 1, 1);
+    dai::DAIDepthInstance* depthInstance = dataset->getDepthInstance(1, 1, 1);
+
+    colorInstance->setPlayLoop(true);
+    depthInstance->setPlayLoop(true);
+
+    qRegisterMetaType<DataFrameList>("DataFrameList");
+
+    // Show color instance
+    dai::BasicFilter* filter = new dai::BasicFilter;
+    InstanceViewer* colorViewer = new InstanceViewer;
+    connect(colorViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
+    connect(colorViewer, SIGNAL(beforeDisplaying(DataFrameList,InstanceViewer*)), filter, SLOT(processFrame(DataFrameList,InstanceViewer*)), Qt::DirectConnection);
+    colorViewer->show();
+    colorViewer->translateAxisZ(0.2);
+    colorViewer->play(colorInstance, false);
+    colorViewer->play(depthInstance, false);
+
+    // Show depth instance
+    /*InstanceViewer* depthViewer = new InstanceViewer;
+    connect(depthViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
+    depthViewer->show();
+    depthViewer->play(depthInstance, false);*/
+}
+
+void MainWindow::testSegmentation()
 {
     /*float data[] = {0.1, 0.3, 0.2, 0.5, 0.6, 0.2, 0.3, 0.1, 0.30, 0.36, 0.45, 0.3, 0.15, 0.17, -0.1, -0.3, -0.2, -0.5, -0.6, -0.2, -0.3, -0.1, -0.30, -0.36, -0.45, -0.3, -0.15, -0.17};
     //float data[] = {1, 3, 2, 5, 6, 2, 3, 1, 30, 36, 45, 3, 15, 17};

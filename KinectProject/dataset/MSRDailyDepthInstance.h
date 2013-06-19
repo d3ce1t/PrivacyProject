@@ -27,6 +27,7 @@ public:
     int getTotalFrames() const;
     bool hasNext() const;
     const DepthFrame& nextFrame();
+    DepthFrame& frame();
 
 private:
     ifstream    m_file;

@@ -123,6 +123,8 @@ void InstanceViewer::playNextFrame()
 
     if (m_running && diffTime >= sleepTime)
     {
+        QList<dai::DataFrame*> framesList;
+
         // Compute Frame Per Seconds
         m_frames++;
         m_fps = 1.0 / (diffTime / 1000.0f);
@@ -133,13 +135,18 @@ void InstanceViewer::playNextFrame()
         QListIterator<dai::ViewerPainter*> it(m_painters);
         QList<dai::ViewerPainter*> closedPainters;
 
-        while (it.hasNext()) {
+        while (it.hasNext())
+        {
             dai::ViewerPainter* painter = it.next();
             bool result = painter->prepareNext();
 
+            // This painter is still opened
+            if (result == true) {
+                framesList << &(painter->frame());
+            }
             // Instance associated with this painter is closed or has failed. So I don't
             // use this painter anymore.
-            if (result == false) {
+            else {
                 closedPainters.append(painter);
             }
         }
@@ -157,6 +164,7 @@ void InstanceViewer::playNextFrame()
         // Update Viewer
         if (!m_painters.isEmpty()) {
             emit changeOfStatus();
+            emit beforeDisplaying(framesList, this);
             QQuickView::update();
         } else {
             stop();
@@ -266,16 +274,13 @@ void InstanceViewer::renderLater()
 {
     if (m_running && !m_update_pending) {
         m_update_pending = true;
-        QCoreApplication::postEvent(this, new QEvent(QEvent::UpdateRequest));
+        playNextFrame();
     }
 }
 
 bool InstanceViewer::event(QEvent* event)
 {
     switch (event->type()) {
-    case QEvent::UpdateRequest:
-        playNextFrame();
-        return true;
     case QEvent::Close:
         // PATCH
         emit viewerClose(this);

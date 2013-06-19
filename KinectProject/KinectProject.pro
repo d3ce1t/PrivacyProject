@@ -47,7 +47,8 @@ HEADERS += \
     openni/OpenNIListener.h \
     openni/OpenNIRuntime.h \
     dataset/DAIColorInstance.h \
-    types/Vector3D.h
+    types/Vector3D.h \
+    filters/BasicFilter.h
 
 SOURCES += \
     dataset/MSR3Action3D.cpp \
@@ -89,7 +90,8 @@ SOURCES += \
     openni/OpenNIListener.cpp \
     openni/OpenNIRuntime.cpp \
     dataset/DAIColorInstance.cpp \
-    types/Vector3D.cpp
+    types/Vector3D.cpp \
+    filters/BasicFilter.cpp
 
 RESOURCES += openglunderqml.qrc
 

@@ -228,21 +228,10 @@ double Quaternion::getDistanceBetween(const Quaternion &q1, const Quaternion &q2
 
 double Quaternion::dotProduct(const Quaternion &q1, const Quaternion &q2)
 {
-    double result = q1.scalar() * q2.scalar() +
-                    q1.vector().x() * q2.vector().x() +
-                    q1.vector().y() * q2.vector().y() +
-                    q1.vector().z() * q2.vector().z();
-
-    // Assume q1 and q2 are normalized, so dot product must be in the range [0, 1]
-    if (fabs(q1.norm() - 1) > 1e-12) {
-        qDebug() << "Q1 is not a normalized quaternion";
-    }
-
-    if (fabs(q2.norm() - 1) > 1e-12) {
-        qDebug() << "Q2 is Not a normalized quaternion";
-    }
-
-    return result;
+    return q1.scalar() * q2.scalar() +
+           q1.vector().x() * q2.vector().x() +
+           q1.vector().y() * q2.vector().y() +
+           q1.vector().z() * q2.vector().z();
 }
 
 } // End Namespace

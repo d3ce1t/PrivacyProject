@@ -26,6 +26,9 @@ private slots:
     void on_pushButton_4_clicked();
 
 private:
+    static void testSegmentation();
+
+private:
     Ui::MainWindow *ui;
     DatasetBrowser* m_browser;
 };

@@ -21,6 +21,7 @@ public:
     void open();
     void close();
     const DataFrame& nextFrame();
+    DataFrame& frame();
 
 protected:
     InstanceInfo m_info;

@@ -102,5 +102,10 @@ const ColorFrame& DAIColorInstance::nextFrame()
     return m_currentFrame;
 }
 
+ColorFrame& DAIColorInstance::frame()
+{
+    return m_currentFrame;
+}
+
 
 } // End namespace
