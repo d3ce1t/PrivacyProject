@@ -5,6 +5,7 @@
 namespace dai {
 
 BasicFilter::BasicFilter()
+    : m_background(640, 480)
 {
 }
 
@@ -23,11 +24,18 @@ void BasicFilter::processFrame(DataFrameList framesList, InstanceViewer* viewer)
     {
         for (int j=0; j<f2->getWidth(); ++j)
         {
+            RGBAColor color = f1->getItem(i, j);
             short uLabel = f2->getLabel(i, j);
 
-            if (uLabel != 0) {
-            //    RGBAColor color = m_background.getItem(i, j);
-            //    f1->setItem(i, j, color);
+            if (uLabel == 1) {
+                RGBAColor bgColor = m_background.getItem(i, j);
+                /*bgColor.red = 1.0;
+                bgColor.blue = 0.0;
+                bgColor.green = 0.0;*/
+                f1->setItem(i, j, bgColor);
+            }
+            else {
+                m_background.setItem(i, j, color);
             }
         }
     }

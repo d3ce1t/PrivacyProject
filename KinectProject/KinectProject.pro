@@ -123,6 +123,11 @@ unix:!macx {
     LIBS += -lpcl_common -lpcl_visualization -lboost_system -lpcl_io -lvtkCommon -lvtkFiltering
     INCLUDEPATH += /usr/local/include/pcl-1.7/
     DEPENDPATH += /usr/local/include/pcl-1.7/
+
+    # OpenCV2
+    LIBS += -lopencv_core -lopencv_imgproc
+    INCLUDEPATH += /usr/include/opencv/
+    DEPENDPATH += /usr/include/opencv/
 }
 
 win32 {

@@ -38,10 +38,15 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_clicked()
 {
+    dai::BasicFilter* filter = new dai::BasicFilter;
+
     // Show color instance
     InstanceViewer* colorViewer = new InstanceViewer;
     connect(colorViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
+    connect(colorViewer, SIGNAL(beforeDisplaying(DataFrameList,InstanceViewer*)), filter, SLOT(processFrame(DataFrameList,InstanceViewer*)), Qt::DirectConnection);
+
     dai::OpenNIColorInstance* colorInstance = new dai::OpenNIColorInstance;
+    dai::OpenNIDepthInstance* depthInstance = new dai::OpenNIDepthInstance;
     //colorInstance->setOutputFile("/files/capture/capture.rgb");
     //colorInstance->setOutputFile("/ramfs/jose/capture.rgb");
     colorViewer->show();
@@ -50,7 +55,7 @@ void MainWindow::on_pushButton_clicked()
     // Show depth instance
     //InstanceViewer* depthViewer = new InstanceViewer;
     //connect(depthViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
-    dai::OpenNIDepthInstance* depthInstance = new dai::OpenNIDepthInstance;
+
     //depthInstance->setOutputFile("/files/capture/capture.bin");
     //depthInstance->setOutputFile("/ramfs/jose/capture.bin");
     //depthViewer->show();

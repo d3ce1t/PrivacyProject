@@ -1,5 +1,6 @@
 #include "DAIDepthInstance.h"
 #include <QDebug>
+#include "opencv2/opencv.hpp"
 
 namespace dai {
 
@@ -91,7 +92,8 @@ const DepthFrame& DAIDepthInstance::nextFrame()
             for (int x=0; x<m_width; ++x)
             {
                 //Loaded depths are already normalised because I did it when saved
-                m_currentFrame.setItem(y, x, tempFrame[y].depthRow[x], tempLabel[y].labelRow[x]);
+                short int label = tempLabel[y].labelRow[x] > 0? 1 : 0;
+                m_currentFrame.setItem(y, x, tempFrame[y].depthRow[x], label);
             }
         }
 
@@ -101,7 +103,20 @@ const DepthFrame& DAIDepthInstance::nextFrame()
         close();
     }
 
+    dilatateLabels();
+
     return m_currentFrame;
+}
+
+void DAIDepthInstance::dilatateLabels()
+{
+    cv::DataType<short int> dataType;
+    cv::Mat newImag(480, 640, dataType.type, const_cast<short int*>(m_currentFrame.getLabelPtr()));
+    int dilation_size = 15;
+    cv::Mat kernel = cv::getStructuringElement(cv::MORPH_CROSS,
+                                               cv::Size(2*dilation_size + 1, 2*dilation_size+1),
+                                               cv::Point( dilation_size, dilation_size ) );
+    cv::dilate(newImag, newImag, kernel);
 }
 
 DepthFrame& DAIDepthInstance::frame()

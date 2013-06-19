@@ -24,6 +24,7 @@ public:
     T getItem(int row, int column) const;
     short int getLabel(int row, int column) const;
     const T* getDataPtr() const;
+    const short int* getLabelPtr() const;
     void setItem(int row, int column, T &value);
     void setItem(int row, int column, T &value, short int label);
 
@@ -167,6 +168,12 @@ template <class T>
 const T* GenericFrame<T>::getDataPtr() const
 {
     return this->m_data;
+}
+
+template <class T>
+const short int* GenericFrame<T>::getLabelPtr() const
+{
+    return this->m_label;
 }
 
 template <class T>
