@@ -2,7 +2,6 @@
 #include "dataset/DataInstance.h"
 #include <exception>
 #include <iostream>
-#include "opencv2/opencv.hpp"
 
 using namespace std;
 
@@ -113,21 +112,7 @@ const DepthFrame& OpenNIDepthInstance::nextFrame()
     }
 
     m_frameIndex++;
-
-    dilatateLabels();
-
     return m_currentFrame;
-}
-
-void OpenNIDepthInstance::dilatateLabels()
-{
-    cv::DataType<short int> dataType;
-    cv::Mat newImag(480, 640, dataType.type, const_cast<short int*>(m_currentFrame.getLabelPtr()));
-    int dilation_size = 15;
-    cv::Mat kernel = cv::getStructuringElement(cv::MORPH_CROSS,
-                                               cv::Size(2*dilation_size + 1, 2*dilation_size+1),
-                                               cv::Point( dilation_size, dilation_size ) );
-    cv::dilate(newImag, newImag, kernel);
 }
 
 DepthFrame& OpenNIDepthInstance::frame()

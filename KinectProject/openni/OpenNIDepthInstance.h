@@ -21,9 +21,6 @@ public:
     void setOutputFile(QString file);
 
 private:
-
-    void dilatateLabels();
-
     OpenNIRuntime*          m_openni;
     openni::VideoMode       videoMode;
     DepthFrame              m_currentFrame;

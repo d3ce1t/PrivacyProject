@@ -20,7 +20,6 @@ public:
 
     virtual ~OpenNIRuntime();
     void releaseInstance();
-
     openni::VideoFrameRef readDepthFrame() const;
     openni::VideoFrameRef readColorFrame() const;
     nite::UserTrackerFrameRef readUserTrackerFrame() const;
@@ -31,9 +30,9 @@ private:
 
     OpenNIRuntime();
     void initOpenNI();
+    void shutdownOpenNI();
 
     openni::Device            m_device;
-    openni::VideoStream       m_depthStream;
     openni::VideoStream       m_colorStream;
     nite::UserTracker         m_pUserTracker;
     openni::VideoFrameRef	  m_colorFrame;

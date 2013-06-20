@@ -30,7 +30,7 @@ private:
 
     const static QVector3D  m_colors[5];
     bool                    m_isFrameAvailable;
-    DepthFrame              m_frame;
+    DepthFrame*             m_frame;
     QMap<float, float>      m_pDepthHist;
     QOpenGLShaderProgram*   m_shaderProgram;
 

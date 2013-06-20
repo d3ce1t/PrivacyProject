@@ -53,9 +53,8 @@ bool DepthFramePainter::prepareNext()
 
     if (m_instance != NULL && m_instance->hasNext())
     {
-        const DepthFrame& depthFrame = (const DepthFrame&) m_instance->nextFrame();
-        // FIX: Frame copy. I should not copy.
-        m_frame = depthFrame;
+        DepthFrame& depthFrame = (DepthFrame&) m_instance->nextFrame();
+        m_frame = &depthFrame;
         DepthFrame::calculateHistogram(m_pDepthHist, depthFrame);
         m_isFrameAvailable = true;
         result = true;
@@ -71,7 +70,7 @@ bool DepthFramePainter::prepareNext()
 
 DepthFrame& DepthFramePainter::frame()
 {
-    return m_frame;
+    return *m_frame;
 }
 
 void DepthFramePainter::render()
@@ -109,21 +108,21 @@ void DepthFramePainter::render()
     // Bind Shader
     m_shaderProgram->bind();
 
-    float* vertex = new float[m_frame.getNumOfNonZeroPoints() * 3];
-    float* color = new float[m_frame.getNumOfNonZeroPoints() * 3];
+    float* vertex = new float[m_frame->getNumOfNonZeroPoints() * 3];
+    float* color = new float[m_frame->getNumOfNonZeroPoints() * 3];
 
     int offset = 0;
 
-    for (int y = 0; y < m_frame.getHeight(); ++y)
+    for (int y = 0; y < m_frame->getHeight(); ++y)
     {
-        for (int x = 0; x < m_frame.getWidth(); ++x)
+        for (int x = 0; x < m_frame->getWidth(); ++x)
         {
-            float distance = m_frame.getItem(y, x);
+            float distance = m_frame->getItem(y, x);
 
             if (distance > 0)
             {                
-                float normX = DataInstance::normalise(x, 0, m_frame.getWidth()-1, -1, 1);
-                float normY = DataInstance::normalise(y, 0, m_frame.getHeight()-1, -1, 1);
+                float normX = DataInstance::normalise(x, 0, m_frame->getWidth()-1, -1, 1);
+                float normY = DataInstance::normalise(y, 0, m_frame->getHeight()-1, -1, 1);
                 //float norm_color = DataInstance::normalise(distance, min_distance, max_distance, 0, 0.83);
 
                 vertex[offset] = normX;
@@ -141,7 +140,7 @@ void DepthFramePainter::render()
                 }*/
                 /*else {*/
 
-                short int label = m_frame.getLabel(y, x);
+                short int label = m_frame->getLabel(y, x);
 
                 if (label == 0) {
                     color[offset] = m_pDepthHist[distance];
@@ -165,7 +164,7 @@ void DepthFramePainter::render()
     m_shaderProgram->enableAttributeArray(m_posAttr);
     m_shaderProgram->enableAttributeArray(m_colorAttr);
 
-    glDrawArrays(GL_POINTS, m_posAttr, m_frame.getNumOfNonZeroPoints());
+    glDrawArrays(GL_POINTS, m_posAttr, m_frame->getNumOfNonZeroPoints());
 
     // Release
     m_shaderProgram->disableAttributeArray(m_colorAttr);

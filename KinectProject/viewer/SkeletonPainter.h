@@ -37,7 +37,7 @@ private:
     float colorIntensity(float value);
 
     bool                    m_isFrameAvailable;
-    Skeleton                m_skeleton;
+    Skeleton*               m_skeleton;
     QOpenGLShaderProgram*   m_shaderProgram;
     GLuint                  m_posAttr;
     GLuint                  m_colorAttr; // Texture coord in the shader

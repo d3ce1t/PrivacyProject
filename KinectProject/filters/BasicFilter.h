@@ -18,6 +18,8 @@ public slots:
     void processFrame(DataFrameList framesList, InstanceViewer* viewer);
 
 private:
+    void dilateUserMask(short *labels);
+
     ColorFrame m_background;
 };
 

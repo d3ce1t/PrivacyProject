@@ -38,7 +38,7 @@ private:
     GLuint                  m_texSampler; // Texture Sampler in the shader
     GLuint                  m_sampler; // Sampler
 
-    ColorFrame              m_frame;
+    ColorFrame*             m_frame;
 };
 
 } // End Namespace

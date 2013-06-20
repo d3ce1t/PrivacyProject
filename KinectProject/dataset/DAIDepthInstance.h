@@ -33,8 +33,6 @@ public:
     DepthFrame& frame();
 
 private:
-    void dilatateLabels();
-
     ifstream    m_file;
     int         m_nFrames;
     int         m_width;

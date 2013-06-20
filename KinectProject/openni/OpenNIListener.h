@@ -11,6 +11,7 @@ class OpenNIListener : public openni::VideoStream::NewFrameListener, public nite
 {
 public:
     OpenNIListener(OpenNIRuntime* openni);
+    virtual ~OpenNIListener();
     void onNewFrame(openni::VideoStream& stream);
     void onNewFrame(nite::UserTracker& userTracker);
 

@@ -117,7 +117,7 @@ void InstanceViewer::stop()
 void InstanceViewer::playNextFrame()
 {
     // Compute time since last update
-    const qint64 sleepTime = 70;
+    const qint64 sleepTime = 66;
     qint64 timeNow = m_time.elapsed();
     qint64 diffTime = timeNow - m_lastTime;
 
@@ -208,11 +208,6 @@ void InstanceViewer::renderOpenGLScene()
     m_update_pending = false;
 }
 
-void InstanceViewer::resizeEvent(QResizeEvent *event)
-{
-    Q_UNUSED(event);
-}
-
 void InstanceViewer::updatePaintersMatrix()
 {
     m_mutex.lock();
@@ -274,13 +269,17 @@ void InstanceViewer::renderLater()
 {
     if (m_running && !m_update_pending) {
         m_update_pending = true;
-        playNextFrame();
+        QCoreApplication::postEvent(this, new QEvent(QEvent::UpdateRequest));
     }
 }
 
 bool InstanceViewer::event(QEvent* event)
 {
     switch (event->type()) {
+    case QEvent::UpdateRequest:
+        playNextFrame();
+        return true;
+        break;
     case QEvent::Close:
         // PATCH
         emit viewerClose(this);

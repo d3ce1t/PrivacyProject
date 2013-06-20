@@ -42,9 +42,8 @@ bool ColorFramePainter::prepareNext()
 
     if (m_instance != NULL && m_instance->hasNext())
     {
-        const ColorFrame& colorFrame = (const ColorFrame&) m_instance->nextFrame();;
-        // FIX: Frame copy. I should not copy.
-        m_frame = colorFrame;
+        ColorFrame& colorFrame = (ColorFrame&) m_instance->nextFrame();
+        m_frame = &colorFrame;
         m_isFrameAvailable = true;
         result = true;
     }
@@ -59,7 +58,7 @@ bool ColorFramePainter::prepareNext()
 
 ColorFrame& ColorFramePainter::frame()
 {
-    return m_frame;
+    return *m_frame;
 }
 
 
@@ -83,7 +82,7 @@ void ColorFramePainter::render()
     };
 
     // Load into GPU
-    loadVideoTexture((void *) m_frame.getDataPtr(), m_frame.getWidth(), m_frame.getHeight(), m_frameTexture);
+    loadVideoTexture((void *) m_frame->getDataPtr(), m_frame->getWidth(), m_frame->getHeight(), m_frameTexture);
 
     // Render
     glEnable(GL_TEXTURE_2D);

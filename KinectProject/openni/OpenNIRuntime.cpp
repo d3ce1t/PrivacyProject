@@ -15,18 +15,19 @@ OpenNIRuntime* OpenNIRuntime::getInstance()
     if (_instance == NULL) {
         _instance = new OpenNIRuntime();
     }
-    mutex.unlock();
-
     _instance_counter++;
+    mutex.unlock();
     return _instance;
 }
 
 void OpenNIRuntime::releaseInstance()
 {
+    mutex.lock();
     _instance_counter--;
 
     if (_instance_counter == 0)
         delete this;
+    mutex.unlock();
 }
 
 OpenNIRuntime::OpenNIRuntime()
@@ -37,9 +38,8 @@ OpenNIRuntime::OpenNIRuntime()
 
 OpenNIRuntime::~OpenNIRuntime()
 {
-    m_device.close();
-    nite::NiTE::shutdown();
-    openni::OpenNI::shutdown();
+   shutdownOpenNI();
+   delete m_listener;
 }
 
 openni::VideoFrameRef OpenNIRuntime::readDepthFrame() const
@@ -87,10 +87,10 @@ void OpenNIRuntime::initOpenNI()
             throw 5;
 
         if (m_pUserTracker.create(&m_device) != nite::STATUS_OK)
-            throw 7;
+            throw 6;
 
         if (!m_pUserTracker.isValid() || !m_colorStream.isValid())
-            throw 8;
+            throw 7;
 
         m_colorStream.addNewFrameListener(m_listener);
         m_pUserTracker.addNewFrameListener(m_listener);
@@ -98,10 +98,29 @@ void OpenNIRuntime::initOpenNI()
     catch (int ex)
     {
         printf("OpenNI init error:\n%s\n", openni::OpenNI::getExtendedError());
-        nite::NiTE::shutdown();
-        openni::OpenNI::shutdown();
+        shutdownOpenNI();
         throw ex;
     }
+}
+
+void OpenNIRuntime::shutdownOpenNI()
+{
+    // Remove listeners
+    m_pUserTracker.removeNewFrameListener(m_listener);
+    m_colorStream.removeNewFrameListener(m_listener);
+
+    // Release frame refs
+    m_colorFrame.release();
+    m_depthFrame.release();
+
+    // Destroy streams and close device
+    m_pUserTracker.destroy();
+    m_colorStream.destroy();
+    m_device.close();
+
+    // Shutdown library
+    nite::NiTE::shutdown();
+    openni::OpenNI::shutdown();
 }
 
 } // End namespace

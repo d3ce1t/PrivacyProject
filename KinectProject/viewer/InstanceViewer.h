@@ -26,7 +26,7 @@ class InstanceViewer : public QQuickView, protected QOpenGLFunctions
 public:
     explicit InstanceViewer( QWindow* parent = 0 );
     virtual ~InstanceViewer();
-    float getFPS() {return m_fps;}
+    float getFPS() const {return m_fps;}
     void show();
     void play(dai::StreamInstance* instance, bool restartAll = false);
     void stop();
@@ -51,7 +51,6 @@ private slots:
     void playNextFrame();
 
 protected:
-    void resizeEvent(QResizeEvent* event);
     bool event(QEvent * event);
 
 private:
