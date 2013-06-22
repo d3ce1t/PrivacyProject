@@ -4,16 +4,13 @@
 
 namespace dai {
 
-ColorFramePainter::ColorFramePainter(StreamInstance* instance, InstanceViewer* parent)
-    : ViewerPainter(instance, parent), textureUnit(0)
+ColorFramePainter::ColorFramePainter(StreamInstance *instance, InstanceViewer* parent)
+    : Painter(instance, parent), textureUnit(0)
 {
-    if (instance->getType() != StreamInstance::Color) {
-        std::cerr << "Invalid instance type" << std::endl;
+    if (instance->getType() != StreamInstance::Color)
         throw 1;
-    }
 
     m_shaderProgram = NULL;
-    m_isFrameAvailable = false;
 }
 
 ColorFramePainter::~ColorFramePainter()
@@ -22,8 +19,6 @@ ColorFramePainter::~ColorFramePainter()
         delete m_shaderProgram;
         m_shaderProgram = NULL;
     }
-
-    m_isFrameAvailable = false;
 }
 
 void ColorFramePainter::initialise()
@@ -35,38 +30,13 @@ void ColorFramePainter::initialise()
     glGenTextures(1, &m_frameTexture);
 }
 
-
-bool ColorFramePainter::prepareNext()
-{
-    bool result = false;
-
-    if (m_instance != NULL && m_instance->hasNext())
-    {
-        ColorFrame& colorFrame = (ColorFrame&) m_instance->nextFrame();
-        m_frame = &colorFrame;
-        m_isFrameAvailable = true;
-        result = true;
-    }
-    else if (m_instance != NULL)
-    {
-        m_instance->close();
-        qDebug() << "Closed";
-    }
-
-    return result;
-}
-
 ColorFrame& ColorFramePainter::frame()
 {
-    return *m_frame;
+    return (ColorFrame&) m_instance->frame();
 }
-
 
 void ColorFramePainter::render()
 {
-    if (!m_isFrameAvailable)
-        return;
-
     float vertexData[] = {
         -1.0, 1.0, 0.0,
         1.0, 1.0, 0.0,
@@ -82,7 +52,8 @@ void ColorFramePainter::render()
     };
 
     // Load into GPU
-    loadVideoTexture((void *) m_frame->getDataPtr(), m_frame->getWidth(), m_frame->getHeight(), m_frameTexture);
+    ColorFrame& colorFrame = frame();
+    loadVideoTexture((void *) colorFrame.getDataPtr(), colorFrame.getWidth(), colorFrame.getHeight(), m_frameTexture);
 
     // Render
     glEnable(GL_TEXTURE_2D);

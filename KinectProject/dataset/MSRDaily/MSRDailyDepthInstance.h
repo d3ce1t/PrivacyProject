@@ -3,8 +3,8 @@
 
 #include <iostream>
 #include <fstream>
-#include "DataInstance.h"
-#include "../types/DepthFrame.h"
+#include "dataset/DataInstance.h"
+#include "types/DepthFrame.h"
 #include <stdint.h>
 
 using namespace std;
@@ -14,7 +14,6 @@ namespace dai {
 class MSRDailyDepthInstance : public DataInstance
 {
 public:
-
     struct BinaryDepthFrame {
         int32_t depthRow[320];
         uint8_t skelId[320];
@@ -22,20 +21,20 @@ public:
 
     explicit MSRDailyDepthInstance(const InstanceInfo& info);
     virtual ~MSRDailyDepthInstance();
-    void open();
-    void close();
-    int getTotalFrames() const;
-    bool hasNext() const;
-    const DepthFrame& nextFrame();
-    DepthFrame& frame();
+    bool is_open() const Q_DECL_OVERRIDE;
+    void open() Q_DECL_OVERRIDE;
+    void close() Q_DECL_OVERRIDE;
+    DepthFrame& frame() Q_DECL_OVERRIDE;
+
+protected:
+    void nextFrame(DataFrame& frame) Q_DECL_OVERRIDE;
+    void restart() Q_DECL_OVERRIDE;
 
 private:
     ifstream    m_file;
-    int         m_nFrames;
     int         m_width;
     int         m_height;
-    int         m_frameIndex;
-    DepthFrame  m_currentFrame;
+    DepthFrame  m_frameBuffer[2];
 };
 
 } // End Namespace

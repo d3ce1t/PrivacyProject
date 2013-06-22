@@ -1,4 +1,5 @@
 #include "InstanceInfo.h"
+#include "exceptions/NotImplementedException.h"
 
 using namespace dai;
 
@@ -9,6 +10,9 @@ InstanceInfo::InstanceInfo()
 
 InstanceInfo::InstanceInfo(InstanceType type)
 {
+    if (type == InstanceInfo::Uninitialised)
+        throw NotImplementedException();
+
     m_type = type;
 }
 

@@ -9,20 +9,21 @@
 namespace dai {
 
 SkeletonPainter::SkeletonPainter(StreamInstance *instance, InstanceViewer *parent)
-    : ViewerPainter(instance, parent)
+    : Painter(instance, parent)
 {
     if (instance->getType() != StreamInstance::Skeleton)
         throw 1;
 
     m_shaderProgram = NULL;
-    m_isFrameAvailable = false;
 
     // Setup Joints Model
     m_joints_model.setRowCount(20);
     m_joints_model.setColumnCount(3);
-    m_joints_table_view.setWindowTitle("Joints info for " + instance->getTitle());
+    m_joints_table_view.setWindowTitle("Joints info");
     m_joints_table_view.setModel(&m_joints_model);
     m_joints_table_view.setMinimumSize(460, 630);
+
+
 
     QStringList list;
     list << "pos X" << "pos Y" << "pos Z";
@@ -40,7 +41,7 @@ SkeletonPainter::SkeletonPainter(StreamInstance *instance, InstanceViewer *paren
     // Setup Distances model
     m_distances_model.setRowCount(20);
     m_distances_model.setColumnCount(20);
-    m_distances_table_view.setWindowTitle("Distances info for " + instance->getTitle());
+    m_distances_table_view.setWindowTitle("Distances info");
     m_distances_table_view.setModel(&m_distances_model);
     m_distances_table_view.setMinimumSize(600, 640);
 
@@ -70,7 +71,7 @@ SkeletonPainter::SkeletonPainter(StreamInstance *instance, InstanceViewer *paren
     // Setup Quaternions Model
     m_quaternions_model.setRowCount(20);
     m_quaternions_model.setColumnCount(5);
-    m_quaternions_table_view.setWindowTitle("Quaternions info for " + instance->getTitle());
+    m_quaternions_table_view.setWindowTitle("Quaternions info");
     m_quaternions_table_view.setModel(&m_quaternions_model);
     m_quaternions_table_view.setMinimumSize(510, 545);
 
@@ -129,36 +130,16 @@ void SkeletonPainter::initialise()
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
-bool SkeletonPainter::prepareNext()
-{
-    bool result = false;
-
-    if (m_instance != NULL && m_instance->hasNext())
-    {
-        dai::Skeleton& skeletonFrame = (dai::Skeleton&) m_instance->nextFrame();
-        m_skeleton = &skeletonFrame;
-        loadModels();
-        m_isFrameAvailable = true;
-        result = true;
-    }
-    else if (m_instance != NULL)
-    {
-        m_instance->close();
-        qDebug() << "Closed";
-    }
-
-    return result;
-}
-
 Skeleton& SkeletonPainter::frame()
 {
-    return *m_skeleton;
+    return (Skeleton&) m_instance->frame();
 }
 
 void SkeletonPainter::loadModels()
 {
     // Joints Model
-    const QList<dai::SkeletonJoint*>& joints = m_skeleton->getAllJoints();
+    Skeleton& skeleton = frame();
+    const QList<dai::SkeletonJoint*>& joints = skeleton.getAllJoints();
     QListIterator<dai::SkeletonJoint*> it(joints);
     int row = 0;
 
@@ -192,7 +173,7 @@ void SkeletonPainter::loadModels()
             SkeletonJoint::JointType joint2 = (SkeletonJoint::JointType) j;
             float distance = 0;
             if (j < i) {
-                distance = Point3f::distance(m_skeleton->getJoint(joint1).getPosition(), m_skeleton->getJoint(joint2).getPosition(), Point3f::DISTANCE_EUCLIDEAN);
+                distance = Point3f::distance(skeleton.getJoint(joint1).getPosition(), skeleton.getJoint(joint2).getPosition(), Point3f::DISTANCE_EUCLIDEAN);
             } else if (j > i) {
                 distance = -1;
             }
@@ -212,7 +193,7 @@ void SkeletonPainter::loadModels()
     // Quaternions Model
     for (int i=0; i<20; ++i)
     {
-        const Quaternion& quaternion = m_skeleton->getQuaternion( (Quaternion::QuaternionType) i);
+        const Quaternion& quaternion = skeleton.getQuaternion( (Quaternion::QuaternionType) i);
         Quaternion& lastQuaternion = m_lastQuaternions[i];
         double distance = Quaternion::getDistanceBetween(lastQuaternion, quaternion);
         float diff = distance;
@@ -260,59 +241,57 @@ float SkeletonPainter::colorIntensity(float x)
 
 void SkeletonPainter::render()
 {
-    if (!m_isFrameAvailable)
-        return;
-
-    drawLimb(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_HEAD), m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER));
-    drawLimb(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER), m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_SPINE));
-    drawLimb(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_SPINE), m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_CENTER_HIP));
+    Skeleton& skeleton = frame();
+    drawLimb(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_HEAD), skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER));
+    drawLimb(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER), skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_SPINE));
+    drawLimb(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_SPINE), skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_CENTER_HIP));
 
     // Left Part
-    drawLimb(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER), m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_SHOULDER));
-    drawLimb(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_SHOULDER), m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_ELBOW));
-    drawLimb(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_ELBOW), m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_WRIST));
-    drawLimb(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_WRIST), m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_HAND));
+    drawLimb(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER), skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_SHOULDER));
+    drawLimb(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_SHOULDER), skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_ELBOW));
+    drawLimb(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_ELBOW), skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_WRIST));
+    drawLimb(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_WRIST), skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_HAND));
 
-    drawLimb(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_CENTER_HIP), m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_HIP));
-    drawLimb(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_HIP), m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_KNEE));
-    drawLimb(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_KNEE), m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_ANKLE));
-    drawLimb(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_ANKLE), m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_FOOT));
+    drawLimb(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_CENTER_HIP), skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_HIP));
+    drawLimb(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_HIP), skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_KNEE));
+    drawLimb(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_KNEE), skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_ANKLE));
+    drawLimb(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_ANKLE), skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_FOOT));
 
     // Right Part
-    drawLimb(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER), m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_SHOULDER));
-    drawLimb(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_SHOULDER), m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_ELBOW));
-    drawLimb(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_ELBOW), m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_WRIST));
-    drawLimb(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_WRIST), m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_HAND));
+    drawLimb(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER), skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_SHOULDER));
+    drawLimb(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_SHOULDER), skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_ELBOW));
+    drawLimb(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_ELBOW), skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_WRIST));
+    drawLimb(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_WRIST), skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_HAND));
 
-    drawLimb(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_CENTER_HIP), m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_HIP));
-    drawLimb(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_HIP), m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_KNEE));
-    drawLimb(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_KNEE), m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_ANKLE));
-    drawLimb(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_ANKLE), m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_FOOT));
+    drawLimb(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_CENTER_HIP), skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_HIP));
+    drawLimb(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_HIP), skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_KNEE));
+    drawLimb(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_KNEE), skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_ANKLE));
+    drawLimb(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_ANKLE), skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_FOOT));
 
     QVector3D red(1.0, 0.0, 0.0);
     QVector3D green(0.0, 1.0, 0.0);
     QVector3D black(0.0, 0.0, 0.0);
 
-    drawJoint(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_HEAD), black);
-    drawJoint(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER), black);
-    drawJoint(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_SPINE), black);
-    drawJoint(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_CENTER_HIP), black);
-    drawJoint(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_SHOULDER), red);
-    drawJoint(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_ELBOW), red);
-    drawJoint(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_WRIST), red);
-    drawJoint(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_HAND), red);
-    drawJoint(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_HIP), red);
-    drawJoint(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_KNEE), red);
-    drawJoint(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_ANKLE), red);
-    drawJoint(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_FOOT), red);
-    drawJoint(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_SHOULDER), green);
-    drawJoint(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_ELBOW), green);
-    drawJoint(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_WRIST), green);
-    drawJoint(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_HAND), green);
-    drawJoint(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_HIP), green);
-    drawJoint(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_KNEE), green);
-    drawJoint(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_ANKLE), green);
-    drawJoint(m_skeleton->getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_FOOT), green);
+    drawJoint(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_HEAD), black);
+    drawJoint(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER), black);
+    drawJoint(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_SPINE), black);
+    drawJoint(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_CENTER_HIP), black);
+    drawJoint(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_SHOULDER), red);
+    drawJoint(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_ELBOW), red);
+    drawJoint(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_WRIST), red);
+    drawJoint(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_HAND), red);
+    drawJoint(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_HIP), red);
+    drawJoint(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_KNEE), red);
+    drawJoint(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_ANKLE), red);
+    drawJoint(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_LEFT_FOOT), red);
+    drawJoint(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_SHOULDER), green);
+    drawJoint(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_ELBOW), green);
+    drawJoint(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_WRIST), green);
+    drawJoint(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_HAND), green);
+    drawJoint(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_HIP), green);
+    drawJoint(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_KNEE), green);
+    drawJoint(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_ANKLE), green);
+    drawJoint(skeleton.getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_FOOT), green);
 
     //drawQuaternions();
 }
@@ -321,14 +300,14 @@ void SkeletonPainter::render()
 {
     for (int i=0; i<MAX_JOINTS-3; ++i)
     {
-        const Quaternion& quaternion = m_skeleton->getQuaternion( (Quaternion::QuaternionType) i);
+        const Quaternion& quaternion = skeleton.getQuaternion( (Quaternion::QuaternionType) i);
 
         SkeletonVector::VectorType v1_offset;
         SkeletonVector::VectorType v2_offset;
-        m_skeleton->mapQuaternionToVectors( (Quaternion::QuaternionType) i, &v1_offset, &v2_offset);
+        skeleton.mapQuaternionToVectors( (Quaternion::QuaternionType) i, &v1_offset, &v2_offset);
 
-        const SkeletonVector& v1 = m_skeleton->getVector(v1_offset);
-        const SkeletonVector& v2 = m_skeleton->getVector(v2_offset);
+        const SkeletonVector& v1 = skeleton.getVector(v1_offset);
+        const SkeletonVector& v2 = skeleton.getVector(v2_offset);
         Point3f point;
 
         // Search origin

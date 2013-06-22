@@ -1,24 +1,22 @@
 #ifndef DEPTH_FRAME_PAINTER_H
 #define DEPTH_FRAME_PAINTER_H
 
-#include "ViewerPainter.h"
+#include "Painter.h"
 #include <OpenNI.h>
 #include <QOpenGLBuffer>
 #include <QMatrix4x4>
 #include "../types/DepthFrame.h"
-#include "../types/StreamInstance.h"
 
 
 class QOpenGLShaderProgram;
 
 namespace dai {
 
-class DepthFramePainter : public ViewerPainter
+class DepthFramePainter : public Painter
 {
 public:
-    DepthFramePainter(StreamInstance* instance, InstanceViewer* parent = 0);
+    DepthFramePainter(StreamInstance *instance, InstanceViewer* parent = 0);
     virtual ~DepthFramePainter();
-    bool prepareNext();
     DepthFrame& frame();
 
 protected:
@@ -29,8 +27,6 @@ private:
     void prepareShaderProgram();
 
     const static QVector3D  m_colors[5];
-    bool                    m_isFrameAvailable;
-    DepthFrame*             m_frame;
     QMap<float, float>      m_pDepthHist;
     QOpenGLShaderProgram*   m_shaderProgram;
 

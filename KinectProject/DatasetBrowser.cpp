@@ -1,11 +1,11 @@
 #include "DatasetBrowser.h"
 #include "ui_DatasetBrowser.h"
 #include <QDebug>
-#include "dataset/MSRDailyActivity3D.h"
-#include "dataset/MSRDailyDepthInstance.h"
-#include "dataset/MSRDailySkeletonInstance.h"
-#include "dataset/MSR3Action3D.h"
-#include "dataset/DAIDataset.h"
+#include "dataset/MSRDaily/MSRDailyActivity3D.h"
+#include "dataset/MSRDaily/MSRDailyDepthInstance.h"
+#include "dataset/MSRDaily/MSRDailySkeletonInstance.h"
+#include "dataset/MSRAction3D/MSR3Action3D.h"
+#include "dataset/DAI/DAIDataset.h"
 #include "InstanceWidgetItem.h"
 #include <QGuiApplication>
 
@@ -97,7 +97,7 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
     }
 
     viewer->show();
-    instance->setPlayLoop(ui->checkBoxLoop->isChecked());
+    //instance->setPlayLoop(ui->checkBoxLoop->isChecked());
     viewer->play(instance, ui->checkSync->isEnabled() && ui->checkSync->isChecked());
 }
 

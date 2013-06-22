@@ -9,14 +9,9 @@
 #include <QMutex>
 #include <QtGui/QOpenGLFunctions>
 #include "../types/StreamInstance.h"
-#include "ViewerPainter.h"
-
-namespace dai {
-    class DataFrame;
-}
-
-typedef QList<dai::DataFrame*> DataFrameList;
-
+#include "Painter.h"
+#include "types/DataFrame.h"
+#include "viewer/PlaybackControl.h"
 
 class InstanceViewer : public QQuickView, protected QOpenGLFunctions
 {
@@ -26,15 +21,16 @@ class InstanceViewer : public QQuickView, protected QOpenGLFunctions
 public:
     explicit InstanceViewer( QWindow* parent = 0 );
     virtual ~InstanceViewer();
-    float getFPS() const {return m_fps;}
     void show();
+    void addInstance(dai::StreamInstance* instance);
     void play(dai::StreamInstance* instance, bool restartAll = false);
     void stop();
+    void setPlayback(dai::PlaybackControl* playback);
 
 signals:
     void changeOfStatus();
     void viewerClose(InstanceViewer* viewer);
-    void beforeDisplaying(DataFrameList frameList, InstanceViewer* viewer);
+    void beforeDisplaying(dai::DataFrameList frameList, InstanceViewer* viewer);
 
 public slots:
     void resetPerspective();
@@ -47,7 +43,7 @@ public slots:
 
 private slots:
     void renderOpenGLScene();
-    void renderLater();
+    //void renderLater();
     void playNextFrame();
 
 protected:
@@ -55,18 +51,17 @@ protected:
 
 private:
     // Private Functions
+    float getFPS() const;
     void updatePaintersMatrix();
 
     // Private member attributes
-    QList<dai::ViewerPainter*>  m_painters;
-    QElapsedTimer               m_time;
-    QMatrix4x4                  matrix;
-    qint64                      m_lastTime;
-    long long                   m_frames;
-    float                       m_fps;
-    bool                        m_running;
-    bool                        m_update_pending;
-    QMutex                      m_mutex;
+    int                    m_token;
+    float                  m_fps;
+    QList<dai::Painter*>   m_painters;
+    QMatrix4x4             matrix;
+    bool                   m_running;
+    QMutex                 m_mutex;
+    dai::PlaybackControl*  m_playback;
 };
 
 #endif // VIEWER_H

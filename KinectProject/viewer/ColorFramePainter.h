@@ -1,7 +1,7 @@
 #ifndef COLOR_FRAME_PAINTER_H
 #define COLOR_FRAME_PAINTER_H
 
-#include "ViewerPainter.h"
+#include "Painter.h"
 #include <QOpenGLBuffer>
 #include <QMatrix4x4>
 #include "../types/ColorFrame.h"
@@ -10,12 +10,11 @@ class QOpenGLShaderProgram;
 
 namespace dai {
 
-class ColorFramePainter : public ViewerPainter
+class ColorFramePainter : public Painter
 {
 public:
     ColorFramePainter(StreamInstance* instance, InstanceViewer* parent = 0);
     virtual ~ColorFramePainter();
-    bool prepareNext();
     ColorFrame& frame();
 
 protected:
@@ -27,7 +26,6 @@ private:
     void loadVideoTexture(void *texture, GLsizei width, GLsizei height, GLuint glTextureId);
 
     const int               textureUnit;
-    bool                    m_isFrameAvailable;
     QOpenGLShaderProgram*   m_shaderProgram;
 
     // OpenGL identifiers
@@ -37,8 +35,6 @@ private:
     GLuint                  m_texCoord; // Texture coord in the shader
     GLuint                  m_texSampler; // Texture Sampler in the shader
     GLuint                  m_sampler; // Sampler
-
-    ColorFrame*             m_frame;
 };
 
 } // End Namespace

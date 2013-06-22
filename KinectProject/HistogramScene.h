@@ -1,7 +1,7 @@
 #ifndef HISTOGRAMSCENE_H
 #define HISTOGRAMSCENE_H
 
-#include "viewer/ViewerPainter.h"
+#include "viewer/Painter.h"
 #include <QOpenGLBuffer>
 #include <QMatrix4x4>
 

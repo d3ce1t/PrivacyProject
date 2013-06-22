@@ -19,16 +19,13 @@ const QVector3D DepthFramePainter::m_colors[5] = {
     QVector3D(0.0, 1.0, 1.0)
 };
 
-DepthFramePainter::DepthFramePainter(StreamInstance *instance, InstanceViewer *parent)
-    : ViewerPainter(instance, parent)
+DepthFramePainter::DepthFramePainter(StreamInstance* instance, InstanceViewer *parent)
+    : Painter(instance, parent)
 {
-    if (instance->getType() != StreamInstance::Depth) {
-        std::cerr << "Invalid instance type" << std::endl;
+    if (instance->getType() != StreamInstance::Depth)
         throw 1;
-    }
 
     m_shaderProgram = NULL;
-    m_isFrameAvailable = false;
 }
 
 DepthFramePainter::~DepthFramePainter()
@@ -37,8 +34,6 @@ DepthFramePainter::~DepthFramePainter()
         delete m_shaderProgram;
         m_shaderProgram = NULL;
     }
-
-    m_isFrameAvailable = false;
 }
 
 void DepthFramePainter::initialise()
@@ -47,37 +42,13 @@ void DepthFramePainter::initialise()
     prepareShaderProgram();
 }
 
-bool DepthFramePainter::prepareNext()
-{
-    bool result = false;
-
-    if (m_instance != NULL && m_instance->hasNext())
-    {
-        DepthFrame& depthFrame = (DepthFrame&) m_instance->nextFrame();
-        m_frame = &depthFrame;
-        DepthFrame::calculateHistogram(m_pDepthHist, depthFrame);
-        m_isFrameAvailable = true;
-        result = true;
-    }
-    else if (m_instance != NULL)
-    {
-        m_instance->close();
-        qDebug() << "Closed";
-    }
-
-    return result;
-}
-
 DepthFrame& DepthFramePainter::frame()
 {
-    return *m_frame;
+    return (DepthFrame&) m_instance->frame();
 }
 
 void DepthFramePainter::render()
 {
-    if (!m_isFrameAvailable)
-        return;
-
     //glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
     //glDisable(GL_DEPTH_TEST);
 
@@ -105,24 +76,28 @@ void DepthFramePainter::render()
     //dseg->execute();
     //float max_cluster = dai::max_element(dseg->getClusterMask(), m_frame.getWidth() * m_frame.getHeight());
 
+    DepthFrame& depthFrame = frame();
+    DepthFrame::calculateHistogram(m_pDepthHist, depthFrame);
+
     // Bind Shader
     m_shaderProgram->bind();
 
-    float* vertex = new float[m_frame->getNumOfNonZeroPoints() * 3];
-    float* color = new float[m_frame->getNumOfNonZeroPoints() * 3];
-
+    float* vertex = new float[depthFrame.getNumOfNonZeroPoints() * 3];
+    float* color = new float[depthFrame.getNumOfNonZeroPoints() * 3];
     int offset = 0;
 
-    for (int y = 0; y < m_frame->getHeight(); ++y)
+    for (int y = 0; y < depthFrame.getHeight(); ++y)
     {
-        for (int x = 0; x < m_frame->getWidth(); ++x)
+        for (int x = 0; x < depthFrame.getWidth(); ++x)
         {
-            float distance = m_frame->getItem(y, x);
+            float distance = depthFrame.getItem(y, x);
+
+            //qDebug() << m_frame.getNumOfNonZeroPoints();
 
             if (distance > 0)
             {                
-                float normX = DataInstance::normalise(x, 0, m_frame->getWidth()-1, -1, 1);
-                float normY = DataInstance::normalise(y, 0, m_frame->getHeight()-1, -1, 1);
+                float normX = DataInstance::normalise(x, 0, depthFrame.getWidth()-1, -1, 1);
+                float normY = DataInstance::normalise(y, 0, depthFrame.getHeight()-1, -1, 1);
                 //float norm_color = DataInstance::normalise(distance, min_distance, max_distance, 0, 0.83);
 
                 vertex[offset] = normX;
@@ -140,7 +115,7 @@ void DepthFramePainter::render()
                 }*/
                 /*else {*/
 
-                short int label = m_frame->getLabel(y, x);
+                short int label = depthFrame.getLabel(y, x);
 
                 if (label == 0) {
                     color[offset] = m_pDepthHist[distance];
@@ -164,7 +139,7 @@ void DepthFramePainter::render()
     m_shaderProgram->enableAttributeArray(m_posAttr);
     m_shaderProgram->enableAttributeArray(m_colorAttr);
 
-    glDrawArrays(GL_POINTS, m_posAttr, m_frame->getNumOfNonZeroPoints());
+    glDrawArrays(GL_POINTS, m_posAttr, depthFrame.getNumOfNonZeroPoints());
 
     // Release
     m_shaderProgram->disableAttributeArray(m_colorAttr);

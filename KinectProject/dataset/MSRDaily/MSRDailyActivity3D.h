@@ -1,7 +1,7 @@
 #ifndef MSRDAILYACT3D_H
 #define MSRDAILYACT3D_H
 
-#include "Dataset.h"
+#include "dataset/Dataset.h"
 #include "MSRDailyDepthInstance.h"
 #include "MSRDailySkeletonInstance.h"
 #include <iostream>

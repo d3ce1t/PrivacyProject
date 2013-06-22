@@ -77,7 +77,7 @@ bool OpenNIDepthInstance::hasNext() const
     return true;
 }
 
-const DepthFrame& OpenNIDepthInstance::nextFrame()
+void OpenNIDepthInstance::readNextFrame()
 {
     // Read Depth Frame
     m_currentFrame.setIndex(m_frameIndex);
@@ -112,7 +112,6 @@ const DepthFrame& OpenNIDepthInstance::nextFrame()
     }
 
     m_frameIndex++;
-    return m_currentFrame;
 }
 
 DepthFrame& OpenNIDepthInstance::frame()

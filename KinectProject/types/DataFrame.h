@@ -1,6 +1,8 @@
 #ifndef DATAFRAME_H
 #define DATAFRAME_H
 
+#include <QList>
+
 namespace dai {
 
 class DataFrame
@@ -17,6 +19,8 @@ public:
 protected:
     int m_index;
 };
+
+typedef QList<DataFrame*> DataFrameList;
 
 } // End Namespace
 

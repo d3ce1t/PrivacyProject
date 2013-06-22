@@ -79,7 +79,7 @@ bool OpenNIColorInstance::hasNext() const
     return true;
 }
 
-const ColorFrame &OpenNIColorInstance::nextFrame()
+void OpenNIColorInstance::readNextFrame()
 {
     openni::VideoFrameRef colorFrame = m_openni->readColorFrame();
 
@@ -115,7 +115,6 @@ const ColorFrame &OpenNIColorInstance::nextFrame()
     }
 
     m_frameIndex++;
-    return m_currentFrame;
 }
 
 ColorFrame& OpenNIColorInstance::frame()

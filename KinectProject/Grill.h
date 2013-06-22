@@ -1,7 +1,7 @@
 #ifndef GRILL_H
 #define GRILL_H
 
-#include "viewer/ViewerPainter.h"
+#include "viewer/Painter.h"
 #include <QOpenGLBuffer>
 #include <QMatrix4x4>
 

@@ -3,8 +3,8 @@
 
 #include <iostream>
 #include <fstream>
-#include "DataInstance.h"
-#include "../types/ColorFrame.h"
+#include "dataset/DataInstance.h"
+#include "types/ColorFrame.h"
 #include <stdint.h>
 
 using namespace std;
@@ -21,20 +21,20 @@ public:
 
     explicit DAIColorInstance(const InstanceInfo& info);
     virtual ~DAIColorInstance();
-    void open();
-    void close();
-    int getTotalFrames() const;
-    bool hasNext() const;
-    const ColorFrame& nextFrame();
-    ColorFrame& frame();
+    bool is_open() const Q_DECL_OVERRIDE;
+    void open() Q_DECL_OVERRIDE;
+    void close() Q_DECL_OVERRIDE;
+    ColorFrame& frame() Q_DECL_OVERRIDE;
+
+protected:
+    void nextFrame(DataFrame& frame) Q_DECL_OVERRIDE;
+    void restart() Q_DECL_OVERRIDE;
 
 private:
     ifstream    m_file;
-    int         m_nFrames;
     int         m_width;
     int         m_height;
-    int         m_frameIndex;
-    ColorFrame  m_currentFrame;
+    ColorFrame  m_frameBuffer[2];
 };
 
 } // End Namespace

@@ -1,7 +1,7 @@
 #ifndef SKELETON_PAINTER_H
 #define SKELETON_PAINTER_H
 
-#include "ViewerPainter.h"
+#include "Painter.h"
 #include <QMatrix4x4>
 #include <QObject>
 #include <QOpenGLBuffer>
@@ -16,12 +16,11 @@ class QOpenGLShaderProgram;
 
 namespace dai {
 
-class SkeletonPainter : public ViewerPainter
+class SkeletonPainter : public Painter
 {
 public:
     explicit SkeletonPainter(StreamInstance* instance, InstanceViewer* parent = 0);
     virtual ~SkeletonPainter();
-    bool prepareNext();
     Skeleton& frame();
 
 protected:
@@ -36,8 +35,6 @@ private:
     //void drawQuaternions();
     float colorIntensity(float value);
 
-    bool                    m_isFrameAvailable;
-    Skeleton*               m_skeleton;
     QOpenGLShaderProgram*   m_shaderProgram;
     GLuint                  m_posAttr;
     GLuint                  m_colorAttr; // Texture coord in the shader

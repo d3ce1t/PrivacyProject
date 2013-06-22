@@ -13,24 +13,23 @@ class InstanceViewer;
 
 namespace dai {
 
-class ViewerPainter
+class Painter
 {
 public:
-    explicit ViewerPainter(StreamInstance *instance, InstanceViewer* parent = 0);
-    virtual ~ViewerPainter();
-    virtual bool prepareNext() = 0;
+    explicit Painter(StreamInstance* instance, InstanceViewer* parent = 0);
+    virtual ~Painter();
     void setMatrix(QMatrix4x4& m_matrix);
     void renderNow();
-    StreamInstance& instance() const;
     virtual DataFrame& frame() = 0;
+    StreamInstance*   instance() const;
 
 protected:
     virtual void initialise() = 0;
     virtual void render() = 0;
 
     QMatrix4x4              m_matrix;
-    StreamInstance*         m_instance;
     InstanceViewer*         m_viewer;
+    StreamInstance*         m_instance;
 
 private:
     bool                    m_initialised;

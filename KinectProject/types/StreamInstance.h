@@ -19,9 +19,11 @@ public:
     StreamInstance();
     virtual ~StreamInstance();
     virtual bool hasNext() const = 0;
+    virtual bool is_open() const = 0;
     virtual void open() = 0;
     virtual void close() = 0;
-    virtual const DataFrame& nextFrame() = 0;
+    virtual void restart() = 0;
+    virtual void readNextFrame() = 0;
     virtual DataFrame& frame() = 0;
     StreamType getType() const;
     const QString& getTitle() const;

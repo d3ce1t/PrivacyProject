@@ -288,6 +288,8 @@ DatasetMetadata* DatasetMetadata::load(QString xmlPath)
                     type = InstanceInfo::Color;
                 else if (strType == "skeleton")
                     type = InstanceInfo::Skeleton;
+                else
+                    type = InstanceInfo::Uninitialised;
 
                 InstanceInfo* instanceInfo = new InstanceInfo(type);
                 instanceInfo->setActivity(activity);

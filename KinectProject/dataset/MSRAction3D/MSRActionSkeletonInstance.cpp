@@ -9,14 +9,18 @@ namespace dai {
 MSRActionSkeletonInstance::MSRActionSkeletonInstance(const InstanceInfo& info)
     : DataInstance(info)
 {
-    m_nFrames = 0;
-    m_frameIndex = 0;
+    DataInstance::initFrameBuffer(&m_frameBuffer[0], &m_frameBuffer[1]);
     m_nJoints = 0;
 }
 
 MSRActionSkeletonInstance::~MSRActionSkeletonInstance()
 {
     close();
+}
+
+bool MSRActionSkeletonInstance::is_open() const
+{
+    return m_file.is_open();
 }
 
 void MSRActionSkeletonInstance::open()
@@ -49,6 +53,7 @@ void MSRActionSkeletonInstance::open()
         depthFile.close();
 
         m_nJoints = 20;
+        m_frameIndex = 0;
     }
 }
 
@@ -57,74 +62,48 @@ void MSRActionSkeletonInstance::close()
     if (m_file.is_open()) {
         m_file.close();
     }
-
-    m_nFrames = 0;
-    m_frameIndex = 0;
-    m_nJoints = 0;
 }
 
-int MSRActionSkeletonInstance::getTotalFrames() const
+void MSRActionSkeletonInstance::restart()
 {
-    return m_nFrames;
-}
-
-bool MSRActionSkeletonInstance::hasNext() const
-{
-    if (m_file.is_open() && (m_frameIndex < m_nFrames || m_playLoop))
-        return true;
-
-    return false;
-}
-
-const Skeleton &MSRActionSkeletonInstance::nextFrame()
-{
-    if (m_playLoop) {
-        if (m_frameIndex == m_nFrames) {
-            m_frameIndex = 0;
-            m_file.seekg(0, ios_base::beg);
-        }
+    if (m_file.is_open()) {
+        m_frameIndex = 0;
+        m_file.seekg(0, ios_base::beg);
     }
+}
 
-    if (m_frameIndex < m_nFrames)
+void MSRActionSkeletonInstance::nextFrame(DataFrame &frame)
+{
+    dai::Skeleton& skeleton = (dai::Skeleton&) frame;
+    skeleton.clear();
+
+    // Read Data from File
+    int nRows = m_nJoints;
+
+    for (int i=0; i<nRows; ++i)
     {
-        m_currentFrame.clear();
-        m_currentFrame.setIndex(m_frameIndex);
+        float w_x, w_y, w_z; // World Coordinates
+        float w_confidence;
 
-        // Read Data from File
-        int nRows = m_nJoints;
+        // First Row
+        m_file >> w_x;
+        m_file >> w_y;
+        m_file >> w_z;
+        m_file >> w_confidence;
 
-        for (int i=0; i<nRows; ++i)
-        {
-            float w_x, w_y, w_z; // World Coordinates
-            float w_confidence;
-
-            // First Row
-            m_file >> w_x;
-            m_file >> w_y;
-            m_file >> w_z;
-            m_file >> w_confidence;
-
-            SkeletonJoint& joint = m_currentFrame.getJoint(convertIntToType(i));
-            joint.setPosition(Point3f(w_x, w_y, w_z));
-            joint.setType(convertIntToType(i));
-        }
-
-        // Normalise Depth. I assume is between 0 and 10 meters. But I don't know.
-        m_currentFrame.normaliseDepth(0, 10, 0, 1);
-        m_currentFrame.computeQuaternions();
-
-        m_frameIndex++;
-    }
-    else {
-        close();
+        SkeletonJoint& joint = skeleton.getJoint(convertIntToType(i));
+        joint.setPosition(Point3f(w_x, w_y, w_z));
+        joint.setType(convertIntToType(i));
     }
 
-    return m_currentFrame;
+    // Normalise Depth. I assume is between 0 and 10 meters. But I don't know.
+    skeleton.normaliseDepth(0, 10, 0, 1);
+    skeleton.computeQuaternions();
 }
 
-Skeleton& MSRActionSkeletonInstance::frame()
+dai::Skeleton& MSRActionSkeletonInstance::frame()
 {
-    return m_currentFrame;
+    return (dai::Skeleton&) DataInstance::frame();
 }
 
 SkeletonJoint::JointType MSRActionSkeletonInstance::convertIntToType(int value)

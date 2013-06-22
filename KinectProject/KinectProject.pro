@@ -4,7 +4,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = KinectProject
 
 HEADERS += \
-    dataset/MSR3Action3D.h \
+    dataset/MSRAction3D/MSR3Action3D.h \
     dataset/InstanceInfo.h \
     Grill.h \
     HistogramScene.h \
@@ -14,14 +14,13 @@ HEADERS += \
     exceptions/NotSupportedDatasetException.h \
     DatasetBrowser.h \
     dataset/DatasetMetadata.h \
-    dataset/MSRDailyActivity3D.h \
+    dataset/MSRDaily/MSRDailyActivity3D.h \
     InstanceWidgetItem.h \
     dataset/DataInstance.h \
     viewer/DepthFramePainter.h \
-    dataset/MSRDailyDepthInstance.h \
-    viewer/ViewerPainter.h \
+    dataset/MSRDaily/MSRDailyDepthInstance.h \
     viewer/InstanceViewer.h \
-    dataset/MSRDailySkeletonInstance.h \
+    dataset/MSRDaily/MSRDailySkeletonInstance.h \
     types/SkeletonJoint.h \
     types/Skeleton.h \
     types/Point3f.h \
@@ -30,8 +29,8 @@ HEADERS += \
     types/ColorFrame.h \
     viewer/SkeletonPainter.h \
     viewer/ColorFramePainter.h \
-    dataset/MSRActionDepthInstance.h \
-    dataset/MSRActionSkeletonInstance.h \
+    dataset/MSRAction3D/MSRActionDepthInstance.h \
+    dataset/MSRAction3D/MSRActionSkeletonInstance.h \
     types/Quaternion.h \
     viewer/CustomItem.h \
     types/StreamInstance.h \
@@ -39,19 +38,22 @@ HEADERS += \
     KMeans.h \
     Utils.h \
     DepthSeg.h \
-    dataset/DAIDataset.h \
-    dataset/DAIDepthInstance.h \
+    dataset/DAI/DAIDataset.h \
+    dataset/DAI/DAIDepthInstance.h \
     exceptions/NotImplementedException.h \
     openni/OpenNIColorInstance.h \
     types/GenericFrame.h \
     openni/OpenNIListener.h \
     openni/OpenNIRuntime.h \
-    dataset/DAIColorInstance.h \
+    dataset/DAI/DAIColorInstance.h \
     types/Vector3D.h \
-    filters/BasicFilter.h
+    filters/BasicFilter.h \
+    viewer/Painter.h \
+    viewer/PlaybackControl.h \
+    viewer/PlaybackWorker.h
 
 SOURCES += \
-    dataset/MSR3Action3D.cpp \
+    dataset/MSRAction3D/MSR3Action3D.cpp \
     dataset/InstanceInfo.cpp \
     Grill.cpp \
     HistogramScene.cpp \
@@ -60,13 +62,13 @@ SOURCES += \
     MainWindow.cpp \
     DatasetBrowser.cpp \
     dataset/DatasetMetadata.cpp \
-    dataset/MSRDailyActivity3D.cpp \
+    dataset/MSRDaily/MSRDailyActivity3D.cpp \
     InstanceWidgetItem.cpp \
     dataset/DataInstance.cpp \
     viewer/DepthFramePainter.cpp \
-    dataset/MSRDailyDepthInstance.cpp \
+    dataset/MSRDaily/MSRDailyDepthInstance.cpp \
     viewer/InstanceViewer.cpp \
-    dataset/MSRDailySkeletonInstance.cpp \
+    dataset/MSRDaily/MSRDailySkeletonInstance.cpp \
     types/SkeletonJoint.cpp \
     types/Skeleton.cpp \
     types/Point3f.cpp \
@@ -74,24 +76,26 @@ SOURCES += \
     types/DataFrame.cpp \
     types/ColorFrame.cpp \
     viewer/SkeletonPainter.cpp \
-    viewer/ViewerPainter.cpp \
     viewer/ColorFramePainter.cpp \
-    dataset/MSRActionDepthInstance.cpp \
-    dataset/MSRActionSkeletonInstance.cpp \
+    dataset/MSRAction3D/MSRActionDepthInstance.cpp \
+    dataset/MSRAction3D/MSRActionSkeletonInstance.cpp \
     types/Quaternion.cpp \
     viewer/CustomItem.cpp \
     types/StreamInstance.cpp \
     openni/OpenNIDepthInstance.cpp \
     KMeans.cpp \
     DepthSeg.cpp \
-    dataset/DAIDataset.cpp \
-    dataset/DAIDepthInstance.cpp \
+    dataset/DAI/DAIDataset.cpp \
+    dataset/DAI/DAIDepthInstance.cpp \
     openni/OpenNIColorInstance.cpp \
     openni/OpenNIListener.cpp \
     openni/OpenNIRuntime.cpp \
-    dataset/DAIColorInstance.cpp \
+    dataset/DAI/DAIColorInstance.cpp \
     types/Vector3D.cpp \
-    filters/BasicFilter.cpp
+    filters/BasicFilter.cpp \
+    viewer/Painter.cpp \
+    viewer/PlaybackControl.cpp \
+    viewer/PlaybackWorker.cpp
 
 RESOURCES += openglunderqml.qrc
 

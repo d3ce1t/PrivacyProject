@@ -3,16 +3,18 @@
 #include "viewer/InstanceViewer.h"
 #include "dataset/Dataset.h"
 #include <QDebug>
-#include "dataset/MSR3Action3D.h"
-#include "dataset/DAIDataset.h"
+#include "dataset/MSRAction3D/MSR3Action3D.h"
+#include "dataset/DAI/DAIDataset.h"
 #include "openni/OpenNIDepthInstance.h"
 #include "openni/OpenNIColorInstance.h"
 #include "types/DepthFrame.h"
+#include "viewer/PlaybackControl.h"
 #include "filters/BasicFilter.h"
 #include "KMeans.h"
 #include "DepthSeg.h"
 #include <fstream>
 #include <iostream>
+#include "types/DataFrame.h"
 
 using namespace std;
 
@@ -38,7 +40,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_clicked()
 {
-    dai::BasicFilter* filter = new dai::BasicFilter;
+    /*dai::BasicFilter* filter = new dai::BasicFilter;
 
     // Show color instance
     InstanceViewer* colorViewer = new InstanceViewer;
@@ -60,7 +62,7 @@ void MainWindow::on_pushButton_clicked()
     //depthInstance->setOutputFile("/ramfs/jose/capture.bin");
     //depthViewer->show();
     //depthViewer->play(depthInstance, false);
-    colorViewer->play(depthInstance, false);
+    colorViewer->play(depthInstance, false);*/
 }
 
 void MainWindow::viewerClosed(InstanceViewer *viewer)
@@ -117,7 +119,8 @@ void MainWindow::on_pushButton_3_clicked()
 
         while (dataInstance->hasNext() && of.is_open())
         {
-            const dai::Skeleton& skeletonFrame = dataInstance->nextFrame();
+            dataInstance->readNextFrame();
+            const dai::Skeleton& skeletonFrame = dataInstance->frame();
 
             of << (skeletonFrame.getIndex() + 1) << endl;
 
@@ -150,26 +153,38 @@ void MainWindow::on_pushButton_4_clicked()
     dai::DAIColorInstance* colorInstance = dataset->getColorInstance(1, 1, 1);
     dai::DAIDepthInstance* depthInstance = dataset->getDepthInstance(1, 1, 1);
 
-    colorInstance->setPlayLoop(true);
-    depthInstance->setPlayLoop(true);
+    qRegisterMetaType<dai::DataFrameList>("DataFrameList");
 
-    qRegisterMetaType<DataFrameList>("DataFrameList");
+    dai::PlaybackControl* playback = new dai::PlaybackControl;
+    playback->addInstance(colorInstance);
+    playback->addInstance(depthInstance);
+    //playback->enablePlayLoop(true);
 
     // Show color instance
-    dai::BasicFilter* filter = new dai::BasicFilter;
-    InstanceViewer* colorViewer = new InstanceViewer;
-    connect(colorViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
-    connect(colorViewer, SIGNAL(beforeDisplaying(DataFrameList,InstanceViewer*)), filter, SLOT(processFrame(DataFrameList,InstanceViewer*)), Qt::DirectConnection);
-    colorViewer->show();
-    colorViewer->translateAxisZ(0.2);
-    colorViewer->play(colorInstance, false);
-    colorViewer->play(depthInstance, false);
+    //dai::BasicFilter* filter = new dai::BasicFilter;
+    InstanceViewer* mainViewer = new InstanceViewer;
+    connect(mainViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
+    //connect(colorViewer, SIGNAL(beforeDisplaying(DataFrameList,InstanceViewer*)), filter, SLOT(processFrame(DataFrameList,InstanceViewer*)), Qt::DirectConnection);
+    mainViewer->addInstance(colorInstance);
+    mainViewer->addInstance(depthInstance);
+    mainViewer->setPlayback(playback);
 
     // Show depth instance
-    /*InstanceViewer* depthViewer = new InstanceViewer;
+    InstanceViewer* depthViewer = new InstanceViewer;
     connect(depthViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
+    depthViewer->addInstance(depthInstance);
+    depthViewer->setPlayback(playback);
+
+    // Show color instance
+    InstanceViewer* colorViewer = new InstanceViewer;
+    connect(colorViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
+    colorViewer->addInstance(colorInstance);
+    colorViewer->setPlayback(playback);
+
+    playback->play();
+    mainViewer->show();
     depthViewer->show();
-    depthViewer->play(depthInstance, false);*/
+    colorViewer->show();
 }
 
 void MainWindow::testSegmentation()
