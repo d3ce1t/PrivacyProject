@@ -9,8 +9,10 @@
 
 namespace dai {
 
-class PlaybackControl
+class PlaybackControl : public QObject
 {
+    Q_OBJECT
+
     friend class PlaybackWorker;
 
 public:
@@ -34,20 +36,22 @@ public:
     void removeListener(PlaybackListener* listener, StreamInstance* instance);
     void removeAllListeners(PlaybackListener* listener);
 
-private:
-    void notifySuscribers(QList<StreamInstance*> notChangedInstances);
+private slots:
     void doWork();
 
-    PlaybackWorker                                    m_worker;
-    QMutex                                            m_lockToken;
+private:
+    void notifySuscribers(QList<StreamInstance*> notChangedInstances);
+
+    PlaybackWorker*                                   m_worker;
+    QMutex                                            m_lockViewers;
     int                                               m_viewers;
     QList<StreamInstance*>                            m_instances;
     bool                                              m_playloop_enabled;
     QHash<QObject*, int>                              m_usedTokens;
-    QHash<PlaybackListener*, QList<StreamInstance*>*> m_listenersAux;
+    QHash<PlaybackListener*, QList<StreamInstance*>*> m_listeners;
+    QHash<StreamInstance*, QList<PlaybackListener*>*> m_listenersAux;
     QMutex                                            m_lockListeners;
 };
-
 
 
 } // End namespace

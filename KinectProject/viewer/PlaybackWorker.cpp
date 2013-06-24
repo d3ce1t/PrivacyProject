@@ -33,7 +33,8 @@ void PlaybackWorker::run()
             m_lastTime = timeNow;
 
             // Do job
-            m_parent->doWork();
+            QMetaObject::invokeMethod(m_parent, "doWork", Qt::AutoConnection);
+            //m_parent->doWork();
 
             // Wait
             m_mutex.lock();
@@ -50,6 +51,7 @@ void PlaybackWorker::stop()
 {
     m_running = false;
     sync();
+    qDebug() << "PlaybackControl::stop()";
 }
 
 void PlaybackWorker::sync()

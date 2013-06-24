@@ -7,34 +7,42 @@
 namespace dai {
 
 PlaybackControl::PlaybackControl()
-    : m_worker(this)
 {
     srand(time(NULL));
     m_playloop_enabled = false;
-    m_lockToken.lock();
+    m_lockViewers.lock();
     m_viewers = 0;
-    m_lockToken.unlock();
+    m_lockViewers.unlock();
+    m_worker = NULL;
 }
 
 PlaybackControl::~PlaybackControl()
 {
     this->stop();
+    foreach (StreamInstance* instance, m_instances) {
+        delete instance;
+    }
     m_instances.clear();
+    m_listeners.clear();
+    m_listenersAux.clear();
+    m_worker = NULL;
 }
 
 void PlaybackControl::stop()
 {
     QListIterator<StreamInstance*> it(m_instances);
-    m_worker.stop();
-    m_worker.wait(5000);
+    m_worker->stop();
+    m_worker->wait(5000);
+    delete m_worker;
+    m_worker = NULL;
 
     while (it.hasNext()) {
         StreamInstance* instance = it.next();
-        instance->close();
-        qDebug() << "Close";
+        if (instance->is_open()) {
+            instance->close();
+            qDebug() << "Close";
+        }
     }
-
-    qDebug() << "PlaybackControl::stop()";
 }
 
 void PlaybackControl::play(bool restartAll)
@@ -54,47 +62,56 @@ void PlaybackControl::play(bool restartAll)
     }
 
     // Start playback worker (if already running it does nothing)
-    m_worker.start();
+    if (m_worker == NULL) {
+        m_worker = new PlaybackWorker(this);
+    }
+
+    m_worker->start();
 }
 
 void PlaybackControl::doWork()
 {
     QList<StreamInstance*> instances = m_instances; // implicit sharing
-    QListIterator<StreamInstance*> it(instances);
-    QList<StreamInstance*> instanceList;
+    QList<StreamInstance*> notChangedInstances;
     bool frameAvailable = false;
 
-    while (it.hasNext())
+    foreach (StreamInstance* instance, instances)
     {
-        StreamInstance* instance = it.next();
-
         if (instance->is_open())
         {
-            if (!instance->hasNext() && m_playloop_enabled)
-                instance->restart();
-
-            if (instance->hasNext()) {
-                instance->readNextFrame();
-                frameAvailable = true;
-            } else {
+            // Not suscribers
+            if (!m_listenersAux.contains(instance)) {
                 instance->close();
-                instanceList << instance;
-                qDebug() << "Closed";
+                notChangedInstances << instance;
+                m_instances.removeOne(instance);
+                qDebug() << "Closed (not suscribers)";
+            }
+            else {
+                if (!instance->hasNext() && m_playloop_enabled)
+                    instance->restart();
+
+                if (instance->hasNext()) {
+                    instance->readNextFrame();
+                    frameAvailable = true;
+                } else {
+                    instance->close();
+                    notChangedInstances << instance;
+                    qDebug() << "Closed";
+                }
             }
         }
     }
 
     if (frameAvailable) {
-        notifySuscribers(instanceList);
-
+        notifySuscribers(notChangedInstances);
     } else {
-        m_worker.stop();
+        this->stop();
     }
 }
 
 int PlaybackControl::acquire(QObject* caller)
 {
-    QMutexLocker locker(&m_lockToken);
+    QMutexLocker locker(&m_lockViewers);
     m_viewers++;
     int token = rand();
     m_usedTokens.insert(caller, token);
@@ -103,12 +120,12 @@ int PlaybackControl::acquire(QObject* caller)
 
 void PlaybackControl::release(QObject* caller, int token)
 {
-    QMutexLocker locker(&m_lockToken);
+    QMutexLocker locker(&m_lockViewers);
     if (m_usedTokens.value(caller) == token) {
         m_usedTokens.remove(caller);
         m_viewers--;
         if (m_viewers == 0)
-            m_worker.sync();
+            m_worker->sync();
     }
 }
 
@@ -117,44 +134,91 @@ void PlaybackControl::addNewFrameListener(PlaybackListener* listener, StreamInst
     QMutexLocker locker(&m_lockListeners);
     QList<StreamInstance*>* instanceList = NULL;
 
-    if (!m_listenersAux.contains(listener)) {
+    // Listeners
+    if (!m_listeners.contains(listener)) {
         instanceList = new QList<StreamInstance*>;
-        m_listenersAux.insert(listener, instanceList);
+        m_listeners.insert(listener, instanceList);
     } else {
-        instanceList = m_listenersAux.value(listener);
+        instanceList = m_listeners.value(listener);
     }
 
     *instanceList << instance;
+
+    // Instances
+    QList<PlaybackListener*>* listenerList = NULL;
+
+    if (!m_listenersAux.contains(instance)) {
+        listenerList = new QList<PlaybackListener*>;
+        m_listenersAux.insert(instance, listenerList);
+    } else {
+        listenerList = m_listenersAux.value(instance);
+    }
+
+    *listenerList << listener;
 }
 
 void PlaybackControl::removeListener(PlaybackListener* listener, StreamInstance* instance)
 {
     QMutexLocker locker(&m_lockListeners);
 
-    if (m_listenersAux.contains(listener)) {
-        QList<StreamInstance*>* instanceList = m_listenersAux.value(listener);
+    if (m_listeners.contains(listener)) {
+        QList<StreamInstance*>* instanceList = m_listeners.value(listener);
         instanceList->removeOne(instance);
+    }
+
+    if (m_listenersAux.contains(instance)) {
+        QList<PlaybackListener*>* listenerList = m_listenersAux.value(instance);
+        if (listenerList->contains(listener)) {
+            listenerList->removeOne(listener);
+        }
+        if (listenerList->isEmpty()) {
+            m_listenersAux.remove(instance);
+        }
     }
 }
 
 void PlaybackControl::removeAllListeners(PlaybackListener* listener)
 {
     QMutexLocker locker(&m_lockListeners);
-    if (m_listenersAux.contains(listener)) {
-        QList<StreamInstance*>* instanceList = m_listenersAux.value(listener);
+
+    if (m_listeners.contains(listener)) {
+        QList<StreamInstance*>* instanceList = m_listeners.value(listener);
         instanceList->clear();
         delete instanceList;
-        m_listenersAux.remove(listener);
+        m_listeners.remove(listener);
     }
+
+    QHashIterator<StreamInstance*, QList<PlaybackListener*>*> it(m_listenersAux);
+    QList<StreamInstance*> removeInstances;
+
+    while (it.hasNext()) {
+        it.next();
+        StreamInstance* instance = it.key();
+        QList<PlaybackListener*>* listenerList = it.value();
+
+        if (listenerList->contains(listener)) {
+            listenerList->removeOne(listener);
+        }
+
+        if (listenerList->isEmpty()) {
+            removeInstances << instance;
+        }
+    }
+
+    foreach (StreamInstance* instance, removeInstances) {
+        m_listenersAux.remove(instance);
+    }
+
+    removeInstances.clear();
 }
 
 void PlaybackControl::notifySuscribers(QList<StreamInstance*> notChangedInstances)
 {
     QMutexLocker locker(&m_lockListeners);
 
-    foreach (PlaybackListener* listener, m_listenersAux.keys())
+    foreach (PlaybackListener* listener, m_listeners.keys())
     {
-        QList<StreamInstance*>* instanceList = m_listenersAux.value(listener);
+        QList<StreamInstance*>* instanceList = m_listeners.value(listener);
         foreach (StreamInstance* instance, notChangedInstances) {
             instanceList->removeOne(instance);
         }
@@ -170,7 +234,7 @@ void PlaybackControl::notifySuscribers(QList<StreamInstance*> notChangedInstance
 
 float PlaybackControl::getFPS() const
 {
-    return m_worker.getFPS();
+    return m_worker->getFPS();
 }
 
 void PlaybackControl::addInstance(StreamInstance* instance)
