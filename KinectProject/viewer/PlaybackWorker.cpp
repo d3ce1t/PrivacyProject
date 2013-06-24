@@ -8,6 +8,7 @@ PlaybackWorker::PlaybackWorker(PlaybackControl* parent)
     : SLEEP_TIME(70)
 {
     m_parent = parent;
+    m_running = false;
 }
 
 void PlaybackWorker::run()
@@ -16,8 +17,9 @@ void PlaybackWorker::run()
     m_fps = 0;
     m_lastTime = 0;
     m_time.start();
+    m_running = true;
 
-    while (true)
+    while (m_running)
     {
         // Compute time since last update
         qint64 timeNow = m_time.elapsed();
@@ -42,6 +44,12 @@ void PlaybackWorker::run()
             this->msleep(SLEEP_TIME - diffTime);
         }
     }
+}
+
+void PlaybackWorker::stop()
+{
+    m_running = false;
+    sync();
 }
 
 void PlaybackWorker::sync()

@@ -15,8 +15,9 @@ namespace dai {
 class DepthFramePainter : public Painter
 {
 public:
-    DepthFramePainter(StreamInstance *instance, InstanceViewer* parent = 0);
+    DepthFramePainter(InstanceViewer* parent);
     virtual ~DepthFramePainter();
+    void prepareData(DataFrame* frame);
     DepthFrame& frame();
 
 protected:
@@ -26,6 +27,7 @@ protected:
 private:
     void prepareShaderProgram();
 
+    DepthFrame*             m_frame;
     const static QVector3D  m_colors[5];
     QMap<float, float>      m_pDepthHist;
     QOpenGLShaderProgram*   m_shaderProgram;

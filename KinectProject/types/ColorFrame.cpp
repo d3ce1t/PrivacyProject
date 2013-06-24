@@ -3,11 +3,12 @@
 namespace dai {
 
 ColorFrame::ColorFrame()
+    : GenericFrame<RGBAColor>(DataFrame::Color)
 {
 }
 
 ColorFrame::ColorFrame(int width, int height)
-    : GenericFrame<RGBAColor>(width, height)
+    : GenericFrame<RGBAColor>(width, height, DataFrame::Color)
 {
 }
 

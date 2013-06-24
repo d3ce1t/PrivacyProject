@@ -10,7 +10,7 @@ BasicFilter::BasicFilter()
 {
 }
 
-void BasicFilter::processFrame(DataFrameList framesList, InstanceViewer* viewer)
+/*void BasicFilter::processFrame(dai::DataFrameList framesList, InstanceViewer* viewer)
 {
     Q_UNUSED(viewer);
 
@@ -41,8 +41,7 @@ void BasicFilter::processFrame(DataFrameList framesList, InstanceViewer* viewer)
             }
         }
     }
-}
-
+}*/
 void BasicFilter::dilateUserMask(short int* labels)
 {
     cv::Mat newImag(480, 640, cv::DataType<short int>::type, labels);

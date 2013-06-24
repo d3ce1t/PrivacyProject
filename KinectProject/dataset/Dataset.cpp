@@ -5,6 +5,7 @@ namespace dai {
 Dataset::Dataset(QString path)
 {
     m_metadata = DatasetMetadata::load(path);
+    m_metadata->setDataset(this);
 }
 
 Dataset::~Dataset()
@@ -20,17 +21,17 @@ const DatasetMetadata& Dataset::getMetadata() const
     return *m_metadata;
 }
 
-DataInstance* Dataset::getSkeletonInstance(InstanceInfo info)
+DataInstance* Dataset::getSkeletonInstance(InstanceInfo info) const
 {
     return getSkeletonInstance(info.getActivity(), info.getActor(), info.getSample());
 }
 
-DataInstance* Dataset::getDepthInstance(InstanceInfo info)
+DataInstance* Dataset::getDepthInstance(InstanceInfo info) const
 {
     return getDepthInstance(info.getActivity(), info.getActor(), info.getSample());
 }
 
-DataInstance* Dataset::getColorInstance(InstanceInfo info)
+DataInstance* Dataset::getColorInstance(InstanceInfo info) const
 {
     return getColorInstance(info.getActivity(), info.getActor(), info.getSample());
 }

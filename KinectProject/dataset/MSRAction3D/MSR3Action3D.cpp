@@ -8,7 +8,7 @@ MSR3Action3D::MSR3Action3D()
 {
 }
 
-MSRActionDepthInstance *MSR3Action3D::getDepthInstance(int activity, int actor, int sample)
+MSRActionDepthInstance *MSR3Action3D::getDepthInstance(int activity, int actor, int sample) const
 {
     MSRActionDepthInstance* result = 0;
     const InstanceInfo instanceInfo = m_metadata->instance(InstanceInfo::Depth, activity, actor, sample);
@@ -16,7 +16,7 @@ MSRActionDepthInstance *MSR3Action3D::getDepthInstance(int activity, int actor, 
     return result;
 }
 
-MSRActionSkeletonInstance* MSR3Action3D::getSkeletonInstance(int activity, int actor, int sample)
+MSRActionSkeletonInstance* MSR3Action3D::getSkeletonInstance(int activity, int actor, int sample) const
 {
     MSRActionSkeletonInstance* result = 0;
     const InstanceInfo instanceInfo = m_metadata->instance(InstanceInfo::Skeleton, activity, actor, sample);
@@ -24,7 +24,7 @@ MSRActionSkeletonInstance* MSR3Action3D::getSkeletonInstance(int activity, int a
     return result;
 }
 
-DataInstance* MSR3Action3D::getColorInstance(int activity, int actor, int sample)
+DataInstance* MSR3Action3D::getColorInstance(int activity, int actor, int sample) const
 {
     const InstanceInfo instanceInfo = m_metadata->instance(InstanceInfo::Skeleton, activity, actor, sample);
     return new DataInstance(instanceInfo);

@@ -6,6 +6,7 @@
 namespace dai {
 
 Skeleton::Skeleton()
+    : DataFrame(DataFrame::Skeleton)
 {
     m_joints[SkeletonJoint::JOINT_HEAD].setType(SkeletonJoint::JOINT_HEAD);
     m_joints[SkeletonJoint::JOINT_CENTER_SHOULDER].setType(SkeletonJoint::JOINT_CENTER_SHOULDER);

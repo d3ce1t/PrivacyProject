@@ -22,13 +22,13 @@ public:
     explicit Dataset(QString path);
     virtual ~Dataset();
     const DatasetMetadata& getMetadata() const;
-    virtual DataInstance* getDepthInstance(int activity, int actor, int sample) = 0;
-    virtual DataInstance* getSkeletonInstance(int activity, int actor, int sample) = 0;
-    virtual DataInstance* getColorInstance(int activity, int actor, int sample) = 0;
+    virtual DataInstance* getDepthInstance(int activity, int actor, int sample) const = 0;
+    virtual DataInstance* getSkeletonInstance(int activity, int actor, int sample) const = 0;
+    virtual DataInstance* getColorInstance(int activity, int actor, int sample) const = 0;
 
-    DataInstance* getSkeletonInstance(InstanceInfo info);
-    DataInstance* getDepthInstance(InstanceInfo info);
-    DataInstance* getColorInstance(InstanceInfo info);
+    DataInstance* getSkeletonInstance(InstanceInfo info) const;
+    DataInstance* getDepthInstance(InstanceInfo info) const;
+    DataInstance* getColorInstance(InstanceInfo info) const;
 
 protected:
     DatasetMetadata* m_metadata;

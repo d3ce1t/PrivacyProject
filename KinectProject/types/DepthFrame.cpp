@@ -7,12 +7,13 @@
 namespace dai {
 
 DepthFrame::DepthFrame()
+    : GenericFrame<float>(DataFrame::Depth)
 {
     m_nNonZeroOfPoints = 0;
 }
 
 DepthFrame::DepthFrame(int width, int height)
-    : GenericFrame<float>(width, height)
+    : GenericFrame<float>(width, height, DataFrame::Depth)
 {
     m_nNonZeroOfPoints = 0;
 }

@@ -1,4 +1,5 @@
 #include "DatasetMetadata.h"
+#include "dataset/Dataset.h"
 #include <QFile>
 #include <QXmlStreamReader>
 #include <iostream>
@@ -291,7 +292,7 @@ DatasetMetadata* DatasetMetadata::load(QString xmlPath)
                 else
                     type = InstanceInfo::Uninitialised;
 
-                InstanceInfo* instanceInfo = new InstanceInfo(type);
+                InstanceInfo* instanceInfo = new InstanceInfo(type, result);
                 instanceInfo->setActivity(activity);
                 instanceInfo->setActor(actor);
                 instanceInfo->setSample(sample);
@@ -332,4 +333,14 @@ DatasetMetadata* DatasetMetadata::load(QString xmlPath)
     file.close();
 
     return result;
+}
+
+void DatasetMetadata::setDataset(Dataset* dataset)
+{
+    m_dataset = dataset;
+}
+
+const Dataset* DatasetMetadata::dataset() const
+{
+    return m_dataset;
 }

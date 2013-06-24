@@ -8,7 +8,7 @@ MSRDailyActivity3D::MSRDailyActivity3D()
 {
 }
 
-MSRDailyDepthInstance *MSRDailyActivity3D::getDepthInstance(int activity, int actor, int sample)
+MSRDailyDepthInstance *MSRDailyActivity3D::getDepthInstance(int activity, int actor, int sample) const
 {
     MSRDailyDepthInstance* result = 0;
     const InstanceInfo instanceInfo = m_metadata->instance(InstanceInfo::Depth, activity, actor, sample);
@@ -16,7 +16,7 @@ MSRDailyDepthInstance *MSRDailyActivity3D::getDepthInstance(int activity, int ac
     return result;
 }
 
-MSRDailySkeletonInstance* MSRDailyActivity3D::getSkeletonInstance(int activity, int actor, int sample)
+MSRDailySkeletonInstance* MSRDailyActivity3D::getSkeletonInstance(int activity, int actor, int sample) const
 {
     MSRDailySkeletonInstance* result = 0;
     const InstanceInfo instanceInfo = m_metadata->instance(InstanceInfo::Skeleton, activity, actor, sample);
@@ -24,7 +24,7 @@ MSRDailySkeletonInstance* MSRDailyActivity3D::getSkeletonInstance(int activity, 
     return result;
 }
 
-DataInstance* MSRDailyActivity3D::getColorInstance(int activity, int actor, int sample)
+DataInstance* MSRDailyActivity3D::getColorInstance(int activity, int actor, int sample) const
 {
     const InstanceInfo instanceInfo = m_metadata->instance(InstanceInfo::Skeleton, activity, actor, sample);
     return new DataInstance(instanceInfo);

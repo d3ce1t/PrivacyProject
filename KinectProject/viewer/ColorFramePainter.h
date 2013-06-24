@@ -13,8 +13,9 @@ namespace dai {
 class ColorFramePainter : public Painter
 {
 public:
-    ColorFramePainter(StreamInstance* instance, InstanceViewer* parent = 0);
+    ColorFramePainter(InstanceViewer* parent);
     virtual ~ColorFramePainter();
+    void prepareData(DataFrame* frame);
     ColorFrame& frame();
 
 protected:
@@ -25,6 +26,7 @@ private:
     void prepareShaderProgram();
     void loadVideoTexture(void *texture, GLsizei width, GLsizei height, GLuint glTextureId);
 
+    ColorFrame*             m_frame;
     const int               textureUnit;
     QOpenGLShaderProgram*   m_shaderProgram;
 

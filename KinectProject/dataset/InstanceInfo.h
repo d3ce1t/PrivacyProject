@@ -5,6 +5,8 @@
 
 namespace dai {
 
+class DatasetMetadata;
+
 class InstanceInfo
 {
 public:
@@ -16,8 +18,8 @@ public:
         Uninitialised
     };
 
-    InstanceInfo();
-    explicit InstanceInfo(InstanceType type);
+    InstanceInfo(DatasetMetadata* parent = NULL);
+    explicit InstanceInfo(InstanceType type, DatasetMetadata* parent = NULL);
     InstanceInfo(const InstanceInfo& other);
     virtual ~InstanceInfo();
 
@@ -28,6 +30,7 @@ public:
     int getSample() const;
     QString getFileName() const;
     QString getDatasetPath() const;
+    const DatasetMetadata* parent() const;
     void setType(InstanceType type);
     void setActivity(int activity);
     void setActor(int actor);
@@ -44,6 +47,7 @@ private:
     int m_sample;
     QString m_file;
     QString m_path;
+    DatasetMetadata* m_parent;
 };
 
 }

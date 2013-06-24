@@ -4,12 +4,10 @@
 
 namespace dai {
 
-ColorFramePainter::ColorFramePainter(StreamInstance *instance, InstanceViewer* parent)
-    : Painter(instance, parent), textureUnit(0)
+ColorFramePainter::ColorFramePainter(InstanceViewer* parent)
+    : Painter(parent), textureUnit(0)
 {
-    if (instance->getType() != StreamInstance::Color)
-        throw 1;
-
+    m_frame = NULL;
     m_shaderProgram = NULL;
 }
 
@@ -19,6 +17,8 @@ ColorFramePainter::~ColorFramePainter()
         delete m_shaderProgram;
         m_shaderProgram = NULL;
     }
+
+    m_frame = NULL;
 }
 
 void ColorFramePainter::initialise()
@@ -32,11 +32,19 @@ void ColorFramePainter::initialise()
 
 ColorFrame& ColorFramePainter::frame()
 {
-    return (ColorFrame&) m_instance->frame();
+    return *m_frame;
+}
+
+void ColorFramePainter::prepareData(DataFrame *frame)
+{
+    m_frame = (ColorFrame*) frame;
 }
 
 void ColorFramePainter::render()
 {
+    if (m_frame == NULL)
+        return;
+
     float vertexData[] = {
         -1.0, 1.0, 0.0,
         1.0, 1.0, 0.0,
@@ -52,8 +60,7 @@ void ColorFramePainter::render()
     };
 
     // Load into GPU
-    ColorFrame& colorFrame = frame();
-    loadVideoTexture((void *) colorFrame.getDataPtr(), colorFrame.getWidth(), colorFrame.getHeight(), m_frameTexture);
+    loadVideoTexture((void *) m_frame->getDataPtr(), m_frame->getWidth(), m_frame->getHeight(), m_frameTexture);
 
     // Render
     glEnable(GL_TEXTURE_2D);

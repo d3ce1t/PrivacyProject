@@ -10,10 +10,12 @@
 namespace dai {
 
 typedef QList<InstanceInfo*> InstanceInfoList;
+class Dataset;
 
 
 class DatasetMetadata
 {
+    friend class Dataset;
 
 public:
     static DatasetMetadata* load(QString xmlPath);
@@ -30,8 +32,11 @@ public:
     const QString& getActivityName(int key) const;
     const QString& getActorName(int key) const;
     const QString& getSampleName(int key) const;
+    const Dataset* dataset() const;
 
 private:
+    void setDataset(Dataset* dataset);
+
     // Private Constructor
     explicit DatasetMetadata();
     void addInstanceInfo(InstanceInfo *instance);
@@ -45,6 +50,7 @@ private:
     QHash<int, QString*> m_activities;
     QHash<int, QString*> m_actors;
     QHash<int, QString*> m_sampleTypes;
+    Dataset*             m_dataset;
 
     /**
      * @brief m_instances

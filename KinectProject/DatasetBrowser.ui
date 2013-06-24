@@ -172,15 +172,12 @@
          </widget>
         </item>
         <item>
-         <widget class="QListWidget" name="listInstances"/>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="checkBoxSameViewer">
-          <property name="text">
-           <string>Share last viewer</string>
-          </property>
-          <property name="checked">
+         <widget class="QListWidget" name="listInstances">
+          <property name="dragEnabled">
            <bool>true</bool>
+          </property>
+          <property name="dragDropMode">
+           <enum>QAbstractItemView::DragOnly</enum>
           </property>
          </widget>
         </item>
@@ -190,17 +187,7 @@
            <string>Synchronize</string>
           </property>
           <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="checkBoxLoop">
-          <property name="text">
-           <string>Enable loop</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
          </widget>
         </item>
@@ -266,22 +253,5 @@
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>checkBoxSameViewer</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>checkSync</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>772</x>
-     <y>445</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>772</x>
-     <y>473</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

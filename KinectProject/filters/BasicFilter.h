@@ -15,7 +15,7 @@ public:
     BasicFilter();
 
 public slots:
-    void processFrame(DataFrameList framesList, InstanceViewer* viewer);
+    //void processFrame(dai::DataFrameList framesList, InstanceViewer* viewer);
 
 private:
     void dilateUserMask(short *labels);

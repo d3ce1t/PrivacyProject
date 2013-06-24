@@ -13,8 +13,8 @@ class GenericFrame : public DataFrame
 {
 public:
     // Constructor, Destructors and Copy Constructor
-    GenericFrame();
-    GenericFrame(int width, int height);
+    GenericFrame(FrameType type);
+    GenericFrame(int width, int height, FrameType type);
     virtual ~GenericFrame();
     GenericFrame(const GenericFrame<T>& other);
 
@@ -47,7 +47,8 @@ private:
 };
 
 template <class T>
-GenericFrame<T>::GenericFrame()
+GenericFrame<T>::GenericFrame(FrameType type)
+    : DataFrame(type)
 {
     this->m_data = 0;
     this->m_label = 0;
@@ -56,7 +57,8 @@ GenericFrame<T>::GenericFrame()
 }
 
 template <class T>
-GenericFrame<T>::GenericFrame(int width, int height)
+GenericFrame<T>::GenericFrame(int width, int height, FrameType type)
+    : DataFrame(type)
 {
     this->m_width = width;
     this->m_height = height;

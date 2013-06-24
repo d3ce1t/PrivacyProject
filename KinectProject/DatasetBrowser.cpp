@@ -1,14 +1,12 @@
 #include "DatasetBrowser.h"
 #include "ui_DatasetBrowser.h"
-#include <QDebug>
 #include "dataset/MSRDaily/MSRDailyActivity3D.h"
-#include "dataset/MSRDaily/MSRDailyDepthInstance.h"
-#include "dataset/MSRDaily/MSRDailySkeletonInstance.h"
 #include "dataset/MSRAction3D/MSR3Action3D.h"
 #include "dataset/DAI/DAIDataset.h"
 #include "InstanceWidgetItem.h"
+#include "viewer/PlaybackControl.h"
 #include <QGuiApplication>
-
+#include <QDebug>
 
 using namespace dai;
 
@@ -18,7 +16,7 @@ DatasetBrowser::DatasetBrowser(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    m_viewer = NULL;
+    m_playback.enablePlayLoop(true);
     m_dataset = NULL;
     loadDataset( (Dataset::DatasetType) ui->comboDataset->currentIndex());
 
@@ -83,30 +81,18 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
         return;
     }
 
-    InstanceViewer* viewer = NULL;
+    m_playback.addInstance(instance);
 
-    if (ui->checkBoxSameViewer->isChecked()) {
-        if (m_viewer == NULL) {
-            m_viewer = new InstanceViewer;
-            connect(m_viewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
-        }
-        viewer = m_viewer;
-    } else {
-        viewer = new InstanceViewer;
-        connect(viewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
-    }
-
+    InstanceViewer* viewer = new InstanceViewer;
+    connect(viewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
+    viewer->setPlayback(&m_playback);
+    m_playback.addNewFrameListener(viewer, instance);
+    m_playback.play(ui->checkSync->isChecked());
     viewer->show();
-    //instance->setPlayLoop(ui->checkBoxLoop->isChecked());
-    viewer->play(instance, ui->checkSync->isEnabled() && ui->checkSync->isChecked());
 }
 
 void DatasetBrowser::viewerClosed(InstanceViewer* viewer)
 {
-    if (m_viewer == viewer) {
-        m_viewer = NULL;
-    }
-
     delete viewer;
 }
 

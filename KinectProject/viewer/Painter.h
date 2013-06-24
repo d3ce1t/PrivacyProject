@@ -16,12 +16,12 @@ namespace dai {
 class Painter
 {
 public:
-    explicit Painter(StreamInstance* instance, InstanceViewer* parent = 0);
+    explicit Painter(InstanceViewer* parent);
     virtual ~Painter();
     void setMatrix(QMatrix4x4& m_matrix);
     void renderNow();
+    virtual void prepareData(DataFrame* frame) = 0;
     virtual DataFrame& frame() = 0;
-    StreamInstance*   instance() const;
 
 protected:
     virtual void initialise() = 0;
@@ -29,7 +29,6 @@ protected:
 
     QMatrix4x4              m_matrix;
     InstanceViewer*         m_viewer;
-    StreamInstance*         m_instance;
 
 private:
     bool                    m_initialised;

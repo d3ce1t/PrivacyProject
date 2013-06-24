@@ -1,19 +1,22 @@
 #include "InstanceInfo.h"
 #include "exceptions/NotImplementedException.h"
+#include <dataset/DatasetMetadata.h>
 
 using namespace dai;
 
-InstanceInfo::InstanceInfo()
+InstanceInfo::InstanceInfo(DatasetMetadata *parent)
 {
     m_type = Uninitialised;
+    m_parent = parent;
 }
 
-InstanceInfo::InstanceInfo(InstanceType type)
+InstanceInfo::InstanceInfo(InstanceType type, DatasetMetadata *parent)
 {
     if (type == InstanceInfo::Uninitialised)
         throw NotImplementedException();
 
     m_type = type;
+    m_parent = parent;
 }
 
 InstanceInfo::InstanceInfo(const InstanceInfo& other)
@@ -24,6 +27,7 @@ InstanceInfo::InstanceInfo(const InstanceInfo& other)
     m_sample = other.m_sample;
     m_file = other.m_file;
     m_path = other.m_path;
+    m_parent = other.m_parent;
 }
 
 InstanceInfo::~InstanceInfo()
@@ -39,6 +43,7 @@ InstanceInfo& InstanceInfo::operator=(const InstanceInfo& other)
     m_sample = other.m_sample;
     m_file = other.m_file;
     m_path = other.m_path;
+    m_parent = other.m_parent;
     return *this;
 }
 
@@ -70,6 +75,11 @@ QString InstanceInfo::getFileName() const
 QString InstanceInfo::getDatasetPath() const
 {
     return m_path;
+}
+
+const DatasetMetadata* InstanceInfo::parent() const
+{
+    return m_parent;
 }
 
 void InstanceInfo::setType(InstanceType type)

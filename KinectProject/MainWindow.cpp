@@ -153,37 +153,28 @@ void MainWindow::on_pushButton_4_clicked()
     dai::DAIColorInstance* colorInstance = dataset->getColorInstance(1, 1, 1);
     dai::DAIDepthInstance* depthInstance = dataset->getDepthInstance(1, 1, 1);
 
-    qRegisterMetaType<dai::DataFrameList>("DataFrameList");
-
     dai::PlaybackControl* playback = new dai::PlaybackControl;
     playback->addInstance(colorInstance);
     playback->addInstance(depthInstance);
-    //playback->enablePlayLoop(true);
+    playback->enablePlayLoop(true);
 
     // Show color instance
     //dai::BasicFilter* filter = new dai::BasicFilter;
     InstanceViewer* mainViewer = new InstanceViewer;
     connect(mainViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
-    //connect(colorViewer, SIGNAL(beforeDisplaying(DataFrameList,InstanceViewer*)), filter, SLOT(processFrame(DataFrameList,InstanceViewer*)), Qt::DirectConnection);
-    mainViewer->addInstance(colorInstance);
-    mainViewer->addInstance(depthInstance);
+    //connect(mainViewer, SIGNAL(beforeDisplaying(dai::DataFrameList,InstanceViewer*)), filter, SLOT(processFrame(dai::DataFrameList,InstanceViewer*)), Qt::DirectConnection);
     mainViewer->setPlayback(playback);
-
-    // Show depth instance
-    InstanceViewer* depthViewer = new InstanceViewer;
-    connect(depthViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
-    depthViewer->addInstance(depthInstance);
-    depthViewer->setPlayback(playback);
 
     // Show color instance
     InstanceViewer* colorViewer = new InstanceViewer;
     connect(colorViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
-    colorViewer->addInstance(colorInstance);
     colorViewer->setPlayback(playback);
+
+    playback->addNewFrameListener(mainViewer, colorInstance);
+    playback->addNewFrameListener(colorViewer, depthInstance);
 
     playback->play();
     mainViewer->show();
-    depthViewer->show();
     colorViewer->show();
 }
 

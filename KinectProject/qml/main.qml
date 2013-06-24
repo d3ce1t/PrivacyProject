@@ -6,6 +6,32 @@ Item {
     height: 480
     focus: true
 
+    DropArea {
+        id: dragTarget
+        anchors.fill: parent
+
+        onDropped: {
+            winObject.processListItem(drop.source)
+        }
+
+        Rectangle {
+            id: dropRectangle
+            anchors.fill: parent
+            color: Qt.rgba(0.5, 0.7, 1.0, 0.5)
+            opacity: 0;
+
+            states: [
+                State {
+                    when: dragTarget.containsDrag
+                    PropertyChanges {
+                        target: dropRectangle
+                        opacity: 1;
+                    }
+                }
+            ]
+        }
+    }
+
     // Settings
     Rectangle {
         id: settings

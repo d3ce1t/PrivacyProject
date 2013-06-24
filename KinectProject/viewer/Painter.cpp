@@ -2,10 +2,9 @@
 
 namespace dai {
 
-Painter::Painter(StreamInstance *instance, InstanceViewer* parent)
+Painter::Painter(InstanceViewer* parent)
 {
     m_initialised = false;
-    m_instance = instance;
     m_viewer = parent;
 }
 

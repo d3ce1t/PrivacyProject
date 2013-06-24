@@ -18,8 +18,10 @@ public:
     float getFPS() const {return m_fps;}
     void run() Q_DECL_OVERRIDE;
     void sync();
+    void stop();
 
 private:
+    bool             m_running;
     QMutex           m_mutex;
     QWaitCondition   m_sync;
     const qint64     SLEEP_TIME;

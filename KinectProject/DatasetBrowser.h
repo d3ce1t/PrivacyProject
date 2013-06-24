@@ -2,11 +2,9 @@
 #define DATASETBROWSER_H
 
 #include <QMainWindow>
-#include "dataset/Dataset.h"
 #include <QListWidgetItem>
-#include "types/DepthFrame.h"
+#include "dataset/Dataset.h"
 #include "viewer/InstanceViewer.h"
-#include "viewer/DepthFramePainter.h"
 
 
 namespace Ui {
@@ -43,7 +41,7 @@ private:
 
     Ui::DatasetBrowser*     ui;
     dai::Dataset*           m_dataset;
-    InstanceViewer*         m_viewer;
+    dai::PlaybackControl    m_playback;
 };
 
 #endif // DATASETBROWSER_H

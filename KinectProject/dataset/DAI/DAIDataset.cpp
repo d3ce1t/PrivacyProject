@@ -7,19 +7,19 @@ DAIDataset::DAIDataset()
 {
 }
 
-DAIDepthInstance* DAIDataset::getDepthInstance(int activity, int actor, int sample)
+DAIDepthInstance* DAIDataset::getDepthInstance(int activity, int actor, int sample) const
 {
     const InstanceInfo instanceInfo = m_metadata->instance(InstanceInfo::Depth, activity, actor, sample);
     return new DAIDepthInstance(instanceInfo);
 }
 
-DataInstance* DAIDataset::getSkeletonInstance(int activity, int actor, int sample)
+DataInstance* DAIDataset::getSkeletonInstance(int activity, int actor, int sample) const
 {
     const InstanceInfo instanceInfo = m_metadata->instance(InstanceInfo::Depth, activity, actor, sample);
     return new DataInstance(instanceInfo);
 }
 
-DAIColorInstance *DAIDataset::getColorInstance(int activity, int actor, int sample)
+DAIColorInstance *DAIDataset::getColorInstance(int activity, int actor, int sample) const
 {
     const InstanceInfo instanceInfo = m_metadata->instance(InstanceInfo::Color, activity, actor, sample);
     return new DAIColorInstance(instanceInfo);

@@ -19,8 +19,9 @@ namespace dai {
 class SkeletonPainter : public Painter
 {
 public:
-    explicit SkeletonPainter(StreamInstance* instance, InstanceViewer* parent = 0);
+    explicit SkeletonPainter(InstanceViewer* parent);
     virtual ~SkeletonPainter();
+    void prepareData(DataFrame* frame);
     Skeleton& frame();
 
 protected:
@@ -32,9 +33,9 @@ private:
     void prepareShaderProgram();
     void drawLimb(const dai::SkeletonJoint& joint1, const dai::SkeletonJoint& joint2);
     void drawJoint(const dai::SkeletonJoint& joint, const QVector3D& color);
-    //void drawQuaternions();
     float colorIntensity(float value);
 
+    Skeleton*               m_frame;
     QOpenGLShaderProgram*   m_shaderProgram;
     GLuint                  m_posAttr;
     GLuint                  m_colorAttr; // Texture coord in the shader

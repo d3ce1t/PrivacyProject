@@ -1,19 +1,21 @@
-#ifndef VIEWER_H
-#define VIEWER_H
+#ifndef INSTANCE_VIEWER_H
+#define INSTANCE_VIEWER_H
 
 #include <QQuickView>
-#include <QList>
-#include <QElapsedTimer>
-#include <QTimer>
 #include <QMatrix4x4>
 #include <QMutex>
 #include <QtGui/QOpenGLFunctions>
-#include "../types/StreamInstance.h"
-#include "Painter.h"
+#include "types/StreamInstance.h"
 #include "types/DataFrame.h"
+#include "viewer/Painter.h"
 #include "viewer/PlaybackControl.h"
+#include <QHash>
+#include <QList>
+#include <QListWidget>
 
-class InstanceViewer : public QQuickView, protected QOpenGLFunctions
+class QListWidget;
+
+class InstanceViewer : public QQuickView, protected QOpenGLFunctions, public dai::PlaybackControl::PlaybackListener
 {
     Q_OBJECT
     Q_PROPERTY(float fps READ getFPS NOTIFY changeOfStatus)
@@ -22,17 +24,16 @@ public:
     explicit InstanceViewer( QWindow* parent = 0 );
     virtual ~InstanceViewer();
     void show();
-    void addInstance(dai::StreamInstance* instance);
-    void play(dai::StreamInstance* instance, bool restartAll = false);
-    void stop();
     void setPlayback(dai::PlaybackControl* playback);
+    void onNewFrame(QList<dai::DataFrame*> dataFrames);
 
 signals:
     void changeOfStatus();
     void viewerClose(InstanceViewer* viewer);
-    void beforeDisplaying(dai::DataFrameList frameList, InstanceViewer* viewer);
+    //void beforeDisplaying(dai::DataFrameList frameList, InstanceViewer* viewer);
 
 public slots:
+    void processListItem(QListWidget* widget);
     void resetPerspective();
     void rotateAxisX(float angle);
     void rotateAxisY(float angle);
@@ -42,9 +43,8 @@ public slots:
     void translateAxisZ(float value);
 
 private slots:
+    void onNewFrameAux(QList<dai::DataFrame*> dataFrames);
     void renderOpenGLScene();
-    //void renderLater();
-    void playNextFrame();
 
 protected:
     bool event(QEvent * event);
@@ -55,13 +55,13 @@ private:
     void updatePaintersMatrix();
 
     // Private member attributes
-    int                    m_token;
-    float                  m_fps;
-    QList<dai::Painter*>   m_painters;
-    QMatrix4x4             matrix;
-    bool                   m_running;
-    QMutex                 m_mutex;
-    dai::PlaybackControl*  m_playback;
+    qint64                                            m_token;
+    float                                             m_fps;
+    QHash<dai::DataFrame::FrameType, dai::Painter*>   m_painters;
+    QMatrix4x4                                        m_matrix;
+    bool                                              m_running;
+    QMutex                                            m_mutex;
+    dai::PlaybackControl*                             m_playback;
 };
 
-#endif // VIEWER_H
+#endif // INSTANCE_VIEWER_H
