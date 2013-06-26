@@ -1,5 +1,6 @@
 #include "DataInstance.h"
-#include "../exceptions/NotImplementedException.h"
+#include "exceptions/NotImplementedException.h"
+#include "exceptions/NotOpenedInstanceException.h"
 
 using namespace dai;
 
@@ -70,6 +71,10 @@ void DataInstance::close()
 
 void DataInstance::readNextFrame()
 {
+    if (!is_open()) {
+        throw NotOpenedInstanceException();
+    }
+
     if (m_frameIndex < m_nFrames)
     {
         m_writeFrame->setIndex(m_frameIndex);

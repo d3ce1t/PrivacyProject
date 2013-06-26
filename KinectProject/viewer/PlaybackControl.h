@@ -34,12 +34,17 @@ public:
     void release(QObject *caller, int token);
     void addNewFrameListener(PlaybackListener* listener, StreamInstance* instance);
     void removeListener(PlaybackListener* listener, StreamInstance* instance);
-    void removeAllListeners(PlaybackListener* listener);
+    void removeListener(PlaybackListener* listener);
+    void setClearInstances(bool value);
+
+signals:
+    void onPlaybackStoped(PlaybackControl* playback);
 
 private slots:
     void doWork();
 
 private:
+    void removeAllListeners();
     void notifySuscribers(QList<StreamInstance*> notChangedInstances);
 
     PlaybackWorker*                                   m_worker;
@@ -51,6 +56,7 @@ private:
     QHash<PlaybackListener*, QList<StreamInstance*>*> m_listeners;
     QHash<StreamInstance*, QList<PlaybackListener*>*> m_listenersAux;
     QMutex                                            m_lockListeners;
+    bool                                              m_clearInstances;
 };
 
 

@@ -38,6 +38,8 @@ private:
     int         m_width;
     int         m_height;
     DepthFrame  m_frameBuffer[2];
+    BinaryDepthFrame m_readDepthBuffer[480];
+    BinaryLabels m_readLabelBuffer[480];
 };
 
 } // End Namespace

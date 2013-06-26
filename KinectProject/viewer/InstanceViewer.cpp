@@ -42,7 +42,7 @@ InstanceViewer::~InstanceViewer()
     }
     m_painters.clear();
     m_mutex.unlock();
-    m_playback->removeAllListeners(this);
+    m_playback->removeListener(this);
     m_playback->release(this, m_token);
 }
 

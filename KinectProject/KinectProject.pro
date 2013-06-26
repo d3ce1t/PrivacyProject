@@ -50,7 +50,8 @@ HEADERS += \
     filters/BasicFilter.h \
     viewer/Painter.h \
     viewer/PlaybackControl.h \
-    viewer/PlaybackWorker.h
+    viewer/PlaybackWorker.h \
+    exceptions/NotOpenedInstanceException.h
 
 SOURCES += \
     dataset/MSRAction3D/MSR3Action3D.cpp \

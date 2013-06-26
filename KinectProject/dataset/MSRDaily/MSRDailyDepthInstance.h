@@ -35,6 +35,7 @@ private:
     int         m_width;
     int         m_height;
     DepthFrame  m_frameBuffer[2];
+    BinaryDepthFrame m_readBuffer[240]; // I know MSR Daily Activity 3D depth is 320 x 240
 };
 
 } // End Namespace

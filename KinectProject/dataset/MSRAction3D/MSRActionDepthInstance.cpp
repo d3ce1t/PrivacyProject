@@ -75,25 +75,16 @@ void MSRActionDepthInstance::nextFrame(DataFrame &frame)
 {
     // Read Data from File
     DepthFrame& depthFrame = (DepthFrame&) frame;
-    BinaryDepthFrame tempFrame[240]; // I know MSR Action 3D depth is 320 x 240
-    m_file.read( (char *) tempFrame, sizeof(tempFrame) );
-    //float *data = m_currentFrame.getDataPtr();
+    m_file.read( (char *) m_readBuffer, sizeof(m_readBuffer) );
 
     for (int y=0; y<m_height; ++y) {
         for (int x=0; x<m_width; ++x)
         {
             // FIX: I assume depth value is between 0 a 10000. But I'm not sure. This dataset
             // is recorder using a kinect like device, but I dont'know which.
-            depthFrame.setItem(y, x, DataInstance::normalise(tempFrame[y].depthRow[x], 0, 10000, 0, 1));
-            // m_currentFrame.setItem(y, x, tempFrame[y].depthRow[x]);
+            depthFrame.setItem(y, x, DataInstance::normalise(m_readBuffer[y].depthRow[x], 0, 10000, 0, 1));
         }
     }
-
-    /*for (int r=0; r<m_height; r++)
-      {
-          memcpy(data, tempFrame[r].depthRow, m_width * sizeof(float));
-          data += m_width;
-      }*/
 }
 
 DepthFrame& MSRActionDepthInstance::frame()

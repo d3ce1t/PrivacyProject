@@ -70,16 +70,14 @@ void DAIDepthInstance::nextFrame(DataFrame &frame)
 {
     // Read Data from File
     DepthFrame& depthFrame = (DepthFrame&) frame;
-    BinaryDepthFrame tempFrame[480];
-    BinaryLabels tempLabel[480];
-    m_file.read( (char *) tempFrame, sizeof(tempFrame) );
-    m_file.read( (char *) tempLabel, sizeof(tempLabel) );
+    m_file.read( (char *) m_readDepthBuffer, sizeof(m_readDepthBuffer) );
+    m_file.read( (char *) m_readLabelBuffer, sizeof(m_readLabelBuffer) );
 
     for (int y=0; y<m_height; ++y) {
         for (int x=0; x<m_width; ++x)
         {
             //Loaded depths are already normalised because I did it when saved
-            depthFrame.setItem(y, x, tempFrame[y].depthRow[x], tempLabel[y].labelRow[x]);
+            depthFrame.setItem(y, x, m_readDepthBuffer[y].depthRow[x], m_readLabelBuffer[y].labelRow[x]);
         }
     }
 }

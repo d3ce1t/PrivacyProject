@@ -21,48 +21,16 @@ using namespace std;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
+    m_browser(this),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    m_browser = NULL;
     QWidget::setFixedSize(this->width(), this->height());
 }
 
 MainWindow::~MainWindow()
 {
-    if (m_browser != NULL) {
-        delete m_browser;
-        m_browser = NULL;
-    }
-
     delete ui;
-}
-
-void MainWindow::on_pushButton_clicked()
-{
-    /*dai::BasicFilter* filter = new dai::BasicFilter;
-
-    // Show color instance
-    InstanceViewer* colorViewer = new InstanceViewer;
-    connect(colorViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
-    connect(colorViewer, SIGNAL(beforeDisplaying(DataFrameList,InstanceViewer*)), filter, SLOT(processFrame(DataFrameList,InstanceViewer*)), Qt::DirectConnection);
-
-    dai::OpenNIColorInstance* colorInstance = new dai::OpenNIColorInstance;
-    dai::OpenNIDepthInstance* depthInstance = new dai::OpenNIDepthInstance;
-    //colorInstance->setOutputFile("/files/capture/capture.rgb");
-    //colorInstance->setOutputFile("/ramfs/jose/capture.rgb");
-    colorViewer->show();
-    colorViewer->play(colorInstance, false);
-
-    // Show depth instance
-    //InstanceViewer* depthViewer = new InstanceViewer;
-    //connect(depthViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
-
-    //depthInstance->setOutputFile("/files/capture/capture.bin");
-    //depthInstance->setOutputFile("/ramfs/jose/capture.bin");
-    //depthViewer->show();
-    //depthViewer->play(depthInstance, false);
-    colorViewer->play(depthInstance, false);*/
 }
 
 void MainWindow::viewerClosed(InstanceViewer *viewer)
@@ -78,104 +46,6 @@ QString MainWindow::number(int value)
         result = "0" + QString::number(value);
 
     return result;
-}
-
-void MainWindow::on_pushButton_2_clicked()
-{
-    if (m_browser == NULL) {
-        m_browser = new DatasetBrowser(this);
-    }
-
-    m_browser->show();
-    m_browser->activateWindow();
-    this->hide();
-}
-
-void MainWindow::on_pushButton_3_clicked()
-{
-    dai::MSR3Action3D* dataset = new dai::MSR3Action3D();
-    const dai::DatasetMetadata& dsMetadata = dataset->getMetadata();
-    const dai::InstanceInfoList* instances = dsMetadata.instances(dai::InstanceInfo::Skeleton);
-
-    QListIterator<dai::InstanceInfo*> it(*instances);
-
-    while (it.hasNext())
-    {
-        dai::InstanceInfo* info = it.next();
-        dai::MSRActionSkeletonInstance* dataInstance = dataset->getSkeletonInstance(info->getActivity(), info->getActor(), info->getSample());
-
-        dataInstance->open();
-
-        qDebug() << "Instance" << info->getActivity() << info->getActor() << info->getSample() << "open";
-        int framesProcessed = 0;
-
-        QString fileName = "a" + number(info->getActivity()) +
-                "_s" + number(info->getActor()) +
-                "_e" + number(info->getSample()) + "_quaternion.txt";
-
-        ofstream of;
-        of.open( (dsMetadata.getPath() + "/" + fileName).toStdString().c_str(), ios::out | ios::trunc );
-        of << dataInstance->getTotalFrames() << endl;
-
-        while (dataInstance->hasNext() && of.is_open())
-        {
-            dataInstance->readNextFrame();
-            const dai::Skeleton& skeletonFrame = dataInstance->frame();
-
-            of << (skeletonFrame.getIndex() + 1) << endl;
-
-            for (int i=0; i<17; ++i) {
-                dai::Quaternion::QuaternionType type = (dai::Quaternion::QuaternionType) i;
-                const dai::Quaternion& quaternion = skeletonFrame.getQuaternion(type);
-
-                float w = quaternion.scalar();
-                float x = quaternion.vector().x();
-                float y = quaternion.vector().y();
-                float z = quaternion.vector().z();
-                float theta = quaternion.getAngle();
-
-                of << w << " " << x << " " << y << " " << z << " " << theta << endl;
-            }
-
-            framesProcessed++;
-            qDebug() << "Frame: " << framesProcessed;
-        }
-
-        qDebug() << "Close instance";
-        dataInstance->close();
-        of.close();
-    }
-}
-
-void MainWindow::on_pushButton_4_clicked()
-{
-    dai::DAIDataset* dataset = new dai::DAIDataset();
-    dai::DAIColorInstance* colorInstance = dataset->getColorInstance(1, 1, 1);
-    dai::DAIDepthInstance* depthInstance = dataset->getDepthInstance(1, 1, 1);
-
-    dai::PlaybackControl* playback = new dai::PlaybackControl;
-    playback->addInstance(colorInstance);
-    playback->addInstance(depthInstance);
-    playback->enablePlayLoop(true);
-
-    // Show color instance
-    //dai::BasicFilter* filter = new dai::BasicFilter;
-    InstanceViewer* mainViewer = new InstanceViewer;
-    connect(mainViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
-    //connect(mainViewer, SIGNAL(beforeDisplaying(dai::DataFrameList,InstanceViewer*)), filter, SLOT(processFrame(dai::DataFrameList,InstanceViewer*)), Qt::DirectConnection);
-    mainViewer->setPlayback(playback);
-
-    // Show color instance
-    InstanceViewer* colorViewer = new InstanceViewer;
-    connect(colorViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
-    colorViewer->setPlayback(playback);
-
-    playback->addNewFrameListener(mainViewer, colorInstance);
-    playback->addNewFrameListener(colorViewer, depthInstance);
-
-    playback->play();
-    mainViewer->show();
-    colorViewer->show();
 }
 
 void MainWindow::testSegmentation()
@@ -248,4 +118,126 @@ void MainWindow::testSegmentation()
         }
         cout << endl;
     }
+}
+
+void MainWindow::on_btnOpenDataSets_clicked()
+{
+    m_browser.show();
+    m_browser.activateWindow();
+    this->hide();
+}
+
+void MainWindow::on_btnParseDataset_clicked()
+{
+    dai::MSR3Action3D* dataset = new dai::MSR3Action3D();
+    const dai::DatasetMetadata& dsMetadata = dataset->getMetadata();
+    const dai::InstanceInfoList* instances = dsMetadata.instances(dai::InstanceInfo::Skeleton);
+
+    QListIterator<dai::InstanceInfo*> it(*instances);
+
+    while (it.hasNext())
+    {
+        dai::InstanceInfo* info = it.next();
+        dai::MSRActionSkeletonInstance* dataInstance = dataset->getSkeletonInstance(info->getActivity(), info->getActor(), info->getSample());
+
+        dataInstance->open();
+
+        qDebug() << "Instance" << info->getActivity() << info->getActor() << info->getSample() << "open";
+        int framesProcessed = 0;
+
+        QString fileName = "a" + number(info->getActivity()) +
+                "_s" + number(info->getActor()) +
+                "_e" + number(info->getSample()) + "_quaternion.txt";
+
+        ofstream of;
+        of.open( (dsMetadata.getPath() + "/" + fileName).toStdString().c_str(), ios::out | ios::trunc );
+        of << dataInstance->getTotalFrames() << endl;
+
+        while (dataInstance->hasNext() && of.is_open())
+        {
+            dataInstance->readNextFrame();
+            const dai::Skeleton& skeletonFrame = dataInstance->frame();
+
+            of << (skeletonFrame.getIndex() + 1) << endl;
+
+            for (int i=0; i<17; ++i) {
+                dai::Quaternion::QuaternionType type = (dai::Quaternion::QuaternionType) i;
+                const dai::Quaternion& quaternion = skeletonFrame.getQuaternion(type);
+
+                float w = quaternion.scalar();
+                float x = quaternion.vector().x();
+                float y = quaternion.vector().y();
+                float z = quaternion.vector().z();
+                float theta = quaternion.getAngle();
+
+                of << w << " " << x << " " << y << " " << z << " " << theta << endl;
+            }
+
+            framesProcessed++;
+            qDebug() << "Frame: " << framesProcessed;
+        }
+
+        qDebug() << "Close instance";
+        dataInstance->close();
+        of.close();
+    }
+}
+
+void MainWindow::on_btnTest_clicked()
+{
+    dai::DAIDataset dataset;
+    dai::DAIColorInstance* colorInstance = dataset.getColorInstance(1, 1, 1);
+    dai::DAIDepthInstance* depthInstance = dataset.getDepthInstance(1, 1, 1);
+
+    dai::PlaybackControl* playback = new dai::PlaybackControl;
+    connect(playback, &dai::PlaybackControl::onPlaybackStoped, playback, &dai::PlaybackControl::deleteLater);
+    playback->addInstance(colorInstance);
+    playback->addInstance(depthInstance);
+    playback->enablePlayLoop(true);
+
+    // Show color instance
+    //dai::BasicFilter* filter = new dai::BasicFilter;
+    InstanceViewer* mainViewer = new InstanceViewer;
+    connect(mainViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
+    //connect(mainViewer, SIGNAL(beforeDisplaying(dai::DataFrameList,InstanceViewer*)), filter, SLOT(processFrame(dai::DataFrameList,InstanceViewer*)), Qt::DirectConnection);
+    mainViewer->setPlayback(playback);
+
+    // Show color instance
+    InstanceViewer* colorViewer = new InstanceViewer;
+    connect(colorViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
+    colorViewer->setPlayback(playback);
+
+    playback->addNewFrameListener(mainViewer, colorInstance);
+    playback->addNewFrameListener(colorViewer, depthInstance);
+
+    playback->play();
+    mainViewer->show();
+    colorViewer->show();
+}
+
+void MainWindow::on_btnStartKinect_clicked()
+{
+    /*dai::BasicFilter* filter = new dai::BasicFilter;
+
+    // Show color instance
+    InstanceViewer* colorViewer = new InstanceViewer;
+    connect(colorViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
+    connect(colorViewer, SIGNAL(beforeDisplaying(DataFrameList,InstanceViewer*)), filter, SLOT(processFrame(DataFrameList,InstanceViewer*)), Qt::DirectConnection);
+
+    dai::OpenNIColorInstance* colorInstance = new dai::OpenNIColorInstance;
+    dai::OpenNIDepthInstance* depthInstance = new dai::OpenNIDepthInstance;
+    //colorInstance->setOutputFile("/files/capture/capture.rgb");
+    //colorInstance->setOutputFile("/ramfs/jose/capture.rgb");
+    colorViewer->show();
+    colorViewer->play(colorInstance, false);
+
+    // Show depth instance
+    //InstanceViewer* depthViewer = new InstanceViewer;
+    //connect(depthViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
+
+    //depthInstance->setOutputFile("/files/capture/capture.bin");
+    //depthInstance->setOutputFile("/ramfs/jose/capture.bin");
+    //depthViewer->show();
+    //depthViewer->play(depthInstance, false);
+    colorViewer->play(depthInstance, false);*/
 }

@@ -1,4 +1,5 @@
 #include "DAIColorInstance.h"
+#include <QDebug>
 
 namespace dai {
 
@@ -68,15 +69,14 @@ void DAIColorInstance::nextFrame(DataFrame &frame)
 {
     // Read Data from File
     ColorFrame& colorFrame = (ColorFrame&) frame;
-    BinaryColorFrame tempFrame[480];
-    m_file.read( (char *) tempFrame, sizeof(tempFrame) );
+    m_file.read( (char *) m_readBuffer, sizeof(m_readBuffer) );
 
     for (int y=0; y<m_height; ++y)
     {
         for (int x=0; x<m_width; ++x)
         {
             //Loaded depths are already normalised because I did it when saved
-            colorFrame.setItem(y, x, tempFrame[y].colorRow[x]);
+            colorFrame.setItem(y, x, m_readBuffer[y].colorRow[x]);
         }
     }
 }

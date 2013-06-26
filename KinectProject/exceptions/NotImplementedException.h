@@ -5,9 +5,9 @@
 using namespace std;
 
 /*!
- * \brief The NotSupportedDataSetException class
+ * \brief The NotImplementedException class
  *
- * This exception is thrown when trying to load a DataSet that isn't supported
+ * This exception is thrown when invoking a not implemented method
  */
 class NotImplementedException : public exception
 {

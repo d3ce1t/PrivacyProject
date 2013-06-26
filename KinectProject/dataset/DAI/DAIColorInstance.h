@@ -35,6 +35,7 @@ private:
     int         m_width;
     int         m_height;
     ColorFrame  m_frameBuffer[2];
+    BinaryColorFrame m_readBuffer[480];
 };
 
 } // End Namespace

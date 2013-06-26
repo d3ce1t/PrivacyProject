@@ -1,4 +1,5 @@
 #include "StreamInstance.h"
+#include <QDebug>
 
 namespace dai {
 
@@ -10,6 +11,7 @@ StreamInstance::StreamInstance()
 StreamInstance::~StreamInstance()
 {
     m_type = StreamInstance::Uninitialised;
+    qDebug() << "StreamInstance::~StreamInstance()";
 }
 
 StreamInstance::StreamType StreamInstance::getType() const

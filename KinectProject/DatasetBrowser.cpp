@@ -30,6 +30,12 @@ DatasetBrowser::DatasetBrowser(QWidget *parent) :
 
 DatasetBrowser::~DatasetBrowser()
 {
+    ui->listActivities->disconnect();
+    ui->listActors->disconnect();
+    ui->listSamples->disconnect();
+    ui->listInstances->disconnect();
+    ui->comboType->disconnect();
+
     if (m_dataset != NULL) {
         delete m_dataset;
         m_dataset = NULL;
