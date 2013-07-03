@@ -3,7 +3,7 @@
 
 #include "InstanceInfo.h"
 #include "../types/StreamInstance.h"
-#include <QReadWriteLock>
+
 
 namespace dai {
 
@@ -15,32 +15,19 @@ public:
     explicit DataInstance(const InstanceInfo& info);
     virtual ~DataInstance();
     const InstanceInfo& getMetadata() const;
-    int getTotalFrames() const;
+    unsigned int getTotalFrames() const;
 
-    // Overriden methods
     virtual bool is_open() const Q_DECL_OVERRIDE;
     bool hasNext() const Q_DECL_OVERRIDE;
-    void open() Q_DECL_OVERRIDE;
-    virtual void close() Q_DECL_OVERRIDE;
-    void readNextFrame() Q_DECL_OVERRIDE;
-    DataFrame& frame() Q_DECL_OVERRIDE;
 
 protected:
+    virtual void openInstance() Q_DECL_OVERRIDE;
+    virtual void closeInstance() Q_DECL_OVERRIDE;
+    virtual void restartInstance() Q_DECL_OVERRIDE;
     virtual void nextFrame(DataFrame& frame);
-    virtual void restart();
-
-    void initFrameBuffer(DataFrame* firstBuffer, DataFrame* secondBuffer);
 
     InstanceInfo m_info;
-    int          m_frameIndex;
-    int          m_nFrames;
-
-private:
-    void swapBuffer();
-
-    QReadWriteLock    m_locker;
-    DataFrame*        m_writeFrame;
-    DataFrame*        m_readFrame;
+    unsigned int m_nFrames;
 };
 
 }

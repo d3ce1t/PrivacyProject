@@ -13,18 +13,19 @@ class OpenNIDepthInstance : public StreamInstance
 public:
     OpenNIDepthInstance();
     virtual ~OpenNIDepthInstance();
-    void open();
-    void close();
-    bool hasNext() const;
-    void readNextFrame();
-    DepthFrame& frame();
+    bool is_open() const Q_DECL_OVERRIDE;
+    DepthFrame& frame() Q_DECL_OVERRIDE;
     void setOutputFile(QString file);
+
+protected:
+    void openInstance() Q_DECL_OVERRIDE;
+    void closeInstance() Q_DECL_OVERRIDE;
+    void restartInstance() Q_DECL_OVERRIDE;
+    void nextFrame(DataFrame& frame);
 
 private:
     OpenNIRuntime*          m_openni;
-    openni::VideoMode       videoMode;
-    DepthFrame              m_currentFrame;
-    unsigned int            m_frameIndex;
+    DepthFrame              m_frameBuffer[2];
     QFile                   m_of;
     QString                 m_outputFile;
 };

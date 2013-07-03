@@ -10,16 +10,19 @@ using namespace std;
 namespace dai {
 
 OpenNIColorInstance::OpenNIColorInstance()
-    : m_currentFrame(640, 480)
 {
     this->m_type = StreamInstance::Color;
     this->m_title = "Color Live Stream";
-    m_openni = OpenNIRuntime::getInstance();
+    m_frameBuffer[0] = ColorFrame(640, 480);
+    m_frameBuffer[1] = ColorFrame(640, 480);
+    StreamInstance::initFrameBuffer(&m_frameBuffer[0], &m_frameBuffer[1]);
+    m_openni = NULL;
 }
 
 OpenNIColorInstance::~OpenNIColorInstance()
 {
-    m_openni->releaseInstance();
+    closeInstance();
+    m_openni = NULL;
 }
 
 void OpenNIColorInstance::setOutputFile(QString file)
@@ -27,99 +30,111 @@ void OpenNIColorInstance::setOutputFile(QString file)
     m_outputFile = file;
 }
 
-void OpenNIColorInstance::open()
+bool OpenNIColorInstance::is_open() const
 {
-    m_frameIndex = 0;
+    return m_openni != NULL;
+}
 
-    try {
-        if (!m_of.isOpen() && !m_outputFile.isEmpty())
-        {
-            m_of.setFileName(m_outputFile);
-            m_of.open(QIODevice::WriteOnly | QIODevice::Truncate);
+void OpenNIColorInstance::openInstance()
+{
+    if (!is_open())
+    {
+        m_openni = OpenNIRuntime::getInstance();
 
-            if (!m_of.isOpen()) {
-                cerr << "Error opening file" << endl;
-                throw 7;
+        try {
+            if (!m_of.isOpen() && !m_outputFile.isEmpty())
+            {
+                m_of.setFileName(m_outputFile);
+                m_of.open(QIODevice::WriteOnly | QIODevice::Truncate);
+
+                if (!m_of.isOpen()) {
+                    cerr << "Error opening file" << endl;
+                    throw 7;
+                }
+
+                int width = 640;
+                int height = 480;
+                int numFrames = 0;
+
+                m_of.seek(0);
+                m_of.write( (char*) &numFrames, sizeof(numFrames) );
+                m_of.write( (char*) &width, sizeof(width) );
+                m_of.write( (char*) &height, sizeof(height) );
             }
-
-            int width = m_currentFrame.getWidth();
-            int height = m_currentFrame.getHeight();
-            int numFrames = 0;
-
-            m_of.seek(0);
-            m_of.write( (char*) &numFrames, sizeof(numFrames) );
-            m_of.write( (char*) &width, sizeof(width) );
-            m_of.write( (char*) &height, sizeof(height) );
+        }
+        catch (int ex)
+        {
+            printf("OpenNI init error:\n%s\n", openni::OpenNI::getExtendedError());
+            throw ex;
         }
     }
-    catch (int ex)
-    {
-        printf("OpenNI init error:\n%s\n", openni::OpenNI::getExtendedError());
-        throw ex;
-    }
 }
 
-void OpenNIColorInstance::close()
+void OpenNIColorInstance::closeInstance()
 {
-    try {
-        if (m_of.isOpen()) {
-            m_of.seek(0);
-            m_of.write( (char*) &m_frameIndex, sizeof(m_frameIndex) );
-            m_of.close();
+    if (is_open())
+    {
+        m_openni->releaseInstance();
+        m_openni = NULL;
+
+        try {
+            unsigned int frameIndex = getFrameIndex();
+            if (m_of.isOpen()) {
+                m_of.seek(0);
+                m_of.write( (char*) &frameIndex, sizeof(frameIndex) );
+                m_of.close();
+            }
+        }
+        catch (std::exception& ex)
+        {
+            printf("Error\n");
         }
     }
-    catch (std::exception& ex)
-    {
-        printf("Error\n");
-    }
 }
 
-bool OpenNIColorInstance::hasNext() const
+void OpenNIColorInstance::restartInstance()
 {
-    return true;
+
 }
 
-void OpenNIColorInstance::readNextFrame()
+void OpenNIColorInstance::nextFrame(DataFrame &frame)
 {
-    openni::VideoFrameRef colorFrame = m_openni->readColorFrame();
+    // Read Data from OpenNI
+    ColorFrame& colorFrame = (ColorFrame&) frame;
+    openni::VideoFrameRef oniColorFrame = m_openni->readColorFrame();
 
     // RGB Frame
-    if ( colorFrame.isValid())
+    if ( oniColorFrame.isValid())
     {
-        m_currentFrame.setIndex(m_frameIndex);
+        const openni::RGB888Pixel* pImageRow = (const openni::RGB888Pixel*) oniColorFrame.getData();
+        int rowSize = oniColorFrame.getStrideInBytes() / sizeof(openni::RGB888Pixel);
 
-        const openni::RGB888Pixel* pImageRow = (const openni::RGB888Pixel*) colorFrame.getData();
-        int rowSize = colorFrame.getStrideInBytes() / sizeof(openni::RGB888Pixel);
-
-        for (int y = 0; y < colorFrame.getHeight(); ++y)
+        for (int y = 0; y < oniColorFrame.getHeight(); ++y)
         {
             const openni::RGB888Pixel* pImage = pImageRow;
 
-            for (int x = 0; x < colorFrame.getWidth(); ++x, ++pImage)
+            for (int x = 0; x < oniColorFrame.getWidth(); ++x, ++pImage)
             {
                 RGBAColor color;
                 color.red = pImage->r / 255.0f;
                 color.green = pImage->g / 255.0f;
                 color.blue = pImage->b / 255.0f;
                 color.alpha = 1.0;
-                m_currentFrame.setItem(y, x, color);
+                colorFrame.setItem(y, x, color);
             }
 
             pImageRow += rowSize;
         }
 
         if (m_of.isOpen()) {
-
-            m_currentFrame.write(m_of, false);
+            colorFrame.write(m_of, false);
         }
     }
-
-    m_frameIndex++;
 }
 
 ColorFrame& OpenNIColorInstance::frame()
 {
-    return m_currentFrame;
+    return (ColorFrame&) StreamInstance::frame();
 }
 
 } // End namespace

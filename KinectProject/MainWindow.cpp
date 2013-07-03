@@ -21,8 +21,8 @@ using namespace std;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    m_browser(this),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    m_browser(this)
 {
     ui->setupUi(this);
     QWidget::setFixedSize(this->width(), this->height());
@@ -217,27 +217,34 @@ void MainWindow::on_btnTest_clicked()
 
 void MainWindow::on_btnStartKinect_clicked()
 {
-    /*dai::BasicFilter* filter = new dai::BasicFilter;
-
-    // Show color instance
-    InstanceViewer* colorViewer = new InstanceViewer;
-    connect(colorViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
-    connect(colorViewer, SIGNAL(beforeDisplaying(DataFrameList,InstanceViewer*)), filter, SLOT(processFrame(DataFrameList,InstanceViewer*)), Qt::DirectConnection);
-
+    // Create instance
     dai::OpenNIColorInstance* colorInstance = new dai::OpenNIColorInstance;
     dai::OpenNIDepthInstance* depthInstance = new dai::OpenNIDepthInstance;
     //colorInstance->setOutputFile("/files/capture/capture.rgb");
     //colorInstance->setOutputFile("/ramfs/jose/capture.rgb");
+
+    // Create Playback
+    dai::PlaybackControl* playback = new dai::PlaybackControl;
+    connect(playback, &dai::PlaybackControl::onPlaybackStoped, playback, &dai::PlaybackControl::deleteLater);
+
+    // Create first viewer
+    InstanceViewer* colorViewer = new InstanceViewer;
+    connect(colorViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
+
+    // Create second viewer
+    InstanceViewer* depthViewer = new InstanceViewer;
+    connect(depthViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
+
+    // Connect all together
+    playback->addInstance(colorInstance);
+    playback->addInstance(depthInstance);
+    colorViewer->setPlayback(playback);
+    depthViewer->setPlayback(playback);
+    playback->addNewFrameListener(colorViewer, colorInstance);
+    playback->addNewFrameListener(depthViewer, depthInstance);
+
+    // Run
+    playback->play();
     colorViewer->show();
-    colorViewer->play(colorInstance, false);
-
-    // Show depth instance
-    //InstanceViewer* depthViewer = new InstanceViewer;
-    //connect(depthViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
-
-    //depthInstance->setOutputFile("/files/capture/capture.bin");
-    //depthInstance->setOutputFile("/ramfs/jose/capture.bin");
-    //depthViewer->show();
-    //depthViewer->play(depthInstance, false);
-    colorViewer->play(depthInstance, false);*/
+    depthViewer->show();
 }

@@ -17,7 +17,7 @@ DAIDepthInstance::~DAIDepthInstance()
 {
     m_width = 0;
     m_height = 0;
-    close();
+    closeInstance();
 }
 
 bool DAIDepthInstance::is_open() const
@@ -25,7 +25,7 @@ bool DAIDepthInstance::is_open() const
     return m_file.is_open();
 }
 
-void DAIDepthInstance::open()
+void DAIDepthInstance::openInstance()
 {
     QString instancePath = m_info.getDatasetPath() + "/" + m_info.getFileName();
 
@@ -46,22 +46,19 @@ void DAIDepthInstance::open()
 
         if (m_width != 640 || m_height != 480)
             exit(1);
-
-        m_frameIndex = 0;
     }
 }
 
-void DAIDepthInstance::close()
+void DAIDepthInstance::closeInstance()
 {
     if (m_file.is_open()) {
         m_file.close();
     }
 }
 
-void DAIDepthInstance::restart()
+void DAIDepthInstance::restartInstance()
 {
     if (m_file.is_open()) {
-        m_frameIndex = 0;
         m_file.seekg(12, ios_base::beg);
     }
 }

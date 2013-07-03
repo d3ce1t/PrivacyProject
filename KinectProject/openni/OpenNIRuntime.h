@@ -4,29 +4,28 @@
 #include <NiTE.h>
 #include <OpenNI.h>
 #include <QMutex>
+#include <QReadWriteLock>
 
 namespace dai {
 
-// Forward declaration
-class OpenNIListener;
-
 // Class Declaration
-class OpenNIRuntime
+class OpenNIRuntime : public openni::VideoStream::NewFrameListener, public nite::UserTracker::NewFrameListener
 {
 public:
-    friend class OpenNIListener;
-
     static OpenNIRuntime* getInstance();
 
     virtual ~OpenNIRuntime();
     void releaseInstance();
-    openni::VideoFrameRef readDepthFrame() const;
-    openni::VideoFrameRef readColorFrame() const;
-    nite::UserTrackerFrameRef readUserTrackerFrame() const;
+    openni::VideoFrameRef readDepthFrame();
+    openni::VideoFrameRef readColorFrame();
+    nite::UserTrackerFrameRef readUserTrackerFrame();
+    void onNewFrame(openni::VideoStream& stream);
+    void onNewFrame(nite::UserTracker& userTracker);
 
 private:
+    static QMutex          mutex;
     static OpenNIRuntime* _instance;
-    static int _instance_counter;
+    static int            _instance_counter;
 
     OpenNIRuntime();
     void initOpenNI();
@@ -38,9 +37,8 @@ private:
     openni::VideoFrameRef	  m_colorFrame;
     openni::VideoFrameRef     m_depthFrame;
     nite::UserTrackerFrameRef m_userTrackerFrame;
-    OpenNIListener*           m_listener;
-    static QMutex             mutex;
-
+    QReadWriteLock            m_lockColor;
+    QReadWriteLock            m_lockDepth;
 };
 
 } // End namespace

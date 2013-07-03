@@ -3,6 +3,7 @@
 
 #include <QString>
 #include "DataFrame.h"
+#include <QReadWriteLock>
 
 namespace dai {
 
@@ -18,19 +19,37 @@ public:
 
     StreamInstance();
     virtual ~StreamInstance();
-    virtual bool hasNext() const = 0;
+    void open();
+    void close();
+    void restart();
     virtual bool is_open() const = 0;
-    virtual void open() = 0;
-    virtual void close() = 0;
-    virtual void restart() = 0;
-    virtual void readNextFrame() = 0;
-    virtual DataFrame& frame() = 0;
+    virtual bool hasNext() const;
+
+    void readNextFrame();
+    DataFrame& frame();
     StreamType getType() const;
     const QString& getTitle() const;
+    unsigned int getFrameIndex() const;
 
 protected:
-    StreamType m_type;
-    QString m_title;
+    virtual void openInstance() = 0;
+    virtual void closeInstance() = 0;
+    virtual void restartInstance() = 0;
+    virtual void nextFrame(DataFrame& frame) = 0;
+
+
+    void initFrameBuffer(DataFrame* firstBuffer, DataFrame* secondBuffer);
+
+    StreamType      m_type;
+    QString         m_title;
+
+private:
+    void swapBuffer();
+
+    unsigned int    m_frameIndex;
+    QReadWriteLock  m_locker;
+    DataFrame*      m_writeFrame;
+    DataFrame*      m_readFrame;
 };
 
 } // End namespace

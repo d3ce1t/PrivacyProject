@@ -8,16 +8,19 @@ using namespace std;
 namespace dai {
 
 OpenNIDepthInstance::OpenNIDepthInstance()
-    : m_currentFrame(640, 480)
 {
     this->m_type = StreamInstance::Depth;
     this->m_title = "Depth Live Stream";
-    m_openni = OpenNIRuntime::getInstance();
+    m_frameBuffer[0] = DepthFrame(640, 480);
+    m_frameBuffer[1] = DepthFrame(640, 480);
+    StreamInstance::initFrameBuffer(&m_frameBuffer[0], &m_frameBuffer[1]);
+    m_openni = NULL;
 }
 
 OpenNIDepthInstance::~OpenNIDepthInstance()
 {
-    m_openni->releaseInstance();
+    closeInstance();
+    m_openni = NULL;
 }
 
 void OpenNIDepthInstance::setOutputFile(QString file)
@@ -25,98 +28,112 @@ void OpenNIDepthInstance::setOutputFile(QString file)
     m_outputFile = file;
 }
 
-void OpenNIDepthInstance::open()
+bool OpenNIDepthInstance::is_open() const
 {
-    m_frameIndex = 0;
+    return m_openni != NULL;
+}
 
-    try {
-        if (!m_of.isOpen() && !m_outputFile.isEmpty())
-        {
-            m_of.setFileName(m_outputFile);
-            m_of.open(QIODevice::WriteOnly | QIODevice::Truncate);
+void OpenNIDepthInstance::openInstance()
+{
+    if (!is_open())
+    {
+        m_openni = OpenNIRuntime::getInstance();
 
-            if (!m_of.isOpen()) {
-                cerr << "Error opening file" << endl;
-                throw 8;
+        try {
+            if (!m_of.isOpen() && !m_outputFile.isEmpty())
+            {
+                m_of.setFileName(m_outputFile);
+                m_of.open(QIODevice::WriteOnly | QIODevice::Truncate);
+
+                if (!m_of.isOpen()) {
+                    cerr << "Error opening file" << endl;
+                    throw 8;
+                }
+
+                int width = 640;
+                int height = 480;
+                int numFrames = 0;
+
+                m_of.seek(0);
+                m_of.write( (char*) &numFrames, sizeof(numFrames) );
+                m_of.write( (char*) &width, sizeof(width) );
+                m_of.write( (char*) &height, sizeof(height) );
             }
-
-            int width = m_currentFrame.getWidth();
-            int height = m_currentFrame.getHeight();
-            int numFrames = 0;
-
-            m_of.seek(0);
-            m_of.write( (char*) &numFrames, sizeof(numFrames) );
-            m_of.write( (char*) &width, sizeof(width) );
-            m_of.write( (char*) &height, sizeof(height) );
+        }
+        catch (int ex)
+        {
+            printf("OpenNI init error:\n%s\n", openni::OpenNI::getExtendedError());
+            throw ex;
         }
     }
-    catch (int ex)
-    {
-        printf("OpenNI init error:\n%s\n", openni::OpenNI::getExtendedError());
-        throw ex;
-    }
 }
 
-void OpenNIDepthInstance::close()
+void OpenNIDepthInstance::closeInstance()
 {
-    try {
-        if (m_of.isOpen()) {
-            m_of.seek(0);
-            m_of.write( (char*) &m_frameIndex, sizeof(m_frameIndex) );
-            m_of.close();
+    if (is_open())
+    {
+        m_openni->releaseInstance();
+        m_openni = NULL;
+
+        try {
+            unsigned int frameIndex = getFrameIndex();
+            if (m_of.isOpen()) {
+                m_of.seek(0);
+                m_of.write( (char*) &frameIndex, sizeof(frameIndex) );
+                m_of.close();
+            }
+        }
+        catch (std::exception& ex)
+        {
+            printf("Error\n");
         }
     }
-    catch (std::exception& ex)
-    {
-        printf("Error\n");
-    }
 }
 
-bool OpenNIDepthInstance::hasNext() const
+void OpenNIDepthInstance::restartInstance()
 {
-    return true;
+
 }
 
-void OpenNIDepthInstance::readNextFrame()
+void OpenNIDepthInstance::nextFrame(DataFrame &frame)
 {
-    // Read Depth Frame
-    m_currentFrame.setIndex(m_frameIndex);
+    // Read Data from OpenNI
+    DepthFrame& depthFrame = (DepthFrame&) frame;
     nite::UserTrackerFrameRef userTrackerFrame = m_openni->readUserTrackerFrame();
 
-    //m_pUserTracker.setSkeletonSmoothingFactor(0.7);
-    videoMode = userTrackerFrame.getDepthFrame().getVideoMode();
-
-    openni::VideoFrameRef frameRef = m_openni->readDepthFrame();
-    const nite::UserMap& userLabels = userTrackerFrame.getUserMap();
-    const nite::UserId* pLabel = userLabels.getPixels();
-    const openni::DepthPixel* pDepth = (const openni::DepthPixel*)frameRef.getData();
-    int restOfRow = frameRef.getStrideInBytes() / sizeof(openni::DepthPixel) - frameRef.getWidth();
-    int height = frameRef.getHeight();
-    int width = frameRef.getWidth();
-
-    for (int y=0; y<height; ++y)
+    // Depth Frame
+    if (userTrackerFrame.isValid())
     {
-        for (int x=0; x<width; ++x, ++pLabel)
+        //m_pUserTracker.setSkeletonSmoothingFactor(0.7);
+        openni::VideoFrameRef oniDepthFrame = m_openni->readDepthFrame();
+        const nite::UserId* pLabel = userTrackerFrame.getUserMap().getPixels();
+        const openni::DepthPixel* pDepth = (const openni::DepthPixel*)oniDepthFrame.getData();
+        int restOfRow = oniDepthFrame.getStrideInBytes() / sizeof(openni::DepthPixel) - oniDepthFrame.getWidth();
+        int height = oniDepthFrame.getHeight();
+        int width = oniDepthFrame.getWidth();
+
+        for (int y=0; y<height; ++y)
         {
-            // FIX: I assume depth value is between 0 a 10000.
-            m_currentFrame.setItem(y, x, DataInstance::normalise(*pDepth, 0, 10000, 0, 1), *pLabel);
-            pDepth++;
+            for (int x=0; x<width; ++x, ++pLabel)
+            {
+                // FIX: I assume depth value is between 0 a 10000.
+                depthFrame.setItem(y, x, DataInstance::normalise(*pDepth, 0, 10000, 0, 1), *pLabel);
+                pDepth++;
+            }
+
+            // Skip rest of row (in case it exists)
+            pDepth += restOfRow;
         }
 
-        // Skip rest of row (in case it exists)
-        pDepth += restOfRow;
+        if (m_of.isOpen()) {
+            depthFrame.write(m_of);
+        }
     }
-
-    if (m_of.isOpen()) {
-        m_currentFrame.write(m_of);
-    }
-
-    m_frameIndex++;
 }
 
 DepthFrame& OpenNIDepthInstance::frame()
 {
-    return m_currentFrame;
+    return (DepthFrame&) StreamInstance::frame();
 }
 
 } // End namespace

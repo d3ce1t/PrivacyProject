@@ -17,23 +17,11 @@ DataInstance::DataInstance(const InstanceInfo &info)
 
     m_title = info.getFileName();
     m_nFrames = 0;
-    m_frameIndex = 0;
-    m_writeFrame = NULL;
-    m_readFrame = NULL;
 }
 
 DataInstance::~DataInstance()
 {
     m_nFrames = 0;
-    m_frameIndex = 0;
-    m_writeFrame = NULL;
-    m_readFrame = NULL;
-}
-
-void DataInstance::initFrameBuffer(DataFrame* firstBuffer, DataFrame* secondBuffer)
-{
-   m_writeFrame = firstBuffer;
-   m_readFrame = secondBuffer;
 }
 
 const InstanceInfo& DataInstance::getMetadata() const
@@ -41,14 +29,14 @@ const InstanceInfo& DataInstance::getMetadata() const
     return m_info;
 }
 
-int DataInstance::getTotalFrames() const
+unsigned int DataInstance::getTotalFrames() const
 {
     return m_nFrames;
 }
 
 bool DataInstance::hasNext() const
 {
-    if (this->is_open() && (m_frameIndex < m_nFrames))
+    if (this->is_open() && (getFrameIndex() + 1 < m_nFrames))
         return true;
 
     return false;
@@ -59,58 +47,25 @@ bool DataInstance::is_open() const
     throw NotImplementedException();
 }
 
-void DataInstance::open()
+void DataInstance::openInstance()
 {
     throw NotImplementedException();
 }
 
-void DataInstance::close()
+void DataInstance::closeInstance()
 {
     throw NotImplementedException();
 }
 
-void DataInstance::readNextFrame()
+void DataInstance::restartInstance()
 {
-    if (!is_open()) {
-        throw NotOpenedInstanceException();
-    }
-
-    if (m_frameIndex < m_nFrames)
-    {
-        m_writeFrame->setIndex(m_frameIndex);
-        nextFrame(*m_writeFrame);
-        m_frameIndex++;
-    }
-    else {
-        close();
-    }
-
-    swapBuffer();
-}
-
-DataFrame& DataInstance::frame()
-{
-    QReadLocker locker(&m_locker);
-    return *m_readFrame;
+    throw NotImplementedException();
 }
 
 void DataInstance::nextFrame(DataFrame& frame)
 {
     Q_UNUSED(frame)
     throw NotImplementedException();
-}
-
-void DataInstance::restart()
-{
-    throw NotImplementedException();
-}
-
-void DataInstance::swapBuffer()
-{
-    QWriteLocker locker(&m_locker);
-    DataFrame* tmpPtr = m_readFrame;
-    m_readFrame = m_writeFrame;
-    m_writeFrame = tmpPtr;
 }
 
 //

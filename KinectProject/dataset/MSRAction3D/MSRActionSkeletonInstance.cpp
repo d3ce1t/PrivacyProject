@@ -15,7 +15,7 @@ MSRActionSkeletonInstance::MSRActionSkeletonInstance(const InstanceInfo& info)
 
 MSRActionSkeletonInstance::~MSRActionSkeletonInstance()
 {
-    close();
+    closeInstance();
 }
 
 bool MSRActionSkeletonInstance::is_open() const
@@ -23,7 +23,7 @@ bool MSRActionSkeletonInstance::is_open() const
     return m_file.is_open();
 }
 
-void MSRActionSkeletonInstance::open()
+void MSRActionSkeletonInstance::openInstance()
 {
     QString instancePath = m_info.getDatasetPath() + "/" + m_info.getFileName();
 
@@ -53,21 +53,19 @@ void MSRActionSkeletonInstance::open()
         depthFile.close();
 
         m_nJoints = 20;
-        m_frameIndex = 0;
     }
 }
 
-void MSRActionSkeletonInstance::close()
+void MSRActionSkeletonInstance::closeInstance()
 {
     if (m_file.is_open()) {
         m_file.close();
     }
 }
 
-void MSRActionSkeletonInstance::restart()
+void MSRActionSkeletonInstance::restartInstance()
 {
     if (m_file.is_open()) {
-        m_frameIndex = 0;
         m_file.seekg(0, ios_base::beg);
     }
 }

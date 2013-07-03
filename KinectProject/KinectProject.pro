@@ -43,7 +43,6 @@ HEADERS += \
     exceptions/NotImplementedException.h \
     openni/OpenNIColorInstance.h \
     types/GenericFrame.h \
-    openni/OpenNIListener.h \
     openni/OpenNIRuntime.h \
     dataset/DAI/DAIColorInstance.h \
     types/Vector3D.h \
@@ -89,7 +88,6 @@ SOURCES += \
     dataset/DAI/DAIDataset.cpp \
     dataset/DAI/DAIDepthInstance.cpp \
     openni/OpenNIColorInstance.cpp \
-    openni/OpenNIListener.cpp \
     openni/OpenNIRuntime.cpp \
     dataset/DAI/DAIColorInstance.cpp \
     types/Vector3D.cpp \

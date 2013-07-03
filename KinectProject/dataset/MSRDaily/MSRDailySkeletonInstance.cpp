@@ -15,7 +15,7 @@ MSRDailySkeletonInstance::MSRDailySkeletonInstance(const InstanceInfo& info)
 
 MSRDailySkeletonInstance::~MSRDailySkeletonInstance()
 {
-    close();
+    closeInstance();
 }
 
 bool MSRDailySkeletonInstance::is_open() const
@@ -23,7 +23,7 @@ bool MSRDailySkeletonInstance::is_open() const
     return m_file.is_open();
 }
 
-void MSRDailySkeletonInstance::open()
+void MSRDailySkeletonInstance::openInstance()
 {
     QString instancePath = m_info.getDatasetPath() + "/" + m_info.getFileName();
 
@@ -40,21 +40,19 @@ void MSRDailySkeletonInstance::open()
 
         m_file >> m_nFrames;
         m_file >> m_nJoints;
-        m_frameIndex = 0;
     }
 }
 
-void MSRDailySkeletonInstance::close()
+void MSRDailySkeletonInstance::closeInstance()
 {
     if (m_file.is_open()) {
         m_file.close();
     }
 }
 
-void MSRDailySkeletonInstance::restart()
+void MSRDailySkeletonInstance::restartInstance()
 {
     if (m_file.is_open()) {
-        m_frameIndex = 0;
         m_file.seekg(0, ios_base::beg);
         m_file >> m_nFrames;
         m_file >> m_nJoints;

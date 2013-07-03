@@ -22,7 +22,7 @@ MSRDailyDepthInstance::~MSRDailyDepthInstance()
 {
     m_width = 0;
     m_height = 0;
-    close();
+    closeInstance();
 }
 
 bool MSRDailyDepthInstance::is_open() const
@@ -30,7 +30,7 @@ bool MSRDailyDepthInstance::is_open() const
     return m_file.is_open();
 }
 
-void MSRDailyDepthInstance::open()
+void MSRDailyDepthInstance::openInstance()
 {
     QString instancePath = m_info.getDatasetPath() + "/" + m_info.getFileName();
 
@@ -51,22 +51,19 @@ void MSRDailyDepthInstance::open()
 
         if (m_width != 320 || m_height != 240)
             exit(1);
-
-        m_frameIndex = 0;
     }
 }
 
-void MSRDailyDepthInstance::close()
+void MSRDailyDepthInstance::closeInstance()
 {
     if (m_file.is_open()) {
         m_file.close();
     }
 }
 
-void MSRDailyDepthInstance::restart()
+void MSRDailyDepthInstance::restartInstance()
 {
     if (m_file.is_open()) {
-        m_frameIndex = 0;
         m_file.seekg(12, ios_base::beg);
     }
 }

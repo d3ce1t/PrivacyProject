@@ -22,7 +22,7 @@ MSRActionDepthInstance::~MSRActionDepthInstance()
 {
     m_width = 0;
     m_height = 0;
-    close();
+    closeInstance();
 }
 
 bool MSRActionDepthInstance::is_open() const
@@ -30,7 +30,7 @@ bool MSRActionDepthInstance::is_open() const
     return m_file.is_open();
 }
 
-void MSRActionDepthInstance::open()
+void MSRActionDepthInstance::openInstance()
 {
     QString instancePath = m_info.getDatasetPath() + "/" + m_info.getFileName();
 
@@ -51,22 +51,19 @@ void MSRActionDepthInstance::open()
 
         if (m_width != 320 || m_height != 240)
             exit(1);
-
-        m_frameIndex = 0;
     }
 }
 
-void MSRActionDepthInstance::close()
+void MSRActionDepthInstance::closeInstance()
 {
     if (m_file.is_open()) {
         m_file.close();
     }
 }
 
-void MSRActionDepthInstance::restart()
+void MSRActionDepthInstance::restartInstance()
 {
     if (m_file.is_open()) {
-        m_frameIndex = 0;
         m_file.seekg(12, ios_base::beg);
     }
 }

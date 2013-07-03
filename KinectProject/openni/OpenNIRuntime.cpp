@@ -1,7 +1,6 @@
 #include "OpenNIRuntime.h"
 #include <iostream>
 #include <cstdio>
-#include "OpenNIListener.h"
 
 namespace dai {
 
@@ -32,28 +31,29 @@ void OpenNIRuntime::releaseInstance()
 
 OpenNIRuntime::OpenNIRuntime()
 {
-    m_listener = new OpenNIListener(this);
     initOpenNI();
 }
 
 OpenNIRuntime::~OpenNIRuntime()
 {
    shutdownOpenNI();
-   delete m_listener;
 }
 
-openni::VideoFrameRef OpenNIRuntime::readDepthFrame() const
+openni::VideoFrameRef OpenNIRuntime::readDepthFrame()
 {
+    QReadLocker locker(&m_lockDepth);
     return m_depthFrame;
 }
 
-openni::VideoFrameRef OpenNIRuntime::readColorFrame() const
+openni::VideoFrameRef OpenNIRuntime::readColorFrame()
 {
+    QReadLocker locker(&m_lockColor);
     return m_colorFrame;
 }
 
-nite::UserTrackerFrameRef OpenNIRuntime::readUserTrackerFrame() const
+nite::UserTrackerFrameRef OpenNIRuntime::readUserTrackerFrame()
 {
+    QReadLocker locker(&m_lockDepth);
     return m_userTrackerFrame;
 }
 
@@ -92,8 +92,8 @@ void OpenNIRuntime::initOpenNI()
         if (!m_pUserTracker.isValid() || !m_colorStream.isValid())
             throw 7;
 
-        m_colorStream.addNewFrameListener(m_listener);
-        m_pUserTracker.addNewFrameListener(m_listener);
+        m_colorStream.addNewFrameListener(this);
+        m_pUserTracker.addNewFrameListener(this);
     }
     catch (int ex)
     {
@@ -106,8 +106,8 @@ void OpenNIRuntime::initOpenNI()
 void OpenNIRuntime::shutdownOpenNI()
 {
     // Remove listeners
-    m_pUserTracker.removeNewFrameListener(m_listener);
-    m_colorStream.removeNewFrameListener(m_listener);
+    m_pUserTracker.removeNewFrameListener(this);
+    m_colorStream.removeNewFrameListener(this);
 
     // Release frame refs
     m_colorFrame.release();
@@ -121,6 +121,28 @@ void OpenNIRuntime::shutdownOpenNI()
     // Shutdown library
     nite::NiTE::shutdown();
     openni::OpenNI::shutdown();
+}
+
+void OpenNIRuntime::onNewFrame(openni::VideoStream& stream)
+{
+    QWriteLocker locker(&m_lockColor);
+    openni::SensorType type = stream.getSensorInfo().getSensorType();
+
+    if (type == openni::SENSOR_COLOR) {
+        if (stream.readFrame(&m_colorFrame) != openni::STATUS_OK) {
+            throw 1;
+        }
+    }
+}
+
+void OpenNIRuntime::onNewFrame(nite::UserTracker& userTracker)
+{
+    QWriteLocker locker(&m_lockDepth);
+    if (userTracker.readFrame(&m_userTrackerFrame) != nite::STATUS_OK) {
+        throw 2;
+    }
+
+    m_depthFrame = m_userTrackerFrame.getDepthFrame();
 }
 
 } // End namespace
