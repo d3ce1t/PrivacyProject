@@ -16,13 +16,12 @@ InstanceViewer::InstanceViewer( QWindow *parent )
 {
     // QML Setup
     rootContext()->setContextProperty("winObject", (QObject *) this);
-    //QQuickView::setResizeMode( QQuickView::SizeRootObjectToView);
     QQuickView::setSource(QUrl("qrc:///qml/qml/main.qml"));
     setClearBeforeRendering( false );
     connect(this, SIGNAL(beforeRendering()), SLOT(renderOpenGLScene()), Qt::DirectConnection);
+
     // Viewer Setup
     this->setTitle("Instance Viewer");
-
     m_painters.insert(dai::DataFrame::Color, new dai::ColorFramePainter(this));
     m_painters.insert(dai::DataFrame::Depth, new dai::DepthFramePainter(this));
     m_painters.insert(dai::DataFrame::Skeleton, new dai::SkeletonPainter(this));
@@ -141,8 +140,11 @@ void InstanceViewer::processListItem(QListWidget* widget)
     }
 
     m_playback->addInstance(instance);
+    m_playback->removeListener(this, instance->getType());
     m_playback->addNewFrameListener(this, instance);
     m_playback->play(true);
+
+    this->setTitle("Instance Viewer (" + instance->getTitle() + ")");
 }
 
 void InstanceViewer::updatePaintersMatrix()

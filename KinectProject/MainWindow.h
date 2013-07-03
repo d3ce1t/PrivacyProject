@@ -18,7 +18,6 @@ public:
     QString number(int value);
     
 private slots:
-    void viewerClosed(InstanceViewer *viewer);
     void on_btnOpenDataSets_clicked();
     void on_btnParseDataset_clicked();
     void on_btnTest_clicked();

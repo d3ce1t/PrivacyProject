@@ -176,6 +176,28 @@ void PlaybackControl::addNewFrameListener(PlaybackListener* listener, StreamInst
     *listenerList << listener;
 }
 
+void PlaybackControl::removeListener(PlaybackListener* listener, StreamInstance::StreamType type)
+{
+    StreamInstance* instance = NULL;
+
+    m_lockListeners.lock();
+    if (m_listeners.contains(listener)) {
+        QList<StreamInstance*>* instanceList = m_listeners.value(listener);
+        QListIterator<StreamInstance*> it(*instanceList);
+
+        while (it.hasNext() && instance == NULL) {
+            StreamInstance* tmpInstance = it.next();
+            if (tmpInstance->getType() == type) {
+                instance = tmpInstance;
+            }
+        }
+    }
+    m_lockListeners.unlock();
+
+    if (instance != NULL)
+        removeListener(listener, instance);
+}
+
 void PlaybackControl::removeListener(PlaybackListener* listener, StreamInstance* instance)
 {
     QMutexLocker locker(&m_lockListeners);

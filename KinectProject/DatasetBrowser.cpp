@@ -94,6 +94,7 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
     viewer->setPlayback(&m_playback);
     m_playback.addNewFrameListener(viewer, instance);
     m_playback.play(ui->checkSync->isChecked());
+    viewer->setTitle("Instance Viewer (" + instance->getTitle() + ")");
     viewer->show();
 }
 

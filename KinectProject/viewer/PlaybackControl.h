@@ -33,6 +33,7 @@ public:
     int acquire(QObject *caller);
     void release(QObject *caller, int token);
     void addNewFrameListener(PlaybackListener* listener, StreamInstance* instance);
+    void removeListener(PlaybackListener* listener, StreamInstance::StreamType type);
     void removeListener(PlaybackListener* listener, StreamInstance* instance);
     void removeListener(PlaybackListener* listener);
     void setClearInstances(bool value);

@@ -33,11 +33,6 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::viewerClosed(InstanceViewer *viewer)
-{
-    delete viewer;
-}
-
 QString MainWindow::number(int value)
 {
     QString result = QString::number(value);
@@ -198,13 +193,13 @@ void MainWindow::on_btnTest_clicked()
     // Show color instance
     //dai::BasicFilter* filter = new dai::BasicFilter;
     InstanceViewer* mainViewer = new InstanceViewer;
-    connect(mainViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
+    connect(mainViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(deleteLater()));
     //connect(mainViewer, SIGNAL(beforeDisplaying(dai::DataFrameList,InstanceViewer*)), filter, SLOT(processFrame(dai::DataFrameList,InstanceViewer*)), Qt::DirectConnection);
     mainViewer->setPlayback(playback);
 
     // Show color instance
     InstanceViewer* colorViewer = new InstanceViewer;
-    connect(colorViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
+    connect(colorViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(deleteLater()));
     colorViewer->setPlayback(playback);
 
     playback->addNewFrameListener(mainViewer, colorInstance);
@@ -229,11 +224,11 @@ void MainWindow::on_btnStartKinect_clicked()
 
     // Create first viewer
     InstanceViewer* colorViewer = new InstanceViewer;
-    connect(colorViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
+    connect(colorViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(deleteLater()));
 
     // Create second viewer
     InstanceViewer* depthViewer = new InstanceViewer;
-    connect(depthViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
+    connect(depthViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(deleteLater()));
 
     // Connect all together
     playback->addInstance(colorInstance);
@@ -241,6 +236,7 @@ void MainWindow::on_btnStartKinect_clicked()
     colorViewer->setPlayback(playback);
     depthViewer->setPlayback(playback);
     playback->addNewFrameListener(colorViewer, colorInstance);
+    playback->addNewFrameListener(colorViewer, depthInstance);
     playback->addNewFrameListener(depthViewer, depthInstance);
 
     // Run
