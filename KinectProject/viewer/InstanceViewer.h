@@ -29,7 +29,6 @@ public:
 
 signals:
     void changeOfStatus();
-    void viewerClose(InstanceViewer* viewer);
     //void beforeDisplaying(dai::DataFrameList frameList, InstanceViewer* viewer);
 
 public slots:
@@ -45,9 +44,6 @@ public slots:
 private slots:
     void onNewFrameAux(QList<dai::DataFrame*> dataFrames);
     void renderOpenGLScene();
-
-protected:
-    bool event(QEvent * event);
 
 private:
     // Private Functions

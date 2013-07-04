@@ -19,6 +19,7 @@ InstanceViewer::InstanceViewer( QWindow *parent )
     QQuickView::setSource(QUrl("qrc:///qml/qml/main.qml"));
     setClearBeforeRendering( false );
     connect(this, SIGNAL(beforeRendering()), SLOT(renderOpenGLScene()), Qt::DirectConnection);
+    connect(this, SIGNAL(closing(QQuickCloseEvent*)), this, SLOT(deleteLater()));
 
     // Viewer Setup
     this->setTitle("Instance Viewer");
@@ -43,6 +44,8 @@ InstanceViewer::~InstanceViewer()
     m_mutex.unlock();
     m_playback->removeListener(this);
     m_playback->release(this, m_token);
+
+    qDebug() << "InstanceViewer::~InstanceViewer()";
 }
 
 void InstanceViewer::show() {
@@ -204,17 +207,4 @@ void InstanceViewer::translateAxisZ(float value)
 float InstanceViewer::getFPS() const
 {
     return m_fps;
-}
-
-bool InstanceViewer::event(QEvent* event)
-{
-    switch (event->type()) {
-    case QEvent::Close:
-        // PATCH
-        emit viewerClose(this);
-        return true;
-        break;
-    default:
-        return QQuickView::event(event);
-    }
 }

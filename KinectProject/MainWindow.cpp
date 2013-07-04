@@ -22,8 +22,7 @@ using namespace std;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow),
-    m_browser(this)
+    ui(new Ui::MainWindow)
 {   
     ui->setupUi(this);
 
@@ -138,8 +137,6 @@ void MainWindow::testSegmentation()
 void MainWindow::on_btnOpenDataSets_clicked()
 {
     m_browser.show();
-    m_browser.activateWindow();
-    this->hide();
 }
 
 void MainWindow::on_btnParseDataset_clicked()
@@ -213,13 +210,11 @@ void MainWindow::on_btnTest_clicked()
     // Show color instance
     //dai::BasicFilter* filter = new dai::BasicFilter;
     InstanceViewer* mainViewer = new InstanceViewer;
-    connect(mainViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(deleteLater()));
     //connect(mainViewer, SIGNAL(beforeDisplaying(dai::DataFrameList,InstanceViewer*)), filter, SLOT(processFrame(dai::DataFrameList,InstanceViewer*)), Qt::DirectConnection);
     mainViewer->setPlayback(playback);
 
     // Show color instance
     InstanceViewer* colorViewer = new InstanceViewer;
-    connect(colorViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(deleteLater()));
     colorViewer->setPlayback(playback);
 
     playback->addNewFrameListener(mainViewer, colorInstance);
@@ -242,13 +237,9 @@ void MainWindow::on_btnStartKinect_clicked()
     dai::PlaybackControl* playback = new dai::PlaybackControl;
     connect(playback, &dai::PlaybackControl::onPlaybackStoped, playback, &dai::PlaybackControl::deleteLater);
 
-    // Create first viewer
+    // Create viewers
     InstanceViewer* colorViewer = new InstanceViewer;
-    connect(colorViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(deleteLater()));
-
-    // Create second viewer
     InstanceViewer* depthViewer = new InstanceViewer;
-    connect(depthViewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(deleteLater()));
 
     // Connect all together
     playback->addInstance(colorInstance);

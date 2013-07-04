@@ -19,9 +19,6 @@ public:
     explicit DatasetBrowser(QWidget *parent = 0);
     virtual ~DatasetBrowser();
 
-protected:
-    void closeEvent(QCloseEvent * event);
-
 private slots:
     void listItemChange(QListWidgetItem * item);
     void instanceItemActivated(QListWidgetItem * item);
@@ -32,7 +29,6 @@ private slots:
     void on_btnUnselectAllActors_clicked();
     void on_btnSelectAllSamples_clicked();
     void on_btnUnselectAllSamples_clicked();
-    void viewerClosed(InstanceViewer *viewer);
     void on_comboDataset_activated(int index);
 
 private:

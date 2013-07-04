@@ -70,13 +70,6 @@ DatasetBrowser::~DatasetBrowser()
     delete ui;
 }
 
-void DatasetBrowser::closeEvent(QCloseEvent * event)
-{
-    Q_UNUSED(event);
-    QMainWindow* parent =  dynamic_cast<QMainWindow*>(this->parent());
-    parent->show();
-}
-
 void DatasetBrowser::listItemChange(QListWidgetItem * item)
 {
     Q_UNUSED(item);
@@ -110,17 +103,11 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
     m_playback.addInstance(instance);
 
     InstanceViewer* viewer = new InstanceViewer;
-    connect(viewer, SIGNAL(viewerClose(InstanceViewer*)), this, SLOT(viewerClosed(InstanceViewer*)));
     viewer->setPlayback(&m_playback);
     m_playback.addNewFrameListener(viewer, instance);
     m_playback.play(ui->checkSync->isChecked());
     viewer->setTitle("Instance Viewer (" + instance->getTitle() + ")");
     viewer->show();
-}
-
-void DatasetBrowser::viewerClosed(InstanceViewer* viewer)
-{
-    delete viewer;
 }
 
 void DatasetBrowser::loadDataset(Dataset::DatasetType type)
