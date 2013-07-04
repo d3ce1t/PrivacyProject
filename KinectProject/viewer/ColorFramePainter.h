@@ -3,8 +3,10 @@
 
 #include "Painter.h"
 #include <QOpenGLBuffer>
+#include <QOpenGLShaderProgram>
+#include <QOpenGLVertexArrayObject>
 #include <QMatrix4x4>
-#include "../types/ColorFrame.h"
+#include "types/ColorFrame.h"
 
 class QOpenGLShaderProgram;
 
@@ -13,7 +15,7 @@ namespace dai {
 class ColorFramePainter : public Painter
 {
 public:
-    ColorFramePainter(InstanceViewer* parent);
+    ColorFramePainter(QOpenGLContext* context);
     virtual ~ColorFramePainter();
     void prepareData(DataFrame* frame);
     ColorFrame& frame();
@@ -24,19 +26,23 @@ protected:
 
 private:
     void prepareShaderProgram();
+    void prepareVertexBuffer();
     void loadVideoTexture(void *texture, GLsizei width, GLsizei height, GLuint glTextureId);
 
-    ColorFrame*             m_frame;
-    const int               textureUnit;
-    QOpenGLShaderProgram*   m_shaderProgram;
+    ColorFrame*              m_frame;
+    const int                textureUnit;
+    QOpenGLShaderProgram*    m_shaderProgram;
+    QOpenGLVertexArrayObject m_vao;
+    QOpenGLBuffer            m_positionsBuffer;
+    QOpenGLBuffer            m_texCoordBuffer;
 
     // OpenGL identifiers
-    GLuint                  m_frameTexture; // Texture Object
-    GLuint                  m_perspectiveMatrix; // Matrix in the shader
-    GLuint                  m_posAttr; // Pos attr in the shader
-    GLuint                  m_texCoord; // Texture coord in the shader
-    GLuint                  m_texSampler; // Texture Sampler in the shader
-    GLuint                  m_sampler; // Sampler
+    GLuint                   m_frameTexture; // Texture Object
+    GLuint                   m_perspectiveMatrix; // Matrix in the shader
+    GLuint                   m_posAttr; // Pos attr in the shader
+    GLuint                   m_texCoord; // Texture coord in the shader
+    GLuint                   m_texSampler; // Texture Sampler in the shader
+    GLuint                   m_sampler; // Sampler
 };
 
 } // End Namespace

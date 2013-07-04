@@ -1,6 +1,4 @@
 #include "SkeletonPainter.h"
-#include <QOpenGLShaderProgram>
-#include "../types/Skeleton.h"
 #include "../dataset/DataInstance.h"
 #include <QMetaEnum>
 #include "CustomItem.h"
@@ -8,8 +6,8 @@
 
 namespace dai {
 
-SkeletonPainter::SkeletonPainter(InstanceViewer *parent)
-    : Painter(parent)
+SkeletonPainter::SkeletonPainter(QOpenGLContext *context)
+    : Painter(context)
 {
     m_shaderProgram = NULL;
     m_frame = NULL;
@@ -137,7 +135,7 @@ void SkeletonPainter::loadModels()
     QMetaEnum metaEnum = mo.enumerator(index);
 
     while (it.hasNext())
-    {        
+    {
         dai::SkeletonJoint* joint = it.next();
 
         CustomItem* itemX = dynamic_cast<CustomItem*>(m_joints_model.item(row, 0));

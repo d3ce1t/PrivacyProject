@@ -1,12 +1,9 @@
 #include "DepthFramePainter.h"
-#include <cstdio>
-#include <iostream>
-#include <QOpenGLShaderProgram>
-//#include <qopenglext.h>
 #include "../dataset/DataInstance.h"
+/*#include <cstdio>
 #include "KMeans.h"
 #include "DepthSeg.h"
-#include "Utils.h"
+#include "Utils.h"*/
 #include <QColor>
 
 namespace dai {
@@ -19,8 +16,8 @@ const QVector3D DepthFramePainter::m_colors[5] = {
     QVector3D(0.0, 1.0, 1.0)
 };
 
-DepthFramePainter::DepthFramePainter(InstanceViewer *parent)
-    : Painter(parent)
+DepthFramePainter::DepthFramePainter(QOpenGLContext *context)
+    : Painter(context)
 {
     m_frame = NULL;
     m_shaderProgram = NULL;
@@ -101,7 +98,7 @@ void DepthFramePainter::render()
             //qDebug() << m_frame.getNumOfNonZeroPoints();
 
             if (distance > 0)
-            {                
+            {
                 float normX = DataInstance::normalise(x, 0, m_frame->getWidth()-1, -1, 1);
                 float normY = DataInstance::normalise(y, 0, m_frame->getHeight()-1, -1, 1);
                 //float norm_color = DataInstance::normalise(distance, min_distance, max_distance, 0, 0.83);

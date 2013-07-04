@@ -2,20 +2,17 @@
 #define DEPTH_FRAME_PAINTER_H
 
 #include "Painter.h"
-#include <OpenNI.h>
+#include <QOpenGLShaderProgram>
 #include <QOpenGLBuffer>
 #include <QMatrix4x4>
 #include "../types/DepthFrame.h"
-
-
-class QOpenGLShaderProgram;
 
 namespace dai {
 
 class DepthFramePainter : public Painter
 {
 public:
-    DepthFramePainter(InstanceViewer* parent);
+    DepthFramePainter(QOpenGLContext* context);
     virtual ~DepthFramePainter();
     void prepareData(DataFrame* frame);
     DepthFrame& frame();

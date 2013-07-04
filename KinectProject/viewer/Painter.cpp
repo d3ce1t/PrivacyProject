@@ -2,16 +2,16 @@
 
 namespace dai {
 
-Painter::Painter(InstanceViewer* parent)
+Painter::Painter(QOpenGLContext* context)
 {
     m_initialised = false;
-    m_viewer = parent;
+    m_context = context;
 }
 
 Painter::~Painter()
 {
     m_initialised = false;
-    m_viewer = NULL;
+    m_context = NULL;
 }
 
 void Painter::setMatrix(QMatrix4x4& matrix) {
@@ -22,6 +22,7 @@ void Painter::renderNow()
 {
     if (!m_initialised)
     {
+        initializeOpenGLFunctions();
         initialise();
         m_initialised = true;
     }

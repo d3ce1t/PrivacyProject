@@ -1,11 +1,9 @@
 #include "ColorFramePainter.h"
-#include <iostream>
-#include <QOpenGLShaderProgram>
 
 namespace dai {
 
-ColorFramePainter::ColorFramePainter(InstanceViewer* parent)
-    : Painter(parent), textureUnit(0)
+ColorFramePainter::ColorFramePainter(QOpenGLContext *context)
+    : Painter(context), textureUnit(0)
 {
     m_frame = NULL;
     m_shaderProgram = NULL;
@@ -26,6 +24,9 @@ void ColorFramePainter::initialise()
     // Load, compile and link the shader program
     prepareShaderProgram();
 
+    // Init Vertex Buffer
+    prepareVertexBuffer();
+
     // Create texture
     glGenTextures(1, &m_frameTexture);
 }
@@ -45,44 +46,25 @@ void ColorFramePainter::render()
     if (m_frame == NULL)
         return;
 
-    float vertexData[] = {
-        -1.0, 1.0, 0.0,
-        1.0, 1.0, 0.0,
-        1.0, -1.0, 0.0,
-        -1.0, -1.0, 0.0
-    };
-
-    float texCoordsData[] = {
-        0, 0,
-        1, 0,
-        1, 1,
-        0, 1
-    };
-
     // Load into GPU
     loadVideoTexture((void *) m_frame->getDataPtr(), m_frame->getWidth(), m_frame->getHeight(), m_frameTexture);
 
     // Render
-    glEnable(GL_TEXTURE_2D);
-
     m_shaderProgram->bind();
-    m_shaderProgram->setAttributeArray(m_posAttr, vertexData, 3);
-    m_shaderProgram->setAttributeArray(m_texCoord, texCoordsData, 2);
-    m_shaderProgram->enableAttributeArray(m_posAttr);
-    m_shaderProgram->enableAttributeArray(m_texCoord);
+    m_vao.bind();
+
     m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
+
+    glEnable(GL_TEXTURE_2D);
 
     glActiveTexture(GL_TEXTURE0 + textureUnit);
     glBindTexture(GL_TEXTURE_2D, m_frameTexture);
     glDrawArrays(GL_TRIANGLE_FAN, m_posAttr, 4);
-
     glBindTexture(GL_TEXTURE_2D, 0);
-
-    m_shaderProgram->disableAttributeArray(m_texCoord);
-    m_shaderProgram->disableAttributeArray(m_posAttr);
-    m_shaderProgram->release();
-
     glDisable(GL_TEXTURE_2D);
+
+    m_vao.release();
+    m_shaderProgram->release();
 }
 
 void ColorFramePainter::prepareShaderProgram()
@@ -104,6 +86,44 @@ void ColorFramePainter::prepareShaderProgram()
     m_shaderProgram->setUniformValue(m_texSampler, 0);
     m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
     m_shaderProgram->release();
+}
+
+void ColorFramePainter::prepareVertexBuffer()
+{
+    float vertexData[] = {
+        -1.0, 1.0, 0.0,
+        1.0, 1.0, 0.0,
+        1.0, -1.0, 0.0,
+        -1.0, -1.0, 0.0
+    };
+
+    float texCoordsData[] = {
+        0, 0,
+        1, 0,
+        1, 1,
+        0, 1
+    };
+
+    m_vao.create();
+    m_vao.bind();
+
+    m_positionsBuffer.create(); // Create a vertex buffer
+    m_positionsBuffer.setUsagePattern(QOpenGLBuffer::StreamDraw);
+    m_positionsBuffer.bind();
+    m_positionsBuffer.allocate(vertexData, 4*3*sizeof(float));
+    m_shaderProgram->enableAttributeArray(m_posAttr);
+    m_shaderProgram->setAttributeBuffer(m_posAttr, GL_FLOAT, 0, 3 );
+    m_positionsBuffer.release();
+
+    m_texCoordBuffer.create();
+    m_texCoordBuffer.setUsagePattern(QOpenGLBuffer::StreamDraw);
+    m_texCoordBuffer.bind();
+    m_texCoordBuffer.allocate(texCoordsData, 4*2*sizeof(float));
+    m_shaderProgram->enableAttributeArray(m_texCoord);
+    m_shaderProgram->setAttributeBuffer(m_texCoord, GL_FLOAT, 0, 2 );
+    m_texCoordBuffer.release();
+
+    m_vao.release();
 }
 
 // Create Texture (overwrite previous)

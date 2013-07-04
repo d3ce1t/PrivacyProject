@@ -1,9 +1,9 @@
-#ifndef ABSTRACTSCENE_H
-#define ABSTRACTSCENE_H
+#ifndef PAINTER_H
+#define PAINTER_H
 
 #include <QMatrix4x4>
+#include <QOpenGLFunctions>
 #include "../types/DataFrame.h"
-#include "../types/StreamInstance.h"
 
 #ifndef M_PI
     #define M_PI 3.14159265359
@@ -13,10 +13,10 @@ class InstanceViewer;
 
 namespace dai {
 
-class Painter
+class Painter : protected QOpenGLFunctions
 {
 public:
-    explicit Painter(InstanceViewer* parent);
+    explicit Painter(QOpenGLContext *context);
     virtual ~Painter();
     void setMatrix(QMatrix4x4& m_matrix);
     void renderNow();
@@ -29,6 +29,7 @@ protected:
 
     QMatrix4x4              m_matrix;
     InstanceViewer*         m_viewer;
+    QOpenGLContext*         m_context;
 
 private:
     bool                    m_initialised;
@@ -36,4 +37,4 @@ private:
 
 } // End Namespace
 
-#endif // ABSTRACTSCENE_H
+#endif // PAINTER_H

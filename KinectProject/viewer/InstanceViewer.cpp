@@ -22,9 +22,9 @@ InstanceViewer::InstanceViewer( QWindow *parent )
 
     // Viewer Setup
     this->setTitle("Instance Viewer");
-    m_painters.insert(dai::DataFrame::Color, new dai::ColorFramePainter(this));
-    m_painters.insert(dai::DataFrame::Depth, new dai::DepthFramePainter(this));
-    m_painters.insert(dai::DataFrame::Skeleton, new dai::SkeletonPainter(this));
+    m_painters.insert(dai::DataFrame::Color, new dai::ColorFramePainter(NULL));
+    m_painters.insert(dai::DataFrame::Depth, new dai::DepthFramePainter(NULL));
+    m_painters.insert(dai::DataFrame::Skeleton, new dai::SkeletonPainter(NULL));
 
     m_running = false;
     m_playback = NULL;

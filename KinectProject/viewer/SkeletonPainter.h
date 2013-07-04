@@ -3,23 +3,20 @@
 
 #include "Painter.h"
 #include <QMatrix4x4>
-#include <QObject>
 #include <QOpenGLBuffer>
-#include "../types/Skeleton.h"
-#include "../types/SkeletonJoint.h"
-#include "../types/StreamInstance.h"
+#include <QOpenGLShaderProgram>
 #include <QStandardItemModel>
 #include <QTableView>
+#include "../types/Skeleton.h"
+#include "../types/SkeletonJoint.h"
 #include "../types/Quaternion.h"
-
-class QOpenGLShaderProgram;
 
 namespace dai {
 
 class SkeletonPainter : public Painter
 {
 public:
-    explicit SkeletonPainter(InstanceViewer* parent);
+    explicit SkeletonPainter(QOpenGLContext* context);
     virtual ~SkeletonPainter();
     void prepareData(DataFrame* frame);
     Skeleton& frame();
