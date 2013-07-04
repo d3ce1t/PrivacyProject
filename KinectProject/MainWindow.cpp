@@ -15,6 +15,7 @@
 #include <fstream>
 #include <iostream>
 #include "types/DataFrame.h"
+#include "QtWidgets/QDesktopWidget"
 
 using namespace std;
 
@@ -23,9 +24,28 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     m_browser(this)
-{
+{   
     ui->setupUi(this);
-    QWidget::setFixedSize(this->width(), this->height());
+
+    // Show this window centered
+    QDesktopWidget *desktop = QApplication::desktop();
+    int screenWidth, width;
+    int screenHeight, height;
+    int x, y;
+    QSize windowSize;
+
+    screenWidth = desktop->availableGeometry(desktop->primaryScreen()).width();
+    screenHeight = desktop->availableGeometry(desktop->primaryScreen()).height();
+    windowSize = size();
+    width = windowSize.width();
+    height = windowSize.height();
+
+    x = (screenWidth - width) / 2;
+    y = (screenHeight - height) / 2;
+    y -= 50;
+
+    move ( x, y );
+    setFixedSize(windowSize.width(), windowSize.height());
 }
 
 MainWindow::~MainWindow()
