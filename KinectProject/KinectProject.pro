@@ -50,7 +50,8 @@ HEADERS += \
     viewer/Painter.h \
     viewer/PlaybackControl.h \
     viewer/PlaybackWorker.h \
-    exceptions/NotOpenedInstanceException.h
+    exceptions/NotOpenedInstanceException.h \
+    viewer/InstanceViewerWindow.h
 
 SOURCES += \
     dataset/MSRAction3D/MSR3Action3D.cpp \
@@ -94,7 +95,8 @@ SOURCES += \
     filters/BasicFilter.cpp \
     viewer/Painter.cpp \
     viewer/PlaybackControl.cpp \
-    viewer/PlaybackWorker.cpp
+    viewer/PlaybackWorker.cpp \
+    viewer/InstanceViewerWindow.cpp
 
 RESOURCES += openglunderqml.qrc
 

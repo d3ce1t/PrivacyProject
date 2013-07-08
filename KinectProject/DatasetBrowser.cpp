@@ -3,11 +3,13 @@
 #include "dataset/MSRDaily/MSRDailyActivity3D.h"
 #include "dataset/MSRAction3D/MSR3Action3D.h"
 #include "dataset/DAI/DAIDataset.h"
-#include "InstanceWidgetItem.h"
 #include "viewer/PlaybackControl.h"
+#include "viewer/InstanceViewerWindow.h"
+#include "InstanceWidgetItem.h"
 #include <QGuiApplication>
 #include <QDebug>
 #include <QtWidgets/QDesktopWidget>
+
 
 using namespace dai;
 
@@ -102,7 +104,7 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
 
     m_playback.addInstance(instance);
 
-    InstanceViewer* viewer = new InstanceViewer;
+    InstanceViewerWindow* viewer = new InstanceViewerWindow;
     viewer->setPlayback(&m_playback);
     m_playback.addNewFrameListener(viewer, instance);
     m_playback.play(ui->checkSync->isChecked());

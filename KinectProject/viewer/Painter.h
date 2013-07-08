@@ -28,7 +28,6 @@ protected:
     virtual void render() = 0;
 
     QMatrix4x4              m_matrix;
-    InstanceViewer*         m_viewer;
     QOpenGLContext*         m_context;
 
 private:

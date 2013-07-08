@@ -1,6 +1,6 @@
 #include "MainWindow.h"
 #include "ui_mainwindow.h"
-#include "viewer/InstanceViewer.h"
+#include "viewer/InstanceViewerWindow.h"
 #include "dataset/Dataset.h"
 #include <QDebug>
 #include "dataset/MSRAction3D/MSR3Action3D.h"
@@ -208,13 +208,11 @@ void MainWindow::on_btnTest_clicked()
     playback->enablePlayLoop(true);
 
     // Show color instance
-    //dai::BasicFilter* filter = new dai::BasicFilter;
-    InstanceViewer* mainViewer = new InstanceViewer;
-    //connect(mainViewer, SIGNAL(beforeDisplaying(dai::DataFrameList,InstanceViewer*)), filter, SLOT(processFrame(dai::DataFrameList,InstanceViewer*)), Qt::DirectConnection);
+    InstanceViewerWindow* mainViewer = new InstanceViewerWindow;
     mainViewer->setPlayback(playback);
 
     // Show color instance
-    InstanceViewer* colorViewer = new InstanceViewer;
+    InstanceViewerWindow* colorViewer = new InstanceViewerWindow;
     colorViewer->setPlayback(playback);
 
     playback->addNewFrameListener(mainViewer, colorInstance);
@@ -238,8 +236,8 @@ void MainWindow::on_btnStartKinect_clicked()
     connect(playback, &dai::PlaybackControl::onPlaybackStoped, playback, &dai::PlaybackControl::deleteLater);
 
     // Create viewers
-    InstanceViewer* colorViewer = new InstanceViewer;
-    InstanceViewer* depthViewer = new InstanceViewer;
+    InstanceViewerWindow* colorViewer = new InstanceViewerWindow;
+    InstanceViewerWindow* depthViewer = new InstanceViewerWindow;
 
     // Connect all together
     playback->addInstance(colorInstance);

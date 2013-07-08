@@ -1,8 +1,6 @@
 <RCC>
     <qresource prefix="/qml">
         <file>qml/main.qml</file>
-        <file>qml/Button.qml</file>
-        <file>qml/Checkbox.qml</file>
     </qresource>
     <qresource prefix="/glsl">
         <file>glsl/textureVertex.vsh</file>
