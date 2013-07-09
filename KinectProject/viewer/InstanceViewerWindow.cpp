@@ -104,10 +104,7 @@ void InstanceViewerWindow::acquirePlayback()
 
 void InstanceViewerWindow::releasePlayback()
 {
-    if (m_token != -1) {
-        m_playback->release(this, m_token);
-        m_token = -1;
-    }
+    m_playback->release(this, m_token);
 }
 
 float InstanceViewerWindow::getFPS() const

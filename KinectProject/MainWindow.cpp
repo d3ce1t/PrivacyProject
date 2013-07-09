@@ -202,7 +202,7 @@ void MainWindow::on_btnTest_clicked()
     dai::DAIDepthInstance* depthInstance = dataset.getDepthInstance(1, 1, 1);
 
     dai::PlaybackControl* playback = new dai::PlaybackControl;
-    connect(playback, &dai::PlaybackControl::onPlaybackStoped, playback, &dai::PlaybackControl::deleteLater);
+    connect(playback, &dai::PlaybackControl::onPlaybackFinished, playback, &dai::PlaybackControl::deleteLater);
     playback->addInstance(colorInstance);
     playback->addInstance(depthInstance);
     playback->enablePlayLoop(true);
@@ -233,7 +233,7 @@ void MainWindow::on_btnStartKinect_clicked()
 
     // Create Playback
     dai::PlaybackControl* playback = new dai::PlaybackControl;
-    connect(playback, &dai::PlaybackControl::onPlaybackStoped, playback, &dai::PlaybackControl::deleteLater);
+    connect(playback, &dai::PlaybackControl::onPlaybackFinished, playback, &dai::PlaybackControl::deleteLater);
 
     // Create viewers
     InstanceViewerWindow* colorViewer = new InstanceViewerWindow;

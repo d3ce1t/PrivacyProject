@@ -18,7 +18,7 @@ public:
     float getFPS() const {return m_fps;}
     void run() Q_DECL_OVERRIDE;
     void sync();
-    void stop();
+    void stop(bool async = false);
 
 private:
     bool             m_running;

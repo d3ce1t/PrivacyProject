@@ -15,6 +15,7 @@ PlaybackControl::PlaybackControl()
     m_lockViewers.unlock();
     m_worker = NULL;
     m_clearInstances = true;
+    m_restartAfterStop = false;
 }
 
 PlaybackControl::~PlaybackControl()
@@ -43,10 +44,22 @@ PlaybackControl::~PlaybackControl()
 
 void PlaybackControl::stop()
 {
+    if (m_worker != NULL) {
+        m_worker->stop(true);
+    }
+}
+
+void PlaybackControl::stopAsync()
+{
+    qDebug() << "PlaybackControl::stopAsync()";
+    /*m_lockViewers.lock();
+    m_usedTokens.clear();
+    m_viewers = 0;
+    m_lockViewers.unlock();*/
+
     QListIterator<StreamInstance*> it(m_instances);
 
     if (m_worker != NULL) {
-        m_worker->stop();
         m_worker->wait(5000);
         delete m_worker;
         m_worker = NULL;
@@ -59,30 +72,39 @@ void PlaybackControl::stop()
             qDebug() << "Close";
         }
     }
+
+    // emit onPlaybackFinished(this);
+
+    if (m_restartAfterStop) {
+        m_restartAfterStop = false;
+        play();
+    }
 }
 
 void PlaybackControl::play(bool restartAll)
 {
-    if (restartAll)
+    if (m_worker != NULL && m_worker->isRunning() && restartAll) {
+        m_restartAfterStop = true;
         stop();
+    } else {
+        // Open all instances
+        QListIterator<StreamInstance*> it(m_instances);
 
-    // Open all instances
-    QListIterator<StreamInstance*> it(m_instances);
-
-    while (it.hasNext()) {
-        StreamInstance* instance = it.next();
-        if (!instance->is_open()) {
-            instance->open();
-            qDebug() << "Open";
+        while (it.hasNext()) {
+            StreamInstance* instance = it.next();
+            if (!instance->is_open()) {
+                instance->open();
+                qDebug() << "Open";
+            }
         }
-    }
 
-    // Start playback worker (if already running it does nothing)
-    if (m_worker == NULL) {
-        m_worker = new PlaybackWorker(this);
-    }
+        // Start playback worker (if already running it does nothing)
+        if (m_worker == NULL) {
+            m_worker = new PlaybackWorker(this);
+        }
 
-    m_worker->start();
+        m_worker->start();
+    }
 }
 
 void PlaybackControl::doWork()
@@ -123,14 +145,14 @@ void PlaybackControl::doWork()
     if (frameAvailable) {
         notifySuscribers(notChangedInstances);
     } else {
-        this->stop();
-        emit onPlaybackStoped(this);
+        m_worker->stop();
     }
 }
 
 int PlaybackControl::acquire(QObject* caller)
 {
     QMutexLocker locker(&m_lockViewers);
+    //qDebug() << "PlaybackControl::acquire";
     m_viewers++;
     int token = rand();
     m_usedTokens.insert(caller, token);
@@ -140,6 +162,7 @@ int PlaybackControl::acquire(QObject* caller)
 void PlaybackControl::release(QObject* caller, int token)
 {
     QMutexLocker locker(&m_lockViewers);
+    //qDebug() << "PlaybackControl::release";
     if (m_usedTokens.value(caller) == token) {
         m_usedTokens.remove(caller);
         m_viewers--;

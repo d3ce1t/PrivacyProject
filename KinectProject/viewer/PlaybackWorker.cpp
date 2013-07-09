@@ -5,7 +5,7 @@
 namespace dai {
 
 PlaybackWorker::PlaybackWorker(PlaybackControl* parent)
-    : SLEEP_TIME(70)
+    : SLEEP_TIME(100)
 {
     m_parent = parent;
     m_running = false;
@@ -34,7 +34,6 @@ void PlaybackWorker::run()
 
             // Do job
             QMetaObject::invokeMethod(m_parent, "doWork", Qt::AutoConnection);
-            //m_parent->doWork();
 
             // Wait
             m_mutex.lock();
@@ -45,13 +44,18 @@ void PlaybackWorker::run()
             this->msleep(SLEEP_TIME - diffTime);
         }
     }
+
+    QMetaObject::invokeMethod(m_parent, "stopAsync", Qt::AutoConnection);
 }
 
-void PlaybackWorker::stop()
+void PlaybackWorker::stop(bool async)
 {
     m_running = false;
-    sync();
-    qDebug() << "PlaybackControl::stop()";
+
+    if (!async)
+        sync();
+
+    qDebug() << "PlaybackWorker::stop()";
 }
 
 void PlaybackWorker::sync()

@@ -39,10 +39,11 @@ public:
     void setClearInstances(bool value);
 
 signals:
-    void onPlaybackStoped(PlaybackControl* playback);
+    void onPlaybackFinished(PlaybackControl* playback);
 
 private slots:
     void doWork();
+    void stopAsync();
 
 private:
     void removeAllListeners();
@@ -58,6 +59,7 @@ private:
     QHash<StreamInstance*, QList<PlaybackListener*>*> m_listenersAux;
     QMutex                                            m_lockListeners;
     bool                                              m_clearInstances;
+    bool                                              m_restartAfterStop;
 };
 
 
