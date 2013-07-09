@@ -51,7 +51,8 @@ HEADERS += \
     viewer/PlaybackControl.h \
     viewer/PlaybackWorker.h \
     exceptions/NotOpenedInstanceException.h \
-    viewer/InstanceViewerWindow.h
+    viewer/InstanceViewerWindow.h \
+    types/UserFrame.h
 
 SOURCES += \
     dataset/MSRAction3D/MSR3Action3D.cpp \
@@ -96,7 +97,8 @@ SOURCES += \
     viewer/Painter.cpp \
     viewer/PlaybackControl.cpp \
     viewer/PlaybackWorker.cpp \
-    viewer/InstanceViewerWindow.cpp
+    viewer/InstanceViewerWindow.cpp \
+    types/UserFrame.cpp
 
 RESOURCES += openglunderqml.qrc
 
@@ -146,3 +148,10 @@ win32 {
     INCLUDEPATH += "C:/Program Files (x86)/PrimeSense/NiTE2/Include"
     DEPENDPATH += "C:/Program Files (x86)/PrimeSense/NiTE2/Include"
 }
+
+OTHER_FILES += \
+    glsl/textureVertex.vsh \
+    glsl/textureFragment.fsh \
+    glsl/simpleVertex.vsh \
+    glsl/simpleFragment.fsh \
+    qml/main.qml

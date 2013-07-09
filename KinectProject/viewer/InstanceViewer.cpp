@@ -90,7 +90,7 @@ void InstanceViewer::handleWindowChanged(QQuickWindow *win)
         // Since this call is executed on the rendering thread it must be
         // a Qt::DirectConnection
         connect(win, SIGNAL(beforeRendering()), this, SLOT(renderOpenGLScene()), Qt::DirectConnection);
-        connect(win, SIGNAL(beforeSynchronizing()), this, SLOT(sync()), Qt::DirectConnection);
+        //connect(win, SIGNAL(beforeSynchronizing()), this, SLOT(sync()), Qt::DirectConnection);
         //connect(win->openglContext(), SIGNAL(aboutToBeDestroyed()), this, SLOT(cleanup()), Qt::DirectConnection);
 
         // If we allow QML to do the clearing, they would clear what we paint
@@ -100,14 +100,9 @@ void InstanceViewer::handleWindowChanged(QQuickWindow *win)
     }
 }
 
-/*void InstanceViewer::cleanup()
+/*void InstanceViewer::sync()
 {
-    qDebug() << "InstanceViewer::cleanup()";
 }*/
-
-void InstanceViewer::sync()
-{
-}
 
 void InstanceViewer::updatePaintersMatrix()
 {

@@ -12,7 +12,8 @@ public:
     enum FrameType {
         Depth,
         Color,
-        Skeleton
+        Skeleton,
+        User
     };
 
     DataFrame(FrameType type);

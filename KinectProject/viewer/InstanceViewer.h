@@ -34,8 +34,7 @@ public slots:
     void translateAxisY(float value);
     void translateAxisZ(float value);
     void renderOpenGLScene();
-    //void cleanup();
-    void sync();
+    //void sync();
 
 signals:
     void frameRendered();
