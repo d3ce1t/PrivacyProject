@@ -16,7 +16,7 @@ class DAIColorInstance : public DataInstance
 public:
 
     struct BinaryColorFrame {
-        RGBAColor colorRow[640];
+        RGBColor colorRow[640];
     };
 
     explicit DAIColorInstance(const InstanceInfo& info);

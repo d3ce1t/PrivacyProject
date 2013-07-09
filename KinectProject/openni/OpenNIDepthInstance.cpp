@@ -117,7 +117,7 @@ void OpenNIDepthInstance::nextFrame(DataFrame &frame)
             for (int x=0; x<width; ++x, ++pLabel)
             {
                 // FIX: I assume depth value is between 0 a 10000.
-                depthFrame.setItem(y, x, DataInstance::normalise(*pDepth, 0, 10000, 0, 1), *pLabel);
+                depthFrame.setItem(y, x, DataInstance::normalise(*pDepth, 0, 10000, 0, 1)/*, *pLabel*/);
                 pDepth++;
             }
 

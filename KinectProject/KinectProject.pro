@@ -52,7 +52,8 @@ HEADERS += \
     viewer/PlaybackWorker.h \
     exceptions/NotOpenedInstanceException.h \
     viewer/InstanceViewerWindow.h \
-    types/UserFrame.h
+    types/UserFrame.h \
+    viewer/InstanceRecorder.h
 
 SOURCES += \
     dataset/MSRAction3D/MSR3Action3D.cpp \
@@ -98,7 +99,8 @@ SOURCES += \
     viewer/PlaybackControl.cpp \
     viewer/PlaybackWorker.cpp \
     viewer/InstanceViewerWindow.cpp \
-    types/UserFrame.cpp
+    types/UserFrame.cpp \
+    viewer/InstanceRecorder.cpp
 
 RESOURCES += openglunderqml.qrc
 

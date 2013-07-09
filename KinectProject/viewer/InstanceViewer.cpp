@@ -7,8 +7,6 @@
 #include "DepthFramePainter.h"
 #include "SkeletonPainter.h"
 #include "ColorFramePainter.h"
-#include "InstanceViewerWindow.h"
-
 
 InstanceViewer::InstanceViewer()
 {
@@ -86,15 +84,9 @@ void InstanceViewer::renderOpenGLScene()
 void InstanceViewer::handleWindowChanged(QQuickWindow *win)
 {
     if (win) {
-        // Connect the beforeRendering signal to our paint function.
-        // Since this call is executed on the rendering thread it must be
-        // a Qt::DirectConnection
         connect(win, SIGNAL(beforeRendering()), this, SLOT(renderOpenGLScene()), Qt::DirectConnection);
         //connect(win, SIGNAL(beforeSynchronizing()), this, SLOT(sync()), Qt::DirectConnection);
         //connect(win->openglContext(), SIGNAL(aboutToBeDestroyed()), this, SLOT(cleanup()), Qt::DirectConnection);
-
-        // If we allow QML to do the clearing, they would clear what we paint
-        // and nothing would show.
         win->setClearBeforeRendering(false);
         m_window = win;
     }

@@ -31,7 +31,6 @@ public:
     // Member Methods
     unsigned int getNumOfNonZeroPoints() const;
     void setItem(int row, int column, float value);
-    void setItem(int row, int column, float value, short int label);
 
     // Overriden operators
     DepthFrame& operator=(const DepthFrame& other);

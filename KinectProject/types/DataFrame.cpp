@@ -26,12 +26,12 @@ DataFrame::FrameType DataFrame::getType() const
     return m_type;
 }
 
-int DataFrame::getIndex() const
+unsigned int DataFrame::getIndex() const
 {
     return m_index;
 }
 
-void DataFrame::setIndex(int index)
+void DataFrame::setIndex(unsigned int index)
 {
     m_index = index;
 }

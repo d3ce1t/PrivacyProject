@@ -5,12 +5,12 @@
 #include "dataset/InstanceInfo.h"
 #include <QQmlContext>
 
+namespace dai {
+
 InstanceViewerWindow::InstanceViewerWindow()
 { 
     // Viewer setup
     m_fps = 0;
-    m_token = -1;
-    m_playback = NULL;
 
     // QML Setup
     m_engine.rootContext()->setContextProperty("winObject", (QObject *) this);
@@ -31,27 +31,16 @@ InstanceViewerWindow::InstanceViewerWindow()
     }
 
     connect(m_window, SIGNAL(closing(QQuickCloseEvent*)), this, SLOT(deleteLater()));
-    connect(m_viewer, SIGNAL(frameRendered()), this, SLOT(releasePlayback()));
+    connect(m_viewer, SIGNAL(frameRendered()), this, SLOT(onRenderedFrame()));
     setTitle("Instance Viewer");
 }
 
 InstanceViewerWindow::~InstanceViewerWindow()
 {
     qDebug() << "InstanceViewerWindow::~InstanceViewerWindow()";
-
-    if (m_playback != NULL) {
-        m_playback->removeListener(this);
-        m_playback->release(this, m_token);
-        m_playback = NULL;
-    }
-
+    releasePlayback();
     m_viewer = NULL;
     m_window = NULL;
-}
-
-void InstanceViewerWindow::setPlayback(dai::PlaybackControl* playback)
-{
-    m_playback = playback;
 }
 
 void InstanceViewerWindow::processListItem(QListWidget* widget)
@@ -76,19 +65,27 @@ void InstanceViewerWindow::processListItem(QListWidget* widget)
         return;
     }
 
-    m_playback->addInstance(instance);
-    m_playback->removeListener(this, instance->getType());
-    m_playback->addNewFrameListener(this, instance);
-    m_playback->play(true);
+    playback()->removeListener(this, instance->getType());
+    playback()->addInstance(instance);
+    playback()->addNewFrameListener(this, instance);
+    playback()->play(true);
     setTitle("Instance Viewer (" + instance->getTitle() + ")");
 }
 
+void InstanceViewerWindow::onPlaybackStart()
+{
+
+}
+
+void InstanceViewerWindow::onPlaybackStop()
+{
+
+}
 
 void InstanceViewerWindow::onNewFrame(QList<dai::DataFrame*> dataFrames)
 {
-    m_fps = m_playback->getFPS();
+    m_fps = playback()->getFPS();
     emit changeOfStatus();
-
     acquirePlayback();
 
     // I want to execute method in the thread I belong to
@@ -97,14 +94,9 @@ void InstanceViewerWindow::onNewFrame(QList<dai::DataFrame*> dataFrames)
                                   Q_ARG(QList<dai::DataFrame*>, dataFrames));
 }
 
-void InstanceViewerWindow::acquirePlayback()
+void InstanceViewerWindow::onRenderedFrame()
 {
-    m_token = m_playback->acquire(this);
-}
-
-void InstanceViewerWindow::releasePlayback()
-{
-    m_playback->release(this, m_token);
+    releasePlayback();
 }
 
 float InstanceViewerWindow::getFPS() const
@@ -123,3 +115,5 @@ void InstanceViewerWindow::show()
     if (m_window)
         m_window->show();
 }
+
+} // End Namespace

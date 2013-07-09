@@ -72,7 +72,6 @@ void DAIColorInstance::nextFrame(DataFrame &frame)
     {
         for (int x=0; x<m_width; ++x)
         {
-            //Loaded depths are already normalised because I did it when saved
             colorFrame.setItem(y, x, m_readBuffer[y].colorRow[x]);
         }
     }

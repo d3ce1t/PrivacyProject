@@ -5,26 +5,38 @@
 #include <QElapsedTimer>
 #include <QMutex>
 #include <QWaitCondition>
+#include <QAtomicInt>
+#include "PlaybackControl.h"
 
 namespace dai {
 
-class PlaybackControl;
 
 class PlaybackWorker : public QThread
 {
     Q_OBJECT
+
+    friend class PlaybackControl;
+
 public:
     PlaybackWorker(PlaybackControl *parent);
+    virtual ~PlaybackWorker();
     float getFPS() const {return m_fps;}
     void run() Q_DECL_OVERRIDE;
     void sync();
-    void stop(bool async = false);
+    void stop();
 
 private:
+    int acquire(PlaybackControl::PlaybackListener *caller);
+    void release(PlaybackControl::PlaybackListener *caller, int token);
+
+
     bool             m_running;
+    QMutex           m_lockViewers;
+    QAtomicInt       m_viewers;
+    QHash<PlaybackControl::PlaybackListener*, int> m_usedTokens;
     QMutex           m_mutex;
     QWaitCondition   m_sync;
-    const qint64     SLEEP_TIME;
+    qint64           SLEEP_TIME;
     QElapsedTimer    m_time;
     qint64           m_lastTime;
     long long        m_frames;

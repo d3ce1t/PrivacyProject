@@ -118,17 +118,17 @@ void DepthFramePainter::render()
                 }*/
                 /*else {*/
 
-                short int label = m_frame->getLabel(y, x);
+                //short int label = m_frame->getLabel(y, x);
 
-                if (label == 0) {
+                //if (label == 0) {
                     color[offset] = m_pDepthHist[distance];
                     color[offset+1] = m_pDepthHist[distance];
                     color[offset+2] = m_pDepthHist[distance];
-                } else {
+                /*} else {
                     color[offset] = m_colors[label-1 % 5].x();
                     color[offset+1] = m_colors[label-1 % 5].y();
                     color[offset+2] = m_colors[label-1 % 5].z();
-                }
+                }*/
 
                 offset+=3;
             }

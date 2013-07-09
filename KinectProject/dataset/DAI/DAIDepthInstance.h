@@ -18,10 +18,6 @@ public:
         float depthRow[640];
     };
 
-    struct BinaryLabels {
-        short int labelRow[640];
-    };
-
     explicit DAIDepthInstance(const InstanceInfo& info);
     virtual ~DAIDepthInstance();
     bool is_open() const Q_DECL_OVERRIDE;
@@ -40,7 +36,6 @@ private:
     int         m_height;
     DepthFrame  m_frameBuffer[2];
     BinaryDepthFrame m_readDepthBuffer[480];
-    BinaryLabels m_readLabelBuffer[480];
 };
 
 } // End Namespace

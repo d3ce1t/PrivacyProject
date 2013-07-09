@@ -3,8 +3,6 @@
 #include <exception>
 #include <iostream>
 
-
-
 using namespace std;
 
 namespace dai {
@@ -115,11 +113,10 @@ void OpenNIColorInstance::nextFrame(DataFrame &frame)
 
             for (int x = 0; x < oniColorFrame.getWidth(); ++x, ++pImage)
             {
-                RGBAColor color;
+                RGBColor color;
                 color.red = pImage->r / 255.0f;
                 color.green = pImage->g / 255.0f;
                 color.blue = pImage->b / 255.0f;
-                color.alpha = 1.0;
                 colorFrame.setItem(y, x, color);
             }
 
@@ -127,7 +124,7 @@ void OpenNIColorInstance::nextFrame(DataFrame &frame)
         }
 
         if (m_of.isOpen()) {
-            colorFrame.write(m_of, false);
+            colorFrame.write(m_of);
         }
     }
 }

@@ -1,6 +1,7 @@
 #include "PlaybackWorker.h"
 #include "viewer/PlaybackControl.h"
-#include <QDebug>
+#include <cstdlib>
+#include <iostream>
 
 namespace dai {
 
@@ -9,6 +10,13 @@ PlaybackWorker::PlaybackWorker(PlaybackControl* parent)
 {
     m_parent = parent;
     m_running = false;
+    srand(time(NULL));
+}
+
+PlaybackWorker::~PlaybackWorker()
+{
+    QMutexLocker locker(&m_lockViewers);
+    m_usedTokens.clear();
 }
 
 void PlaybackWorker::run()
@@ -33,12 +41,18 @@ void PlaybackWorker::run()
             m_lastTime = timeNow;
 
             // Do job
-            QMetaObject::invokeMethod(m_parent, "doWork", Qt::AutoConnection);
+            m_running = m_parent->doWork();
 
             // Wait
-            m_mutex.lock();
-            m_sync.wait(&m_mutex);
-            m_mutex.unlock();
+            m_viewers.ref();
+            if (m_viewers.deref()) {
+                m_mutex.lock();
+                m_sync.wait(&m_mutex);
+                m_mutex.unlock();
+                SLEEP_TIME = 100;
+            } else {
+                SLEEP_TIME = 10;
+            }
         }
         else {
             this->msleep(SLEEP_TIME - diffTime);
@@ -48,14 +62,10 @@ void PlaybackWorker::run()
     QMetaObject::invokeMethod(m_parent, "stopAsync", Qt::AutoConnection);
 }
 
-void PlaybackWorker::stop(bool async)
+void PlaybackWorker::stop()
 {
     m_running = false;
-
-    if (!async)
-        sync();
-
-    qDebug() << "PlaybackWorker::stop()";
+    std::cerr << "PlaybackWorker::stop()" << std::endl;
 }
 
 void PlaybackWorker::sync()
@@ -63,6 +73,29 @@ void PlaybackWorker::sync()
     m_mutex.lock();
     m_sync.wakeOne();
     m_mutex.unlock();
+}
+
+int PlaybackWorker::acquire(PlaybackControl::PlaybackListener *caller)
+{
+    std::cerr << "PlaybackWorker::acquire" << std::endl;
+    m_viewers.ref();
+    QMutexLocker locker(&m_lockViewers);
+    int token = rand();
+    m_usedTokens.insert(caller, token);;
+    return token;
+}
+
+void PlaybackWorker::release(PlaybackControl::PlaybackListener *caller, int token)
+{
+    std::cerr << "PlaybackWorker::release" << std::endl;
+    QMutexLocker locker(&m_lockViewers);
+
+    if (m_usedTokens.value(caller) == token) {
+        m_usedTokens.remove(caller);
+
+        if (!m_viewers.deref())
+            sync();
+    }
 }
 
 } // End namespace

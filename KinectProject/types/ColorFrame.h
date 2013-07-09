@@ -5,14 +5,13 @@
 
 namespace dai {
 
-struct RGBAColor {
-    float red;
-    float green;
-    float blue;
-    float alpha;
+struct RGBColor {
+    u_int8_t red;
+    u_int8_t green;
+    u_int8_t blue;
 };
 
-class ColorFrame : public GenericFrame<RGBAColor>
+class ColorFrame : public GenericFrame<RGBColor>
 {
 public:
     // Constructors

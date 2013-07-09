@@ -1,24 +1,26 @@
 #include "MainWindow.h"
 #include "ui_mainwindow.h"
-#include "viewer/InstanceViewerWindow.h"
-#include "dataset/Dataset.h"
+
 #include <QDebug>
+#include <QtWidgets/QDesktopWidget>
+#include <fstream>
+#include <iostream>
+#include "dataset/Dataset.h"
+#include "dataset/MSRDaily/MSRDailyActivity3D.h"
 #include "dataset/MSRAction3D/MSR3Action3D.h"
 #include "dataset/DAI/DAIDataset.h"
 #include "openni/OpenNIDepthInstance.h"
 #include "openni/OpenNIColorInstance.h"
 #include "types/DepthFrame.h"
+#include "types/DataFrame.h"
 #include "viewer/PlaybackControl.h"
+#include "viewer/InstanceViewerWindow.h"
+#include "viewer/InstanceRecorder.h"
 #include "filters/BasicFilter.h"
 #include "KMeans.h"
 #include "DepthSeg.h"
-#include <fstream>
-#include <iostream>
-#include "types/DataFrame.h"
-#include "QtWidgets/QDesktopWidget"
 
 using namespace std;
-
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -197,30 +199,31 @@ void MainWindow::on_btnParseDataset_clicked()
 
 void MainWindow::on_btnTest_clicked()
 {
+    // Create instances
     dai::DAIDataset dataset;
-    dai::DAIColorInstance* colorInstance = dataset.getColorInstance(1, 1, 1);
+    //dai::DAIColorInstance* colorInstance = dataset.getColorInstance(1, 1, 1);
     dai::DAIDepthInstance* depthInstance = dataset.getDepthInstance(1, 1, 1);
 
+    // Create playback
     dai::PlaybackControl* playback = new dai::PlaybackControl;
+    playback->enablePlayLoop(false);
     connect(playback, &dai::PlaybackControl::onPlaybackFinished, playback, &dai::PlaybackControl::deleteLater);
-    playback->addInstance(colorInstance);
+
+    // Create listeners
+    //dai::InstanceViewerWindow* colorViewer = new dai::InstanceViewerWindow;
+    dai::InstanceViewerWindow* depthViewer = new dai::InstanceViewerWindow;
+    //dai::InstanceRecorder* recorder = new dai::InstanceRecorder;
+
+    // Connect all together
+    //playback->addInstance(colorInstance);
     playback->addInstance(depthInstance);
-    playback->enablePlayLoop(true);
-
-    // Show color instance
-    InstanceViewerWindow* mainViewer = new InstanceViewerWindow;
-    mainViewer->setPlayback(playback);
-
-    // Show color instance
-    InstanceViewerWindow* colorViewer = new InstanceViewerWindow;
-    colorViewer->setPlayback(playback);
-
-    playback->addNewFrameListener(mainViewer, colorInstance);
-    playback->addNewFrameListener(colorViewer, depthInstance);
+    //playback->addNewFrameListener(colorViewer, colorInstance);
+    playback->addNewFrameListener(depthViewer, depthInstance);
+    //playback->addNewFrameListener(recorder, colorInstance);
 
     playback->play();
-    mainViewer->show();
-    colorViewer->show();
+    //colorViewer->show();
+    depthViewer->show();
 }
 
 void MainWindow::on_btnStartKinect_clicked()
@@ -236,14 +239,12 @@ void MainWindow::on_btnStartKinect_clicked()
     connect(playback, &dai::PlaybackControl::onPlaybackFinished, playback, &dai::PlaybackControl::deleteLater);
 
     // Create viewers
-    InstanceViewerWindow* colorViewer = new InstanceViewerWindow;
-    InstanceViewerWindow* depthViewer = new InstanceViewerWindow;
+    dai::InstanceViewerWindow* colorViewer = new dai::InstanceViewerWindow;
+    dai::InstanceViewerWindow* depthViewer = new dai::InstanceViewerWindow;
 
     // Connect all together
     playback->addInstance(colorInstance);
     playback->addInstance(depthInstance);
-    colorViewer->setPlayback(playback);
-    depthViewer->setPlayback(playback);
     playback->addNewFrameListener(colorViewer, colorInstance);
     playback->addNewFrameListener(colorViewer, depthInstance);
     playback->addNewFrameListener(depthViewer, depthInstance);

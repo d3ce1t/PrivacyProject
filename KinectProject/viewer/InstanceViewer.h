@@ -7,14 +7,11 @@
 #include <QHash>
 #include <QList>
 #include <QListWidget>
-#include "types/StreamInstance.h"
 #include "types/DataFrame.h"
 #include "viewer/Painter.h"
-#include "viewer/PlaybackControl.h"
 
 
 class QListWidget;
-class InstanceViewerWindow;
 
 class InstanceViewer : public QQuickItem
 {

@@ -1,18 +1,52 @@
 #include "PlaybackControl.h"
 #include <QTimer>
-#include <QDebug>
 #include "types/DataFrame.h"
-#include <cstdlib>
+#include "PlaybackWorker.h"
+#include <iostream>
 
 namespace dai {
 
+PlaybackControl::PlaybackListener::PlaybackListener()
+{
+    m_playback = NULL;
+    m_token = -1;
+}
+
+PlaybackControl::PlaybackListener::~PlaybackListener()
+{
+    if (m_playback != NULL) {
+        m_playback->removeListener(this);
+        m_playback = NULL;
+    }
+}
+
+void PlaybackControl::PlaybackListener::setPlayback(PlaybackControl* playback)
+{
+    m_playback = playback;
+}
+
+void PlaybackControl::PlaybackListener::acquirePlayback()
+{
+    if (m_playback != NULL && m_token == -1)
+        m_token = m_playback->acquire(this);
+}
+
+void PlaybackControl::PlaybackListener::releasePlayback()
+{
+    if (m_playback != NULL && m_token != -1) {
+        m_playback->release(this, m_token);
+        m_token = -1;
+    }
+}
+
+PlaybackControl* PlaybackControl::PlaybackListener::playback()
+{
+    return m_playback;
+}
+
 PlaybackControl::PlaybackControl()
 {
-    srand(time(NULL));
     m_playloop_enabled = false;
-    m_lockViewers.lock();
-    m_viewers = 0;
-    m_lockViewers.unlock();
     m_worker = NULL;
     m_clearInstances = true;
     m_restartAfterStop = false;
@@ -31,32 +65,24 @@ PlaybackControl::~PlaybackControl()
     }
     m_instances.clear();
 
-    // Clear used tokens
-    m_usedTokens.clear();
-
     if (m_worker != NULL) {
         delete m_worker;
         m_worker = NULL;
     }
 
-    qDebug() << "PlaybackControl::~PlaybackControl()";
+    std::cerr << "PlaybackControl::~PlaybackControl()" << std::endl;
 }
 
 void PlaybackControl::stop()
 {
     if (m_worker != NULL) {
-        m_worker->stop(true);
+        m_worker->stop();
     }
 }
 
 void PlaybackControl::stopAsync()
 {
-    qDebug() << "PlaybackControl::stopAsync()";
-    /*m_lockViewers.lock();
-    m_usedTokens.clear();
-    m_viewers = 0;
-    m_lockViewers.unlock();*/
-
+    std::cerr << "PlaybackControl::stopAsync()" << std::endl;
     QListIterator<StreamInstance*> it(m_instances);
 
     if (m_worker != NULL) {
@@ -69,11 +95,13 @@ void PlaybackControl::stopAsync()
         StreamInstance* instance = it.next();
         if (instance->is_open()) {
             instance->close();
-            qDebug() << "Close";
+            std::cerr << "Close" << std::endl;
         }
     }
 
-    // emit onPlaybackFinished(this);
+    notifySuscribersOnStop();
+
+    emit onPlaybackFinished(this);
 
     if (m_restartAfterStop) {
         m_restartAfterStop = false;
@@ -94,7 +122,7 @@ void PlaybackControl::play(bool restartAll)
             StreamInstance* instance = it.next();
             if (!instance->is_open()) {
                 instance->open();
-                qDebug() << "Open";
+                std::cerr << "Open" << std::endl;
             }
         }
 
@@ -107,7 +135,7 @@ void PlaybackControl::play(bool restartAll)
     }
 }
 
-void PlaybackControl::doWork()
+bool PlaybackControl::doWork()
 {
     QList<StreamInstance*> instances = m_instances; // implicit sharing
     QList<StreamInstance*> notChangedInstances;
@@ -124,7 +152,7 @@ void PlaybackControl::doWork()
                 m_instances.removeOne(instance);
                 if (m_clearInstances)
                     delete instance;
-                qDebug() << "Closed (not suscribers)";
+                std::cerr << "Closed (not suscribers)" << std::endl;
             }
             else {
                 if (!instance->hasNext() && m_playloop_enabled)
@@ -136,39 +164,27 @@ void PlaybackControl::doWork()
                 } else {
                     instance->close();
                     notChangedInstances << instance;
-                    qDebug() << "Closed";
+                    std::cerr << "Closed" << std::endl;
                 }
             }
         }
     }
 
-    if (frameAvailable) {
-        notifySuscribers(notChangedInstances);
-    } else {
-        m_worker->stop();
-    }
+    if (frameAvailable)
+        notifySuscribersOnNewFrames(notChangedInstances);
+
+    return frameAvailable;
 }
 
-int PlaybackControl::acquire(QObject* caller)
+int PlaybackControl::acquire(PlaybackListener *caller)
 {
-    QMutexLocker locker(&m_lockViewers);
-    //qDebug() << "PlaybackControl::acquire";
-    m_viewers++;
-    int token = rand();
-    m_usedTokens.insert(caller, token);
-    return token;
+
+    return m_worker->acquire(caller);
 }
 
-void PlaybackControl::release(QObject* caller, int token)
+void PlaybackControl::release(PlaybackListener *caller, int token)
 {
-    QMutexLocker locker(&m_lockViewers);
-    //qDebug() << "PlaybackControl::release";
-    if (m_usedTokens.value(caller) == token) {
-        m_usedTokens.remove(caller);
-        m_viewers--;
-        if (m_viewers == 0)
-            m_worker->sync();
-    }
+    m_worker->release(caller, token);
 }
 
 void PlaybackControl::addNewFrameListener(PlaybackListener* listener, StreamInstance* instance)
@@ -197,6 +213,9 @@ void PlaybackControl::addNewFrameListener(PlaybackListener* listener, StreamInst
     }
 
     *listenerList << listener;
+
+    // Set Playback
+    listener->setPlayback(this);
 }
 
 void PlaybackControl::removeListener(PlaybackListener* listener, StreamInstance::StreamType type)
@@ -295,7 +314,7 @@ void PlaybackControl::removeAllListeners()
     m_listenersAux.clear();
 }
 
-void PlaybackControl::notifySuscribers(QList<StreamInstance*> notChangedInstances)
+void PlaybackControl::notifySuscribersOnNewFrames(QList<StreamInstance*> notChangedInstances)
 {
     QMutexLocker locker(&m_lockListeners);
 
@@ -312,6 +331,16 @@ void PlaybackControl::notifySuscribers(QList<StreamInstance*> notChangedInstance
         }
 
         listener->onNewFrame(frameList);
+    }
+}
+
+void PlaybackControl::notifySuscribersOnStop()
+{
+    QMutexLocker locker(&m_lockListeners);
+
+    foreach (PlaybackListener* listener, m_listeners.keys())
+    {
+        listener->onPlaybackStop();
     }
 }
 

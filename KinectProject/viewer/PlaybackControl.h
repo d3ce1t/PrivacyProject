@@ -2,12 +2,14 @@
 #define PLAYBACKCONTROL_H
 
 #include "types/StreamInstance.h"
-#include "PlaybackWorker.h"
+#include <QObject>
 #include <QList>
 #include <QHash>
 #include <QMutex>
 
 namespace dai {
+
+class PlaybackWorker;
 
 class PlaybackControl : public QObject
 {
@@ -19,8 +21,22 @@ public:
 
     class PlaybackListener
     {
+        friend class PlaybackControl;
+
     public:
+        PlaybackListener();
+        virtual ~PlaybackListener();
+        PlaybackControl* playback();
+        void acquirePlayback();
+        void releasePlayback();
         virtual void onNewFrame(QList<DataFrame*> frames) = 0;
+        virtual void onPlaybackStart() = 0;
+        virtual void onPlaybackStop() = 0;
+    private:
+        void setPlayback(PlaybackControl* playback);
+
+        PlaybackControl* m_playback;
+        qint64           m_token;
     };
 
     PlaybackControl();
@@ -30,8 +46,6 @@ public:
     void addInstance(StreamInstance* instance);
     void enablePlayLoop(bool value);
     float getFPS() const;
-    int acquire(QObject *caller);
-    void release(QObject *caller, int token);
     void addNewFrameListener(PlaybackListener* listener, StreamInstance* instance);
     void removeListener(PlaybackListener* listener, StreamInstance::StreamType type);
     void removeListener(PlaybackListener* listener, StreamInstance* instance);
@@ -42,19 +56,19 @@ signals:
     void onPlaybackFinished(PlaybackControl* playback);
 
 private slots:
-    void doWork();
+    bool doWork();
     void stopAsync();
 
 private:
+    int acquire(PlaybackListener *caller);
+    void release(PlaybackListener *caller, int token);
     void removeAllListeners();
-    void notifySuscribers(QList<StreamInstance*> notChangedInstances);
+    void notifySuscribersOnNewFrames(QList<StreamInstance*> notChangedInstances);
+    void notifySuscribersOnStop();
 
     PlaybackWorker*                                   m_worker;
-    QMutex                                            m_lockViewers;
-    int                                               m_viewers;
     QList<StreamInstance*>                            m_instances;
     bool                                              m_playloop_enabled;
-    QHash<QObject*, int>                              m_usedTokens;
     QHash<PlaybackListener*, QList<StreamInstance*>*> m_listeners;
     QHash<StreamInstance*, QList<PlaybackListener*>*> m_listenersAux;
     QMutex                                            m_lockListeners;

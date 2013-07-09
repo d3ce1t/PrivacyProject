@@ -3,12 +3,12 @@
 namespace dai {
 
 ColorFrame::ColorFrame()
-    : GenericFrame<RGBAColor>(DataFrame::Color)
+    : GenericFrame<RGBColor>(DataFrame::Color)
 {
 }
 
 ColorFrame::ColorFrame(int width, int height)
-    : GenericFrame<RGBAColor>(width, height, DataFrame::Color)
+    : GenericFrame<RGBColor>(width, height, DataFrame::Color)
 {
 }
 
@@ -17,13 +17,13 @@ ColorFrame::~ColorFrame()
 }
 
 ColorFrame::ColorFrame(const ColorFrame& other)
-    : GenericFrame<RGBAColor>(other)
+    : GenericFrame<RGBColor>(other)
 {
 }
 
 ColorFrame& ColorFrame::operator=(const ColorFrame& other)
 {
-    GenericFrame<RGBAColor>::operator=(other);
+    GenericFrame<RGBColor>::operator=(other);
     return *this;
 }
 

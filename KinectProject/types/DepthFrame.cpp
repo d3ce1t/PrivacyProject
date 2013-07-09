@@ -53,18 +53,6 @@ void DepthFrame::setItem(int row, int column, float value)
     }
 }
 
-void DepthFrame::setItem(int row, int column, float value, short int label)
-{
-    float current_value = GenericFrame<float>::getItem(row, column);
-    GenericFrame<float>::setItem(row, column, value, label);
-
-    if (value != 0 && current_value == 0) {
-        m_nNonZeroOfPoints++;
-    } else if (value == 0 && current_value != 0) {
-        m_nNonZeroOfPoints--;
-    }
-}
-
 //
 // Static Class Methods
 //
