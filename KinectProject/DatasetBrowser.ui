@@ -230,6 +230,11 @@
               <string>Skeletal</string>
              </property>
             </item>
+            <item>
+             <property name="text">
+              <string>User</string>
+             </property>
+            </item>
            </widget>
           </item>
          </layout>
@@ -246,7 +251,7 @@
      <x>0</x>
      <y>0</y>
      <width>889</width>
-     <height>25</height>
+     <height>20</height>
     </rect>
    </property>
   </widget>

@@ -6,10 +6,16 @@ Painter::Painter(QOpenGLContext* context)
 {
     m_initialised = false;
     m_context = context;
+    m_shaderProgram = NULL;
 }
 
 Painter::~Painter()
 {
+    if (m_shaderProgram != NULL) {
+        delete m_shaderProgram;
+        m_shaderProgram = NULL;
+    }
+
     m_initialised = false;
     m_context = NULL;
 }

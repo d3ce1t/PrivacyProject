@@ -61,6 +61,9 @@ void InstanceViewerWindow::processListItem(QListWidget* widget)
     else if (info.getType() == dai::InstanceInfo::Color) {
         instance = dataset->getColorInstance(info);
     }
+    else if (info.getType() == dai::InstanceInfo::User) {
+        instance = dataset->getUserInstance(info);
+    }
     else {
         return;
     }

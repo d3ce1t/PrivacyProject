@@ -1,6 +1,7 @@
 #ifndef PAINTER_H
 #define PAINTER_H
 
+#include <QOpenGLShaderProgram>
 #include <QMatrix4x4>
 #include <QOpenGLFunctions>
 #include "../types/DataFrame.h"
@@ -24,9 +25,11 @@ public:
     virtual DataFrame& frame() = 0;
 
 protected:
+    virtual void prepareShaderProgram() = 0;
     virtual void initialise() = 0;
     virtual void render() = 0;
 
+    QOpenGLShaderProgram*   m_shaderProgram;
     QMatrix4x4              m_matrix;
     QOpenGLContext*         m_context;
 

@@ -36,4 +36,9 @@ DataInstance* Dataset::getColorInstance(InstanceInfo info) const
     return getColorInstance(info.getActivity(), info.getActor(), info.getSample());
 }
 
+DataInstance* Dataset::getUserInstance(InstanceInfo info) const
+{
+    return getUserInstance(info.getActivity(), info.getActor(), info.getSample());
+}
+
 } // End Namespace

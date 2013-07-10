@@ -98,6 +98,9 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
     else if (info.getType() == InstanceInfo::Color) {
         instance = m_dataset->getColorInstance(info);
     }
+    else if (info.getType() == InstanceInfo::User) {
+        instance = m_dataset->getUserInstance(info);
+    }
     else {
         return;
     }
@@ -170,6 +173,8 @@ void DatasetBrowser::loadInstances()
         showType = InstanceInfo::Color;
     } else if (ui->comboType->currentIndex() == 2) {
         showType = InstanceInfo::Skeleton;
+    } else if (ui->comboType->currentIndex() == 3) {
+        showType = InstanceInfo::User;
     } else {
         showType = InstanceInfo::Uninitialised;
     }

@@ -17,6 +17,7 @@ public:
     MSRDailyDepthInstance* getDepthInstance(int activity, int actor, int sample) const;
     MSRDailySkeletonInstance* getSkeletonInstance(int activity, int actor, int sample) const;
     DataInstance* getColorInstance(int activity, int actor, int sample) const;
+    DataInstance* getUserInstance(int activity, int actor, int sample) const;
 };
 
 }

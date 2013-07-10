@@ -26,7 +26,13 @@ MSRActionSkeletonInstance* MSR3Action3D::getSkeletonInstance(int activity, int a
 
 DataInstance* MSR3Action3D::getColorInstance(int activity, int actor, int sample) const
 {
-    const InstanceInfo instanceInfo = m_metadata->instance(InstanceInfo::Skeleton, activity, actor, sample);
+    const InstanceInfo instanceInfo = m_metadata->instance(InstanceInfo::Color, activity, actor, sample);
+    return new DataInstance(instanceInfo);
+}
+
+DataInstance* MSR3Action3D::getUserInstance(int activity, int actor, int sample) const
+{
+    const InstanceInfo instanceInfo = m_metadata->instance(InstanceInfo::User, activity, actor, sample);
     return new DataInstance(instanceInfo);
 }
 

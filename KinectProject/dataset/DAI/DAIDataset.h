@@ -4,6 +4,7 @@
 #include "dataset/Dataset.h"
 #include "DAIDepthInstance.h"
 #include "DAIColorInstance.h"
+#include "DAIUserInstance.h"
 
 namespace dai {
 
@@ -14,6 +15,7 @@ public:
     DAIDepthInstance* getDepthInstance(int activity, int actor, int sample) const;
     DataInstance* getSkeletonInstance(int activity, int actor, int sample) const;
     DAIColorInstance* getColorInstance(int activity, int actor, int sample) const;
+    DAIUserInstance* getUserInstance(int activity, int actor, int sample) const;
 };
 
 } // End namespace

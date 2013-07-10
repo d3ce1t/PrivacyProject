@@ -1,31 +1,31 @@
-#include "DAIColorInstance.h"
+#include "DAIUserInstance.h"
 #include <iostream>
 
 namespace dai {
 
-DAIColorInstance::DAIColorInstance(const InstanceInfo& info)
+DAIUserInstance::DAIUserInstance(const InstanceInfo& info)
     : DataInstance(info)
 {
-    m_frameBuffer[0] = ColorFrame(640, 480);
-    m_frameBuffer[1] = ColorFrame(640, 480);
+    m_frameBuffer[0] = UserFrame(640, 480);
+    m_frameBuffer[1] = UserFrame(640, 480);
     DataInstance::initFrameBuffer(&m_frameBuffer[0], &m_frameBuffer[1]);
     m_width = 0;
     m_height = 0;
 }
 
-DAIColorInstance::~DAIColorInstance()
+DAIUserInstance::~DAIUserInstance()
 {
     m_width = 0;
     m_height = 0;
     closeInstance();
 }
 
-bool DAIColorInstance::is_open() const
+bool DAIUserInstance::is_open() const
 {
     return m_file.is_open();
 }
 
-void DAIColorInstance::openInstance()
+void DAIUserInstance::openInstance()
 {
     QString instancePath = m_info.getDatasetPath() + "/" + m_info.getFileName();
 
@@ -48,38 +48,38 @@ void DAIColorInstance::openInstance()
     }
 }
 
-void DAIColorInstance::closeInstance()
+void DAIUserInstance::closeInstance()
 {
     if (m_file.is_open()) {
         m_file.close();
     }
 }
 
-void DAIColorInstance::restartInstance()
+void DAIUserInstance::restartInstance()
 {
     if (m_file.is_open()) {
         m_file.seekg(12, ios_base::beg);
     }
 }
 
-void DAIColorInstance::nextFrame(DataFrame &frame)
+void DAIUserInstance::nextFrame(DataFrame &frame)
 {
     // Read Data from File
-    ColorFrame& colorFrame = (ColorFrame&) frame;
+    UserFrame& userFrame = (UserFrame&) frame;
     m_file.read( (char *) m_readBuffer, sizeof(m_readBuffer) );
 
     for (int y=0; y<m_height; ++y)
     {
         for (int x=0; x<m_width; ++x)
         {
-            colorFrame.setItem(y, x, m_readBuffer[y].colorRow[x]);
+            userFrame.setItem(y, x, m_readBuffer[y].userRow[x]);
         }
     }
 }
 
-ColorFrame& DAIColorInstance::frame()
+UserFrame& DAIUserInstance::frame()
 {
-    return (ColorFrame&) DataInstance::frame();
+    return (UserFrame&) DataInstance::frame();
 }
 
-} // End namespace
+} // End Namespace

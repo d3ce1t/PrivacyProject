@@ -1,11 +1,9 @@
 #ifndef DAIDEPTHINSTANCE_H
 #define DAIDEPTHINSTANCE_H
 
-#include <iostream>
 #include <fstream>
 #include "dataset/DataInstance.h"
 #include "types/DepthFrame.h"
-#include <stdint.h>
 
 using namespace std;
 
@@ -21,7 +19,6 @@ public:
     explicit DAIDepthInstance(const InstanceInfo& info);
     virtual ~DAIDepthInstance();
     bool is_open() const Q_DECL_OVERRIDE;
-
     DepthFrame& frame() Q_DECL_OVERRIDE;
 
 protected:

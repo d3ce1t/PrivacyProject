@@ -25,10 +25,12 @@ public:
     virtual DataInstance* getDepthInstance(int activity, int actor, int sample) const = 0;
     virtual DataInstance* getSkeletonInstance(int activity, int actor, int sample) const = 0;
     virtual DataInstance* getColorInstance(int activity, int actor, int sample) const = 0;
+    virtual DataInstance* getUserInstance(int activity, int actor, int sample) const = 0;
 
-    DataInstance* getSkeletonInstance(InstanceInfo info) const;
     DataInstance* getDepthInstance(InstanceInfo info) const;
+    DataInstance* getSkeletonInstance(InstanceInfo info) const;
     DataInstance* getColorInstance(InstanceInfo info) const;
+    DataInstance* getUserInstance(InstanceInfo info) const;
 
 protected:
     DatasetMetadata* m_metadata;

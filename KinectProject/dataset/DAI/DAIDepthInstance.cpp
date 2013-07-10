@@ -1,5 +1,5 @@
 #include "DAIDepthInstance.h"
-#include <QDebug>
+#include <iostream>
 
 namespace dai {
 

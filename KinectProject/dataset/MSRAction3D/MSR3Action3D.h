@@ -14,6 +14,7 @@ public:
     MSRActionDepthInstance* getDepthInstance(int activity, int actor, int sample) const;
     MSRActionSkeletonInstance* getSkeletonInstance(int activity, int actor, int sample) const;
     DataInstance* getColorInstance(int activity, int actor, int sample) const;
+    DataInstance* getUserInstance(int activity, int actor, int sample) const;
 };
 
 } // End Namespace

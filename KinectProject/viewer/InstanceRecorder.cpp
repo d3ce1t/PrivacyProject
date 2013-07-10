@@ -2,13 +2,14 @@
 #include <QDebug>
 #include "types/DepthFrame.h"
 #include "types/ColorFrame.h"
+#include "types/UserFrame.h"
 #include <iostream>
 
 namespace dai {
 
 InstanceRecorder::InstanceRecorder()
 {
-    m_of.setFileName("/files/capture/capture.rgb");
+    m_of.setFileName("/files/capture/capture.user");
     m_of.open(QIODevice::WriteOnly | QIODevice::Truncate);
 
     if (!m_of.isOpen()) {
@@ -49,9 +50,9 @@ void InstanceRecorder::onNewFrame(QList<DataFrame*> dataFrames)
 {
     // I do not need to acquiere playback because I'm performing my work
     // in a synchronous way. Acquire and release is for async activities.
-    ColorFrame* colorFrame = (ColorFrame*) dataFrames.at(0);
-    m_lastFrame = colorFrame->getIndex();
-    colorFrame->write(m_of);
+    UserFrame* userFrame = (UserFrame*) dataFrames.at(0);
+    m_lastFrame = userFrame->getIndex();
+    userFrame->write(m_of);
     qDebug() << "Frame " << m_lastFrame << "written";
 }
 

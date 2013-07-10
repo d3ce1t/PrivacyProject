@@ -53,7 +53,9 @@ HEADERS += \
     exceptions/NotOpenedInstanceException.h \
     viewer/InstanceViewerWindow.h \
     types/UserFrame.h \
-    viewer/InstanceRecorder.h
+    viewer/InstanceRecorder.h \
+    dataset/DAI/DAIUserInstance.h \
+    viewer/UserFramePainter.h
 
 SOURCES += \
     dataset/MSRAction3D/MSR3Action3D.cpp \
@@ -100,7 +102,9 @@ SOURCES += \
     viewer/PlaybackWorker.cpp \
     viewer/InstanceViewerWindow.cpp \
     types/UserFrame.cpp \
-    viewer/InstanceRecorder.cpp
+    viewer/InstanceRecorder.cpp \
+    dataset/DAI/DAIUserInstance.cpp \
+    viewer/UserFramePainter.cpp
 
 RESOURCES += openglunderqml.qrc
 
@@ -156,4 +160,6 @@ OTHER_FILES += \
     glsl/textureFragment.fsh \
     glsl/simpleVertex.vsh \
     glsl/simpleFragment.fsh \
-    qml/main.qml
+    qml/main.qml \
+    glsl/userFragment.fsh \
+    glsl/userVertex.vsh

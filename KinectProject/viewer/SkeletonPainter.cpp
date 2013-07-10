@@ -9,7 +9,6 @@ namespace dai {
 SkeletonPainter::SkeletonPainter(QOpenGLContext *context)
     : Painter(context)
 {
-    m_shaderProgram = NULL;
     m_frame = NULL;
 
     // Setup Joints Model
@@ -97,12 +96,6 @@ SkeletonPainter::SkeletonPainter(QOpenGLContext *context)
 
 SkeletonPainter::~SkeletonPainter()
 {
-    if (m_shaderProgram != NULL)
-    {
-        delete m_shaderProgram;
-        m_shaderProgram = NULL;
-    }
-
     m_frame = NULL;
 
     m_joints_model.clear();

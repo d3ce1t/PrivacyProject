@@ -4,7 +4,6 @@
 #include "Painter.h"
 #include <QMatrix4x4>
 #include <QOpenGLBuffer>
-#include <QOpenGLShaderProgram>
 #include <QStandardItemModel>
 #include <QTableView>
 #include "../types/Skeleton.h"
@@ -33,7 +32,6 @@ private:
     float colorIntensity(float value);
 
     Skeleton*               m_frame;
-    QOpenGLShaderProgram*   m_shaderProgram;
     GLuint                  m_posAttr;
     GLuint                  m_colorAttr; // Texture coord in the shader
     GLuint                  m_perspectiveMatrix; // Matrix in the shader

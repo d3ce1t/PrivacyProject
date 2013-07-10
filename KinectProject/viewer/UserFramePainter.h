@@ -1,23 +1,23 @@
-#ifndef COLOR_FRAME_PAINTER_H
-#define COLOR_FRAME_PAINTER_H
+#ifndef USER_FRAME_PAINTER_H
+#define USER_FRAME_PAINTER_H
 
 #include "Painter.h"
 #include <QOpenGLBuffer>
 #include <QOpenGLVertexArrayObject>
 #include <QMatrix4x4>
-#include "types/ColorFrame.h"
+#include "types/UserFrame.h"
 
 class QOpenGLShaderProgram;
 
 namespace dai {
 
-class ColorFramePainter : public Painter
+class UserFramePainter : public Painter
 {
 public:
-    ColorFramePainter(QOpenGLContext* context);
-    virtual ~ColorFramePainter();
+    UserFramePainter(QOpenGLContext* context);
+    virtual ~UserFramePainter();
     void prepareData(DataFrame* frame);
-    ColorFrame& frame();
+    UserFrame& frame();
 
 protected:
     void initialise();
@@ -28,7 +28,8 @@ private:
     void prepareVertexBuffer();
     void loadVideoTexture(void *texture, GLsizei width, GLsizei height, GLuint glTextureId);
 
-    ColorFrame*              m_frame;
+    UserFrame*               m_frame;
+    u_int8_t*                m_textureMask;
     const int                textureUnit;
     QOpenGLVertexArrayObject m_vao;
     QOpenGLBuffer            m_positionsBuffer;
@@ -45,4 +46,4 @@ private:
 
 } // End Namespace
 
-#endif // COLOR_FRAME_PAINTER_H
+#endif // USER_FRAME_PAINTER_H

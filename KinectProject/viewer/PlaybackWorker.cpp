@@ -77,7 +77,7 @@ void PlaybackWorker::sync()
 
 int PlaybackWorker::acquire(PlaybackControl::PlaybackListener *caller)
 {
-    std::cerr << "PlaybackWorker::acquire" << std::endl;
+    //std::cerr << "PlaybackWorker::acquire" << std::endl;
     m_viewers.ref();
     QMutexLocker locker(&m_lockViewers);
     int token = rand();
@@ -87,7 +87,7 @@ int PlaybackWorker::acquire(PlaybackControl::PlaybackListener *caller)
 
 void PlaybackWorker::release(PlaybackControl::PlaybackListener *caller, int token)
 {
-    std::cerr << "PlaybackWorker::release" << std::endl;
+    //std::cerr << "PlaybackWorker::release" << std::endl;
     QMutexLocker locker(&m_lockViewers);
 
     if (m_usedTokens.value(caller) == token) {

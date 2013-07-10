@@ -13,6 +13,8 @@ DataInstance::DataInstance(const InstanceInfo &info)
         this->m_type = StreamInstance::Skeleton;
     } if (info.getType() == InstanceInfo::Color) {
         this->m_type = StreamInstance::Color;
+    } else if (info.getType() == InstanceInfo::User) {
+        this->m_type = StreamInstance::User;
     }
 
     m_title = info.getFileName();

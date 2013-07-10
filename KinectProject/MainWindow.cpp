@@ -203,6 +203,7 @@ void MainWindow::on_btnTest_clicked()
     dai::DAIDataset dataset;
     //dai::DAIColorInstance* colorInstance = dataset.getColorInstance(1, 1, 1);
     dai::DAIDepthInstance* depthInstance = dataset.getDepthInstance(1, 1, 1);
+    //dai::DAIUserInstance* userInstance = dataset.getUserInstance(1, 1, 1);
 
     // Create playback
     dai::PlaybackControl* playback = new dai::PlaybackControl;
@@ -217,9 +218,10 @@ void MainWindow::on_btnTest_clicked()
     // Connect all together
     //playback->addInstance(colorInstance);
     playback->addInstance(depthInstance);
+    //playback->addInstance(userInstance);
     //playback->addNewFrameListener(colorViewer, colorInstance);
     playback->addNewFrameListener(depthViewer, depthInstance);
-    //playback->addNewFrameListener(recorder, colorInstance);
+    //playback->addNewFrameListener(recorder, userInstance);
 
     playback->play();
     //colorViewer->show();

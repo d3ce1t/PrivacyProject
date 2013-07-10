@@ -2,7 +2,6 @@
 #define DEPTH_FRAME_PAINTER_H
 
 #include "Painter.h"
-#include <QOpenGLShaderProgram>
 #include <QOpenGLBuffer>
 #include <QMatrix4x4>
 #include "../types/DepthFrame.h"
@@ -27,7 +26,6 @@ private:
     DepthFrame*             m_frame;
     const static QVector3D  m_colors[5];
     QMap<float, float>      m_pDepthHist;
-    QOpenGLShaderProgram*   m_shaderProgram;
 
     // OpenGL identifiers
     GLuint                  m_perspectiveMatrix; // Matrix in the shader

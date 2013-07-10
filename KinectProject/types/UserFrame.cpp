@@ -3,12 +3,12 @@
 namespace dai {
 
 UserFrame::UserFrame()
-    : GenericFrame<short int>(DataFrame::User)
+    : GenericFrame<u_int8_t>(DataFrame::User)
 { 
 }
 
 UserFrame::UserFrame(int width, int height)
-    : GenericFrame<short int>(width, height, DataFrame::User)
+    : GenericFrame<u_int8_t>(width, height, DataFrame::User)
 {
 }
 
@@ -17,14 +17,14 @@ UserFrame::~UserFrame()
 }
 
 UserFrame::UserFrame(const UserFrame& other)
-    : GenericFrame<short int>(other)
+    : GenericFrame<u_int8_t>(other)
 {
 
 }
 
 UserFrame& UserFrame::operator=(const UserFrame& other)
 {
-    GenericFrame<short int>::operator=(other);
+    GenericFrame<u_int8_t>::operator=(other);
     return *this;
 }
 

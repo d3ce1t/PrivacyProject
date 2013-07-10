@@ -289,6 +289,8 @@ DatasetMetadata* DatasetMetadata::load(QString xmlPath)
                     type = InstanceInfo::Color;
                 else if (strType == "skeleton")
                     type = InstanceInfo::Skeleton;
+                else if (strType == "user")
+                    type = InstanceInfo::User;
                 else
                     type = InstanceInfo::Uninitialised;
 

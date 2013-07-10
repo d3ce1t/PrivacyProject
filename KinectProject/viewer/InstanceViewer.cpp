@@ -7,6 +7,7 @@
 #include "DepthFramePainter.h"
 #include "SkeletonPainter.h"
 #include "ColorFramePainter.h"
+#include "UserFramePainter.h"
 
 InstanceViewer::InstanceViewer()
 {
@@ -17,6 +18,7 @@ InstanceViewer::InstanceViewer()
     m_painters.insert(dai::DataFrame::Color, new dai::ColorFramePainter(NULL));
     m_painters.insert(dai::DataFrame::Depth, new dai::DepthFramePainter(NULL));
     m_painters.insert(dai::DataFrame::Skeleton, new dai::SkeletonPainter(NULL));
+    m_painters.insert(dai::DataFrame::User, new dai::UserFramePainter(NULL));
 
     m_running = false;
     m_window = NULL;
@@ -43,7 +45,8 @@ void InstanceViewer::onNewFrame(QList<dai::DataFrame*> dataFrames)
     m_mutex.lock();
     foreach (dai::DataFrame* frame, dataFrames) {
         dai::Painter* painter = m_painters.value(frame->getType());
-        painter->prepareData(frame);
+        if (painter)
+            painter->prepareData(frame);
     }
     m_mutex.unlock();
 
@@ -58,6 +61,9 @@ void InstanceViewer::renderOpenGLScene()
     glDepthMask(GL_TRUE);
     glDepthFunc(GL_LEQUAL);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Configure ViewPort and Clear Screen
     glViewport(0, 0, width(), height());
@@ -78,6 +84,8 @@ void InstanceViewer::renderOpenGLScene()
     }
 
     // Restore
+    glDisable(GL_BLEND);
+    glDisable(GL_TEXTURE_2D);
     glDisable(GL_DEPTH_TEST);
 }
 

@@ -1,25 +1,25 @@
-#ifndef DAI_COLOR_INSTANCE_H
-#define DAI_COLOR_INSTANCE_H
+#ifndef DAIUSERINSTANCE_H
+#define DAIUSERINSTANCE_H
 
 #include <fstream>
 #include "dataset/DataInstance.h"
-#include "types/ColorFrame.h"
+#include "types/UserFrame.h"
 
 using namespace std;
 
 namespace dai {
 
-class DAIColorInstance : public DataInstance
+class DAIUserInstance : public DataInstance
 {
 public:
-    struct BinaryColorFrame {
-        RGBColor colorRow[640];
+    struct BinaryUserFrame {
+        u_int8_t userRow[640];
     };
 
-    explicit DAIColorInstance(const InstanceInfo& info);
-    virtual ~DAIColorInstance();
+    explicit DAIUserInstance(const InstanceInfo& info);
+    virtual ~DAIUserInstance();
     bool is_open() const Q_DECL_OVERRIDE;
-    ColorFrame& frame() Q_DECL_OVERRIDE;
+    UserFrame& frame() Q_DECL_OVERRIDE;
 
 protected:
     void openInstance() Q_DECL_OVERRIDE;
@@ -31,10 +31,10 @@ private:
     ifstream    m_file;
     int         m_width;
     int         m_height;
-    ColorFrame  m_frameBuffer[2];
-    BinaryColorFrame m_readBuffer[480];
+    UserFrame   m_frameBuffer[2];
+    BinaryUserFrame m_readBuffer[480];
 };
 
 } // End Namespace
 
-#endif // DAI_COLOR_INSTANCE_H
+#endif // DAIUSERINSTANCE_H

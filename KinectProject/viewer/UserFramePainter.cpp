@@ -1,19 +1,23 @@
-#include "ColorFramePainter.h"
+#include "UserFramePainter.h"
 
 namespace dai {
 
-ColorFramePainter::ColorFramePainter(QOpenGLContext *context)
+UserFramePainter::UserFramePainter(QOpenGLContext *context)
     : Painter(context), textureUnit(0)
 {
     m_frame = NULL;
+    m_textureMask = new u_int8_t[640*480];
 }
 
-ColorFramePainter::~ColorFramePainter()
+UserFramePainter::~UserFramePainter()
 {
+    delete[] m_textureMask;
+    m_textureMask = NULL;
+
     m_frame = NULL;
 }
 
-void ColorFramePainter::initialise()
+void UserFramePainter::initialise()
 {
     // Load, compile and link the shader program
     prepareShaderProgram();
@@ -25,23 +29,33 @@ void ColorFramePainter::initialise()
     glGenTextures(1, &m_frameTexture);
 }
 
-ColorFrame& ColorFramePainter::frame()
+UserFrame& UserFramePainter::frame()
 {
     return *m_frame;
 }
 
-void ColorFramePainter::prepareData(DataFrame *frame)
+void UserFramePainter::prepareData(DataFrame *frame)
 {
-    m_frame = (ColorFrame*) frame;
+    m_frame = (UserFrame*) frame;
+
+    memset(m_textureMask, 0, 640*480*sizeof(u_int8_t));
+
+    for (int i=0; i<480; ++i) {
+        for (int j=0; j<640; ++j) {
+            u_int8_t label = m_frame->getItem(i,j);
+            m_textureMask[i*640+j] = label > 0 ? 255 : 0;
+        }
+    }
 }
 
-void ColorFramePainter::render()
+void UserFramePainter::render()
 {
     if (m_frame == NULL)
         return;
 
     // Load into GPU
-    loadVideoTexture((void *) m_frame->getDataPtr(), m_frame->getWidth(), m_frame->getHeight(), m_frameTexture);
+    loadVideoTexture((void *) m_textureMask, m_frame->getWidth(), m_frame->getHeight(), m_frameTexture);
+
 
     // Render
     m_shaderProgram->bind();
@@ -59,11 +73,11 @@ void ColorFramePainter::render()
     m_shaderProgram->release();
 }
 
-void ColorFramePainter::prepareShaderProgram()
+void UserFramePainter::prepareShaderProgram()
 {
     m_shaderProgram = new QOpenGLShaderProgram();
-    m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/glsl/glsl/textureVertex.vsh");
-    m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/glsl/glsl/textureFragment.fsh");
+    m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/glsl/glsl/userVertex.vsh");
+    m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/glsl/glsl/userFragment.fsh");
     m_shaderProgram->bindAttributeLocation("posAttr", 0);
     m_shaderProgram->bindAttributeLocation("texCoord", 1);
 
@@ -80,7 +94,7 @@ void ColorFramePainter::prepareShaderProgram()
     m_shaderProgram->release();
 }
 
-void ColorFramePainter::prepareVertexBuffer()
+void UserFramePainter::prepareVertexBuffer()
 {
     float vertexData[] = {
         -1.0, 1.0, 0.0,
@@ -119,13 +133,13 @@ void ColorFramePainter::prepareVertexBuffer()
 }
 
 // Create Texture (overwrite previous)
-void ColorFramePainter::loadVideoTexture(void* texture, GLsizei width, GLsizei height, GLuint glTextureId)
+void UserFramePainter::loadVideoTexture(void* texture, GLsizei width, GLsizei height, GLuint glTextureId)
 {
     glBindTexture(GL_TEXTURE_2D, glTextureId);
     glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, texture);
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 

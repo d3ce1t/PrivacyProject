@@ -7,6 +7,8 @@
         <file>glsl/textureFragment.fsh</file>
         <file>glsl/simpleFragment.fsh</file>
         <file>glsl/simpleVertex.vsh</file>
+        <file>glsl/userFragment.fsh</file>
+        <file>glsl/userVertex.vsh</file>
     </qresource>
     <qresource prefix="/icons">
         <file>kinect.png</file>

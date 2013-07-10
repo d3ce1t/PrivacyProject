@@ -2,6 +2,7 @@
 #define COLOR_FRAME_H
 
 #include "GenericFrame.h"
+#include <stdint.h>
 
 namespace dai {
 

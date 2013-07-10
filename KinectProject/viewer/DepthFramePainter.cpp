@@ -20,16 +20,10 @@ DepthFramePainter::DepthFramePainter(QOpenGLContext *context)
     : Painter(context)
 {
     m_frame = NULL;
-    m_shaderProgram = NULL;
 }
 
 DepthFramePainter::~DepthFramePainter()
 {
-    if (m_shaderProgram != NULL) {
-        delete m_shaderProgram;
-        m_shaderProgram = NULL;
-    }
-
     m_frame = NULL;
 }
 

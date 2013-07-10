@@ -15,6 +15,7 @@ public:
         Depth,
         Color,
         Skeleton,
+        User,
         Uninitialised
     };
 
