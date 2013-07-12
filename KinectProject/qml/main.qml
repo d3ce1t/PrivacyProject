@@ -27,7 +27,7 @@ ApplicationWindow {
 
         Text {
             id: textFrameId
-            text: Math.round(winObject.fps) + " fps"
+            text: Math.round(viewerWindow.fps) + " fps"
             color: "black"
             font.pixelSize: 11
             wrapMode: Text.WordWrap
@@ -42,7 +42,7 @@ ApplicationWindow {
             anchors.fill: instanceViewer
 
             onDropped: {
-                winObject.processListItem(drop.source)
+                viewerWindow.processListItem(drop.source)
             }
 
             Rectangle {
@@ -123,6 +123,9 @@ ApplicationWindow {
                     RadioButton {
                         text: "Replace person by background"
                         exclusiveGroup: privacyFilter
+                        onCheckedChanged: {
+                            viewerWindow.colorFilter = checked;
+                        }
                     }
                     RadioButton {
                         text: "Blur"

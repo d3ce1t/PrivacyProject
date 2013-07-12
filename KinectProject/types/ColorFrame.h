@@ -18,7 +18,6 @@ public:
     // Constructors
     ColorFrame();
     ColorFrame(int width, int height);
-    virtual ~ColorFrame();
     ColorFrame(const ColorFrame& other);
 
     // Overriden operators

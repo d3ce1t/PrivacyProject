@@ -17,6 +17,7 @@
 #include "viewer/InstanceViewerWindow.h"
 #include "viewer/InstanceRecorder.h"
 #include "filters/BasicFilter.h"
+#include "filters/DilateUserFilter.h"
 #include "KMeans.h"
 #include "DepthSeg.h"
 
@@ -199,33 +200,46 @@ void MainWindow::on_btnParseDataset_clicked()
 
 void MainWindow::on_btnTest_clicked()
 {
-    // Create instances
     dai::DAIDataset dataset;
-    //dai::DAIColorInstance* colorInstance = dataset.getColorInstance(1, 1, 1);
-    dai::DAIDepthInstance* depthInstance = dataset.getDepthInstance(1, 1, 1);
-    //dai::DAIUserInstance* userInstance = dataset.getUserInstance(1, 1, 1);
 
-    // Create playback
+    // Create instances
+    dai::DAIColorInstance* colorInstance = dataset.getColorInstance(1, 1, 1);
+    //dai::DAIDepthInstance* depthInstance = dataset.getDepthInstance(1, 1, 1);
+    dai::DAIUserInstance* userInstance = dataset.getUserInstance(1, 1, 1);
+
+    // Create playback to control instances reading
     dai::PlaybackControl* playback = new dai::PlaybackControl;
-    playback->enablePlayLoop(false);
+    playback->enablePlayLoop(true);
     connect(playback, &dai::PlaybackControl::onPlaybackFinished, playback, &dai::PlaybackControl::deleteLater);
 
-    // Create listeners
-    //dai::InstanceViewerWindow* colorViewer = new dai::InstanceViewerWindow;
-    dai::InstanceViewerWindow* depthViewer = new dai::InstanceViewerWindow;
-    //dai::InstanceRecorder* recorder = new dai::InstanceRecorder;
+    // Create Viewers
+    dai::InstanceViewerWindow* colorViewer = new dai::InstanceViewerWindow;
+    //dai::InstanceViewerWindow* depthViewer = new dai::InstanceViewerWindow;
+    dai::InstanceViewerWindow* userViewer = new dai::InstanceViewerWindow;
+
+    // Set viewers filters
+    dai::BasicFilter* basicFilter = new dai::BasicFilter;
+    basicFilter->enableFilter(false);
+    dai::DilateUserFilter* dilateFilter = new dai::DilateUserFilter;
+    colorViewer->addFilter(dai::DataFrame::User, dilateFilter);
+    colorViewer->addFilter(dai::DataFrame::Color, basicFilter);
+    userViewer->addFilter(dai::DataFrame::User, dilateFilter);
 
     // Connect all together
-    //playback->addInstance(colorInstance);
-    playback->addInstance(depthInstance);
-    //playback->addInstance(userInstance);
-    //playback->addNewFrameListener(colorViewer, colorInstance);
-    playback->addNewFrameListener(depthViewer, depthInstance);
+    playback->addInstance(colorInstance);
+    //playback->addInstance(depthInstance);
+    playback->addInstance(userInstance);
+
+    playback->addNewFrameListener(colorViewer, colorInstance);
+    playback->addNewFrameListener(colorViewer, userInstance);
+    //playback->addNewFrameListener(depthViewer, depthInstance);
+    playback->addNewFrameListener(userViewer, userInstance);
     //playback->addNewFrameListener(recorder, userInstance);
 
     playback->play();
-    //colorViewer->show();
-    depthViewer->show();
+    colorViewer->show();
+    //depthViewer->show();
+    userViewer->show();
 }
 
 void MainWindow::on_btnStartKinect_clicked()

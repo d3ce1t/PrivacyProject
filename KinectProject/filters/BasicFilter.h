@@ -1,25 +1,18 @@
 #ifndef BASICFILTER_H
 #define BASICFILTER_H
 
-#include <QObject>
-#include "../viewer/InstanceViewer.h"
-#include "../types/ColorFrame.h"
+#include "filters/FrameFilter.h"
+#include "types/ColorFrame.h"
 
 namespace dai {
 
-class BasicFilter : public QObject
+class BasicFilter : public FrameFilter
 {
-    Q_OBJECT
-
 public:
     BasicFilter();
-
-public slots:
-    //void processFrame(dai::DataFrameList framesList, InstanceViewer* viewer);
+    void applyFilter(DataFrame* frame);
 
 private:
-    void dilateUserMask(short *labels);
-
     ColorFrame m_background;
 };
 

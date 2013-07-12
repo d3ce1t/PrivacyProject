@@ -26,14 +26,14 @@ public:
     void stop();
 
 private:
-    int acquire(PlaybackControl::PlaybackListener *caller);
-    void release(PlaybackControl::PlaybackListener *caller, int token);
+    void acquire(PlaybackControl::PlaybackListener *caller);
+    void release(PlaybackControl::PlaybackListener *caller);
 
 
     bool             m_running;
     QMutex           m_lockViewers;
     QAtomicInt       m_viewers;
-    QHash<PlaybackControl::PlaybackListener*, int> m_usedTokens;
+    QHash<PlaybackControl::PlaybackListener*, bool> m_currentCallers;
     QMutex           m_mutex;
     QWaitCondition   m_sync;
     qint64           SLEEP_TIME;

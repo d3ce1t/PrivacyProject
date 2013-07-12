@@ -29,6 +29,12 @@ DepthFrame::DepthFrame(const DepthFrame& other)
     m_nNonZeroOfPoints = other.m_nNonZeroOfPoints;
 }
 
+DepthFrame* DepthFrame::clone() const
+{
+    DepthFrame* clonedObject = new DepthFrame(*this);
+    return clonedObject;
+}
+
 DepthFrame& DepthFrame::operator=(const DepthFrame& other)
 {
     GenericFrame<float>::operator=(other);

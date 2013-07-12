@@ -27,6 +27,7 @@ public:
     DepthFrame(int width, int height);
     virtual ~DepthFrame();
     DepthFrame(const DepthFrame& other);
+    DepthFrame* clone() const;
 
     // Member Methods
     unsigned int getNumOfNonZeroPoints() const;

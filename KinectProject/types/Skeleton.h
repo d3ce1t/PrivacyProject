@@ -17,8 +17,9 @@ public:
     static QVector3D minValue(const Skeleton& frame);
 
     Skeleton();
-    Skeleton(const Skeleton& other);
     virtual ~Skeleton();
+    Skeleton(const Skeleton& other);
+    Skeleton* clone() const;
     SkeletonJoint& getNormalisedJoint(SkeletonJoint::JointType type);
     SkeletonJoint& getJoint(SkeletonJoint::JointType type);
     const Quaternion& getQuaternion(Quaternion::QuaternionType type) const;

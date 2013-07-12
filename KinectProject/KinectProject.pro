@@ -55,7 +55,9 @@ HEADERS += \
     types/UserFrame.h \
     viewer/InstanceRecorder.h \
     dataset/DAI/DAIUserInstance.h \
-    viewer/UserFramePainter.h
+    viewer/UserFramePainter.h \
+    filters/FrameFilter.h \
+    filters/DilateUserFilter.h
 
 SOURCES += \
     dataset/MSRAction3D/MSR3Action3D.cpp \
@@ -104,7 +106,9 @@ SOURCES += \
     types/UserFrame.cpp \
     viewer/InstanceRecorder.cpp \
     dataset/DAI/DAIUserInstance.cpp \
-    viewer/UserFramePainter.cpp
+    viewer/UserFramePainter.cpp \
+    filters/FrameFilter.cpp \
+    filters/DilateUserFilter.cpp
 
 RESOURCES += openglunderqml.qrc
 

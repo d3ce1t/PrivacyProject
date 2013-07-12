@@ -17,6 +17,7 @@ public:
     GenericFrame(int width, int height, FrameType type);
     virtual ~GenericFrame();
     GenericFrame(const GenericFrame<T>& other);
+    GenericFrame<T>* clone() const;
 
     // Member Methods
     int getWidth() const;
@@ -69,6 +70,13 @@ GenericFrame<T>::GenericFrame(const GenericFrame<T> &other)
     this->m_height = other.m_height;
     this->m_data = new T[this->m_width * this->m_height];
     memcpy(this->m_data, other.m_data, this->m_width * this->m_height * sizeof(T));
+}
+
+template <class T>
+GenericFrame<T>* GenericFrame<T>::clone() const
+{
+    GenericFrame<T>* clonedObject = new GenericFrame<T>(*this);
+    return clonedObject;
 }
 
 template <class T>

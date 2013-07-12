@@ -9,12 +9,12 @@ namespace dai {
 PlaybackControl::PlaybackListener::PlaybackListener()
 {
     m_playback = NULL;
-    m_token = -1;
 }
 
 PlaybackControl::PlaybackListener::~PlaybackListener()
 {
     if (m_playback != NULL) {
+        m_playback->release(this);
         m_playback->removeListener(this);
         m_playback = NULL;
     }
@@ -25,17 +25,10 @@ void PlaybackControl::PlaybackListener::setPlayback(PlaybackControl* playback)
     m_playback = playback;
 }
 
-void PlaybackControl::PlaybackListener::acquirePlayback()
-{
-    if (m_playback != NULL && m_token == -1)
-        m_token = m_playback->acquire(this);
-}
-
 void PlaybackControl::PlaybackListener::releasePlayback()
 {
-    if (m_playback != NULL && m_token != -1) {
-        m_playback->release(this, m_token);
-        m_token = -1;
+    if (m_playback != NULL) {
+        m_playback->release(this);
     }
 }
 
@@ -176,15 +169,9 @@ bool PlaybackControl::doWork()
     return frameAvailable;
 }
 
-int PlaybackControl::acquire(PlaybackListener *caller)
+void PlaybackControl::release(PlaybackListener *caller)
 {
-
-    return m_worker->acquire(caller);
-}
-
-void PlaybackControl::release(PlaybackListener *caller, int token)
-{
-    m_worker->release(caller, token);
+    m_worker->release(caller);
 }
 
 void PlaybackControl::addNewFrameListener(PlaybackListener* listener, StreamInstance* instance)
@@ -330,6 +317,7 @@ void PlaybackControl::notifySuscribersOnNewFrames(QList<StreamInstance*> notChan
             frameList << &instance->frame();
         }
 
+        m_worker->acquire(listener);
         listener->onNewFrame(frameList);
     }
 }

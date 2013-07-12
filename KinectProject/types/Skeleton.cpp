@@ -81,6 +81,12 @@ Skeleton::Skeleton(const Skeleton& other)
     }
 }
 
+Skeleton* Skeleton::clone() const
+{
+    Skeleton* clonedObject = new Skeleton(*this);
+    return clonedObject;
+}
+
 Skeleton::~Skeleton()
 {
     clear();

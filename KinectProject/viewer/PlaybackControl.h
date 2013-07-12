@@ -27,7 +27,6 @@ public:
         PlaybackListener();
         virtual ~PlaybackListener();
         PlaybackControl* playback();
-        void acquirePlayback();
         void releasePlayback();
         virtual void onNewFrame(QList<DataFrame*> frames) = 0;
         virtual void onPlaybackStart() = 0;
@@ -36,7 +35,6 @@ public:
         void setPlayback(PlaybackControl* playback);
 
         PlaybackControl* m_playback;
-        qint64           m_token;
     };
 
     PlaybackControl();
@@ -60,8 +58,7 @@ private slots:
     void stopAsync();
 
 private:
-    int acquire(PlaybackListener *caller);
-    void release(PlaybackListener *caller, int token);
+    void release(PlaybackListener *caller);
     void removeAllListeners();
     void notifySuscribersOnNewFrames(QList<StreamInstance*> notChangedInstances);
     void notifySuscribersOnStop();

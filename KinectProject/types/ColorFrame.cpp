@@ -12,10 +12,6 @@ ColorFrame::ColorFrame(int width, int height)
 {
 }
 
-ColorFrame::~ColorFrame()
-{
-}
-
 ColorFrame::ColorFrame(const ColorFrame& other)
     : GenericFrame<RGBColor>(other)
 {
