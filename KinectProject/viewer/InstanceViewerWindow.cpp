@@ -189,7 +189,18 @@ void InstanceViewerWindow::enableColorFilter(bool value)
 {
     QList<FrameFilter*>* filters = m_filters.value(DataFrame::Color);
 
-    foreach (FrameFilter* filter, *filters) {
+    if (filters) {
+        FrameFilter* filter = filters->at(0);
+        filter->enableFilter(value);
+    }
+}
+
+void InstanceViewerWindow::enableBlurFilter(bool value)
+{
+    QList<FrameFilter*>* filters = m_filters.value(DataFrame::Color);
+
+    if (filters) {
+        FrameFilter* filter = filters->at(1);
         filter->enableFilter(value);
     }
 }

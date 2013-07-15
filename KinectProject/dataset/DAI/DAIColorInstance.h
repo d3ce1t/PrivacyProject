@@ -12,10 +12,6 @@ namespace dai {
 class DAIColorInstance : public DataInstance
 {
 public:
-    struct BinaryColorFrame {
-        RGBColor colorRow[640];
-    };
-
     explicit DAIColorInstance(const InstanceInfo& info);
     virtual ~DAIColorInstance();
     bool is_open() const Q_DECL_OVERRIDE;
@@ -32,7 +28,6 @@ private:
     int         m_width;
     int         m_height;
     ColorFrame  m_frameBuffer[2];
-    BinaryColorFrame m_readBuffer[480];
 };
 
 } // End Namespace

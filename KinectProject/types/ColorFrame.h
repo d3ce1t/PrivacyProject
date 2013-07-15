@@ -10,6 +10,7 @@ struct RGBColor {
     u_int8_t red;
     u_int8_t green;
     u_int8_t blue;
+    //u_int8_t alpha; // padding
 };
 
 class ColorFrame : public GenericFrame<RGBColor>

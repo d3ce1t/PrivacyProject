@@ -18,6 +18,7 @@
 #include "viewer/InstanceRecorder.h"
 #include "filters/BasicFilter.h"
 #include "filters/DilateUserFilter.h"
+#include "filters/BlurFilter.h"
 #include "KMeans.h"
 #include "DepthSeg.h"
 
@@ -215,15 +216,18 @@ void MainWindow::on_btnTest_clicked()
     // Create Viewers
     dai::InstanceViewerWindow* colorViewer = new dai::InstanceViewerWindow;
     //dai::InstanceViewerWindow* depthViewer = new dai::InstanceViewerWindow;
-    dai::InstanceViewerWindow* userViewer = new dai::InstanceViewerWindow;
+    //dai::InstanceViewerWindow* userViewer = new dai::InstanceViewerWindow;
 
     // Set viewers filters
     dai::BasicFilter* basicFilter = new dai::BasicFilter;
     basicFilter->enableFilter(false);
     dai::DilateUserFilter* dilateFilter = new dai::DilateUserFilter;
+    dai::BlurFilter* blurFilter = new dai::BlurFilter;
+    blurFilter->enableFilter(false);
     colorViewer->addFilter(dai::DataFrame::User, dilateFilter);
     colorViewer->addFilter(dai::DataFrame::Color, basicFilter);
-    userViewer->addFilter(dai::DataFrame::User, dilateFilter);
+    colorViewer->addFilter(dai::DataFrame::Color, blurFilter);
+    //userViewer->addFilter(dai::DataFrame::User, dilateFilter);
 
     // Connect all together
     playback->addInstance(colorInstance);
@@ -233,13 +237,13 @@ void MainWindow::on_btnTest_clicked()
     playback->addNewFrameListener(colorViewer, colorInstance);
     playback->addNewFrameListener(colorViewer, userInstance);
     //playback->addNewFrameListener(depthViewer, depthInstance);
-    playback->addNewFrameListener(userViewer, userInstance);
+    //playback->addNewFrameListener(userViewer, userInstance);
     //playback->addNewFrameListener(recorder, userInstance);
 
     playback->play();
     colorViewer->show();
     //depthViewer->show();
-    userViewer->show();
+    //userViewer->show();
 }
 
 void MainWindow::on_btnStartKinect_clicked()

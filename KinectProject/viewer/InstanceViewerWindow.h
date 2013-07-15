@@ -16,6 +16,7 @@ class InstanceViewerWindow : public QObject, public PlaybackControl::PlaybackLis
     Q_OBJECT
     Q_PROPERTY(float fps READ getFPS NOTIFY changeOfStatus)
     Q_PROPERTY(bool colorFilter WRITE enableColorFilter)
+    Q_PROPERTY(bool blurFilter WRITE enableBlurFilter)
 
 public:
     InstanceViewerWindow();
@@ -37,6 +38,7 @@ private slots:
     void onRenderedFrame();
     float getFPS() const;
     void enableColorFilter(bool value);
+    void enableBlurFilter(bool value);
 
 private:
     QList<DataFrame*> applyFilters(QList<DataFrame *>& dataFrames) const;

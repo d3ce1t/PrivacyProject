@@ -66,15 +66,8 @@ void DAIColorInstance::nextFrame(DataFrame &frame)
 {
     // Read Data from File
     ColorFrame& colorFrame = (ColorFrame&) frame;
-    m_file.read( (char *) m_readBuffer, sizeof(m_readBuffer) );
-
-    for (int y=0; y<m_height; ++y)
-    {
-        for (int x=0; x<m_width; ++x)
-        {
-            colorFrame.setItem(y, x, m_readBuffer[y].colorRow[x]);
-        }
-    }
+    RGBColor* ptrImg = (RGBColor*) colorFrame.getDataPtr();
+    m_file.read( (char *) ptrImg, colorFrame.getWidth() * colorFrame.getHeight() * sizeof(RGBColor) );
 }
 
 ColorFrame& DAIColorInstance::frame()
