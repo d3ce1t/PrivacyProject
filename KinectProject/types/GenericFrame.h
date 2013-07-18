@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <QMap>
 #include <QFile>
+#include <QDebug>
 
 namespace dai {
 
@@ -15,9 +16,9 @@ public:
     // Constructor, Destructors and Copy Constructor
     GenericFrame(FrameType type);
     GenericFrame(int width, int height, FrameType type);
-    virtual ~GenericFrame();
     GenericFrame(const GenericFrame<T>& other);
-    GenericFrame<T>* clone() const;
+    shared_ptr<DataFrame> clone() const;
+    virtual ~GenericFrame();
 
     // Member Methods
     int getWidth() const;
@@ -38,7 +39,7 @@ public:
 
 
 private:
-    T* m_data;
+    T*  m_data;
     int m_width;
     int m_height;
 };
@@ -47,7 +48,7 @@ template <class T>
 GenericFrame<T>::GenericFrame(FrameType type)
     : DataFrame(type)
 {
-    this->m_data = 0;
+    this->m_data = nullptr;
     this->m_width = 0;
     this->m_height = 0;
 }
@@ -73,10 +74,17 @@ GenericFrame<T>::GenericFrame(const GenericFrame<T> &other)
 }
 
 template <class T>
-GenericFrame<T>* GenericFrame<T>::clone() const
+GenericFrame<T>::~GenericFrame()
 {
-    GenericFrame<T>* clonedObject = new GenericFrame<T>(*this);
-    return clonedObject;
+    delete[] this->m_data;
+    this->m_data = nullptr;
+    //qDebug() << "GenericFrame<T>::~GenericFrame()";
+}
+
+template <class T>
+shared_ptr<DataFrame> GenericFrame<T>::clone() const
+{
+    return shared_ptr<GenericFrame<T>>(new GenericFrame<T>(*this));
 }
 
 template <class T>
@@ -86,27 +94,19 @@ GenericFrame<T>& GenericFrame<T>::operator=(const GenericFrame<T>& other)
 
     // If want to reuse m_data memory. So, if size isn't correct to store new frame
     // I need to create another one.
-    if (this->m_data == 0 || this->m_width != other.m_width || this->m_height != other.m_height)
+    if (!this->m_data || this->m_width != other.m_width || this->m_height != other.m_height)
     {
-        if (this->m_data != 0) {
-            delete[] this->m_data;
-        }
-
         this->m_width = other.m_width;
         this->m_height = other.m_height;
-        this->m_data = new T[this->m_width * this->m_height];
+
+        if (this->m_data) {
+            delete [] this->m_data;
+            this->m_data = new T[this->m_width * this->m_height];
+        }
     }
 
     memcpy(this->m_data, other.m_data, this->m_width * this->m_height * sizeof(T));
     return *this;
-}
-
-template <class T>
-GenericFrame<T>::~GenericFrame()
-{
-    if (this->m_data != 0) {
-        delete[] this->m_data;
-    }
 }
 
 template <class T>

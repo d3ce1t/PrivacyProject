@@ -12,10 +12,10 @@ class DAIDataset : public Dataset
 {
 public:
     explicit DAIDataset();
-    DAIDepthInstance* getDepthInstance(int activity, int actor, int sample) const;
-    DataInstance* getSkeletonInstance(int activity, int actor, int sample) const;
-    DAIColorInstance* getColorInstance(int activity, int actor, int sample) const;
-    DAIUserInstance* getUserInstance(int activity, int actor, int sample) const;
+    shared_ptr<DataInstance> getDepthInstance(int activity, int actor, int sample) const;
+    shared_ptr<DataInstance> getSkeletonInstance(int activity, int actor, int sample) const;
+    shared_ptr<DataInstance> getColorInstance(int activity, int actor, int sample) const;
+    shared_ptr<DataInstance> getUserInstance(int activity, int actor, int sample) const;
 };
 
 } // End namespace

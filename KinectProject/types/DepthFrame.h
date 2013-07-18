@@ -27,7 +27,7 @@ public:
     DepthFrame(int width, int height);
     virtual ~DepthFrame();
     DepthFrame(const DepthFrame& other);
-    DepthFrame* clone() const;
+    shared_ptr<DataFrame> clone() const;
 
     // Member Methods
     unsigned int getNumOfNonZeroPoints() const;

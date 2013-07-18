@@ -6,9 +6,9 @@ namespace dai {
 DAIDepthInstance::DAIDepthInstance(const InstanceInfo& info)
     : DataInstance(info)
 {
-    m_frameBuffer[0] = DepthFrame(640, 480);
-    m_frameBuffer[1] = DepthFrame(640, 480);
-    DataInstance::initFrameBuffer(&m_frameBuffer[0], &m_frameBuffer[1]);
+    m_frameBuffer[0].reset(new DepthFrame(640, 480));
+    m_frameBuffer[1].reset(new DepthFrame(640, 480));
+    DataInstance::initFrameBuffer(m_frameBuffer[0], m_frameBuffer[1]);
     m_width = 0;
     m_height = 0;
 }
@@ -76,11 +76,6 @@ void DAIDepthInstance::nextFrame(DataFrame &frame)
             depthFrame.setItem(y, x, m_readDepthBuffer[y].depthRow[x]);
         }
     }
-}
-
-DepthFrame& DAIDepthInstance::frame()
-{
-    return (DepthFrame&) DataInstance::frame();
 }
 
 } // End namespace

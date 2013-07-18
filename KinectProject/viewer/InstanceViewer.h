@@ -22,7 +22,7 @@ public:
     virtual ~InstanceViewer();
 
 public slots:
-    void onNewFrame(QList<dai::DataFrame*> dataFrames);
+    void onNewFrame(QList<shared_ptr<dai::DataFrame> > dataFrames);
     void resetPerspective();
     void rotateAxisX(float angle);
     void rotateAxisY(float angle);

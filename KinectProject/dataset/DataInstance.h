@@ -17,13 +17,13 @@ public:
     const InstanceInfo& getMetadata() const;
     unsigned int getTotalFrames() const;
 
-    virtual bool is_open() const Q_DECL_OVERRIDE;
-    bool hasNext() const Q_DECL_OVERRIDE;
+    virtual bool is_open() const override;
+    bool hasNext() const override;
 
 protected:
-    virtual void openInstance() Q_DECL_OVERRIDE;
-    virtual void closeInstance() Q_DECL_OVERRIDE;
-    virtual void restartInstance() Q_DECL_OVERRIDE;
+    virtual void openInstance() override;
+    virtual void closeInstance() override;
+    virtual void restartInstance() override;
     virtual void nextFrame(DataFrame& frame);
 
     InstanceInfo m_info;

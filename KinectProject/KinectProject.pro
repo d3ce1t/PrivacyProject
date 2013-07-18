@@ -3,6 +3,10 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = KinectProject
 
+# Use C++11
+QMAKE_CXXFLAGS += -std=c++11
+QMAKE_LFLAGS = -std=c++11
+
 HEADERS += \
     dataset/MSRAction3D/MSR3Action3D.h \
     dataset/InstanceInfo.h \

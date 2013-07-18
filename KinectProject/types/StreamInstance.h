@@ -27,7 +27,7 @@ public:
     virtual bool hasNext() const;
 
     void readNextFrame();
-    DataFrame& frame();
+    shared_ptr<DataFrame> frame();
     StreamType getType() const;
     const QString& getTitle() const;
     unsigned int getFrameIndex() const;
@@ -39,7 +39,7 @@ protected:
     virtual void nextFrame(DataFrame& frame) = 0;
 
 
-    void initFrameBuffer(DataFrame* firstBuffer, DataFrame* secondBuffer);
+    void initFrameBuffer(shared_ptr<DataFrame> firstBuffer, shared_ptr<DataFrame> secondBuffer);
 
     StreamType      m_type;
     QString         m_title;
@@ -49,8 +49,8 @@ private:
 
     unsigned int    m_frameIndex;
     QReadWriteLock  m_locker;
-    DataFrame*      m_writeFrame;
-    DataFrame*      m_readFrame;
+    shared_ptr<DataFrame> m_writeFrame;
+    shared_ptr<DataFrame> m_readFrame;
 };
 
 } // End namespace

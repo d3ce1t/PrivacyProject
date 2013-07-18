@@ -14,20 +14,19 @@ class DAIColorInstance : public DataInstance
 public:
     explicit DAIColorInstance(const InstanceInfo& info);
     virtual ~DAIColorInstance();
-    bool is_open() const Q_DECL_OVERRIDE;
-    ColorFrame& frame() Q_DECL_OVERRIDE;
+    bool is_open() const override;
 
 protected:
-    void openInstance() Q_DECL_OVERRIDE;
-    void closeInstance() Q_DECL_OVERRIDE;
-    void restartInstance() Q_DECL_OVERRIDE;
-    void nextFrame(DataFrame& frame) Q_DECL_OVERRIDE;
+    void openInstance() override;
+    void closeInstance() override;
+    void restartInstance() override;
+    void nextFrame(DataFrame& frame) override;
 
 private:
     ifstream    m_file;
     int         m_width;
     int         m_height;
-    ColorFrame  m_frameBuffer[2];
+    shared_ptr<ColorFrame> m_frameBuffer[2];
 };
 
 } // End Namespace

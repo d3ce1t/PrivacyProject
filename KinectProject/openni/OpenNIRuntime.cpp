@@ -4,14 +4,14 @@
 
 namespace dai {
 
-OpenNIRuntime* OpenNIRuntime::_instance = NULL;
+OpenNIRuntime* OpenNIRuntime::_instance = nullptr;
 int OpenNIRuntime::_instance_counter = 0;
 QMutex             OpenNIRuntime::mutex;
 
 OpenNIRuntime* OpenNIRuntime::getInstance()
 {
     mutex.lock();
-    if (_instance == NULL) {
+    if (_instance == nullptr) {
         _instance = new OpenNIRuntime();
     }
     _instance_counter++;

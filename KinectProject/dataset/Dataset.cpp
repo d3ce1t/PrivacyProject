@@ -1,4 +1,5 @@
 #include "Dataset.h"
+#include "exceptions/NotImplementedException.h"
 
 namespace dai {
 
@@ -10,9 +11,9 @@ Dataset::Dataset(QString path)
 
 Dataset::~Dataset()
 {
-    if (m_metadata != NULL) {
+    if (m_metadata != nullptr) {
         delete m_metadata;
-        m_metadata = NULL;
+        m_metadata = nullptr;
     }
 }
 
@@ -21,22 +22,22 @@ const DatasetMetadata& Dataset::getMetadata() const
     return *m_metadata;
 }
 
-DataInstance* Dataset::getSkeletonInstance(InstanceInfo info) const
+shared_ptr<DataInstance> Dataset::getSkeletonInstance(InstanceInfo info) const
 {
     return getSkeletonInstance(info.getActivity(), info.getActor(), info.getSample());
 }
 
-DataInstance* Dataset::getDepthInstance(InstanceInfo info) const
+shared_ptr<DataInstance> Dataset::getDepthInstance(InstanceInfo info) const
 {
     return getDepthInstance(info.getActivity(), info.getActor(), info.getSample());
 }
 
-DataInstance* Dataset::getColorInstance(InstanceInfo info) const
+shared_ptr<DataInstance> Dataset::getColorInstance(InstanceInfo info) const
 {
     return getColorInstance(info.getActivity(), info.getActor(), info.getSample());
 }
 
-DataInstance* Dataset::getUserInstance(InstanceInfo info) const
+shared_ptr<DataInstance> Dataset::getUserInstance(InstanceInfo info) const
 {
     return getUserInstance(info.getActivity(), info.getActor(), info.getSample());
 }

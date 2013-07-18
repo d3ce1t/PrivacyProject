@@ -6,9 +6,9 @@ namespace dai {
 DAIColorInstance::DAIColorInstance(const InstanceInfo& info)
     : DataInstance(info)
 {
-    m_frameBuffer[0] = ColorFrame(640, 480);
-    m_frameBuffer[1] = ColorFrame(640, 480);
-    DataInstance::initFrameBuffer(&m_frameBuffer[0], &m_frameBuffer[1]);
+    m_frameBuffer[0].reset(new ColorFrame(640, 480));
+    m_frameBuffer[1].reset(new ColorFrame(640, 480));
+    DataInstance::initFrameBuffer(m_frameBuffer[0], m_frameBuffer[1]);
     m_width = 0;
     m_height = 0;
 }
@@ -68,11 +68,6 @@ void DAIColorInstance::nextFrame(DataFrame &frame)
     ColorFrame& colorFrame = (ColorFrame&) frame;
     RGBColor* ptrImg = (RGBColor*) colorFrame.getDataPtr();
     m_file.read( (char *) ptrImg, colorFrame.getWidth() * colorFrame.getHeight() * sizeof(RGBColor) );
-}
-
-ColorFrame& DAIColorInstance::frame()
-{
-    return (ColorFrame&) DataInstance::frame();
 }
 
 } // End namespace

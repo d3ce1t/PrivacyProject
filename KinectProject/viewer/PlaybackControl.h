@@ -6,6 +6,9 @@
 #include <QList>
 #include <QHash>
 #include <QMutex>
+#include <memory>
+
+using namespace std;
 
 namespace dai {
 
@@ -28,7 +31,7 @@ public:
         virtual ~PlaybackListener();
         PlaybackControl* playback();
         void releasePlayback();
-        virtual void onNewFrame(QList<DataFrame*> frames) = 0;
+        virtual void onNewFrame(const QList<shared_ptr<DataFrame>>& frames) = 0;
         virtual void onPlaybackStart() = 0;
         virtual void onPlaybackStop() = 0;
     private:
@@ -41,14 +44,13 @@ public:
     virtual ~PlaybackControl();
     void stop();
     void play(bool restartAll = false);
-    void addInstance(StreamInstance* instance);
+    void addInstance(shared_ptr<StreamInstance> instance);
     void enablePlayLoop(bool value);
     float getFPS() const;
-    void addNewFrameListener(PlaybackListener* listener, StreamInstance* instance);
+    void addNewFrameListener(PlaybackListener *listener, shared_ptr<StreamInstance> instance);
     void removeListener(PlaybackListener* listener, StreamInstance::StreamType type);
-    void removeListener(PlaybackListener* listener, StreamInstance* instance);
+    void removeListener(PlaybackListener* listener, shared_ptr<StreamInstance> instance);
     void removeListener(PlaybackListener* listener);
-    void setClearInstances(bool value);
 
 signals:
     void onPlaybackFinished(PlaybackControl* playback);
@@ -60,16 +62,15 @@ private slots:
 private:
     void release(PlaybackListener *caller);
     void removeAllListeners();
-    void notifySuscribersOnNewFrames(QList<StreamInstance*> notChangedInstances);
+    void notifySuscribersOnNewFrames(QList<shared_ptr<StreamInstance> > notChangedInstances);
     void notifySuscribersOnStop();
 
     PlaybackWorker*                                   m_worker;
-    QList<StreamInstance*>                            m_instances;
+    QList<shared_ptr<StreamInstance> >                m_instances;
     bool                                              m_playloop_enabled;
-    QHash<PlaybackListener*, QList<StreamInstance*>*> m_listeners;
+    QHash<PlaybackListener*, QList<shared_ptr<StreamInstance> >*> m_listeners;
     QHash<StreamInstance*, QList<PlaybackListener*>*> m_listenersAux;
     QMutex                                            m_lockListeners;
-    bool                                              m_clearInstances;
     bool                                              m_restartAfterStop;
 };
 

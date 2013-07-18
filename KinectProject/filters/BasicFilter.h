@@ -10,7 +10,7 @@ class BasicFilter : public FrameFilter
 {
 public:
     BasicFilter();
-    void applyFilter(DataFrame* frame);
+    void applyFilter(shared_ptr<DataFrame> frame);
 
 private:
     ColorFrame m_background;

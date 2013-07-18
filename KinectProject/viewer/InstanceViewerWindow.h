@@ -14,6 +14,7 @@ namespace dai {
 class InstanceViewerWindow : public QObject, public PlaybackControl::PlaybackListener
 {
     Q_OBJECT
+
     Q_PROPERTY(float fps READ getFPS NOTIFY changeOfStatus)
     Q_PROPERTY(bool colorFilter WRITE enableColorFilter)
     Q_PROPERTY(bool blurFilter WRITE enableBlurFilter)
@@ -21,11 +22,11 @@ class InstanceViewerWindow : public QObject, public PlaybackControl::PlaybackLis
 public:
     InstanceViewerWindow();
     virtual ~InstanceViewerWindow();
-    void onNewFrame(QList<DataFrame*> dataFrames);
+    void onNewFrame(const QList<shared_ptr<DataFrame>>& dataFrames);
     void onPlaybackStart();
     void onPlaybackStop();
     void setTitle(const QString& title);
-    void addFilter(DataFrame::FrameType type, FrameFilter *filter);
+    void addFilter(DataFrame::FrameType type, shared_ptr<FrameFilter> filter);
     void show();
 
 signals:
@@ -41,14 +42,14 @@ private slots:
     void enableBlurFilter(bool value);
 
 private:
-    QList<DataFrame*> applyFilters(QList<DataFrame *>& dataFrames) const;
-    DataFrame* applyFilter(DataFrame* inputFrame, UserFrame* userMask = NULL) const;
+    QList<shared_ptr<DataFrame>> applyFilters(const QList<shared_ptr<DataFrame> > &dataFrames) const;
+    shared_ptr<DataFrame> applyFilter(shared_ptr<DataFrame> inputFrame, shared_ptr<UserFrame> userMask = nullptr) const;
 
     float                      m_fps;
     QQmlApplicationEngine      m_engine;
     InstanceViewer*            m_viewer;
     QQuickWindow*              m_window;
-    QHash<DataFrame::FrameType, QList<FrameFilter*>*> m_filters;
+    QHash<DataFrame::FrameType, QList<shared_ptr<FrameFilter>>*> m_filters;
 };
 
 } // End Namespace

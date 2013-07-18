@@ -20,20 +20,19 @@ public:
 
     explicit MSRActionDepthInstance(const InstanceInfo& info);
     virtual ~MSRActionDepthInstance();
-    bool is_open() const Q_DECL_OVERRIDE;
-    DepthFrame& frame() Q_DECL_OVERRIDE;
+    bool is_open() const override;
 
 protected:
-    void openInstance() Q_DECL_OVERRIDE;
-    void closeInstance() Q_DECL_OVERRIDE;
-    void restartInstance() Q_DECL_OVERRIDE;
-    void nextFrame(DataFrame& frame) Q_DECL_OVERRIDE;
+    void openInstance() override;
+    void closeInstance() override;
+    void restartInstance() override;
+    void nextFrame(DataFrame& frame) override;
 
 private:
     ifstream    m_file;
     int         m_width;
     int         m_height;
-    DepthFrame  m_frameBuffer[2];
+    shared_ptr<DepthFrame>  m_frameBuffer[2];
     BinaryDepthFrame m_readBuffer[240]; // I know MSR Action 3D depth is 320 x 240
 };
 

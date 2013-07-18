@@ -6,15 +6,15 @@ namespace dai {
 
 Grill::Grill()
 {
-    m_shaderProgram = NULL;
+    m_shaderProgram = nullptr;
 }
 
 Grill::~Grill()
 {
-    if (m_shaderProgram != NULL)
+    if (m_shaderProgram != nullptr)
     {
         delete m_shaderProgram;
-        m_shaderProgram = NULL;
+        m_shaderProgram = nullptr;
     }
 }
 

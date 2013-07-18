@@ -81,10 +81,9 @@ Skeleton::Skeleton(const Skeleton& other)
     }
 }
 
-Skeleton* Skeleton::clone() const
+shared_ptr<DataFrame> Skeleton::clone() const
 {
-    Skeleton* clonedObject = new Skeleton(*this);
-    return clonedObject;
+    return shared_ptr<DataFrame>(new Skeleton(*this));
 }
 
 Skeleton::~Skeleton()

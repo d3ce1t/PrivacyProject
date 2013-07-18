@@ -4,12 +4,12 @@
 
 namespace dai {
 
-void BlurFilter::applyFilter(DataFrame* frame)
+void BlurFilter::applyFilter(shared_ptr<DataFrame> frame)
 {
     if (!m_enabled)
         return;
 
-    ColorFrame* colorFrame = (ColorFrame*) frame;
+    ColorFrame* colorFrame = (ColorFrame*) frame.get();
     ColorFrame  background = *colorFrame;
     cv::Mat newImag(480, 640, CV_8UC3,  const_cast<RGBColor*>(colorFrame->getDataPtr()));
 

@@ -7,12 +7,12 @@ BasicFilter::BasicFilter()
 {
 }
 
-void BasicFilter::applyFilter(DataFrame* frame)
+void BasicFilter::applyFilter(shared_ptr<DataFrame> frame)
 {
-    if (m_userMask == NULL)
+    if (m_userMask == nullptr)
         return;
 
-    ColorFrame* colorFrame = (ColorFrame*) frame;
+    ColorFrame* colorFrame = (ColorFrame*) frame.get();
 
     // Get initial background at 20th frame
     if (colorFrame->getIndex() == 20) {

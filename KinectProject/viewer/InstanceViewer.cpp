@@ -15,13 +15,13 @@ InstanceViewer::InstanceViewer()
     connect(this, SIGNAL(windowChanged(QQuickWindow*)), this, SLOT(handleWindowChanged(QQuickWindow*)));
 
     // Viewer Setup
-    m_painters.insert(dai::DataFrame::Color, new dai::ColorFramePainter(NULL));
-    m_painters.insert(dai::DataFrame::Depth, new dai::DepthFramePainter(NULL));
-    m_painters.insert(dai::DataFrame::Skeleton, new dai::SkeletonPainter(NULL));
-    m_painters.insert(dai::DataFrame::User, new dai::UserFramePainter(NULL));
+    m_painters.insert(dai::DataFrame::Color, new dai::ColorFramePainter(nullptr));
+    m_painters.insert(dai::DataFrame::Depth, new dai::DepthFramePainter(nullptr));
+    m_painters.insert(dai::DataFrame::Skeleton, new dai::SkeletonPainter(nullptr));
+    m_painters.insert(dai::DataFrame::User, new dai::UserFramePainter(nullptr));
 
     m_running = false;
-    m_window = NULL;
+    m_window = nullptr;
     resetPerspective();
 }
 
@@ -34,23 +34,42 @@ InstanceViewer::~InstanceViewer()
     m_painters.clear();
     m_mutex.unlock();
     m_running = false;
-    m_window = NULL;
+    m_window = nullptr;
     qDebug() << "InstanceViewer::~InstanceViewer()";
 }
 
-void InstanceViewer::onNewFrame(QList<dai::DataFrame*> dataFrames)
+void InstanceViewer::onNewFrame(QList<shared_ptr<dai::DataFrame> > dataFrames)
 {
     m_running = true;
 
+    shared_ptr<dai::UserFrame> userMask;
+    int i = 0;
+
+    // Get UserFrame
+    while (!userMask && i < dataFrames.size())
+    {
+        shared_ptr<dai::DataFrame> frame = dataFrames.at(i);
+
+        if (frame->getType() == dai::DataFrame::User) {
+            userMask = static_pointer_cast<dai::UserFrame>(frame);
+            if (dataFrames.size() > 1) // I only show user mask if it's the only one frame
+                dataFrames.removeAt(i);
+        }
+
+        i++;
+    }
+
     m_mutex.lock();
-    foreach (dai::DataFrame* frame, dataFrames) {
+    foreach (shared_ptr<dai::DataFrame> frame, dataFrames) {
         dai::Painter* painter = m_painters.value(frame->getType());
-        if (painter)
+        if (painter) {
+            painter->setMask(userMask);
             painter->prepareData(frame);
+        }
     }
     m_mutex.unlock();
 
-    if (m_window != NULL)
+    if (m_window != nullptr)
         m_window->update();
 }
 
@@ -112,7 +131,7 @@ void InstanceViewer::updatePaintersMatrix()
     }
     m_mutex.unlock();
 
-    if (m_window != NULL)
+    if (m_window != nullptr)
         m_window->update();
 }
 

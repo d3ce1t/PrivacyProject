@@ -19,12 +19,12 @@ const QVector3D DepthFramePainter::m_colors[5] = {
 DepthFramePainter::DepthFramePainter(QOpenGLContext *context)
     : Painter(context)
 {
-    m_frame = NULL;
+    m_frame = nullptr;
 }
 
 DepthFramePainter::~DepthFramePainter()
 {
-    m_frame = NULL;
+    m_frame = nullptr;
 }
 
 void DepthFramePainter::initialise()
@@ -38,15 +38,15 @@ DepthFrame& DepthFramePainter::frame()
     return *m_frame;
 }
 
-void DepthFramePainter::prepareData(DataFrame* frame)
+void DepthFramePainter::prepareData(shared_ptr<DataFrame> frame)
 {
-    m_frame = (DepthFrame*) frame;
+    m_frame = static_pointer_cast<DepthFrame>(frame);
     DepthFrame::calculateHistogram(m_pDepthHist, *m_frame);
 }
 
 void DepthFramePainter::render()
 {
-    if (m_frame == NULL)
+    if (m_frame == nullptr)
         return;
 
     //glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);

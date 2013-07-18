@@ -39,19 +39,26 @@ InstanceViewerWindow::InstanceViewerWindow()
 InstanceViewerWindow::~InstanceViewerWindow()
 {
     qDebug() << "InstanceViewerWindow::~InstanceViewerWindow()";
-    m_viewer = NULL;
-    m_window = NULL;
+    m_viewer = nullptr;
+    m_window = nullptr;
+
+    foreach (QList<shared_ptr<FrameFilter>>* filters, m_filters) {
+        filters->clear();
+        delete filters;
+    }
+
+    m_filters.clear();
 }
 
 void InstanceViewerWindow::processListItem(QListWidget* widget)
 {
-    if (widget == NULL)
+    if (widget == nullptr)
         return;
 
     InstanceWidgetItem* instanceItem = (InstanceWidgetItem*) widget->selectedItems().at(0);
     InstanceInfo& info = instanceItem->getInfo();
     const Dataset* dataset = info.parent()->dataset();
-    DataInstance* instance = NULL;
+    shared_ptr<DataInstance> instance;
 
     if (info.getType() == InstanceInfo::Depth)
         instance = dataset->getDepthInstance(info);
@@ -85,45 +92,43 @@ void InstanceViewerWindow::onPlaybackStop()
 
 }
 
-void InstanceViewerWindow::onNewFrame(QList<dai::DataFrame*> dataFrames)
+void InstanceViewerWindow:: onNewFrame(const QList<shared_ptr<DataFrame> > &dataFrames)
 {
     m_fps = playback()->getFPS();
     emit changeOfStatus();
 
     // Filter
-    dataFrames = applyFilters(dataFrames);
+    QList<shared_ptr<DataFrame> > filteredFrames = applyFilters(dataFrames);
 
     // Sent to viewer
     // I want to execute method in the thread I belong to
     QMetaObject::invokeMethod(m_viewer, "onNewFrame",
                                   Qt::AutoConnection,
-                                  Q_ARG(QList<dai::DataFrame*>, dataFrames));
+                                  Q_ARG(QList<shared_ptr<dai::DataFrame>>, filteredFrames));
 }
 
-QList<DataFrame*> InstanceViewerWindow::applyFilters(QList<DataFrame *> &dataFrames) const
+QList<shared_ptr<DataFrame> > InstanceViewerWindow::applyFilters(const QList<shared_ptr<DataFrame>> &dataFrames) const
 {
-    QList<DataFrame*> filteredFrameList;
-
-    UserFrame* userMask = NULL;
+    QList<shared_ptr<DataFrame>> filteredFrameList;
+    shared_ptr<UserFrame> userMask;
     int i = 0;
 
     // First I get the userframe (if it exists) and apply their filter
     // I will use userframe ad user mask
     while (!userMask && i < dataFrames.size())
     {
-        DataFrame* frame = dataFrames.at(i);
+        shared_ptr<DataFrame> frame = dataFrames.at(i);
 
         if (frame->getType() == DataFrame::User) {
-            userMask = (UserFrame*) applyFilter(frame);
-            if (dataFrames.size() == 1) // I only show user mask if it's the only one frame
-                filteredFrameList << userMask;
+            userMask = static_pointer_cast<UserFrame>(applyFilter(frame));
+            filteredFrameList << userMask;
         }
 
         i++;
     }
 
     // Filter rest of frames, using userMask
-    foreach (DataFrame* inputFrame, dataFrames)
+    foreach (shared_ptr<DataFrame> inputFrame, dataFrames)
     {
         if (inputFrame->getType() == DataFrame::User) {
             continue;
@@ -135,21 +140,21 @@ QList<DataFrame*> InstanceViewerWindow::applyFilters(QList<DataFrame *> &dataFra
     return filteredFrameList;
 }
 
-DataFrame *InstanceViewerWindow::applyFilter(DataFrame* inputFrame, UserFrame* userMask) const
+shared_ptr<DataFrame> InstanceViewerWindow::applyFilter(shared_ptr<DataFrame> inputFrame, shared_ptr<UserFrame> userMask) const
 {
-    QList<FrameFilter*>* filters = m_filters.value(inputFrame->getType());
+    QList<shared_ptr<FrameFilter>>* filters = m_filters.value(inputFrame->getType());
 
-    if (filters == NULL)
+    if (filters == nullptr)
         return inputFrame;
 
     // I clone the frame because I do not want to modify the frame read by the instance
-    DataFrame* outputFrame = inputFrame->clone();
+    shared_ptr<DataFrame> outputFrame = inputFrame->clone();
 
-    foreach (FrameFilter* frameFilter, *filters)
+    foreach (shared_ptr<FrameFilter> frameFilter, *filters)
     {
         frameFilter->setMask(userMask);
         frameFilter->applyFilter(outputFrame);
-        frameFilter->setMask(NULL); // Hack
+        frameFilter->setMask(nullptr); // Hack
     }
 
     return outputFrame;
@@ -171,12 +176,12 @@ void InstanceViewerWindow::setTitle(const QString& title)
         m_window->setTitle(title);
 }
 
-void InstanceViewerWindow::addFilter(DataFrame::FrameType type, FrameFilter *filter)
+void InstanceViewerWindow::addFilter(DataFrame::FrameType type, shared_ptr<FrameFilter> filter)
 {
-    QList<FrameFilter*>* filtersList = NULL;
+    QList<shared_ptr<FrameFilter>>* filtersList = nullptr;
 
     if (!m_filters.contains(type)) {
-        filtersList = new QList<FrameFilter*>;
+        filtersList = new QList<shared_ptr<FrameFilter>>;
         m_filters.insert(type, filtersList);
     } else {
         filtersList = m_filters.value(type);
@@ -187,20 +192,20 @@ void InstanceViewerWindow::addFilter(DataFrame::FrameType type, FrameFilter *fil
 
 void InstanceViewerWindow::enableColorFilter(bool value)
 {
-    QList<FrameFilter*>* filters = m_filters.value(DataFrame::Color);
+    QList<shared_ptr<FrameFilter>>* filters = m_filters.value(DataFrame::Color);
 
     if (filters) {
-        FrameFilter* filter = filters->at(0);
+        shared_ptr<FrameFilter> filter = filters->at(0);
         filter->enableFilter(value);
     }
 }
 
 void InstanceViewerWindow::enableBlurFilter(bool value)
 {
-    QList<FrameFilter*>* filters = m_filters.value(DataFrame::Color);
+    QList<shared_ptr<FrameFilter>>* filters = m_filters.value(DataFrame::Color);
 
     if (filters) {
-        FrameFilter* filter = filters->at(1);
+        shared_ptr<FrameFilter> filter = filters->at(1);
         filter->enableFilter(value);
     }
 }

@@ -7,28 +7,28 @@ DAIDataset::DAIDataset()
 {
 }
 
-DAIDepthInstance* DAIDataset::getDepthInstance(int activity, int actor, int sample) const
+shared_ptr<DataInstance> DAIDataset::getDepthInstance(int activity, int actor, int sample) const
 {
     const InstanceInfo instanceInfo = m_metadata->instance(InstanceInfo::Depth, activity, actor, sample);
-    return new DAIDepthInstance(instanceInfo);
+    return shared_ptr<DataInstance>(new DAIDepthInstance(instanceInfo));
 }
 
-DataInstance* DAIDataset::getSkeletonInstance(int activity, int actor, int sample) const
+shared_ptr<DataInstance> DAIDataset::getSkeletonInstance(int activity, int actor, int sample) const
 {
     const InstanceInfo instanceInfo = m_metadata->instance(InstanceInfo::Skeleton, activity, actor, sample);
-    return new DataInstance(instanceInfo);
+    return shared_ptr<DataInstance>(new DataInstance(instanceInfo));
 }
 
-DAIColorInstance *DAIDataset::getColorInstance(int activity, int actor, int sample) const
+shared_ptr<DataInstance> DAIDataset::getColorInstance(int activity, int actor, int sample) const
 {
     const InstanceInfo instanceInfo = m_metadata->instance(InstanceInfo::Color, activity, actor, sample);
-    return new DAIColorInstance(instanceInfo);
+    return shared_ptr<DataInstance>(new DAIColorInstance(instanceInfo));
 }
 
-DAIUserInstance* DAIDataset::getUserInstance(int activity, int actor, int sample) const
+shared_ptr<DataInstance> DAIDataset::getUserInstance(int activity, int actor, int sample) const
 {
     const InstanceInfo instanceInfo = m_metadata->instance(InstanceInfo::User, activity, actor, sample);
-    return new DAIUserInstance(instanceInfo);
+    return shared_ptr<DataInstance>(new DAIUserInstance(instanceInfo));
 }
 
 } // End namespace

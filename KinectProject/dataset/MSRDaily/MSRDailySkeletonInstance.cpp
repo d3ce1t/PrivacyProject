@@ -9,7 +9,9 @@ namespace dai {
 MSRDailySkeletonInstance::MSRDailySkeletonInstance(const InstanceInfo& info)
     : DataInstance(info)
 {
-    DataInstance::initFrameBuffer(&m_frameBuffer[0], &m_frameBuffer[1]);
+    m_frameBuffer[0].reset(new dai::Skeleton);
+    m_frameBuffer[1].reset(new dai::Skeleton);
+    DataInstance::initFrameBuffer(m_frameBuffer[0], m_frameBuffer[1]);
     m_nJoints = 0;
 }
 
@@ -102,11 +104,6 @@ void MSRDailySkeletonInstance::nextFrame(DataFrame &frame)
     // to normalise it to be between 0 and 1. Like depth values, Kinect range is 0 to 4 meters.
     skeleton.normaliseDepth(0, 4, 0, 1);
     skeleton.computeQuaternions();
-}
-
-dai::Skeleton& MSRDailySkeletonInstance::frame()
-{
-    return (dai::Skeleton&) DataInstance::frame();
 }
 
 SkeletonJoint::JointType MSRDailySkeletonInstance::convertIntToType(int value)

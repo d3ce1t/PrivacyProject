@@ -6,9 +6,9 @@ namespace dai {
 DAIUserInstance::DAIUserInstance(const InstanceInfo& info)
     : DataInstance(info)
 {
-    m_frameBuffer[0] = UserFrame(640, 480);
-    m_frameBuffer[1] = UserFrame(640, 480);
-    DataInstance::initFrameBuffer(&m_frameBuffer[0], &m_frameBuffer[1]);
+    m_frameBuffer[0].reset(new UserFrame(640, 480));
+    m_frameBuffer[1].reset(new UserFrame(640, 480));
+    DataInstance::initFrameBuffer(m_frameBuffer[0], m_frameBuffer[1]);
     m_width = 0;
     m_height = 0;
 }
@@ -75,11 +75,6 @@ void DAIUserInstance::nextFrame(DataFrame &frame)
             userFrame.setItem(y, x, m_readBuffer[y].userRow[x]);
         }
     }
-}
-
-UserFrame& DAIUserInstance::frame()
-{
-    return (UserFrame&) DataInstance::frame();
 }
 
 } // End Namespace

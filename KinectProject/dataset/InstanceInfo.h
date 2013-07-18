@@ -19,8 +19,8 @@ public:
         Uninitialised
     };
 
-    InstanceInfo(DatasetMetadata* parent = NULL);
-    explicit InstanceInfo(InstanceType type, DatasetMetadata* parent = NULL);
+    InstanceInfo(DatasetMetadata* parent = nullptr);
+    explicit InstanceInfo(InstanceType type, DatasetMetadata* parent = nullptr);
     InstanceInfo(const InstanceInfo& other);
     virtual ~InstanceInfo();
 

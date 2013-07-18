@@ -11,16 +11,16 @@ OpenNIColorInstance::OpenNIColorInstance()
 {
     this->m_type = StreamInstance::Color;
     this->m_title = "Color Live Stream";
-    m_frameBuffer[0] = ColorFrame(640, 480);
-    m_frameBuffer[1] = ColorFrame(640, 480);
-    StreamInstance::initFrameBuffer(&m_frameBuffer[0], &m_frameBuffer[1]);
-    m_openni = NULL;
+    m_frameBuffer[0].reset(new ColorFrame(640, 480));
+    m_frameBuffer[1].reset(new ColorFrame(640, 480));
+    StreamInstance::initFrameBuffer(m_frameBuffer[0], m_frameBuffer[1]);
+    m_openni = nullptr;
 }
 
 OpenNIColorInstance::~OpenNIColorInstance()
 {
     closeInstance();
-    m_openni = NULL;
+    m_openni = nullptr;
 }
 
 void OpenNIColorInstance::setOutputFile(QString file)
@@ -30,7 +30,7 @@ void OpenNIColorInstance::setOutputFile(QString file)
 
 bool OpenNIColorInstance::is_open() const
 {
-    return m_openni != NULL;
+    return m_openni != nullptr;
 }
 
 void OpenNIColorInstance::openInstance()
@@ -73,7 +73,7 @@ void OpenNIColorInstance::closeInstance()
     if (is_open())
     {
         m_openni->releaseInstance();
-        m_openni = NULL;
+        m_openni = nullptr;
 
         try {
             unsigned int frameIndex = getFrameIndex();
@@ -127,11 +127,6 @@ void OpenNIColorInstance::nextFrame(DataFrame &frame)
             colorFrame.write(m_of);
         }
     }
-}
-
-ColorFrame& OpenNIColorInstance::frame()
-{
-    return (ColorFrame&) StreamInstance::frame();
 }
 
 } // End namespace

@@ -5,16 +5,16 @@ namespace dai {
 UserFramePainter::UserFramePainter(QOpenGLContext *context)
     : Painter(context), textureUnit(0)
 {
-    m_frame = NULL;
+    m_frame = nullptr;
     m_textureMask = new u_int8_t[640*480];
 }
 
 UserFramePainter::~UserFramePainter()
 {
     delete[] m_textureMask;
-    m_textureMask = NULL;
+    m_textureMask = nullptr;
 
-    m_frame = NULL;
+    m_frame = nullptr;
 }
 
 void UserFramePainter::initialise()
@@ -34,9 +34,9 @@ UserFrame& UserFramePainter::frame()
     return *m_frame;
 }
 
-void UserFramePainter::prepareData(DataFrame *frame)
+void UserFramePainter::prepareData(shared_ptr<DataFrame> frame)
 {
-    m_frame = (UserFrame*) frame;
+    m_frame = static_pointer_cast<UserFrame>(frame);
 
     memset(m_textureMask, 0, 640*480*sizeof(u_int8_t));
 
@@ -50,7 +50,7 @@ void UserFramePainter::prepareData(DataFrame *frame)
 
 void UserFramePainter::render()
 {
-    if (m_frame == NULL)
+    if (m_frame == nullptr)
         return;
 
     // Load into GPU

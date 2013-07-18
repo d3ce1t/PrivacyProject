@@ -10,12 +10,12 @@ class FrameFilter
 {
 public:
     FrameFilter();
-    void setMask(UserFrame *mask);
+    void setMask(shared_ptr<UserFrame> mask);
     void enableFilter(bool value);
-    virtual void applyFilter(DataFrame* frame) = 0;
+    virtual void applyFilter(shared_ptr<DataFrame> frame) = 0;
 
 protected:
-    UserFrame* m_userMask;
+    shared_ptr<UserFrame> m_userMask;
     bool m_enabled;
 };
 

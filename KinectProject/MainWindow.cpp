@@ -24,6 +24,7 @@
 
 using namespace std;
 
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -154,7 +155,7 @@ void MainWindow::on_btnParseDataset_clicked()
     while (it.hasNext())
     {
         dai::InstanceInfo* info = it.next();
-        dai::MSRActionSkeletonInstance* dataInstance = dataset->getSkeletonInstance(info->getActivity(), info->getActor(), info->getSample());
+        shared_ptr<dai::DataInstance> dataInstance = dataset->getSkeletonInstance(info->getActivity(), info->getActor(), info->getSample());
 
         dataInstance->open();
 
@@ -172,13 +173,13 @@ void MainWindow::on_btnParseDataset_clicked()
         while (dataInstance->hasNext() && of.is_open())
         {
             dataInstance->readNextFrame();
-            const dai::Skeleton& skeletonFrame = dataInstance->frame();
 
-            of << (skeletonFrame.getIndex() + 1) << endl;
+            shared_ptr<dai::Skeleton> skeletonFrame = static_pointer_cast<dai::Skeleton>(dataInstance->frame());
+            of << (skeletonFrame->getIndex() + 1) << endl;
 
             for (int i=0; i<17; ++i) {
                 dai::Quaternion::QuaternionType type = (dai::Quaternion::QuaternionType) i;
-                const dai::Quaternion& quaternion = skeletonFrame.getQuaternion(type);
+                const dai::Quaternion& quaternion = skeletonFrame->getQuaternion(type);
 
                 float w = quaternion.scalar();
                 float x = quaternion.vector().x();
@@ -204,9 +205,9 @@ void MainWindow::on_btnTest_clicked()
     dai::DAIDataset dataset;
 
     // Create instances
-    dai::DAIColorInstance* colorInstance = dataset.getColorInstance(1, 1, 1);
+    shared_ptr<dai::DataInstance> colorInstance = dataset.getColorInstance(1, 1, 1);
     //dai::DAIDepthInstance* depthInstance = dataset.getDepthInstance(1, 1, 1);
-    dai::DAIUserInstance* userInstance = dataset.getUserInstance(1, 1, 1);
+    shared_ptr<dai::DataInstance> userInstance = dataset.getUserInstance(1, 1, 1);
 
     // Create playback to control instances reading
     dai::PlaybackControl* playback = new dai::PlaybackControl;
@@ -219,10 +220,10 @@ void MainWindow::on_btnTest_clicked()
     //dai::InstanceViewerWindow* userViewer = new dai::InstanceViewerWindow;
 
     // Set viewers filters
-    dai::BasicFilter* basicFilter = new dai::BasicFilter;
+    shared_ptr<dai::BasicFilter> basicFilter(new dai::BasicFilter);
     basicFilter->enableFilter(false);
-    dai::DilateUserFilter* dilateFilter = new dai::DilateUserFilter;
-    dai::BlurFilter* blurFilter = new dai::BlurFilter;
+    shared_ptr<dai::DilateUserFilter> dilateFilter(new dai::DilateUserFilter);
+    shared_ptr<dai::BlurFilter> blurFilter(new dai::BlurFilter);
     blurFilter->enableFilter(false);
     colorViewer->addFilter(dai::DataFrame::User, dilateFilter);
     colorViewer->addFilter(dai::DataFrame::Color, basicFilter);
@@ -249,8 +250,8 @@ void MainWindow::on_btnTest_clicked()
 void MainWindow::on_btnStartKinect_clicked()
 {
     // Create instance
-    dai::OpenNIColorInstance* colorInstance = new dai::OpenNIColorInstance;
-    dai::OpenNIDepthInstance* depthInstance = new dai::OpenNIDepthInstance;
+    shared_ptr<dai::OpenNIColorInstance> colorInstance(new dai::OpenNIColorInstance);
+    shared_ptr<dai::OpenNIDepthInstance> depthInstance(new dai::OpenNIDepthInstance);
     //colorInstance->setOutputFile("/files/capture/capture.rgb");
     //colorInstance->setOutputFile("/ramfs/jose/capture.rgb");
 

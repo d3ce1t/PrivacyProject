@@ -14,6 +14,8 @@ class InstanceViewer;
 
 namespace dai {
 
+class UserFrame;
+
 class Painter : protected QOpenGLFunctions
 {
 public:
@@ -21,7 +23,8 @@ public:
     virtual ~Painter();
     void setMatrix(QMatrix4x4& m_matrix);
     void renderNow();
-    virtual void prepareData(DataFrame* frame) = 0;
+    void setMask(shared_ptr<UserFrame> mask);
+    virtual void prepareData(shared_ptr<DataFrame> frame) = 0;
     virtual DataFrame& frame() = 0;
 
 protected:
@@ -32,6 +35,7 @@ protected:
     QOpenGLShaderProgram*   m_shaderProgram;
     QMatrix4x4              m_matrix;
     QOpenGLContext*         m_context;
+    shared_ptr<UserFrame>   m_mask;
 
 private:
     bool                    m_initialised;

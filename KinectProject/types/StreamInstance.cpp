@@ -8,16 +8,16 @@ namespace dai {
 StreamInstance::StreamInstance()
 {
     m_type = StreamInstance::Uninitialised;
-    m_writeFrame = NULL;
-    m_readFrame = NULL;
+    m_writeFrame = nullptr;
+    m_readFrame = nullptr;
     m_frameIndex = 0;
 }
 
 StreamInstance::~StreamInstance()
 {
     m_type = StreamInstance::Uninitialised;
-    m_writeFrame = NULL;
-    m_readFrame = NULL;
+    m_writeFrame = nullptr;
+    m_readFrame = nullptr;
     m_frameIndex = 0;
     qDebug() << "StreamInstance::~StreamInstance()";
 }
@@ -82,21 +82,21 @@ bool StreamInstance::hasNext() const
     return true;
 }
 
-DataFrame& StreamInstance::frame()
+shared_ptr<DataFrame> StreamInstance::frame()
 {
     QReadLocker locker(&m_locker);
-    return *m_readFrame;
+    return m_readFrame;
 }
 
 void StreamInstance::swapBuffer()
 {
     QWriteLocker locker(&m_locker);
-    DataFrame* tmpPtr = m_readFrame;
+    shared_ptr<DataFrame> tmpPtr = m_readFrame;
     m_readFrame = m_writeFrame;
     m_writeFrame = tmpPtr;
 }
 
-void StreamInstance::initFrameBuffer(DataFrame* firstBuffer, DataFrame* secondBuffer)
+void StreamInstance::initFrameBuffer(shared_ptr<DataFrame> firstBuffer, shared_ptr<DataFrame> secondBuffer)
 {
    m_writeFrame = firstBuffer;
    m_readFrame = secondBuffer;

@@ -4,9 +4,9 @@
 
 namespace dai {
 
-void DilateUserFilter::applyFilter(DataFrame *frame)
+void DilateUserFilter::applyFilter(shared_ptr<DataFrame> frame)
 {
-    UserFrame* userFrame = (UserFrame*) frame;
+    UserFrame* userFrame = (UserFrame*) frame.get();
 
     // User mask have to cover user in color frame completely
     dilateUserMask(const_cast<u_int8_t*>(userFrame->getDataPtr()));

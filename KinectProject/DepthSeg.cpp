@@ -33,7 +33,7 @@ DepthSeg::DepthSeg(const DepthFrame &frame)
 DepthSeg::~DepthSeg()
 {
     delete[] m_clusters_mask;
-    m_clusters_mask = NULL;
+    m_clusters_mask = nullptr;
 }
 
 float* DepthSeg::getClusterMask() const

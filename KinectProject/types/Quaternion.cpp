@@ -17,7 +17,7 @@ namespace dai {
 void Quaternion::test()
 {
     // Initializing seed for rand() function
-    srand(time(NULL));
+    srand(time(nullptr));
 
     Vector3D* vector = new Vector3D[200];
     qDebug() << "Generating 200 unit vectors";

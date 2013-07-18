@@ -11,16 +11,16 @@ OpenNIDepthInstance::OpenNIDepthInstance()
 {
     this->m_type = StreamInstance::Depth;
     this->m_title = "Depth Live Stream";
-    m_frameBuffer[0] = DepthFrame(640, 480);
-    m_frameBuffer[1] = DepthFrame(640, 480);
-    StreamInstance::initFrameBuffer(&m_frameBuffer[0], &m_frameBuffer[1]);
-    m_openni = NULL;
+    m_frameBuffer[0].reset(new DepthFrame(640, 480));
+    m_frameBuffer[1].reset(new DepthFrame(640, 480));
+    StreamInstance::initFrameBuffer(m_frameBuffer[0], m_frameBuffer[1]);
+    m_openni = nullptr;
 }
 
 OpenNIDepthInstance::~OpenNIDepthInstance()
 {
     closeInstance();
-    m_openni = NULL;
+    m_openni = nullptr;
 }
 
 void OpenNIDepthInstance::setOutputFile(QString file)
@@ -30,7 +30,7 @@ void OpenNIDepthInstance::setOutputFile(QString file)
 
 bool OpenNIDepthInstance::is_open() const
 {
-    return m_openni != NULL;
+    return m_openni != nullptr;
 }
 
 void OpenNIDepthInstance::openInstance()
@@ -73,7 +73,7 @@ void OpenNIDepthInstance::closeInstance()
     if (is_open())
     {
         m_openni->releaseInstance();
-        m_openni = NULL;
+        m_openni = nullptr;
 
         try {
             unsigned int frameIndex = getFrameIndex();
@@ -129,11 +129,6 @@ void OpenNIDepthInstance::nextFrame(DataFrame &frame)
             depthFrame.write(m_of);
         }
     }
-}
-
-DepthFrame& OpenNIDepthInstance::frame()
-{
-    return (DepthFrame&) StreamInstance::frame();
 }
 
 } // End namespace

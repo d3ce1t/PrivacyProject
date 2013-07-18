@@ -11,9 +11,9 @@ namespace dai {
 MSRDailyDepthInstance::MSRDailyDepthInstance(const InstanceInfo &info)
     : DataInstance(info)
 {
-    m_frameBuffer[0] = DepthFrame(320, 240);
-    m_frameBuffer[1] = DepthFrame(320, 240);
-    DataInstance::initFrameBuffer(&m_frameBuffer[0], &m_frameBuffer[1]);
+    m_frameBuffer[0].reset(new DepthFrame(320, 240));
+    m_frameBuffer[1].reset(new DepthFrame(320, 240));
+    DataInstance::initFrameBuffer(m_frameBuffer[0], m_frameBuffer[1]);
     m_width = 0;
     m_height = 0;
 }
@@ -81,11 +81,6 @@ void MSRDailyDepthInstance::nextFrame(DataFrame &frame)
             depthFrame.setItem(y, x, DataInstance::normalise(m_readBuffer[y].depthRow[x], 0, 4000, 0, 1));
         }
     }
-}
-
-DepthFrame& MSRDailyDepthInstance::frame()
-{
-    return (DepthFrame&) DataInstance::frame();
 }
 
 } // End Namespace

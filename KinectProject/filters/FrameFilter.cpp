@@ -4,11 +4,11 @@ namespace dai {
 
 FrameFilter::FrameFilter()
 {
-    m_userMask = NULL;
+    m_userMask = nullptr;
     m_enabled = true;
 }
 
-void FrameFilter::setMask(UserFrame* mask)
+void FrameFilter::setMask(shared_ptr<UserFrame> mask)
 {
     m_userMask = mask;
 }

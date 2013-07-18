@@ -9,7 +9,9 @@ namespace dai {
 MSRActionSkeletonInstance::MSRActionSkeletonInstance(const InstanceInfo& info)
     : DataInstance(info)
 {
-    DataInstance::initFrameBuffer(&m_frameBuffer[0], &m_frameBuffer[1]);
+    m_frameBuffer[0].reset(new dai::Skeleton);
+    m_frameBuffer[1].reset(new dai::Skeleton);
+    DataInstance::initFrameBuffer(m_frameBuffer[0], m_frameBuffer[1]);
     m_nJoints = 0;
 }
 
@@ -97,11 +99,6 @@ void MSRActionSkeletonInstance::nextFrame(DataFrame &frame)
     // Normalise Depth. I assume is between 0 and 10 meters. But I don't know.
     skeleton.normaliseDepth(0, 10, 0, 1);
     skeleton.computeQuaternions();
-}
-
-dai::Skeleton& MSRActionSkeletonInstance::frame()
-{
-    return (dai::Skeleton&) DataInstance::frame();
 }
 
 SkeletonJoint::JointType MSRActionSkeletonInstance::convertIntToType(int value)

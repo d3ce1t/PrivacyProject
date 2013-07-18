@@ -20,7 +20,7 @@ DatasetBrowser::DatasetBrowser(QWidget *parent) :
     ui->setupUi(this);
 
     m_playback.enablePlayLoop(true);
-    m_dataset = NULL;
+    m_dataset = nullptr;
     loadDataset( (Dataset::DatasetType) ui->comboDataset->currentIndex());
 
     // Connect Signals
@@ -58,9 +58,9 @@ DatasetBrowser::~DatasetBrowser()
     ui->listInstances->disconnect();
     ui->comboType->disconnect();
 
-    if (m_dataset != NULL) {
+    if (m_dataset != nullptr) {
         delete m_dataset;
-        m_dataset = NULL;
+        m_dataset = nullptr;
     }
 
     ui->listActivities->clear();
@@ -88,7 +88,7 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
 {
     InstanceWidgetItem* instanceItem = dynamic_cast<InstanceWidgetItem*>(item);
     InstanceInfo& info = instanceItem->getInfo();
-    DataInstance* instance = NULL;
+    shared_ptr<DataInstance> instance;
 
     if (info.getType() == InstanceInfo::Depth)
         instance = m_dataset->getDepthInstance(info);
@@ -116,9 +116,9 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
 
 void DatasetBrowser::loadDataset(Dataset::DatasetType type)
 {
-    if (m_dataset != NULL) {
+    if (m_dataset != nullptr) {
         delete m_dataset;
-        m_dataset = NULL;
+        m_dataset = nullptr;
     }
 
     if (type == Dataset::Dataset_MSRDailyActivity3D) {

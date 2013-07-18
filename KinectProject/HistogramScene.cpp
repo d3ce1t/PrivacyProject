@@ -5,15 +5,15 @@ namespace dai {
 
 HistogramScene::HistogramScene()
 {
-    m_shaderProgram = NULL;
+    m_shaderProgram = nullptr;
 }
 
 HistogramScene::~HistogramScene()
 {
-    if (m_shaderProgram != NULL)
+    if (m_shaderProgram != nullptr)
     {
         delete m_shaderProgram;
-        m_shaderProgram = NULL;
+        m_shaderProgram = nullptr;
     }
 }
 

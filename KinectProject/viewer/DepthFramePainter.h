@@ -13,7 +13,7 @@ class DepthFramePainter : public Painter
 public:
     DepthFramePainter(QOpenGLContext* context);
     virtual ~DepthFramePainter();
-    void prepareData(DataFrame* frame);
+    void prepareData(shared_ptr<DataFrame> frame);
     DepthFrame& frame();
 
 protected:
@@ -23,7 +23,7 @@ protected:
 private:
     void prepareShaderProgram();
 
-    DepthFrame*             m_frame;
+    shared_ptr<DepthFrame>  m_frame;
     const static QVector3D  m_colors[5];
     QMap<float, float>      m_pDepthHist;
 

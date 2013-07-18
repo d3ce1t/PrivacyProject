@@ -19,7 +19,7 @@ public:
     Skeleton();
     virtual ~Skeleton();
     Skeleton(const Skeleton& other);
-    Skeleton* clone() const;
+    shared_ptr<DataFrame> clone() const;
     SkeletonJoint& getNormalisedJoint(SkeletonJoint::JointType type);
     SkeletonJoint& getJoint(SkeletonJoint::JointType type);
     const Quaternion& getQuaternion(Quaternion::QuaternionType type) const;

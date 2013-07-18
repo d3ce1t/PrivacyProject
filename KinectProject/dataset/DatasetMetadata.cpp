@@ -172,7 +172,7 @@ const QString& DatasetMetadata::getSampleName(int key) const
 
 void DatasetMetadata::addInstanceInfo(InstanceInfo* instance)
 {
-    QHash<int, InstanceInfoList*>* activities = NULL;
+    QHash<int, InstanceInfoList*>* activities = nullptr;
 
     // Create list of activities if it doesn't exist
     // the list of activities contains a list of instances
@@ -183,7 +183,7 @@ void DatasetMetadata::addInstanceInfo(InstanceInfo* instance)
         activities = m_instances.value(instance->getType());
     }
 
-    InstanceInfoList* list = NULL;
+    InstanceInfoList* list = nullptr;
 
     if (!activities->contains(instance->getActivity())) {
         list = new InstanceInfoList();

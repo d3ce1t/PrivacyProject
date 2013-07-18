@@ -29,10 +29,9 @@ DepthFrame::DepthFrame(const DepthFrame& other)
     m_nNonZeroOfPoints = other.m_nNonZeroOfPoints;
 }
 
-DepthFrame* DepthFrame::clone() const
+shared_ptr<DataFrame> DepthFrame::clone() const
 {
-    DepthFrame* clonedObject = new DepthFrame(*this);
-    return clonedObject;
+    return shared_ptr<DataFrame>(new DepthFrame(*this));
 }
 
 DepthFrame& DepthFrame::operator=(const DepthFrame& other)

@@ -17,7 +17,7 @@ class SkeletonPainter : public Painter
 public:
     explicit SkeletonPainter(QOpenGLContext* context);
     virtual ~SkeletonPainter();
-    void prepareData(DataFrame* frame);
+    void prepareData(shared_ptr<DataFrame> frame);
     Skeleton& frame();
 
 protected:
@@ -31,7 +31,7 @@ private:
     void drawJoint(const dai::SkeletonJoint& joint, const QVector3D& color);
     float colorIntensity(float value);
 
-    Skeleton*               m_frame;
+    shared_ptr<Skeleton>    m_frame;
     GLuint                  m_posAttr;
     GLuint                  m_colorAttr; // Texture coord in the shader
     GLuint                  m_perspectiveMatrix; // Matrix in the shader

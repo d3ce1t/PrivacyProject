@@ -13,19 +13,18 @@ class OpenNIColorInstance : public StreamInstance
 public:
     OpenNIColorInstance();
     virtual ~OpenNIColorInstance();
-    bool is_open() const Q_DECL_OVERRIDE;
-    ColorFrame& frame() Q_DECL_OVERRIDE;
+    bool is_open() const override;
     void setOutputFile(QString file);
 
 protected:
-    void openInstance() Q_DECL_OVERRIDE;
-    void closeInstance() Q_DECL_OVERRIDE;
-    void restartInstance() Q_DECL_OVERRIDE;
-    void nextFrame(DataFrame& frame);
+    void openInstance() override;
+    void closeInstance() override;
+    void restartInstance() override;
+    void nextFrame(DataFrame& frame) override;
 
 private:
     OpenNIRuntime*       m_openni;
-    ColorFrame           m_frameBuffer[2];
+    shared_ptr<ColorFrame> m_frameBuffer[2];
     QFile                m_of;
     QString              m_outputFile;
 };

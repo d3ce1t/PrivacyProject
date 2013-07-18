@@ -2,6 +2,9 @@
 #define DATAFRAME_H
 
 #include <QList>
+#include <memory>
+
+using namespace std;
 
 namespace dai {
 
@@ -18,7 +21,7 @@ public:
 
     DataFrame(FrameType type);
     DataFrame(const DataFrame& other);
-    virtual DataFrame* clone() const = 0;
+    virtual shared_ptr<DataFrame> clone() const = 0;
     void setIndex(unsigned int index);
     unsigned int getIndex() const;
     FrameType getType() const;

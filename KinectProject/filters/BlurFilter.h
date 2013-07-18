@@ -8,7 +8,7 @@ namespace dai {
 class BlurFilter : public FrameFilter
 {
 public:
-    void applyFilter(DataFrame* frame);
+    void applyFilter(shared_ptr<DataFrame> frame);
 };
 
 } // End Namespace

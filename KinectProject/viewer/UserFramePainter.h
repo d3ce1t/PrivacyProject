@@ -16,7 +16,7 @@ class UserFramePainter : public Painter
 public:
     UserFramePainter(QOpenGLContext* context);
     virtual ~UserFramePainter();
-    void prepareData(DataFrame* frame);
+    void prepareData(shared_ptr<DataFrame> frame);
     UserFrame& frame();
 
 protected:
@@ -28,7 +28,7 @@ private:
     void prepareVertexBuffer();
     void loadVideoTexture(void *texture, GLsizei width, GLsizei height, GLuint glTextureId);
 
-    UserFrame*               m_frame;
+    shared_ptr<UserFrame>    m_frame;
     u_int8_t*                m_textureMask;
     const int                textureUnit;
     QOpenGLVertexArrayObject m_vao;

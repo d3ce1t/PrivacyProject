@@ -9,7 +9,7 @@ namespace dai {
 SkeletonPainter::SkeletonPainter(QOpenGLContext *context)
     : Painter(context)
 {
-    m_frame = NULL;
+    m_frame = nullptr;
 
     // Setup Joints Model
     m_joints_model.setRowCount(20);
@@ -96,7 +96,7 @@ SkeletonPainter::SkeletonPainter(QOpenGLContext *context)
 
 SkeletonPainter::~SkeletonPainter()
 {
-    m_frame = NULL;
+    m_frame = nullptr;
 
     m_joints_model.clear();
     m_joints_table_view.close();
@@ -219,23 +219,21 @@ float SkeletonPainter::colorIntensity(float x)
     return (log(100*(x+0.1)) - b)/max;
 }
 
-void SkeletonPainter::prepareData(DataFrame *frame)
+void SkeletonPainter::prepareData(shared_ptr<DataFrame> frame)
 {
-    if (m_frame == NULL) {
+    if (m_frame == nullptr) {
         m_joints_table_view.show();
         m_distances_table_view.show();
         m_quaternions_table_view.show();
     }
 
-    m_frame = (Skeleton*) frame;
+    m_frame = static_pointer_cast<Skeleton>(frame);
     loadModels();
-
-
 }
 
 void SkeletonPainter::render()
 {
-    if (m_frame == NULL)
+    if (m_frame == nullptr)
         return;
 
     drawLimb(m_frame->getNormalisedJoint(dai::SkeletonJoint::JOINT_HEAD), m_frame->getNormalisedJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER));

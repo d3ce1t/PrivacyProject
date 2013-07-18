@@ -1,16 +1,17 @@
 #include "ColorFramePainter.h"
+#include "types/UserFrame.h"
 
 namespace dai {
 
 ColorFramePainter::ColorFramePainter(QOpenGLContext *context)
     : Painter(context), textureUnit(0)
 {
-    m_frame = NULL;
+    m_frame = nullptr;
 }
 
 ColorFramePainter::~ColorFramePainter()
 {
-    m_frame = NULL;
+    m_frame = nullptr;
 }
 
 void ColorFramePainter::initialise()
@@ -22,7 +23,8 @@ void ColorFramePainter::initialise()
     prepareVertexBuffer();
 
     // Create texture
-    glGenTextures(1, &m_frameTexture);
+    glGenTextures(1, &m_foregroundTexture);
+    glGenTextures(1, &m_maskTexture);
 }
 
 ColorFrame& ColorFramePainter::frame()
@@ -30,18 +32,21 @@ ColorFrame& ColorFramePainter::frame()
     return *m_frame;
 }
 
-void ColorFramePainter::prepareData(DataFrame *frame)
+void ColorFramePainter::prepareData(shared_ptr<DataFrame> frame)
 {
-    m_frame = (ColorFrame*) frame;
+    m_frame = static_pointer_cast<ColorFrame>(frame);
 }
 
 void ColorFramePainter::render()
 {
-    if (m_frame == NULL)
+    if (m_frame == nullptr)
         return;
 
     // Load into GPU
-    loadVideoTexture((void *) m_frame->getDataPtr(), m_frame->getWidth(), m_frame->getHeight(), m_frameTexture);
+    if (m_mask)
+        loadMaskTexture((void *) m_mask->getDataPtr(), m_mask->getWidth(), m_mask->getHeight(), m_maskTexture);
+
+    loadVideoTexture((void *) m_frame->getDataPtr(), m_frame->getWidth(), m_frame->getHeight(), m_foregroundTexture);
 
     // Render
     m_shaderProgram->bind();
@@ -50,7 +55,7 @@ void ColorFramePainter::render()
     m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
 
     glActiveTexture(GL_TEXTURE0 + textureUnit);
-    glBindTexture(GL_TEXTURE_2D, m_frameTexture);
+    glBindTexture(GL_TEXTURE_2D, m_foregroundTexture);
     glDrawArrays(GL_TRIANGLE_FAN, m_posAttr, 4);
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);
@@ -126,6 +131,17 @@ void ColorFramePainter::loadVideoTexture(void* texture, GLsizei width, GLsizei h
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, texture);
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+// Create Texture (overwrite previous)
+void ColorFramePainter::loadMaskTexture(void* texture, GLsizei width, GLsizei height, GLuint glTextureId)
+{
+    glBindTexture(GL_TEXTURE_2D, glTextureId);
+    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, texture);
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 

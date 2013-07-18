@@ -8,32 +8,28 @@ MSR3Action3D::MSR3Action3D()
 {
 }
 
-MSRActionDepthInstance *MSR3Action3D::getDepthInstance(int activity, int actor, int sample) const
+shared_ptr<DataInstance> MSR3Action3D::getDepthInstance(int activity, int actor, int sample) const
 {
-    MSRActionDepthInstance* result = 0;
     const InstanceInfo instanceInfo = m_metadata->instance(InstanceInfo::Depth, activity, actor, sample);
-    result = new MSRActionDepthInstance(instanceInfo);
-    return result;
+    return shared_ptr<DataInstance>(new MSRActionDepthInstance(instanceInfo));
 }
 
-MSRActionSkeletonInstance* MSR3Action3D::getSkeletonInstance(int activity, int actor, int sample) const
+shared_ptr<DataInstance> MSR3Action3D::getSkeletonInstance(int activity, int actor, int sample) const
 {
-    MSRActionSkeletonInstance* result = 0;
     const InstanceInfo instanceInfo = m_metadata->instance(InstanceInfo::Skeleton, activity, actor, sample);
-    result = new MSRActionSkeletonInstance(instanceInfo);
-    return result;
+    return shared_ptr<DataInstance>(new MSRActionSkeletonInstance(instanceInfo));
 }
 
-DataInstance* MSR3Action3D::getColorInstance(int activity, int actor, int sample) const
+shared_ptr<DataInstance> MSR3Action3D::getColorInstance(int activity, int actor, int sample) const
 {
     const InstanceInfo instanceInfo = m_metadata->instance(InstanceInfo::Color, activity, actor, sample);
-    return new DataInstance(instanceInfo);
+    return shared_ptr<DataInstance>(new DataInstance(instanceInfo));
 }
 
-DataInstance* MSR3Action3D::getUserInstance(int activity, int actor, int sample) const
+shared_ptr<DataInstance> MSR3Action3D::getUserInstance(int activity, int actor, int sample) const
 {
     const InstanceInfo instanceInfo = m_metadata->instance(InstanceInfo::User, activity, actor, sample);
-    return new DataInstance(instanceInfo);
+    return shared_ptr<DataInstance>(new DataInstance(instanceInfo));
 }
 
 } // End namespace

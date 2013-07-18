@@ -8,7 +8,7 @@ namespace dai {
 class DilateUserFilter : public FrameFilter
 {
 public:
-    void applyFilter(DataFrame* frame);
+    void applyFilter(shared_ptr<DataFrame> frame);
 
 private:
     void dilateUserMask(u_int8_t* labels);

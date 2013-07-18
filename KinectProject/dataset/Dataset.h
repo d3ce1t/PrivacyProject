@@ -4,10 +4,11 @@
 #include "DatasetMetadata.h"
 #include <QString>
 #include "DataInstance.h"
+#include <memory>
 
+using namespace std;
 
 namespace dai {
-
 
 class Dataset
 {
@@ -22,15 +23,16 @@ public:
     explicit Dataset(QString path);
     virtual ~Dataset();
     const DatasetMetadata& getMetadata() const;
-    virtual DataInstance* getDepthInstance(int activity, int actor, int sample) const = 0;
-    virtual DataInstance* getSkeletonInstance(int activity, int actor, int sample) const = 0;
-    virtual DataInstance* getColorInstance(int activity, int actor, int sample) const = 0;
-    virtual DataInstance* getUserInstance(int activity, int actor, int sample) const = 0;
 
-    DataInstance* getDepthInstance(InstanceInfo info) const;
-    DataInstance* getSkeletonInstance(InstanceInfo info) const;
-    DataInstance* getColorInstance(InstanceInfo info) const;
-    DataInstance* getUserInstance(InstanceInfo info) const;
+    virtual shared_ptr<DataInstance> getDepthInstance(int activity, int actor, int sample) const = 0;
+    virtual shared_ptr<DataInstance> getSkeletonInstance(int activity, int actor, int sample) const = 0;
+    virtual shared_ptr<DataInstance> getColorInstance(int activity, int actor, int sample) const = 0;
+    virtual shared_ptr<DataInstance> getUserInstance(int activity, int actor, int sample) const = 0;
+
+    shared_ptr<DataInstance> getDepthInstance(InstanceInfo info) const;
+    shared_ptr<DataInstance> getSkeletonInstance(InstanceInfo info) const;
+    shared_ptr<DataInstance> getColorInstance(InstanceInfo info) const;
+    shared_ptr<DataInstance> getUserInstance(InstanceInfo info) const;
 
 protected:
     DatasetMetadata* m_metadata;

@@ -37,12 +37,12 @@ KMeans::~KMeans()
 
     if (m_clusters_mask) {
         delete[] m_clusters_mask;
-        m_clusters_mask = NULL;
+        m_clusters_mask = nullptr;
     }
 
     if (m_clusters_list) {
         delete[] m_clusters_list;
-        m_clusters_list = NULL;
+        m_clusters_list = nullptr;
     }
 }
 
@@ -216,14 +216,14 @@ const KMeans* KMeans::execute(const float *sample, const int n, const int k, int
     if (times <= 0)
         throw 1;
 
-    KMeans* kmeans = NULL;
-    KMeans* kmeans_best = NULL;
+    KMeans* kmeans = nullptr;
+    KMeans* kmeans_best = nullptr;
     float min_compactness = std::numeric_limits<float>::max();
     float compactness = 0;
 
     for (int i=0; i<times; ++i)
     {
-        if (kmeans == NULL)
+        if (kmeans == nullptr)
             kmeans = new KMeans(sample, n, k);
 
         kmeans->execute();
@@ -231,18 +231,18 @@ const KMeans* KMeans::execute(const float *sample, const int n, const int k, int
 
         if (compactness < min_compactness) {
             min_compactness = compactness;
-            if (kmeans_best != NULL)
+            if (kmeans_best != nullptr)
                 delete kmeans_best;
             kmeans_best = kmeans;
-            kmeans = NULL;
+            kmeans = nullptr;
         } else {
             kmeans->initialise();
         }
     }
 
-    if (kmeans != NULL) {
+    if (kmeans != nullptr) {
         delete kmeans;
-        kmeans = NULL;
+        kmeans = nullptr;
     }
 
     for (int i=0; i<kmeans_best->m_k; ++i) {
