@@ -60,6 +60,7 @@ private slots:
     void stopAsync();
 
 private:
+    bool hasSuscribers(shared_ptr<StreamInstance> instance);
     void release(PlaybackListener *caller);
     void removeAllListeners();
     void notifySuscribersOnNewFrames(QList<shared_ptr<StreamInstance> > notChangedInstances);
@@ -69,7 +70,6 @@ private:
     QList<shared_ptr<StreamInstance> >                m_instances;
     bool                                              m_playloop_enabled;
     QHash<PlaybackListener*, QList<shared_ptr<StreamInstance> >*> m_listeners;
-    QHash<StreamInstance*, QList<PlaybackListener*>*> m_listenersAux;
     QMutex                                            m_lockListeners;
     bool                                              m_restartAfterStop;
 };

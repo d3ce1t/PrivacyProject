@@ -133,16 +133,8 @@ bool PlaybackControl::doWork()
     {
         if (instance->is_open())
         {
-            // Not suscribers
-            if (!m_listenersAux.contains(instance.get())) {
-                instance->close();
-                notChangedInstances << instance;
-                m_instances.removeOne(instance);
-                /*if (m_clearInstances)
-                    delete instance;*/
-                std::cerr << "Closed (not suscribers)" << std::endl;
-            }
-            else {
+            if (hasSuscribers(instance))
+            {
                 if (!instance->hasNext() && m_playloop_enabled)
                     instance->restart();
 
@@ -155,6 +147,14 @@ bool PlaybackControl::doWork()
                     std::cerr << "Closed" << std::endl;
                 }
             }
+            // Not suscribers
+            else {
+                instance->close();
+                notChangedInstances << instance;
+                m_instances.removeOne(instance);
+                std::cerr << "Closed (not suscribers)" << std::endl;
+
+            }
         }
     }
 
@@ -162,6 +162,20 @@ bool PlaybackControl::doWork()
         notifySuscribersOnNewFrames(notChangedInstances);
 
     return frameAvailable;
+}
+
+bool PlaybackControl::hasSuscribers(shared_ptr<StreamInstance> instance)
+{
+    bool result = false;
+
+    foreach (QList<shared_ptr<StreamInstance>>* instanceList, m_listeners.values()) {
+        if (instanceList->contains(instance)) {
+            result = true;
+            break;
+        }
+    }
+
+    return result;
 }
 
 void PlaybackControl::release(PlaybackListener *caller)
@@ -184,18 +198,6 @@ void PlaybackControl::addListener(PlaybackListener* listener, shared_ptr<StreamI
 
     *instanceList << instance;
 
-    // Instances
-    QList<PlaybackListener*>* listenerList = nullptr;
-
-    if (!m_listenersAux.contains(instance.get())) {
-        listenerList = new QList<PlaybackListener*>;
-        m_listenersAux.insert(instance.get(), listenerList);
-    } else {
-        listenerList = m_listenersAux.value(instance.get());
-    }
-
-    *listenerList << listener;
-
     // Set Playback
     listener->setPlayback(this);
 }
@@ -206,7 +208,8 @@ void PlaybackControl::removeListener(PlaybackListener *listener, StreamInstance:
 
     m_lockListeners.lock();
 
-    if (m_listeners.contains(listener)) {
+    if (m_listeners.contains(listener))
+    {
         QList<shared_ptr<StreamInstance>>* instanceList = m_listeners.value(listener);
         QListIterator<shared_ptr<StreamInstance>> it(*instanceList);
 
@@ -230,15 +233,9 @@ void PlaybackControl::removeListener(PlaybackListener* listener, shared_ptr<Stre
     if (m_listeners.contains(listener)) {
         QList<shared_ptr<StreamInstance>>* instanceList = m_listeners.value(listener);
         instanceList->removeOne(instance);
-    }
-
-    if (m_listenersAux.contains(instance.get())) {
-        QList<PlaybackListener*>* listenerList = m_listenersAux.value(instance.get());
-        if (listenerList->contains(listener)) {
-            listenerList->removeOne(listener);
-        }
-        if (listenerList->isEmpty()) {
-            m_listenersAux.remove(instance.get());
+        if (instanceList->isEmpty()) {
+            delete instanceList;
+            m_listeners.remove(listener);
         }
     }
 }
@@ -253,31 +250,6 @@ void PlaybackControl::removeListener(PlaybackListener* listener)
         delete instanceList;
         m_listeners.remove(listener);
     }
-
-    QHashIterator<StreamInstance*, QList<PlaybackListener*>*> it(m_listenersAux);
-    QList<StreamInstance*> removeInstances;
-
-    while (it.hasNext())
-    {
-        it.next();
-        StreamInstance* instance = it.key();
-        QList<PlaybackListener*>* listenerList = it.value();
-
-        if (listenerList->contains(listener)) {
-            listenerList->removeOne(listener);
-        }
-
-        if (listenerList->isEmpty()) {
-            removeInstances << instance;
-            delete listenerList;
-        }
-    }
-
-    foreach (StreamInstance* instance, removeInstances) {
-        m_listenersAux.remove(instance);
-    }
-
-    removeInstances.clear();
 }
 
 void PlaybackControl::removeAllListeners()
@@ -289,13 +261,7 @@ void PlaybackControl::removeAllListeners()
         delete instanceList;
     }
 
-    foreach (QList<PlaybackListener*>* listenerList, m_listenersAux.values()) {
-        listenerList->clear();
-        delete listenerList;
-    }
-
     m_listeners.clear();
-    m_listenersAux.clear();
 }
 
 void PlaybackControl::notifySuscribersOnNewFrames(QList<shared_ptr<StreamInstance>> notChangedInstances)
