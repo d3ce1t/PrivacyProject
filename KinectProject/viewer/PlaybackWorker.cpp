@@ -44,7 +44,7 @@ void PlaybackWorker::run()
             // Wait
             /*m_viewers.ref();
             if (m_viewers.deref()) {*/
-            /*    m_mutex.lock();
+               /* m_mutex.lock();
                 m_sync.wait(&m_mutex);
                 m_mutex.unlock();*/
             /*    SLEEP_TIME = 100;
@@ -76,8 +76,8 @@ void PlaybackWorker::sync()
 void PlaybackWorker::acquire(PlaybackControl::PlaybackListener *caller)
 {
     //std::cerr << "PlaybackWorker::acquire" << std::endl;
-    m_viewers.ref();
     QMutexLocker locker(&m_lockViewers);
+    m_viewers++;
     m_currentCallers.insert(caller, true);
 }
 
@@ -88,7 +88,8 @@ void PlaybackWorker::release(PlaybackControl::PlaybackListener *caller)
 
     if (m_currentCallers.contains(caller)) {
         m_currentCallers.remove(caller);
-        if (!m_viewers.deref())
+        m_viewers--;
+        if (m_viewers == 0)
             sync();
     }
 }

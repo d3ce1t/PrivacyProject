@@ -169,7 +169,7 @@ void PlaybackControl::release(PlaybackListener *caller)
     m_worker->release(caller);
 }
 
-void PlaybackControl::addNewFrameListener(PlaybackListener* listener, shared_ptr<StreamInstance> instance)
+void PlaybackControl::addListener(PlaybackListener* listener, shared_ptr<StreamInstance> instance)
 {
     QMutexLocker locker(&m_lockListeners);
     QList<shared_ptr<StreamInstance> >* instanceList = nullptr;

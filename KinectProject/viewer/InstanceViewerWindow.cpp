@@ -77,7 +77,7 @@ void InstanceViewerWindow::processListItem(QListWidget* widget)
 
     playback()->removeListener(this, instance->getType());
     playback()->addInstance(instance);
-    playback()->addNewFrameListener(this, instance);
+    playback()->addListener(this, instance);
     playback()->play(true);
     setTitle("Instance Viewer (" + instance->getTitle() + ")");
 }

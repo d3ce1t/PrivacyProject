@@ -47,7 +47,7 @@ public:
     void addInstance(shared_ptr<StreamInstance> instance);
     void enablePlayLoop(bool value);
     float getFPS() const;
-    void addNewFrameListener(PlaybackListener *listener, shared_ptr<StreamInstance> instance);
+    void addListener(PlaybackListener *listener, shared_ptr<StreamInstance> instance);
     void removeListener(PlaybackListener* listener, StreamInstance::StreamType type);
     void removeListener(PlaybackListener* listener, shared_ptr<StreamInstance> instance);
     void removeListener(PlaybackListener* listener);

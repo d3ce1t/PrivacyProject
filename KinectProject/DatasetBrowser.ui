@@ -256,6 +256,11 @@
    </property>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionPrueba_2">
+   <property name="text">
+    <string>Prueba 2</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

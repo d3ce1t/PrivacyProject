@@ -235,8 +235,8 @@ void MainWindow::on_btnTest_clicked()
     //playback->addInstance(depthInstance);
     playback->addInstance(userInstance);
 
-    playback->addNewFrameListener(colorViewer, colorInstance);
-    playback->addNewFrameListener(colorViewer, userInstance);
+    playback->addListener(colorViewer, colorInstance);
+    playback->addListener(colorViewer, userInstance);
     //playback->addNewFrameListener(depthViewer, depthInstance);
     //playback->addNewFrameListener(userViewer, userInstance);
     //playback->addNewFrameListener(recorder, userInstance);
@@ -266,9 +266,9 @@ void MainWindow::on_btnStartKinect_clicked()
     // Connect all together
     playback->addInstance(colorInstance);
     playback->addInstance(depthInstance);
-    playback->addNewFrameListener(colorViewer, colorInstance);
-    playback->addNewFrameListener(colorViewer, depthInstance);
-    playback->addNewFrameListener(depthViewer, depthInstance);
+    playback->addListener(colorViewer, colorInstance);
+    playback->addListener(colorViewer, depthInstance);
+    playback->addListener(depthViewer, depthInstance);
 
     // Run
     playback->play();

@@ -5,11 +5,12 @@
 #include <QElapsedTimer>
 #include <QMutex>
 #include <QWaitCondition>
-#include <QAtomicInt>
+#include <atomic>
 #include "PlaybackControl.h"
 
-namespace dai {
+using namespace std;
 
+namespace dai {
 
 class PlaybackWorker : public QThread
 {
@@ -32,7 +33,7 @@ private:
 
     bool             m_running;
     QMutex           m_lockViewers;
-    QAtomicInt       m_viewers;
+    atomic<int>      m_viewers;
     QHash<PlaybackControl::PlaybackListener*, bool> m_currentCallers;
     QMutex           m_mutex;
     QWaitCondition   m_sync;
