@@ -1,5 +1,6 @@
 #include "PlaybackWorker.h"
-#include "viewer/PlaybackControl.h"
+#include "PlaybackControl.h"
+#include "PlaybackListener.h"
 #include <iostream>
 
 namespace dai {
@@ -73,7 +74,7 @@ void PlaybackWorker::sync()
     m_mutex.unlock();
 }
 
-void PlaybackWorker::acquire(PlaybackControl::PlaybackListener *caller)
+void PlaybackWorker::acquire(PlaybackListener *caller)
 {
     //std::cerr << "PlaybackWorker::acquire" << std::endl;
     QMutexLocker locker(&m_lockViewers);
@@ -81,7 +82,7 @@ void PlaybackWorker::acquire(PlaybackControl::PlaybackListener *caller)
     m_currentCallers.insert(caller, true);
 }
 
-void PlaybackWorker::release(PlaybackControl::PlaybackListener *caller)
+void PlaybackWorker::release(PlaybackListener *caller)
 {
     //std::cerr << "PlaybackWorker::release" << std::endl;
     QMutexLocker locker(&m_lockViewers);

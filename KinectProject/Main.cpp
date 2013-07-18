@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     MainWindow window;
     qmlRegisterType<InstanceViewer>("OpenGLUnderQML", 1, 0, "InstanceViewer");
-    qRegisterMetaType<QList<shared_ptr<dai::DataFrame>> >("QList<shared_ptr<dai::DataFrame>>");
+    qRegisterMetaType<QList<shared_ptr<dai::DataFrame>> >("QList<shared_ptr<DataFrame>>");
     window.show();
     return app.exec();
     //dai::Quaternion::test();

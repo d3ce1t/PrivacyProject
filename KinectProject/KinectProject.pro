@@ -62,7 +62,8 @@ HEADERS += \
     viewer/UserFramePainter.h \
     filters/FrameFilter.h \
     filters/DilateUserFilter.h \
-    filters/BlurFilter.h
+    filters/BlurFilter.h \
+    viewer/PlaybackListener.h
 
 SOURCES += \
     dataset/MSRAction3D/MSR3Action3D.cpp \
@@ -114,7 +115,8 @@ SOURCES += \
     viewer/UserFramePainter.cpp \
     filters/FrameFilter.cpp \
     filters/DilateUserFilter.cpp \
-    filters/BlurFilter.cpp
+    filters/BlurFilter.cpp \
+    viewer/PlaybackListener.cpp
 
 RESOURCES += openglunderqml.qrc
 

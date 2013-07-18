@@ -2,6 +2,8 @@
 #define PLAYBACKCONTROL_H
 
 #include "types/StreamInstance.h"
+#include "PlaybackListener.h"
+#include "PlaybackWorker.h"
 #include <QObject>
 #include <QList>
 #include <QHash>
@@ -12,34 +14,14 @@ using namespace std;
 
 namespace dai {
 
-class PlaybackWorker;
-
 class PlaybackControl : public QObject
 {
     Q_OBJECT
 
     friend class PlaybackWorker;
+    friend class PlaybackListener;
 
 public:
-
-    class PlaybackListener
-    {
-        friend class PlaybackControl;
-
-    public:
-        PlaybackListener();
-        virtual ~PlaybackListener();
-        PlaybackControl* playback();
-        void releasePlayback();
-        virtual void onNewFrame(const QList<shared_ptr<DataFrame>>& frames) = 0;
-        virtual void onPlaybackStart() = 0;
-        virtual void onPlaybackStop() = 0;
-    private:
-        void setPlayback(PlaybackControl* playback);
-
-        PlaybackControl* m_playback;
-    };
-
     PlaybackControl();
     virtual ~PlaybackControl();
     void stop();
@@ -47,7 +29,7 @@ public:
     void addInstance(shared_ptr<StreamInstance> instance);
     void enablePlayLoop(bool value);
     float getFPS() const;
-    void addListener(PlaybackListener *listener, shared_ptr<StreamInstance> instance);
+    void addListener(PlaybackListener* listener, shared_ptr<StreamInstance> instance);
     void removeListener(PlaybackListener* listener, StreamInstance::StreamType type);
     void removeListener(PlaybackListener* listener, shared_ptr<StreamInstance> instance);
     void removeListener(PlaybackListener* listener);
@@ -61,7 +43,6 @@ private slots:
 
 private:
     bool hasSuscribers(shared_ptr<StreamInstance> instance);
-    void release(PlaybackListener *caller);
     void removeAllListeners();
     void notifySuscribersOnNewFrames(QList<shared_ptr<StreamInstance> > notChangedInstances);
     void notifySuscribersOnStop();

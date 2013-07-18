@@ -11,7 +11,7 @@
 
 namespace dai {
 
-class InstanceViewerWindow : public QObject, public PlaybackControl::PlaybackListener
+class InstanceViewerWindow : public PlaybackListener
 {
     Q_OBJECT
 
@@ -22,9 +22,6 @@ class InstanceViewerWindow : public QObject, public PlaybackControl::PlaybackLis
 public:
     InstanceViewerWindow();
     virtual ~InstanceViewerWindow();
-    void onNewFrame(const QList<shared_ptr<DataFrame>>& dataFrames);
-    void onPlaybackStart();
-    void onPlaybackStop();
     void setTitle(const QString& title);
     void addFilter(DataFrame::FrameType type, shared_ptr<FrameFilter> filter);
     void show();
@@ -40,6 +37,11 @@ private slots:
     float getFPS() const;
     void enableColorFilter(bool value);
     void enableBlurFilter(bool value);
+
+protected:
+    void onNewFrame(const QList<shared_ptr<DataFrame>>& dataFrames);
+    void onPlaybackStart();
+    void onPlaybackStop();
 
 private:
     QList<shared_ptr<DataFrame>> applyFilters(const QList<shared_ptr<DataFrame> > &dataFrames) const;

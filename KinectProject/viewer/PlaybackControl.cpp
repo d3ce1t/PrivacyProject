@@ -1,41 +1,9 @@
 #include "PlaybackControl.h"
 #include <QTimer>
 #include "types/DataFrame.h"
-#include "PlaybackWorker.h"
 #include <iostream>
 
 namespace dai {
-
-PlaybackControl::PlaybackListener::PlaybackListener()
-{
-    m_playback = nullptr;
-}
-
-PlaybackControl::PlaybackListener::~PlaybackListener()
-{
-    if (m_playback != nullptr) {
-        m_playback->release(this);
-        m_playback->removeListener(this);
-        m_playback = nullptr;
-    }
-}
-
-void PlaybackControl::PlaybackListener::setPlayback(PlaybackControl* playback)
-{
-    m_playback = playback;
-}
-
-void PlaybackControl::PlaybackListener::releasePlayback()
-{
-    if (m_playback != nullptr) {
-        m_playback->release(this);
-    }
-}
-
-PlaybackControl* PlaybackControl::PlaybackListener::playback()
-{
-    return m_playback;
-}
 
 PlaybackControl::PlaybackControl()
 {
@@ -178,11 +146,6 @@ bool PlaybackControl::hasSuscribers(shared_ptr<StreamInstance> instance)
     return result;
 }
 
-void PlaybackControl::release(PlaybackListener *caller)
-{
-    m_worker->release(caller);
-}
-
 void PlaybackControl::addListener(PlaybackListener* listener, shared_ptr<StreamInstance> instance)
 {
     QMutexLocker locker(&m_lockListeners);
@@ -280,8 +243,9 @@ void PlaybackControl::notifySuscribersOnNewFrames(QList<shared_ptr<StreamInstanc
             frameList << instance->frame();
         }
 
-        m_worker->acquire(listener);
-        listener->onNewFrame(frameList);
+        QMetaObject::invokeMethod(listener, "manageFrames",
+                                      Qt::AutoConnection,
+                                      Q_ARG(QList<shared_ptr<DataFrame>>, frameList));
     }
 }
 

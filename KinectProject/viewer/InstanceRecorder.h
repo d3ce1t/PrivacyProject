@@ -6,7 +6,7 @@
 
 namespace dai {
 
-class InstanceRecorder : public dai::PlaybackControl::PlaybackListener
+class InstanceRecorder : public PlaybackListener
 {
 public:
     InstanceRecorder();
