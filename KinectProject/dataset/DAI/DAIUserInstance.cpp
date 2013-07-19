@@ -66,15 +66,8 @@ void DAIUserInstance::nextFrame(DataFrame &frame)
 {
     // Read Data from File
     UserFrame& userFrame = (UserFrame&) frame;
-    m_file.read( (char *) m_readBuffer, sizeof(m_readBuffer) );
-
-    for (int y=0; y<m_height; ++y)
-    {
-        for (int x=0; x<m_width; ++x)
-        {
-            userFrame.setItem(y, x, m_readBuffer[y].userRow[x]);
-        }
-    }
+    u_int8_t* ptrImg = (u_int8_t*) userFrame.getDataPtr();
+    m_file.read( (char *) ptrImg, userFrame.getWidth() * userFrame.getHeight() * sizeof(u_int8_t) );
 }
 
 } // End Namespace
