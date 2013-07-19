@@ -123,8 +123,8 @@ QList<shared_ptr<DataFrame> > InstanceViewerWindow::applyFilters(const QList<sha
     shared_ptr<UserFrame> userMask;
     int i = 0;
 
-    // First I get the userframe (if it exists) and apply their filter
-    // I will use userframe ad user mask
+    // HACK: First I get the userframe (if it exists) and apply their filter
+    // I will use userframe as user mask
     while (!userMask && i < dataFrames.size())
     {
         shared_ptr<DataFrame> frame = dataFrames.at(i);

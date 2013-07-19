@@ -6,7 +6,7 @@
 namespace dai {
 
 PlaybackWorker::PlaybackWorker(PlaybackControl* parent)
-    : SLEEP_TIME(100)
+    : SLEEP_TIME(65)
 {
     m_parent = parent;
     m_running = false;

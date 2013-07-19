@@ -4,9 +4,10 @@
 namespace dai {
 
 ColorFramePainter::ColorFramePainter(QOpenGLContext *context)
-    : Painter(context), textureUnit(0)
+    : Painter(context)
 {
     m_frame = nullptr;
+    m_textureData.reset(new u_int8_t[640*480]);
 }
 
 ColorFramePainter::~ColorFramePainter()
@@ -25,6 +26,15 @@ void ColorFramePainter::initialise()
     // Create texture
     glGenTextures(1, &m_foregroundTexture);
     glGenTextures(1, &m_maskTexture);
+
+    // Create empty texture for Background
+    glGenTextures(1, &m_backgroundTexture);
+    /*glBindTexture(GL_TEXTURE_2D, m_backgroundTexture);
+    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 640, 480, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+    glBindTexture(GL_TEXTURE_2D, 0);*/
 }
 
 ColorFrame& ColorFramePainter::frame()
@@ -35,6 +45,20 @@ ColorFrame& ColorFramePainter::frame()
 void ColorFramePainter::prepareData(shared_ptr<DataFrame> frame)
 {
     m_frame = static_pointer_cast<ColorFrame>(frame);
+
+    if (m_mask)
+    {
+        memset(m_textureData.get(), 0, 640*480*sizeof(u_int8_t));
+
+        for (int i=0; i<480; ++i) {
+            for (int j=0; j<640; ++j) {
+                u_int8_t label = m_mask->getItem(i,j);
+                if (label > 0) {
+                    m_textureData.get()[i*640+j] = 255;
+                }
+            }
+        }
+    }
 }
 
 void ColorFramePainter::render()
@@ -43,10 +67,18 @@ void ColorFramePainter::render()
         return;
 
     // Load into GPU
-    if (m_mask)
-        loadMaskTexture((void *) m_mask->getDataPtr(), m_mask->getWidth(), m_mask->getHeight(), m_maskTexture);
+    if (m_mask) {
+        // Get initial background at 20th frame
+        if (m_frame->getIndex() == 20) {
+            loadVideoTexture(m_backgroundTexture, m_frame->getWidth(), m_frame->getHeight(), (void *) m_frame->getDataPtr());
+        }
 
-    loadVideoTexture((void *) m_frame->getDataPtr(), m_frame->getWidth(), m_frame->getHeight(), m_foregroundTexture);
+        // Load Mask
+        loadMaskTexture(m_maskTexture, m_mask->getWidth(), m_mask->getHeight(), (void *) m_textureData.get());
+    }
+
+    // Load Foreground
+    loadVideoTexture(m_foregroundTexture, m_frame->getWidth(), m_frame->getHeight(), (void *) m_frame->getDataPtr());
 
     // Render
     m_shaderProgram->bind();
@@ -54,10 +86,31 @@ void ColorFramePainter::render()
 
     m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
 
-    glActiveTexture(GL_TEXTURE0 + textureUnit);
+    // Bind Foreground
+    glActiveTexture(GL_TEXTURE0 + 0);
     glBindTexture(GL_TEXTURE_2D, m_foregroundTexture);
+
+    // Bind Mask
+    glActiveTexture(GL_TEXTURE0 + 1);
+    glBindTexture(GL_TEXTURE_2D, m_maskTexture);
+
+    // Bind Background
+    glActiveTexture(GL_TEXTURE0 + 2);
+    glBindTexture(GL_TEXTURE_2D, m_backgroundTexture);
+
     glDrawArrays(GL_TRIANGLE_FAN, m_posAttr, 4);
+
+    // Unbind Background
     glBindTexture(GL_TEXTURE_2D, 0);
+
+    // Unbind Mask
+    glActiveTexture(GL_TEXTURE0 + 1);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    // Unbind Foreground
+    glActiveTexture(GL_TEXTURE0 + 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
     glDisable(GL_TEXTURE_2D);
 
     m_vao.release();
@@ -77,10 +130,14 @@ void ColorFramePainter::prepareShaderProgram()
     m_posAttr = m_shaderProgram->attributeLocation("posAttr");
     m_texCoord = m_shaderProgram->attributeLocation("texCoord");
     m_perspectiveMatrix = m_shaderProgram->uniformLocation("perspectiveMatrix");
-    m_texSampler = m_shaderProgram->uniformLocation("texSampler");
+    m_texColorSampler = m_shaderProgram->uniformLocation("texColor");
+    m_texMaskSampler = m_shaderProgram->uniformLocation("texMask");
+    m_texBackgroundSampler = m_shaderProgram->uniformLocation("texBackground");
 
     m_shaderProgram->bind();
-    m_shaderProgram->setUniformValue(m_texSampler, 0);
+    m_shaderProgram->setUniformValue(m_texColorSampler, 0);
+    m_shaderProgram->setUniformValue(m_texMaskSampler, 1);
+    m_shaderProgram->setUniformValue(m_texBackgroundSampler, 2);
     m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
     m_shaderProgram->release();
 }
@@ -124,7 +181,7 @@ void ColorFramePainter::prepareVertexBuffer()
 }
 
 // Create Texture (overwrite previous)
-void ColorFramePainter::loadVideoTexture(void* texture, GLsizei width, GLsizei height, GLuint glTextureId)
+void ColorFramePainter::loadVideoTexture(GLuint glTextureId, GLsizei width, GLsizei height, void* texture)
 {
     glBindTexture(GL_TEXTURE_2D, glTextureId);
     glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
@@ -135,7 +192,7 @@ void ColorFramePainter::loadVideoTexture(void* texture, GLsizei width, GLsizei h
 }
 
 // Create Texture (overwrite previous)
-void ColorFramePainter::loadMaskTexture(void* texture, GLsizei width, GLsizei height, GLuint glTextureId)
+void ColorFramePainter::loadMaskTexture(GLuint glTextureId, GLsizei width, GLsizei height, void* texture)
 {
     glBindTexture(GL_TEXTURE_2D, glTextureId);
     glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);

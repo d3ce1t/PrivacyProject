@@ -45,7 +45,7 @@ void InstanceViewer::onNewFrame(QList<shared_ptr<dai::DataFrame> > dataFrames)
     shared_ptr<dai::UserFrame> userMask;
     int i = 0;
 
-    // Get UserFrame
+    // HACK: Get UserFrame
     while (!userMask && i < dataFrames.size())
     {
         shared_ptr<dai::DataFrame> frame = dataFrames.at(i);
@@ -65,7 +65,7 @@ void InstanceViewer::onNewFrame(QList<shared_ptr<dai::DataFrame> > dataFrames)
         if (painter) {
             painter->setMask(userMask);
             painter->prepareData(frame);
-            painter->setMask(nullptr);
+            //painter->setMask(nullptr);
         }
     }
     m_mutex.unlock();
