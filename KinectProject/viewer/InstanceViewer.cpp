@@ -65,6 +65,7 @@ void InstanceViewer::onNewFrame(QList<shared_ptr<dai::DataFrame> > dataFrames)
         if (painter) {
             painter->setMask(userMask);
             painter->prepareData(frame);
+            painter->setMask(nullptr);
         }
     }
     m_mutex.unlock();

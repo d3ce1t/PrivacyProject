@@ -4,6 +4,9 @@
 #include "dataset/Dataset.h"
 #include "dataset/InstanceInfo.h"
 #include "types/UserFrame.h"
+#include "filters/InvisibilityFilter.h"
+#include "filters/DilateUserFilter.h"
+#include "filters/BlurFilter.h"
 #include <QQmlContext>
 
 namespace dai {
@@ -31,9 +34,22 @@ InstanceViewerWindow::InstanceViewerWindow()
         return;
     }
 
+    // Windows setup
     connect(m_window, SIGNAL(closing(QQuickCloseEvent*)), this, SLOT(deleteLater()));
     connect(m_viewer, SIGNAL(frameRendered()), this, SLOT(onRenderedFrame()));
     setTitle("Instance Viewer");
+
+    // Filters setup
+    shared_ptr<BlurFilter> blurFilter(new BlurFilter);
+    shared_ptr<InvisibilityFilter> invisibilityFilter(new InvisibilityFilter);
+    shared_ptr<DilateUserFilter> dilateFilter(new DilateUserFilter);
+
+    dilateFilter->enableFilter(true);
+
+    // Filters are later retrieved from more recently to less recently inserted
+    m_filters.insert(DataFrame::Color, blurFilter);
+    m_filters.insert(DataFrame::Color, invisibilityFilter);
+    m_filters.insert(DataFrame::User, dilateFilter);
 }
 
 InstanceViewerWindow::~InstanceViewerWindow()
@@ -41,12 +57,6 @@ InstanceViewerWindow::~InstanceViewerWindow()
     qDebug() << "InstanceViewerWindow::~InstanceViewerWindow()";
     m_viewer = nullptr;
     m_window = nullptr;
-
-    foreach (QList<shared_ptr<FrameFilter>>* filters, m_filters) {
-        filters->clear();
-        delete filters;
-    }
-
     m_filters.clear();
 }
 
@@ -141,16 +151,16 @@ QList<shared_ptr<DataFrame> > InstanceViewerWindow::applyFilters(const QList<sha
 }
 
 shared_ptr<DataFrame> InstanceViewerWindow::applyFilter(shared_ptr<DataFrame> inputFrame, shared_ptr<UserFrame> userMask) const
-{
-    QList<shared_ptr<FrameFilter>>* filters = m_filters.value(inputFrame->getType());
+{    
+    QList<shared_ptr<FrameFilter>> filters = m_filters.values(inputFrame->getType());
 
-    if (filters == nullptr)
+    if (filters.count() == 0)
         return inputFrame;
 
     // I clone the frame because I do not want to modify the frame read by the instance
     shared_ptr<DataFrame> outputFrame = inputFrame->clone();
 
-    foreach (shared_ptr<FrameFilter> frameFilter, *filters)
+    foreach (shared_ptr<FrameFilter> frameFilter, filters)
     {
         frameFilter->setMask(userMask);
         frameFilter->applyFilter(outputFrame);
@@ -176,38 +186,32 @@ void InstanceViewerWindow::setTitle(const QString& title)
         m_window->setTitle(title);
 }
 
-void InstanceViewerWindow::addFilter(DataFrame::FrameType type, shared_ptr<FrameFilter> filter)
+void InstanceViewerWindow::enableInvisibilityFilter()
 {
-    QList<shared_ptr<FrameFilter>>* filtersList = nullptr;
+    shared_ptr<FrameFilter> filter = m_filters.values(DataFrame::Color).at(0);
 
-    if (!m_filters.contains(type)) {
-        filtersList = new QList<shared_ptr<FrameFilter>>;
-        m_filters.insert(type, filtersList);
-    } else {
-        filtersList = m_filters.value(type);
-    }
+    if (m_activeFilterArray[DataFrame::Color])
+        m_activeFilterArray[DataFrame::Color]->enableFilter(false);
 
-    filtersList->append(filter);
+    m_activeFilterArray[DataFrame::Color] = filter;
+    filter->enableFilter(true);
 }
 
-void InstanceViewerWindow::enableColorFilter(bool value)
+void InstanceViewerWindow::enableBlurFilter()
 {
-    QList<shared_ptr<FrameFilter>>* filters = m_filters.value(DataFrame::Color);
+    shared_ptr<FrameFilter> filter = m_filters.values(DataFrame::Color).at(1);
 
-    if (filters) {
-        shared_ptr<FrameFilter> filter = filters->at(0);
-        filter->enableFilter(value);
-    }
+    if (m_activeFilterArray[DataFrame::Color])
+        m_activeFilterArray[DataFrame::Color]->enableFilter(false);
+
+    m_activeFilterArray[DataFrame::Color] = filter;
+    filter->enableFilter(true);
 }
 
-void InstanceViewerWindow::enableBlurFilter(bool value)
+void InstanceViewerWindow::disableColorFilter()
 {
-    QList<shared_ptr<FrameFilter>>* filters = m_filters.value(DataFrame::Color);
-
-    if (filters) {
-        shared_ptr<FrameFilter> filter = filters->at(1);
-        filter->enableFilter(value);
-    }
+    m_activeFilterArray[DataFrame::Color]->enableFilter(false);
+    m_activeFilterArray[DataFrame::Color] = nullptr;
 }
 
 void InstanceViewerWindow::show()

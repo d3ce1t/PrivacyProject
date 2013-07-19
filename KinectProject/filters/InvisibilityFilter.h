@@ -1,15 +1,15 @@
-#ifndef BASICFILTER_H
-#define BASICFILTER_H
+#ifndef INVISIBILITY_FILTER_H
+#define INVISIBILITY_FILTER_H
 
 #include "filters/FrameFilter.h"
 #include "types/ColorFrame.h"
 
 namespace dai {
 
-class BasicFilter : public FrameFilter
+class InvisibilityFilter : public FrameFilter
 {
 public:
-    BasicFilter();
+    InvisibilityFilter();
     void applyFilter(shared_ptr<DataFrame> frame);
 
 private:
@@ -18,4 +18,4 @@ private:
 
 } // End namespace
 
-#endif // BASICFILTER_H
+#endif // INVISIBILITY_FILTER_H

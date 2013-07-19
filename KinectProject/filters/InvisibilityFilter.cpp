@@ -1,13 +1,13 @@
-#include "BasicFilter.h"
+#include "InvisibilityFilter.h"
 
 namespace dai {
 
-BasicFilter::BasicFilter()
+InvisibilityFilter::InvisibilityFilter()
     : m_background(640, 480)
 {
 }
 
-void BasicFilter::applyFilter(shared_ptr<DataFrame> frame)
+void InvisibilityFilter::applyFilter(shared_ptr<DataFrame> frame)
 {
     if (m_userMask == nullptr)
         return;
@@ -19,6 +19,7 @@ void BasicFilter::applyFilter(shared_ptr<DataFrame> frame)
         m_background = *colorFrame;
     }
 
+    // Update Background and make replacement
     for (int i=0; i<m_userMask->getHeight(); ++i)
     {
         for (int j=0; j<m_userMask->getWidth(); ++j)

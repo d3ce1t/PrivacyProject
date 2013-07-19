@@ -16,9 +16,6 @@
 #include "viewer/PlaybackControl.h"
 #include "viewer/InstanceViewerWindow.h"
 #include "viewer/InstanceRecorder.h"
-#include "filters/BasicFilter.h"
-#include "filters/DilateUserFilter.h"
-#include "filters/BlurFilter.h"
 #include "KMeans.h"
 #include "DepthSeg.h"
 
@@ -218,17 +215,6 @@ void MainWindow::on_btnTest_clicked()
     dai::InstanceViewerWindow* colorViewer = new dai::InstanceViewerWindow;
     //dai::InstanceViewerWindow* depthViewer = new dai::InstanceViewerWindow;
     //dai::InstanceViewerWindow* userViewer = new dai::InstanceViewerWindow;
-
-    // Set viewers filters
-    shared_ptr<dai::BasicFilter> basicFilter(new dai::BasicFilter);
-    basicFilter->enableFilter(false);
-    shared_ptr<dai::DilateUserFilter> dilateFilter(new dai::DilateUserFilter);
-    shared_ptr<dai::BlurFilter> blurFilter(new dai::BlurFilter);
-    blurFilter->enableFilter(false);
-    colorViewer->addFilter(dai::DataFrame::User, dilateFilter);
-    colorViewer->addFilter(dai::DataFrame::Color, basicFilter);
-    colorViewer->addFilter(dai::DataFrame::Color, blurFilter);
-    //userViewer->addFilter(dai::DataFrame::User, dilateFilter);
 
     // Connect all together
     playback->addInstance(colorInstance);

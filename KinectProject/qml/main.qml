@@ -39,6 +39,7 @@ ApplicationWindow {
                     overlayText.text = "No Filter Enabled"
                     overlayText.opacity = 1
                     overlayTextHide.start()
+                    viewerWindow.disableColorFilter()
                 }
             }
 
@@ -50,9 +51,7 @@ ApplicationWindow {
                     overlayText.text = "Invisibility Filter Enabled"
                     overlayText.opacity = 1
                     overlayTextHide.start()
-                }
-                onCheckedChanged: {
-                    viewerWindow.colorFilter = checked
+                    viewerWindow.enableInvisibilityFilter()
                 }
             }
             MenuItem {
@@ -63,9 +62,7 @@ ApplicationWindow {
                     overlayText.text = "Blur Filter Enabled"
                     overlayText.opacity = 1
                     overlayTextHide.start()
-                }
-                onCheckedChanged: {
-                    viewerWindow.blurFilter = checked;
+                    viewerWindow.enableBlurFilter()
                 }
             }
         }

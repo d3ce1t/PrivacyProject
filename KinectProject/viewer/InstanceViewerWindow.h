@@ -6,8 +6,7 @@
 #include "viewer/InstanceViewer.h"
 #include <QQmlApplicationEngine>
 #include "filters/FrameFilter.h"
-#include <QHash>
-#include <QList>
+#include <QMultiHash>
 
 namespace dai {
 
@@ -16,14 +15,11 @@ class InstanceViewerWindow : public PlaybackListener
     Q_OBJECT
 
     Q_PROPERTY(float fps READ getFPS NOTIFY changeOfStatus)
-    Q_PROPERTY(bool colorFilter WRITE enableColorFilter)
-    Q_PROPERTY(bool blurFilter WRITE enableBlurFilter)
 
 public:
     InstanceViewerWindow();
     virtual ~InstanceViewerWindow();
     void setTitle(const QString& title);
-    void addFilter(DataFrame::FrameType type, shared_ptr<FrameFilter> filter);
     void show();
 
 signals:
@@ -31,12 +27,13 @@ signals:
 
 public slots:
     void processListItem(QListWidget* widget);
+    void enableInvisibilityFilter();
+    void enableBlurFilter();
+    void disableColorFilter();
 
 private slots:
     void onRenderedFrame();
     float getFPS() const;
-    void enableColorFilter(bool value);
-    void enableBlurFilter(bool value);
 
 protected:
     void onNewFrame(const QList<shared_ptr<DataFrame>>& dataFrames);
@@ -51,7 +48,8 @@ private:
     QQmlApplicationEngine      m_engine;
     InstanceViewer*            m_viewer;
     QQuickWindow*              m_window;
-    QHash<DataFrame::FrameType, QList<shared_ptr<FrameFilter>>*> m_filters;
+    QMultiHash<DataFrame::FrameType, shared_ptr<FrameFilter>> m_filters;
+    shared_ptr<FrameFilter>    m_activeFilterArray[4];
 };
 
 } // End Namespace

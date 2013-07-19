@@ -10,8 +10,8 @@ class FrameFilter
 {
 public:
     FrameFilter();
-    void setMask(shared_ptr<UserFrame> mask);
     void enableFilter(bool value);
+    void setMask(shared_ptr<UserFrame> mask);
     virtual void applyFilter(shared_ptr<DataFrame> frame) = 0;
 
 protected:

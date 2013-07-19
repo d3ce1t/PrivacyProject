@@ -6,7 +6,7 @@ namespace dai {
 
 void BlurFilter::applyFilter(shared_ptr<DataFrame> frame)
 {
-    if (!m_enabled)
+    if (!m_enabled || !m_userMask)
         return;
 
     ColorFrame* colorFrame = (ColorFrame*) frame.get();
@@ -15,13 +15,11 @@ void BlurFilter::applyFilter(shared_ptr<DataFrame> frame)
 
     cv::GaussianBlur( newImag, newImag, cv::Size( 29, 29 ), 0, 0 );
 
-    if (m_userMask) {
-        for (int i=0; i<480; ++i) {
-            for (int j=0; j<640; ++j) {
-                if (m_userMask->getItem(i, j) == 0) {
-                    RGBColor color = background.getItem(i, j);
-                    colorFrame->setItem(i, j, color);
-                }
+    for (int i=0; i<480; ++i) {
+        for (int j=0; j<640; ++j) {
+            if (m_userMask->getItem(i, j) == 0) {
+                RGBColor color = background.getItem(i, j);
+                colorFrame->setItem(i, j, color);
             }
         }
     }
