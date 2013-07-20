@@ -4,7 +4,7 @@
 #include <QOpenGLShaderProgram>
 #include <QMatrix4x4>
 #include <QOpenGLFunctions>
-#include "../types/DataFrame.h"
+#include "types/DataFrame.h"
 
 #ifndef M_PI
     #define M_PI 3.14159265359
@@ -19,8 +19,9 @@ class UserFrame;
 class Painter : protected QOpenGLFunctions
 {
 public:
-    explicit Painter(QOpenGLContext *context);
+    explicit Painter(InstanceViewer *parent);
     virtual ~Painter();
+    InstanceViewer* parent() const;
     void setMatrix(QMatrix4x4& m_matrix);
     void renderNow();
     void setMask(shared_ptr<UserFrame> mask);
@@ -34,7 +35,7 @@ protected:
 
     QOpenGLShaderProgram*   m_shaderProgram;
     QMatrix4x4              m_matrix;
-    QOpenGLContext*         m_context;
+    InstanceViewer*         m_viewer;
     shared_ptr<UserFrame>   m_mask;
 
 private:

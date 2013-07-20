@@ -2,8 +2,8 @@
 
 namespace dai {
 
-UserFramePainter::UserFramePainter(QOpenGLContext *context)
-    : Painter(context), textureUnit(0)
+UserFramePainter::UserFramePainter(InstanceViewer *parent)
+    : Painter(parent), textureUnit(0)
 {
     m_frame = nullptr;
     m_textureMask = new u_int8_t[640*480];

@@ -1,13 +1,14 @@
 #include "ColorFramePainter.h"
 #include "types/UserFrame.h"
+#include "viewer/InstanceViewer.h"
+#include <QImage>
 
 namespace dai {
 
-ColorFramePainter::ColorFramePainter(QOpenGLContext *context)
-    : Painter(context)
+ColorFramePainter::ColorFramePainter(InstanceViewer *parent)
+    : Painter(parent)
 {
     m_frame = nullptr;
-    m_textureData.reset(new u_int8_t[640*480]);
 }
 
 ColorFramePainter::~ColorFramePainter()
@@ -23,18 +24,12 @@ void ColorFramePainter::initialise()
     // Init Vertex Buffer
     prepareVertexBuffer();
 
+    // Create FBO for Render-To-Texture
+    createFrameBuffer();
+
     // Create texture
     glGenTextures(1, &m_foregroundTexture);
     glGenTextures(1, &m_maskTexture);
-
-    // Create empty texture for Background
-    glGenTextures(1, &m_backgroundTexture);
-    /*glBindTexture(GL_TEXTURE_2D, m_backgroundTexture);
-    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 640, 480, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
-    glBindTexture(GL_TEXTURE_2D, 0);*/
 }
 
 ColorFrame& ColorFramePainter::frame()
@@ -45,20 +40,6 @@ ColorFrame& ColorFramePainter::frame()
 void ColorFramePainter::prepareData(shared_ptr<DataFrame> frame)
 {
     m_frame = static_pointer_cast<ColorFrame>(frame);
-
-    if (m_mask)
-    {
-        memset(m_textureData.get(), 0, 640*480*sizeof(u_int8_t));
-
-        for (int i=0; i<480; ++i) {
-            for (int j=0; j<640; ++j) {
-                u_int8_t label = m_mask->getItem(i,j);
-                if (label > 0) {
-                    m_textureData.get()[i*640+j] = 255;
-                }
-            }
-        }
-    }
 }
 
 void ColorFramePainter::render()
@@ -66,24 +47,28 @@ void ColorFramePainter::render()
     if (m_frame == nullptr)
         return;
 
-    // Load into GPU
     if (m_mask) {
-        // Get initial background at 20th frame
-        if (m_frame->getIndex() == 20) {
-            loadVideoTexture(m_backgroundTexture, m_frame->getWidth(), m_frame->getHeight(), (void *) m_frame->getDataPtr());
-        }
-
         // Load Mask
-        loadMaskTexture(m_maskTexture, m_mask->getWidth(), m_mask->getHeight(), (void *) m_textureData.get());
+        loadMaskTexture(m_maskTexture, m_mask->getWidth(), m_mask->getHeight(), (void *) m_mask->getDataPtr());
     }
 
     // Load Foreground
     loadVideoTexture(m_foregroundTexture, m_frame->getWidth(), m_frame->getHeight(), (void *) m_frame->getDataPtr());
 
-    // Render
+    // Render to Texture
+    glBindFramebuffer(GL_FRAMEBUFFER, m_fboId);
+
+    glViewport(0, 0, 640, 480);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClearDepth(1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    //
+    // Render scene to a texture directly
+    //
     m_shaderProgram->bind();
     m_vao.bind();
-
+    m_shaderProgram->setUniformValue(m_stageAttr, 1);
     m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
 
     // Bind Foreground
@@ -94,9 +79,30 @@ void ColorFramePainter::render()
     glActiveTexture(GL_TEXTURE0 + 1);
     glBindTexture(GL_TEXTURE_2D, m_maskTexture);
 
-    // Bind Background
+    // Bind Background Copy
+    glActiveTexture(GL_TEXTURE0 + 2);
+    glBindTexture(GL_TEXTURE_2D, m_backgroundTextureCopy);
+
+    // Draw
+    glDrawArrays(GL_TRIANGLE_FAN, m_posAttr, 4);
+
+    // Copy frame buffer INTO m_backgroundTextureCopy
+    glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, 640, 480, 0);
+
+    //
+    // Render scene to Frame Buffer
+    //
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
     glActiveTexture(GL_TEXTURE0 + 2);
     glBindTexture(GL_TEXTURE_2D, m_backgroundTexture);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    // Configure Viewport
+    glViewport(0, 0, parent()->width(), parent()->height());
+
+    // Render to Screen
+    m_shaderProgram->setUniformValue(m_stageAttr, 2);
 
     glDrawArrays(GL_TRIANGLE_FAN, m_posAttr, 4);
 
@@ -111,10 +117,60 @@ void ColorFramePainter::render()
     glActiveTexture(GL_TEXTURE0 + 0);
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    glDisable(GL_TEXTURE_2D);
-
     m_vao.release();
     m_shaderProgram->release();
+}
+
+void ColorFramePainter::createFrameBuffer()
+{
+    glGenTextures(1, &m_backgroundTexture);
+    glBindTexture(GL_TEXTURE_2D, m_backgroundTexture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE); // automatic mipmap
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 640, 480, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glGenTextures(1, &m_backgroundTextureCopy);
+    glBindTexture(GL_TEXTURE_2D, m_backgroundTextureCopy);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE); // automatic mipmap
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 640, 480, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    // create a renderbuffer object to store depth info
+    GLuint rboId;
+    glGenRenderbuffers(1, &rboId);
+    glBindRenderbuffer(GL_RENDERBUFFER, rboId);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 640, 480);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+    // create a framebuffer object
+    glGenFramebuffers(1, &m_fboId);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_fboId);
+
+    // attach the texture to FBO color attachment point
+    glFramebufferTexture2D(GL_FRAMEBUFFER,        // 1. fbo target: GL_FRAMEBUFFER
+                           GL_COLOR_ATTACHMENT0,  // 2. attachment point
+                           GL_TEXTURE_2D,         // 3. tex target: GL_TEXTURE_2D
+                           m_backgroundTexture,   // 4. tex ID
+                           0);                    // 5. mipmap level: 0(base)
+
+    // attach the renderbuffer to depth attachment point
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER,      // 1. fbo target: GL_FRAMEBUFFER
+                              GL_DEPTH_ATTACHMENT, // 2. attachment point
+                              GL_RENDERBUFFER,     // 3. rbo target: GL_RENDERBUFFER
+                              rboId);              // 4. rbo ID
+
+    // check FBO status
+    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+
+    if(status != GL_FRAMEBUFFER_COMPLETE)
+        qDebug() << "FBO Error";
+
+    // switch back to window-system-provided framebuffer
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void ColorFramePainter::prepareShaderProgram()
@@ -129,6 +185,7 @@ void ColorFramePainter::prepareShaderProgram()
 
     m_posAttr = m_shaderProgram->attributeLocation("posAttr");
     m_texCoord = m_shaderProgram->attributeLocation("texCoord");
+    m_stageAttr = m_shaderProgram->uniformLocation("stage");
     m_perspectiveMatrix = m_shaderProgram->uniformLocation("perspectiveMatrix");
     m_texColorSampler = m_shaderProgram->uniformLocation("texColor");
     m_texMaskSampler = m_shaderProgram->uniformLocation("texMask");
@@ -145,10 +202,10 @@ void ColorFramePainter::prepareShaderProgram()
 void ColorFramePainter::prepareVertexBuffer()
 {
     float vertexData[] = {
-        -1.0, 1.0, 0.0,
-        1.0, 1.0, 0.0,
+        -1.0, -1.0, 0.0,
         1.0, -1.0, 0.0,
-        -1.0, -1.0, 0.0
+        1.0, 1.0, 0.0,
+        -1.0, 1.0, 0.0
     };
 
     float texCoordsData[] = {
@@ -184,7 +241,7 @@ void ColorFramePainter::prepareVertexBuffer()
 void ColorFramePainter::loadVideoTexture(GLuint glTextureId, GLsizei width, GLsizei height, void* texture)
 {
     glBindTexture(GL_TEXTURE_2D, glTextureId);
-    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, texture);
@@ -195,7 +252,7 @@ void ColorFramePainter::loadVideoTexture(GLuint glTextureId, GLsizei width, GLsi
 void ColorFramePainter::loadMaskTexture(GLuint glTextureId, GLsizei width, GLsizei height, void* texture)
 {
     glBindTexture(GL_TEXTURE_2D, glTextureId);
-    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, texture);

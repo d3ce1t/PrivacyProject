@@ -63,7 +63,8 @@ HEADERS += \
     filters/DilateUserFilter.h \
     filters/BlurFilter.h \
     viewer/PlaybackListener.h \
-    filters/InvisibilityFilter.h
+    filters/InvisibilityFilter.h \
+    viewer/DummyPainter.h
 
 SOURCES += \
     dataset/MSRAction3D/MSR3Action3D.cpp \
@@ -116,7 +117,8 @@ SOURCES += \
     filters/DilateUserFilter.cpp \
     filters/BlurFilter.cpp \
     viewer/PlaybackListener.cpp \
-    filters/InvisibilityFilter.cpp
+    filters/InvisibilityFilter.cpp \
+    viewer/DummyPainter.cpp
 
 RESOURCES += openglunderqml.qrc
 
@@ -174,4 +176,6 @@ OTHER_FILES += \
     glsl/simpleFragment.fsh \
     qml/main.qml \
     glsl/userFragment.fsh \
-    glsl/userVertex.vsh
+    glsl/userVertex.vsh \
+    glsl/dummyVertex.vsh \
+    glsl/dummyFragment.fsh

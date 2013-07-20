@@ -9,6 +9,8 @@
         <file>glsl/simpleVertex.vsh</file>
         <file>glsl/userFragment.fsh</file>
         <file>glsl/userVertex.vsh</file>
+        <file>glsl/dummyVertex.vsh</file>
+        <file>glsl/dummyFragment.fsh</file>
     </qresource>
     <qresource prefix="/icons">
         <file>kinect.png</file>

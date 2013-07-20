@@ -11,7 +11,7 @@ namespace dai {
 class DepthFramePainter : public Painter
 {
 public:
-    DepthFramePainter(QOpenGLContext* context);
+    DepthFramePainter(InstanceViewer* parent);
     virtual ~DepthFramePainter();
     void prepareData(shared_ptr<DataFrame> frame);
     DepthFrame& frame();

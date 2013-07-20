@@ -12,10 +12,6 @@ namespace dai {
 class DAIUserInstance : public DataInstance
 {
 public:
-    struct BinaryUserFrame {
-        u_int8_t userRow[640];
-    };
-
     explicit DAIUserInstance(const InstanceInfo& info);
     virtual ~DAIUserInstance();
     bool is_open() const override;
@@ -31,7 +27,6 @@ private:
     int         m_width;
     int         m_height;
     shared_ptr<UserFrame> m_frameBuffer[2];
-    BinaryUserFrame m_readBuffer[480];
 };
 
 } // End Namespace

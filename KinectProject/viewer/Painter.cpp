@@ -3,10 +3,10 @@
 
 namespace dai {
 
-Painter::Painter(QOpenGLContext* context)
+Painter::Painter(InstanceViewer *parent)
 {
     m_initialised = false;
-    m_context = context;
+    m_viewer = parent;
     m_shaderProgram = nullptr;
 }
 
@@ -18,7 +18,12 @@ Painter::~Painter()
     }
 
     m_initialised = false;
-    m_context = nullptr;
+    m_viewer = nullptr;
+}
+
+InstanceViewer* Painter::parent() const
+{
+    return m_viewer;
 }
 
 void Painter::setMatrix(QMatrix4x4& matrix) {

@@ -9,6 +9,7 @@
 #include <QListWidget>
 #include "types/DataFrame.h"
 #include "viewer/Painter.h"
+#include "viewer/DummyPainter.h"
 
 
 class QListWidget;
@@ -41,6 +42,7 @@ private slots:
 
 private:
     // Private Functions
+    void testOutput();
     void updatePaintersMatrix();
 
     // Private member attributes
@@ -49,6 +51,7 @@ private:
     QMatrix4x4                                        m_matrix;
     bool                                              m_running;
     QMutex                                            m_mutex;
+    shared_ptr<dai::DummyPainter>                     m_dummyPainter;
 };
 
 #endif // INSTANCE_VIEWER_H

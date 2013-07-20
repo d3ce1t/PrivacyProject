@@ -5,7 +5,7 @@ import OpenGLUnderQML 1.0
 ApplicationWindow {
     id: mainWindow
     minimumWidth: 640
-    minimumHeight: 480
+    minimumHeight: 505
     width: minimumWidth
     height:  minimumHeight
 
@@ -71,8 +71,10 @@ ApplicationWindow {
     InstanceViewer {
         id: instanceViewer
         objectName: "viewer"
-        width: 640
-        height: 480
+        //width: 640
+        //height: 480
+        implicitWidth: 640
+        implicitHeight: 480
         //focus: true
         anchors.fill: parent
 

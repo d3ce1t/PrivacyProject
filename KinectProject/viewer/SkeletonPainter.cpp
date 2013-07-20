@@ -6,8 +6,8 @@
 
 namespace dai {
 
-SkeletonPainter::SkeletonPainter(QOpenGLContext *context)
-    : Painter(context)
+SkeletonPainter::SkeletonPainter(InstanceViewer *parent)
+    : Painter(parent)
 {
     m_frame = nullptr;
 

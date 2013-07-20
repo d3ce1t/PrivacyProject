@@ -14,7 +14,7 @@ namespace dai {
 class UserFramePainter : public Painter
 {
 public:
-    UserFramePainter(QOpenGLContext* context);
+    UserFramePainter(InstanceViewer* parent);
     virtual ~UserFramePainter();
     void prepareData(shared_ptr<DataFrame> frame);
     UserFrame& frame();

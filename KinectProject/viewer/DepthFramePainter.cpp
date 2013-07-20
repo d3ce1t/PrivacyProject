@@ -16,8 +16,8 @@ const QVector3D DepthFramePainter::m_colors[5] = {
     QVector3D(0.0, 1.0, 1.0)
 };
 
-DepthFramePainter::DepthFramePainter(QOpenGLContext *context)
-    : Painter(context)
+DepthFramePainter::DepthFramePainter(InstanceViewer *parent)
+    : Painter(parent)
 {
     m_frame = nullptr;
 }

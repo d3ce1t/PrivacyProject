@@ -15,7 +15,7 @@ namespace dai {
 class SkeletonPainter : public Painter
 {
 public:
-    explicit SkeletonPainter(QOpenGLContext* context);
+    explicit SkeletonPainter(InstanceViewer* parent);
     virtual ~SkeletonPainter();
     void prepareData(shared_ptr<DataFrame> frame);
     Skeleton& frame();

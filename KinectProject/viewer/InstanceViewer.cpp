@@ -15,10 +15,12 @@ InstanceViewer::InstanceViewer()
     connect(this, SIGNAL(windowChanged(QQuickWindow*)), this, SLOT(handleWindowChanged(QQuickWindow*)));
 
     // Viewer Setup
-    m_painters.insert(dai::DataFrame::Color, new dai::ColorFramePainter(nullptr));
-    m_painters.insert(dai::DataFrame::Depth, new dai::DepthFramePainter(nullptr));
-    m_painters.insert(dai::DataFrame::Skeleton, new dai::SkeletonPainter(nullptr));
-    m_painters.insert(dai::DataFrame::User, new dai::UserFramePainter(nullptr));
+    m_painters.insert(dai::DataFrame::Color, new dai::ColorFramePainter(this));
+    m_painters.insert(dai::DataFrame::Depth, new dai::DepthFramePainter(this));
+    m_painters.insert(dai::DataFrame::Skeleton, new dai::SkeletonPainter(this));
+    m_painters.insert(dai::DataFrame::User, new dai::UserFramePainter(this));
+
+    m_dummyPainter.reset(new dai::DummyPainter(this));
 
     m_running = false;
     m_window = nullptr;
@@ -76,6 +78,10 @@ void InstanceViewer::onNewFrame(QList<shared_ptr<dai::DataFrame> > dataFrames)
 
 void InstanceViewer::renderOpenGLScene()
 {
+    /*foreach (QByteArray name, window()->openglContext()->extensions()) {
+        qDebug() << name;
+    }*/
+
     // Init Each Frame (because QtQuick could change it)
     glDepthRange(0.0f, 1.0f);
     glDepthMask(GL_TRUE);
@@ -91,6 +97,9 @@ void InstanceViewer::renderOpenGLScene()
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClearDepth(1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+    //m_dummyPainter->renderNow();
+
 
     // Draw
     if (m_running)
