@@ -2,8 +2,9 @@
 
 in vec4 posAttr;
 in vec2 texCoord;
-uniform int stage = 1;
+uniform int stage;
 uniform mat4 perspectiveMatrix;
+uniform int currentFilter; // 0: no filter; 1: invisibility; 2: blur
 varying vec2 v_texCoord;
 
 void main()

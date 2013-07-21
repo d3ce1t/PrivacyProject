@@ -24,6 +24,9 @@ public:
 
 public slots:
     void onNewFrame(QList<shared_ptr<dai::DataFrame> > dataFrames);
+    void enableInvisibilityFilter();
+    void enableBlurFilter();
+    void enableNoFilter();
     void resetPerspective();
     void rotateAxisX(float angle);
     void rotateAxisY(float angle);
@@ -32,7 +35,6 @@ public slots:
     void translateAxisY(float value);
     void translateAxisZ(float value);
     void renderOpenGLScene();
-    //void sync();
 
 signals:
     void frameRendered();

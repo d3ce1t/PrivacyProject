@@ -76,6 +76,24 @@ void InstanceViewer::onNewFrame(QList<shared_ptr<dai::DataFrame> > dataFrames)
         m_window->update();
 }
 
+void InstanceViewer::enableInvisibilityFilter()
+{
+    dai::ColorFramePainter* painter =  (dai::ColorFramePainter*) m_painters.value(dai::DataFrame::Color);
+    painter->enableFilter(dai::ColorFramePainter::FILTER_INVISIBILITY);
+}
+
+void InstanceViewer::enableBlurFilter()
+{
+    dai::ColorFramePainter* painter =  (dai::ColorFramePainter*) m_painters.value(dai::DataFrame::Color);
+    painter->enableFilter(dai::ColorFramePainter::FILTER_BLUR);
+}
+
+void InstanceViewer::enableNoFilter()
+{
+    dai::ColorFramePainter* painter =  (dai::ColorFramePainter*) m_painters.value(dai::DataFrame::Color);
+    painter->enableFilter(dai::ColorFramePainter::FILTER_DISABLED);
+}
+
 void InstanceViewer::renderOpenGLScene()
 {
     /*foreach (QByteArray name, window()->openglContext()->extensions()) {

@@ -210,8 +210,10 @@ void InstanceViewerWindow::enableBlurFilter()
 
 void InstanceViewerWindow::disableColorFilter()
 {
-    m_activeFilterArray[DataFrame::Color]->enableFilter(false);
-    m_activeFilterArray[DataFrame::Color] = nullptr;
+    if (m_activeFilterArray[DataFrame::Color]) {
+        m_activeFilterArray[DataFrame::Color]->enableFilter(false);
+        m_activeFilterArray[DataFrame::Color] = nullptr;
+    }
 }
 
 void InstanceViewerWindow::show()
