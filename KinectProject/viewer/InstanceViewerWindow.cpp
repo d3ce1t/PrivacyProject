@@ -186,7 +186,7 @@ void InstanceViewerWindow::setTitle(const QString& title)
         m_window->setTitle(title);
 }
 
-void InstanceViewerWindow::enableInvisibilityFilter()
+/*void InstanceViewerWindow::enableInvisibilityFilter()
 {
     shared_ptr<FrameFilter> filter = m_filters.values(DataFrame::Color).at(0);
 
@@ -195,11 +195,11 @@ void InstanceViewerWindow::enableInvisibilityFilter()
 
     m_activeFilterArray[DataFrame::Color] = filter;
     filter->enableFilter(true);
-}
+}*/
 
 void InstanceViewerWindow::enableBlurFilter()
 {
-    shared_ptr<FrameFilter> filter = m_filters.values(DataFrame::Color).at(1);
+    shared_ptr<FrameFilter> filter = m_filters.values(DataFrame::Color).at(0);
 
     if (m_activeFilterArray[DataFrame::Color])
         m_activeFilterArray[DataFrame::Color]->enableFilter(false);

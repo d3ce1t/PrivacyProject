@@ -105,6 +105,7 @@ void ColorFramePainter::render()
     displayRenderedTexture();
 
     m_shaderProgram->release();
+    glDisable(GL_TEXTURE_2D);
 }
 
 void ColorFramePainter::createFrameBuffer()
@@ -129,10 +130,10 @@ void ColorFramePainter::enableRenderToTexture()
 {
     m_fbo->bind();
 
-    /*glViewport(0, 0, 640, 480);*/
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glViewport(0, 0, 640, 480);
+    /*glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClearDepth(1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);*/
 
     m_shaderProgram->setUniformValue(m_stageUniform, 1);
 }
@@ -142,7 +143,7 @@ void ColorFramePainter::displayRenderedTexture()
     m_fbo->release();
 
     // Configure Viewport
-    //glViewport(0, 0, parent()->width(), parent()->height());
+    glViewport(0, 0, parent()->width(), parent()->height());
 
     m_vao.bind();
 
@@ -182,7 +183,7 @@ void ColorFramePainter::prepareShaderProgram()
     m_currentFilterUniform = m_shaderProgram->uniformLocation("currentFilter");
     m_stageUniform = m_shaderProgram->uniformLocation("stage");
     m_perspectiveMatrixUniform = m_shaderProgram->uniformLocation("perspectiveMatrix");
-    m_texColorSampler = m_shaderProgram->uniformLocation("texColor");
+    m_texColorSampler = m_shaderProgram->uniformLocation("texForeground");
     m_texMaskSampler = m_shaderProgram->uniformLocation("texMask");
     m_texBackgroundSampler = m_shaderProgram->uniformLocation("texBackground");
 

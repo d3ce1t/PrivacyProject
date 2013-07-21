@@ -27,7 +27,7 @@ signals:
 
 public slots:
     void processListItem(QListWidget* widget);
-    void enableInvisibilityFilter();
+    //void enableInvisibilityFilter();
     void enableBlurFilter();
     void disableColorFilter();
 
