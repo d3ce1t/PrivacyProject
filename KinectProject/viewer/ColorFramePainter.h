@@ -2,6 +2,7 @@
 #define COLOR_FRAME_PAINTER_H
 
 #include "Painter.h"
+#include <QOpenGLFramebufferObject>
 #include <QOpenGLBuffer>
 #include <QOpenGLVertexArrayObject>
 #include <QMatrix4x4>
@@ -46,13 +47,12 @@ private:
     ColorFilter               m_currentFilter = FILTER_DISABLED;
 
     // OpenGL Buffer
-    QOpenGLVertexArrayObject  m_vao;
-    QOpenGLBuffer             m_positionsBuffer;
-    QOpenGLBuffer             m_texCoordBuffer;
+    shared_ptr<QOpenGLFramebufferObject>  m_fbo;
+    QOpenGLVertexArrayObject              m_vao;
+    QOpenGLBuffer                         m_positionsBuffer;
+    QOpenGLBuffer                         m_texCoordBuffer;
 
     // OpenGL identifiers
-    GLuint                   m_fboId;
-    GLuint                   m_fboTextureId;
     GLuint                   m_bgTextureId;
     GLuint                   m_fgTextureId;
     GLuint                   m_maskTextureId;

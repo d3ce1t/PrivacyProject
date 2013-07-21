@@ -109,14 +109,13 @@ void ColorFramePainter::render()
 
 void ColorFramePainter::createFrameBuffer()
 {
-    glGenTextures(1, &m_fboTextureId);
-    glBindTexture(GL_TEXTURE_2D, m_fboTextureId);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE); // automatic mipmap
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 640, 480, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    m_fbo.reset(new QOpenGLFramebufferObject(640, 480));
 
+    if (!m_fbo->isValid()) {
+        qDebug() << "FBO Error";
+    }
+
+    // Background Texture
     glGenTextures(1, &m_bgTextureId);
     glBindTexture(GL_TEXTURE_2D, m_bgTextureId);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
@@ -124,46 +123,13 @@ void ColorFramePainter::createFrameBuffer()
     glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE); // automatic mipmap
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 640, 480, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
     glBindTexture(GL_TEXTURE_2D, 0);
-
-    // create a renderbuffer object to store depth info
-    GLuint rboId;
-    glGenRenderbuffers(1, &rboId);
-    glBindRenderbuffer(GL_RENDERBUFFER, rboId);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 640, 480);
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
-    // create a framebuffer object
-    glGenFramebuffers(1, &m_fboId);
-    glBindFramebuffer(GL_FRAMEBUFFER, m_fboId);
-
-    // attach the texture to FBO color attachment point
-    glFramebufferTexture2D(GL_FRAMEBUFFER,        // 1. fbo target: GL_FRAMEBUFFER
-                           GL_COLOR_ATTACHMENT0,  // 2. attachment point
-                           GL_TEXTURE_2D,         // 3. tex target: GL_TEXTURE_2D
-                           m_fboTextureId,        // 4. tex ID
-                           0);                    // 5. mipmap level: 0(base)
-
-    // attach the renderbuffer to depth attachment point
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER,      // 1. fbo target: GL_FRAMEBUFFER
-                              GL_DEPTH_ATTACHMENT, // 2. attachment point
-                              GL_RENDERBUFFER,     // 3. rbo target: GL_RENDERBUFFER
-                              rboId);              // 4. rbo ID
-
-    // check FBO status
-    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-
-    if(status != GL_FRAMEBUFFER_COMPLETE)
-        qDebug() << "FBO Error";
-
-    // switch back to window-system-provided framebuffer
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void ColorFramePainter::enableRenderToTexture()
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, m_fboId);
+    m_fbo->bind();
 
-    glViewport(0, 0, 640, 480);
+    /*glViewport(0, 0, 640, 480);*/
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClearDepth(1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -173,10 +139,10 @@ void ColorFramePainter::enableRenderToTexture()
 
 void ColorFramePainter::displayRenderedTexture()
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    m_fbo->release();
 
     // Configure Viewport
-    glViewport(0, 0, parent()->width(), parent()->height());
+    //glViewport(0, 0, parent()->width(), parent()->height());
 
     m_vao.bind();
 
@@ -186,7 +152,7 @@ void ColorFramePainter::displayRenderedTexture()
 
     // Enable FBO and generate Mipmap
     glActiveTexture(GL_TEXTURE0 + 2);
-    glBindTexture(GL_TEXTURE_2D, m_fboTextureId);
+    glBindTexture(GL_TEXTURE_2D, m_fbo->texture());
     glGenerateMipmap(GL_TEXTURE_2D);
 
     m_shaderProgram->setUniformValue(m_stageUniform, 2);
