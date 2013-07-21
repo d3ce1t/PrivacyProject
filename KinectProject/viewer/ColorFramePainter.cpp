@@ -32,22 +32,30 @@ void ColorFramePainter::initialise()
     glGenTextures(1, &m_maskTextureId);
 }
 
-ColorFrame& ColorFramePainter::frame()
+void ColorFramePainter::render()
 {
-    return *m_frame;
+    if (m_frame == nullptr)
+        return;
+
+    m_shaderProgram->bind();
+    m_shaderProgram->setUniformValue(m_perspectiveMatrixUniform, m_matrix);
+    m_shaderProgram->setUniformValue(m_currentFilterUniform, m_currentFilter);
+
+    enableBGRendering();
+    renderBackground();
+    m_fbo->release();
+
+    enableFilterRendering();
+    renderFilter();
+    m_fboFilter->release();
+
+    displayRenderedTexture();
+
+    m_shaderProgram->release();
+    glDisable(GL_TEXTURE_2D);
 }
 
-void ColorFramePainter::prepareData(shared_ptr<DataFrame> frame)
-{
-    m_frame = static_pointer_cast<ColorFrame>(frame);
-}
-
-void ColorFramePainter::enableFilter(ColorFilter type)
-{
-    m_currentFilter = type;
-}
-
-void ColorFramePainter::renderFilter()
+void ColorFramePainter::renderBackground()
 {
     // Load Foreground
     loadVideoTexture(m_fgTextureId, m_frame->getWidth(), m_frame->getHeight(), (void *) m_frame->getDataPtr());
@@ -91,21 +99,37 @@ void ColorFramePainter::renderFilter()
     m_vao.release();
 }
 
-void ColorFramePainter::render()
+void ColorFramePainter::renderFilter()
 {
-    if (m_frame == nullptr)
-        return;
+    m_vao.bind();
 
-    m_shaderProgram->bind();
-    m_shaderProgram->setUniformValue(m_perspectiveMatrixUniform, m_matrix);
-    m_shaderProgram->setUniformValue(m_currentFilterUniform, m_currentFilter);
+    // Enabe FG
+    glActiveTexture(GL_TEXTURE0 + 0);
+    glBindTexture(GL_TEXTURE_2D, m_fgTextureId);
 
-    enableRenderToTexture();
-    renderFilter();
-    displayRenderedTexture();
+    // Enable Mask
+    glActiveTexture(GL_TEXTURE0 + 1);
+    glBindTexture(GL_TEXTURE_2D, m_maskTextureId);
 
-    m_shaderProgram->release();
-    glDisable(GL_TEXTURE_2D);
+    // Enable bgTexture (for read)
+    glActiveTexture(GL_TEXTURE0 + 2);
+    glBindTexture(GL_TEXTURE_2D, m_bgTextureId);
+
+    // Draw
+    glDrawArrays(GL_TRIANGLE_FAN, m_posAttr, 4);
+
+    // Unbind bgTexture
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    // Unbind Mask
+    glActiveTexture(GL_TEXTURE0 + 1);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    // Unbind Foreground
+    glActiveTexture(GL_TEXTURE0 + 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    m_vao.release();
 }
 
 void ColorFramePainter::createFrameBuffer()
@@ -113,6 +137,12 @@ void ColorFramePainter::createFrameBuffer()
     m_fbo.reset(new QOpenGLFramebufferObject(640, 480));
 
     if (!m_fbo->isValid()) {
+        qDebug() << "FBO Error";
+    }
+
+    m_fboFilter.reset(new QOpenGLFramebufferObject(640, 480));
+
+    if (!m_fboFilter->isValid()) {
         qDebug() << "FBO Error";
     }
 
@@ -126,7 +156,7 @@ void ColorFramePainter::createFrameBuffer()
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void ColorFramePainter::enableRenderToTexture()
+void ColorFramePainter::enableBGRendering()
 {
     m_fbo->bind();
 
@@ -138,9 +168,21 @@ void ColorFramePainter::enableRenderToTexture()
     m_shaderProgram->setUniformValue(m_stageUniform, 1);
 }
 
+void ColorFramePainter::enableFilterRendering()
+{
+    m_fboFilter->bind();
+
+    glViewport(0, 0, 640, 480);
+    /*glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClearDepth(1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);*/
+
+    m_shaderProgram->setUniformValue(m_stageUniform, 2);
+}
+
 void ColorFramePainter::displayRenderedTexture()
 {
-    m_fbo->release();
+    m_fboFilter->release();
 
     // Configure Viewport
     glViewport(0, 0, parent()->width(), parent()->height());
@@ -149,19 +191,28 @@ void ColorFramePainter::displayRenderedTexture()
 
     // Enabe FG
     glActiveTexture(GL_TEXTURE0 + 0);
-    glBindTexture(GL_TEXTURE_2D, m_fgTextureId);
+    glBindTexture(GL_TEXTURE_2D, m_fboFilter->texture());
+
+    // Enable Mask
+    glActiveTexture(GL_TEXTURE0 + 1);
+    glBindTexture(GL_TEXTURE_2D, m_maskTextureId);
 
     // Enable FBO and generate Mipmap
     glActiveTexture(GL_TEXTURE0 + 2);
     glBindTexture(GL_TEXTURE_2D, m_fbo->texture());
     glGenerateMipmap(GL_TEXTURE_2D);
 
-    m_shaderProgram->setUniformValue(m_stageUniform, 2);
+    m_shaderProgram->setUniformValue(m_stageUniform, 3);
     glDrawArrays(GL_TRIANGLE_FAN, m_posAttr, 4);
 
     // Unbind Background
     glBindTexture(GL_TEXTURE_2D, 0);
 
+    // Unbind Mask
+    glActiveTexture(GL_TEXTURE0 + 1);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    // Unbind FG
     glActiveTexture(GL_TEXTURE0 + 0);
     glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -255,6 +306,21 @@ void ColorFramePainter::loadMaskTexture(GLuint glTextureId, GLsizei width, GLsiz
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, texture);
     glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+ColorFrame& ColorFramePainter::frame()
+{
+    return *m_frame;
+}
+
+void ColorFramePainter::prepareData(shared_ptr<DataFrame> frame)
+{
+    m_frame = static_pointer_cast<ColorFrame>(frame);
+}
+
+void ColorFramePainter::enableFilter(ColorFilter type)
+{
+    m_currentFilter = type;
 }
 
 } // End Namespace

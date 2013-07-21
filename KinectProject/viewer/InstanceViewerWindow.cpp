@@ -40,14 +40,14 @@ InstanceViewerWindow::InstanceViewerWindow()
     setTitle("Instance Viewer");
 
     // Filters setup
-    shared_ptr<BlurFilter> blurFilter(new BlurFilter);
+    //shared_ptr<BlurFilter> blurFilter(new BlurFilter);
     //shared_ptr<InvisibilityFilter> invisibilityFilter(new InvisibilityFilter);
     shared_ptr<DilateUserFilter> dilateFilter(new DilateUserFilter);
 
     dilateFilter->enableFilter(true);
 
     // Filters are later retrieved from more recently to less recently inserted
-    m_filters.insert(DataFrame::Color, blurFilter);
+    //m_filters.insert(DataFrame::Color, blurFilter);
     //m_filters.insert(DataFrame::Color, invisibilityFilter);
     m_filters.insert(DataFrame::User, dilateFilter);
 }
@@ -197,7 +197,7 @@ void InstanceViewerWindow::setTitle(const QString& title)
     filter->enableFilter(true);
 }*/
 
-void InstanceViewerWindow::enableBlurFilter()
+/*void InstanceViewerWindow::enableBlurFilter()
 {
     shared_ptr<FrameFilter> filter = m_filters.values(DataFrame::Color).at(0);
 
@@ -206,7 +206,7 @@ void InstanceViewerWindow::enableBlurFilter()
 
     m_activeFilterArray[DataFrame::Color] = filter;
     filter->enableFilter(true);
-}
+}*/
 
 void InstanceViewerWindow::disableColorFilter()
 {

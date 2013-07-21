@@ -40,7 +40,7 @@ ApplicationWindow {
                     overlayText.opacity = 1
                     overlayTextHide.start()
                     instanceViewer.enableNoFilter() // GPU
-                    viewerWindow.disableColorFilter() // CPU
+                    //viewerWindow.disableColorFilter() // CPU
                 }
             }
 
@@ -54,7 +54,7 @@ ApplicationWindow {
                     overlayTextHide.start()
                     instanceViewer.enableInvisibilityFilter() // GPU
                     //viewerWindow.enableInvisibilityFilter() // CPU
-                    viewerWindow.disableColorFilter()
+                    //viewerWindow.disableColorFilter()
                 }
             }
             MenuItem {
@@ -65,8 +65,9 @@ ApplicationWindow {
                     overlayText.text = "Blur Filter Enabled"
                     overlayText.opacity = 1
                     overlayTextHide.start()
-                    instanceViewer.enableNoFilter() // GPU
-                    viewerWindow.enableBlurFilter() // CPU
+                    instanceViewer.enableBlurFilter() // GPU
+                    //viewerWindow.enableBlurFilter() // CPU
+                    //viewerWindow.disableColorFilter()
                 }
             }
         }

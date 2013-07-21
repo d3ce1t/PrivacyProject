@@ -34,9 +34,11 @@ protected:
     void render();
 
 private:
-    void renderFilter();
     void createFrameBuffer();
-    void enableRenderToTexture();
+    void enableBGRendering();
+    void renderBackground();
+    void enableFilterRendering();
+    void renderFilter();
     void displayRenderedTexture();
     void prepareShaderProgram();
     void prepareVertexBuffer();
@@ -48,6 +50,7 @@ private:
 
     // OpenGL Buffer
     shared_ptr<QOpenGLFramebufferObject>  m_fbo;
+    shared_ptr<QOpenGLFramebufferObject>  m_fboFilter;
     QOpenGLVertexArrayObject              m_vao;
     QOpenGLBuffer                         m_positionsBuffer;
     QOpenGLBuffer                         m_texCoordBuffer;

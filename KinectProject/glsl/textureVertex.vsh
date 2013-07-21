@@ -13,7 +13,11 @@ void main()
 
     if (stage == 1) {
         position = posAttr;
-    } else {
+    }
+    else if (stage == 2) {
+        position = posAttr;
+    }
+    else {
         position = perspectiveMatrix * posAttr;
         position.y = -position.y;
     }
