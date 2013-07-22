@@ -1,5 +1,6 @@
 #include "InstanceViewerWindow.h"
 #include "viewer/InstanceViewer.h"
+#include "playback/PlaybackControl.h"
 #include "InstanceWidgetItem.h"
 #include "dataset/Dataset.h"
 #include "dataset/InstanceInfo.h"

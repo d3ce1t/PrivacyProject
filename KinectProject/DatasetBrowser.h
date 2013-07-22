@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include <QListWidgetItem>
 #include "dataset/Dataset.h"
-#include "viewer/PlaybackControl.h"
+#include "playback/PlaybackControl.h"
 
 namespace Ui {
     class DatasetBrowser;

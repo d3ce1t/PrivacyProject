@@ -3,7 +3,7 @@
 #include "dataset/MSRDaily/MSRDailyActivity3D.h"
 #include "dataset/MSRAction3D/MSR3Action3D.h"
 #include "dataset/DAI/DAIDataset.h"
-#include "viewer/PlaybackControl.h"
+#include "playback/PlaybackControl.h"
 #include "viewer/InstanceViewerWindow.h"
 #include "InstanceWidgetItem.h"
 #include <QGuiApplication>

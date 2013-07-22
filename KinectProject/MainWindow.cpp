@@ -13,7 +13,7 @@
 #include "openni/OpenNIColorInstance.h"
 #include "types/DepthFrame.h"
 #include "types/DataFrame.h"
-#include "viewer/PlaybackControl.h"
+#include "playback/PlaybackControl.h"
 #include "viewer/InstanceViewerWindow.h"
 #include "viewer/InstanceRecorder.h"
 #include "KMeans.h"

@@ -1,7 +1,7 @@
 #ifndef INSTANCERECORDER_H
 #define INSTANCERECORDER_H
 
-#include "viewer/PlaybackControl.h"
+#include "playback/PlaybackListener.h"
 #include <QFile>
 
 namespace dai {

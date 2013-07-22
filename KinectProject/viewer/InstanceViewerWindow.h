@@ -2,7 +2,7 @@
 #define INSTANCEVIEWERWINDOW_H
 
 #include <QQuickWindow>
-#include "viewer/PlaybackControl.h"
+#include "playback/PlaybackListener.h"
 #include "viewer/InstanceViewer.h"
 #include <QQmlApplicationEngine>
 #include "filters/FrameFilter.h"

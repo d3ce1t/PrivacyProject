@@ -51,8 +51,6 @@ HEADERS += \
     dataset/DAI/DAIColorInstance.h \
     types/Vector3D.h \
     viewer/Painter.h \
-    viewer/PlaybackControl.h \
-    viewer/PlaybackWorker.h \
     exceptions/NotOpenedInstanceException.h \
     viewer/InstanceViewerWindow.h \
     types/UserFrame.h \
@@ -62,10 +60,13 @@ HEADERS += \
     filters/FrameFilter.h \
     filters/DilateUserFilter.h \
     filters/BlurFilter.h \
-    viewer/PlaybackListener.h \
     filters/InvisibilityFilter.h \
     viewer/DummyPainter.h \
-    viewer/QMLEnumsWrapper.h
+    viewer/QMLEnumsWrapper.h \
+    playback/PlaybackWorker.h \
+    playback/PlaybackNotifier.h \
+    playback/PlaybackListener.h \
+    playback/PlaybackControl.h
 
 SOURCES += \
     dataset/MSRAction3D/MSR3Action3D.cpp \
@@ -107,8 +108,6 @@ SOURCES += \
     dataset/DAI/DAIColorInstance.cpp \
     types/Vector3D.cpp \
     viewer/Painter.cpp \
-    viewer/PlaybackControl.cpp \
-    viewer/PlaybackWorker.cpp \
     viewer/InstanceViewerWindow.cpp \
     types/UserFrame.cpp \
     viewer/InstanceRecorder.cpp \
@@ -117,9 +116,12 @@ SOURCES += \
     filters/FrameFilter.cpp \
     filters/DilateUserFilter.cpp \
     filters/BlurFilter.cpp \
-    viewer/PlaybackListener.cpp \
     filters/InvisibilityFilter.cpp \
-    viewer/DummyPainter.cpp
+    viewer/DummyPainter.cpp \
+    playback/PlaybackWorker.cpp \
+    playback/PlaybackNotifier.cpp \
+    playback/PlaybackListener.cpp \
+    playback/PlaybackControl.cpp
 
 RESOURCES += openglunderqml.qrc
 
