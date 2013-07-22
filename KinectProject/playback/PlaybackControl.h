@@ -47,20 +47,22 @@ private slots:
     void stopAsync();
 
 private:
-    bool readAllInstances();
+    QList<shared_ptr<StreamInstance> > readAllInstances();
+    void notifyListeners(QList<shared_ptr<StreamInstance> > changedInstances);
     bool hasSuscribers(shared_ptr<StreamInstance> instance);
-    void notifySuscribersOnNewFrames(QList<shared_ptr<StreamInstance> > notChangedInstances);
     void notifySuscribersOnStop();
     void removeAllListeners();
 
-    PlaybackWorker*                                   m_worker;
-    QList<shared_ptr<StreamInstance> >                m_instances;
-    QHash<PlaybackListener*, QList<shared_ptr<StreamInstance> >*> m_listeners;
-    QMutex                                            m_lockListeners;
+    PlaybackWorker*                                    m_worker;
+    QList<shared_ptr<StreamInstance>>                  m_instances;
+    QList<PlaybackListener*>                           m_listeners;
+    QHash<PlaybackListener*, QList<shared_ptr<StreamInstance>>*>  m_listenerToInstanceMap;
+    QHash<StreamInstance*, QList<PlaybackListener*>*>  m_instanceToListenerMap;
+    QMutex                                             m_lockListeners;
 
     // Playback Setting Options
-    bool                                              m_playloop_enabled;
-    bool                                              m_restartAfterStop;
+    bool                                               m_playloop_enabled;
+    bool                                               m_restartAfterStop;
 };
 
 

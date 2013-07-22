@@ -21,10 +21,10 @@ void PlaybackListener::setPlayback(PlaybackControl* playback)
     m_playback = playback;
 }
 
-void PlaybackListener::manageFrames(QList<shared_ptr<DataFrame> > frames)
+/*void PlaybackListener::manageFrames(QList<shared_ptr<DataFrame> > frames)
 {
     onNewFrame(frames);
-}
+}*/
 
 PlaybackControl* PlaybackListener::playback()
 {

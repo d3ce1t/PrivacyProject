@@ -7,10 +7,11 @@
 #include <QQmlApplicationEngine>
 #include "filters/FrameFilter.h"
 #include <QMultiHash>
+#include <QObject>
 
 namespace dai {
 
-class InstanceViewerWindow : public PlaybackListener
+class InstanceViewerWindow : public QObject, public PlaybackListener
 {
     Q_OBJECT
 

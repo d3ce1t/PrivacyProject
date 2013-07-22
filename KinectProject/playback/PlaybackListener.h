@@ -2,7 +2,7 @@
 #define PLAYBACKLISTENER_H
 
 #include <memory>
-#include <QObject>
+//#include <QObject>
 #include <types/DataFrame.h>
 
 using namespace std;
@@ -11,9 +11,9 @@ namespace dai {
 
 class PlaybackControl;
 
-class PlaybackListener : public QObject
+class PlaybackListener // : public QObject
 {
-    Q_OBJECT
+    //Q_OBJECT
 
     friend class PlaybackControl;
 
@@ -22,8 +22,8 @@ public:
     virtual ~PlaybackListener();
     PlaybackControl* playback();
 
-public slots:
-    void manageFrames(QList<shared_ptr<DataFrame>> frames);
+/*public:
+    void manageFrames(QList<shared_ptr<DataFrame>> frames);*/
 
 protected:
     virtual void onNewFrame(const QList<shared_ptr<DataFrame>>& frames) = 0;

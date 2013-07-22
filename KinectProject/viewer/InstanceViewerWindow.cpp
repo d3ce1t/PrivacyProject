@@ -110,11 +110,13 @@ void InstanceViewerWindow:: onNewFrame(const QList<shared_ptr<DataFrame> > &data
     // Filter
     QList<shared_ptr<DataFrame> > filteredFrames = applyFilters(dataFrames);
 
+    // m_viewer->onNewFrame(filteredFrames);
+
     // Sent to viewer
     // I want to execute method in the thread I belong to
     QMetaObject::invokeMethod(m_viewer, "onNewFrame",
                                   Qt::AutoConnection,
-                                  Q_ARG(QList<shared_ptr<dai::DataFrame>>, filteredFrames));
+                                  Q_ARG(QList<shared_ptr<DataFrame>>, filteredFrames));
 }
 
 QList<shared_ptr<DataFrame> > InstanceViewerWindow::applyFilters(const QList<shared_ptr<DataFrame>> &dataFrames) const

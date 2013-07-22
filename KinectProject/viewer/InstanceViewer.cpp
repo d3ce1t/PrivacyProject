@@ -40,7 +40,7 @@ InstanceViewer::~InstanceViewer()
     qDebug() << "InstanceViewer::~InstanceViewer()";
 }
 
-void InstanceViewer::onNewFrame(QList<shared_ptr<dai::DataFrame> > dataFrames)
+void InstanceViewer::onNewFrame(QList<shared_ptr<DataFrame> > dataFrames)
 {
     m_running = true;
 

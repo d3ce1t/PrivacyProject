@@ -12,6 +12,7 @@
 #include "viewer/DummyPainter.h"
 #include "viewer/QMLEnumsWrapper.h"
 
+using namespace dai;
 
 class QListWidget;
 
@@ -24,7 +25,7 @@ public:
     virtual ~InstanceViewer();
 
 public slots:
-    void onNewFrame(QList<shared_ptr<dai::DataFrame> > dataFrames);
+    void onNewFrame(QList<shared_ptr<DataFrame> > dataFrames);
     void enableFilter(int filter);
     void resetPerspective();
     void rotateAxisX(float angle);

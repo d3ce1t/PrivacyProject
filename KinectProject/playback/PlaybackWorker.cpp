@@ -34,7 +34,10 @@ void PlaybackWorker::run()
             lastTime = timeNow;
 
             // Do job
-            m_running = m_parent->readAllInstances();
+            QList<shared_ptr<StreamInstance>>  availableInstances = m_parent->readAllInstances();
+
+            if (availableInstances.count() > 0)
+                m_parent->notifyListeners(availableInstances);
         }
         else {
             this->msleep(m_sleepTime - diffTime);
