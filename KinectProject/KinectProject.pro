@@ -64,7 +64,8 @@ HEADERS += \
     filters/BlurFilter.h \
     viewer/PlaybackListener.h \
     filters/InvisibilityFilter.h \
-    viewer/DummyPainter.h
+    viewer/DummyPainter.h \
+    viewer/QMLEnumsWrapper.h
 
 SOURCES += \
     dataset/MSRAction3D/MSR3Action3D.cpp \

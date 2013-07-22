@@ -10,6 +10,7 @@
 #include "types/DataFrame.h"
 #include "viewer/Painter.h"
 #include "viewer/DummyPainter.h"
+#include "viewer/QMLEnumsWrapper.h"
 
 
 class QListWidget;
@@ -24,9 +25,7 @@ public:
 
 public slots:
     void onNewFrame(QList<shared_ptr<dai::DataFrame> > dataFrames);
-    void enableInvisibilityFilter();
-    void enableBlurFilter();
-    void enableNoFilter();
+    void enableFilter(int filter);
     void resetPerspective();
     void rotateAxisX(float angle);
     void rotateAxisY(float angle);

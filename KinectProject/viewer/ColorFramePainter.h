@@ -7,26 +7,22 @@
 #include <QOpenGLVertexArrayObject>
 #include <QMatrix4x4>
 #include "types/ColorFrame.h"
-
+#include <atomic>
+#include "QMLEnumsWrapper.h"
 
 class QOpenGLShaderProgram;
+
+using namespace std;
 
 namespace dai {
 
 class ColorFramePainter : public Painter
 {
 public:
-
-    enum ColorFilter {
-        FILTER_DISABLED = 0,
-        FILTER_INVISIBILITY,
-        FILTER_BLUR
-    };
-
     ColorFramePainter(InstanceViewer* parent);
     virtual ~ColorFramePainter();
     void prepareData(shared_ptr<DataFrame> frame);
-    void enableFilter(ColorFilter type);
+    void enableFilter(QMLEnumsWrapper::ColorFilter type);
     ColorFrame& frame();
 
 protected:
@@ -46,7 +42,8 @@ private:
     void loadMaskTexture(GLuint glTextureId, GLsizei width, GLsizei height, void *texture);
 
     shared_ptr<ColorFrame>    m_frame;
-    ColorFilter               m_currentFilter = FILTER_DISABLED;
+    QMLEnumsWrapper::ColorFilter m_currentFilter = QMLEnumsWrapper::FILTER_DISABLED;
+    atomic<int>               m_needLoading;
 
     // OpenGL Buffer
     shared_ptr<QOpenGLFramebufferObject>  m_fbo;

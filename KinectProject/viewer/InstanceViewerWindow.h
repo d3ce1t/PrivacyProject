@@ -29,7 +29,7 @@ public slots:
     void processListItem(QListWidget* widget);
     //void enableInvisibilityFilter();
     //void enableBlurFilter();
-    void disableColorFilter();
+    //void disableColorFilter();
 
 private slots:
     void onRenderedFrame();

@@ -1,6 +1,7 @@
 #include "ColorFramePainter.h"
 #include "types/UserFrame.h"
 #include "viewer/InstanceViewer.h"
+#include <QQuickWindow>
 #include <QImage>
 
 namespace dai {
@@ -9,6 +10,7 @@ ColorFramePainter::ColorFramePainter(InstanceViewer *parent)
     : Painter(parent)
 {
     m_frame = nullptr;
+    m_needLoading.store(0);
 }
 
 ColorFramePainter::~ColorFramePainter()
@@ -57,15 +59,20 @@ void ColorFramePainter::render()
 
 void ColorFramePainter::renderBackground()
 {
-    // Load Foreground
-    loadVideoTexture(m_fgTextureId, m_frame->getWidth(), m_frame->getHeight(), (void *) m_frame->getDataPtr());
-
-    // Load Mask
-    if (m_mask) {
-        loadMaskTexture(m_maskTextureId, m_mask->getWidth(), m_mask->getHeight(), (void *) m_mask->getDataPtr());
-    }
-
     m_vao.bind();
+
+    if (m_needLoading.load())
+    {
+        // Load Foreground
+        loadVideoTexture(m_fgTextureId, m_frame->getWidth(), m_frame->getHeight(), (void *) m_frame->getDataPtr());
+
+        // Load Mask
+        if (m_mask) {
+            loadMaskTexture(m_maskTextureId, m_mask->getWidth(), m_mask->getHeight(), (void *) m_mask->getDataPtr());
+        }
+
+        m_needLoading.store(0);
+    }
 
     // Enabe FG
     glActiveTexture(GL_TEXTURE0 + 0);
@@ -316,9 +323,10 @@ ColorFrame& ColorFramePainter::frame()
 void ColorFramePainter::prepareData(shared_ptr<DataFrame> frame)
 {
     m_frame = static_pointer_cast<ColorFrame>(frame);
+    m_needLoading.store(1);
 }
 
-void ColorFramePainter::enableFilter(ColorFilter type)
+void ColorFramePainter::enableFilter(QMLEnumsWrapper::ColorFilter type)
 {
     m_currentFilter = type;
 }

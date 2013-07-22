@@ -9,8 +9,6 @@ InvisibilityFilter::InvisibilityFilter()
 
 void InvisibilityFilter::applyFilter(shared_ptr<DataFrame> frame)
 {
-    return;
-
     if (m_userMask == nullptr)
         return;
 

@@ -195,18 +195,18 @@ void InstanceViewerWindow::setTitle(const QString& title)
 
     m_activeFilterArray[DataFrame::Color] = filter;
     filter->enableFilter(true);
-}*/
+}
 
-/*void InstanceViewerWindow::enableBlurFilter()
+void InstanceViewerWindow::enableBlurFilter()
 {
-    shared_ptr<FrameFilter> filter = m_filters.values(DataFrame::Color).at(0);
+    shared_ptr<FrameFilter> filter = m_filters.values(DataFrame::Color).at(1);
 
     if (m_activeFilterArray[DataFrame::Color])
         m_activeFilterArray[DataFrame::Color]->enableFilter(false);
 
     m_activeFilterArray[DataFrame::Color] = filter;
     filter->enableFilter(true);
-}*/
+}
 
 void InstanceViewerWindow::disableColorFilter()
 {
@@ -214,7 +214,7 @@ void InstanceViewerWindow::disableColorFilter()
         m_activeFilterArray[DataFrame::Color]->enableFilter(false);
         m_activeFilterArray[DataFrame::Color] = nullptr;
     }
-}
+}*/
 
 void InstanceViewerWindow::show()
 {

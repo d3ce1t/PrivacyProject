@@ -1,6 +1,7 @@
 import QtQuick 2.0
 import QtQuick.Controls 1.0
 import OpenGLUnderQML 1.0
+import edu.dai.kinect 1.0
 
 ApplicationWindow {
     id: mainWindow
@@ -35,11 +36,12 @@ ApplicationWindow {
                 checkable: true
                 checked: true
                 exclusiveGroup: privacyFilter
+                shortcut: "Ctrl+0"
                 onTriggered: {
                     overlayText.text = "No Filter Enabled"
                     overlayText.opacity = 1
                     overlayTextHide.start()
-                    instanceViewer.enableNoFilter() // GPU
+                    instanceViewer.enableFilter(ColorFilter.FILTER_DISABLED) // GPU - No Filter
                     //viewerWindow.disableColorFilter() // CPU
                 }
             }
@@ -48,11 +50,12 @@ ApplicationWindow {
                 text: "Invisibility"
                 checkable: true
                 exclusiveGroup: privacyFilter
+                shortcut: "Ctrl+1"
                 onTriggered: {
                     overlayText.text = "Invisibility Filter Enabled"
                     overlayText.opacity = 1
                     overlayTextHide.start()
-                    instanceViewer.enableInvisibilityFilter() // GPU
+                    instanceViewer.enableFilter(ColorFilter.FILTER_INVISIBILITY) // GPU
                     //viewerWindow.enableInvisibilityFilter() // CPU
                     //viewerWindow.disableColorFilter()
                 }
@@ -61,11 +64,40 @@ ApplicationWindow {
                 text: "Blur"
                 checkable: true
                 exclusiveGroup: privacyFilter
+                shortcut: "Ctrl+2"
                 onTriggered: {
                     overlayText.text = "Blur Filter Enabled"
                     overlayText.opacity = 1
                     overlayTextHide.start()
-                    instanceViewer.enableBlurFilter() // GPU
+                    instanceViewer.enableFilter(ColorFilter.FILTER_BLUR) // GPU
+                    //viewerWindow.enableBlurFilter() // CPU
+                    //viewerWindow.disableColorFilter()
+                }
+            }
+            MenuItem {
+                text: "Pixelation"
+                checkable: true
+                exclusiveGroup: privacyFilter
+                shortcut: "Ctrl+3"
+                onTriggered: {
+                    overlayText.text = "Pixelation Filter Enabled"
+                    overlayText.opacity = 1
+                    overlayTextHide.start()
+                    instanceViewer.enableFilter(ColorFilter.FILTER_PIXELATION) // GPU
+                    //viewerWindow.enableBlurFilter() // CPU
+                    //viewerWindow.disableColorFilter()
+                }
+            }
+            MenuItem {
+                text: "Emboss"
+                checkable: true
+                exclusiveGroup: privacyFilter
+                shortcut: "Ctrl+4"
+                onTriggered: {
+                    overlayText.text = "Emboss Filter Enabled"
+                    overlayText.opacity = 1
+                    overlayTextHide.start()
+                    instanceViewer.enableFilter(ColorFilter.FILTER_EMBOSS) // GPU
                     //viewerWindow.enableBlurFilter() // CPU
                     //viewerWindow.disableColorFilter()
                 }
