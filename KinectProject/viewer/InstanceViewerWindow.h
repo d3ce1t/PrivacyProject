@@ -32,7 +32,6 @@ public slots:
     //void disableColorFilter();
 
 private slots:
-    void onRenderedFrame();
     float getFPS() const;
 
 protected:

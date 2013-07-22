@@ -21,7 +21,6 @@ public:
     PlaybackListener();
     virtual ~PlaybackListener();
     PlaybackControl* playback();
-    void releasePlayback();
 
 public slots:
     void manageFrames(QList<shared_ptr<DataFrame>> frames);

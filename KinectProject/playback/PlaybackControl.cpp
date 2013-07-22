@@ -8,8 +8,8 @@ namespace dai {
 PlaybackControl::PlaybackControl()
 {
     m_playloop_enabled = false;
-    m_worker = nullptr;
     m_restartAfterStop = false;
+    m_worker = nullptr;
 }
 
 PlaybackControl::~PlaybackControl()
@@ -91,7 +91,7 @@ void PlaybackControl::play(bool restartAll)
     }
 }
 
-bool PlaybackControl::doWork()
+bool PlaybackControl::readAllInstances()
 {
     QList<shared_ptr<StreamInstance>> instances = m_instances; // implicit sharing
     QList<shared_ptr<StreamInstance>> notChangedInstances;

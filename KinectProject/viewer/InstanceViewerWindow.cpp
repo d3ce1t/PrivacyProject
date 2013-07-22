@@ -37,7 +37,6 @@ InstanceViewerWindow::InstanceViewerWindow()
 
     // Windows setup
     connect(m_window, SIGNAL(closing(QQuickCloseEvent*)), this, SLOT(deleteLater()));
-    connect(m_viewer, SIGNAL(frameRendered()), this, SLOT(onRenderedFrame()));
     setTitle("Instance Viewer");
 
     // Filters setup
@@ -169,11 +168,6 @@ shared_ptr<DataFrame> InstanceViewerWindow::applyFilter(shared_ptr<DataFrame> in
     }
 
     return outputFrame;
-}
-
-void InstanceViewerWindow::onRenderedFrame()
-{
-    releasePlayback();
 }
 
 float InstanceViewerWindow::getFPS() const
