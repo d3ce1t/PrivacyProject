@@ -4,6 +4,7 @@
 #include "types/StreamInstance.h"
 #include "PlaybackListener.h"
 #include "PlaybackWorker.h"
+#include <QThread>
 #include <QObject>
 #include <QList>
 #include <QHash>
@@ -53,7 +54,11 @@ private:
     void notifySuscribersOnStop();
     void removeAllListeners();
 
+    // Worker
     PlaybackWorker*                                    m_worker;
+    QThread*                                           m_thread;
+
+    // Instances and Listeners
     QList<shared_ptr<StreamInstance>>                  m_instances;
     QList<PlaybackListener*>                           m_listeners;
     QHash<PlaybackListener*, QList<shared_ptr<StreamInstance>>*>  m_listenerToInstanceMap;
@@ -64,7 +69,6 @@ private:
     bool                                               m_playloop_enabled;
     bool                                               m_restartAfterStop;
 };
-
 
 } // End namespace
 

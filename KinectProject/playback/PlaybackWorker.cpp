@@ -1,5 +1,6 @@
 #include "PlaybackWorker.h"
 #include "PlaybackControl.h"
+#include <QThread>
 #include <QElapsedTimer>
 #include <iostream>
 
@@ -40,11 +41,11 @@ void PlaybackWorker::run()
                 m_parent->notifyListeners(availableInstances);
         }
         else {
-            this->msleep(m_sleepTime - diffTime);
+            QThread::currentThread()->msleep(m_sleepTime - diffTime);
         }
     }
 
-    QMetaObject::invokeMethod(m_parent, "stopAsync", Qt::AutoConnection);
+    emit finished();
 }
 
 void PlaybackWorker::stop()

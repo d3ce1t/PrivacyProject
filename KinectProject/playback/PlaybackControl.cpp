@@ -10,6 +10,7 @@ PlaybackControl::PlaybackControl()
     m_playloop_enabled = false;
     m_restartAfterStop = false;
     m_worker = nullptr;
+    m_thread = nullptr;
 }
 
 PlaybackControl::~PlaybackControl()
@@ -26,7 +27,46 @@ PlaybackControl::~PlaybackControl()
         m_worker = nullptr;
     }
 
+    if (m_thread != nullptr) {
+        delete m_thread;
+        m_thread = nullptr;
+    }
+
     std::cerr << "PlaybackControl::~PlaybackControl()" << std::endl;
+}
+
+void PlaybackControl::play(bool restartAll)
+{
+    if (m_thread != nullptr && m_thread->isRunning() && restartAll) {
+        m_restartAfterStop = true;
+        stop();
+    }
+    else {
+        // Open all instances
+        QListIterator<shared_ptr<StreamInstance>> it(m_instances);
+
+        while (it.hasNext()) {
+            shared_ptr<StreamInstance> instance = it.next();
+            if (!instance->is_open()) {
+                instance->open();
+                std::cerr << "Open" << std::endl;
+            }
+        }
+
+        // Start playback worker (if already running it does nothing)
+        if (m_thread == nullptr) {
+            m_thread = new QThread;
+            m_worker = new PlaybackWorker(this);
+            m_worker->moveToThread(m_thread);
+            QObject::connect(m_thread, SIGNAL(started()), m_worker, SLOT(run()));
+            QObject::connect(m_worker, SIGNAL(finished()), m_thread, SLOT(quit()));
+            QObject::connect(m_worker, SIGNAL(finished()), this, SLOT(stopAsync()));
+            QObject::connect(m_worker, SIGNAL(finished()), m_worker, SLOT(deleteLater()));
+            QObject::connect(m_thread, SIGNAL(finished()), m_thread, SLOT(deleteLater()));
+        }
+
+        m_thread->start();
+    }
 }
 
 void PlaybackControl::stop()
@@ -41,12 +81,12 @@ void PlaybackControl::stopAsync()
     std::cerr << "PlaybackControl::stopAsync()" << std::endl;
     QListIterator<shared_ptr<StreamInstance> > it(m_instances);
 
-    if (m_worker != nullptr) {
-        m_worker->wait(5000);
-        delete m_worker;
-        m_worker = nullptr;
-    }
+    // m_thread and m_worker are connected to deleteLater, so I only
+    // mark they as null
+    m_thread = nullptr;
+    m_worker = nullptr;
 
+    // Close all opened instances
     while (it.hasNext()) {
         shared_ptr<StreamInstance> instance = it.next();
         if (instance->is_open()) {
@@ -55,39 +95,14 @@ void PlaybackControl::stopAsync()
         }
     }
 
-    notifySuscribersOnStop();
-
-    emit onPlaybackFinished(this);
-
     if (m_restartAfterStop) {
         m_restartAfterStop = false;
         play();
     }
-}
-
-void PlaybackControl::play(bool restartAll)
-{
-    if (m_worker != nullptr && m_worker->isRunning() && restartAll) {
-        m_restartAfterStop = true;
-        stop();
-    } else {
-        // Open all instances
-        QListIterator<shared_ptr<StreamInstance>> it(m_instances);
-
-        while (it.hasNext()) {
-            shared_ptr<StreamInstance> instance = it.next();
-            if (!instance->is_open()) {
-                instance->open();
-                std::cerr << "Open" << std::endl;
-            }
-        }
-
-        // Start playback worker (if already running it does nothing)
-        if (m_worker == nullptr) {
-            m_worker = new PlaybackWorker(this);
-        }
-
-        m_worker->start();
+    else {
+        // Notify suscribers
+        notifySuscribersOnStop();
+        emit onPlaybackFinished(this);
     }
 }
 

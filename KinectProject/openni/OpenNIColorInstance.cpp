@@ -114,9 +114,9 @@ void OpenNIColorInstance::nextFrame(DataFrame &frame)
             for (int x = 0; x < oniColorFrame.getWidth(); ++x, ++pImage)
             {
                 RGBColor color;
-                color.red = pImage->r / 255.0f;
-                color.green = pImage->g / 255.0f;
-                color.blue = pImage->b / 255.0f;
+                color.red = pImage->r;
+                color.green = pImage->g;
+                color.blue = pImage->b;
                 colorFrame.setItem(y, x, color);
             }
 

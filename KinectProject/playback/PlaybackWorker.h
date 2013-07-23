@@ -1,21 +1,26 @@
 #ifndef PLAYBACKWORKER_H
 #define PLAYBACKWORKER_H
 
-#include <QThread>
+#include <QObject>
 
 namespace dai {
 
 class PlaybackControl;
 
-class PlaybackWorker : public QThread
+class PlaybackWorker : public QObject
 {
     Q_OBJECT
 
 public:
     PlaybackWorker(PlaybackControl *parent);
     float getFPS() const;
-    void run() override;
     void stop();
+
+public slots:
+    void run();
+
+signals:
+    void finished();
 
 private:
     bool                            m_running;
