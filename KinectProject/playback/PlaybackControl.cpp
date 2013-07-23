@@ -156,10 +156,10 @@ void PlaybackControl::notifyListeners(QList<shared_ptr<StreamInstance>> changedI
 
     foreach (shared_ptr<StreamInstance> instance, changedInstances)
     {
-        QList<PlaybackListener*>* listenerList = m_instanceToListenerMap.value(instance.get());
+        QList<PlaybackListener*> listenerList = m_instanceToListenerMap.values(instance.get());
         shared_ptr<DataFrame> frame = instance->frame();
 
-        foreach (PlaybackListener* listener, *listenerList)
+        foreach (PlaybackListener* listener, listenerList)
         {
            QList<shared_ptr<DataFrame>> listFrames;
            listFrames = sendResult.value(listener);
@@ -183,9 +183,9 @@ bool PlaybackControl::hasSuscribers(shared_ptr<StreamInstance> instance)
 {
     bool result = false;
 
-    QList<PlaybackListener*>* listeners = m_instanceToListenerMap.value(instance.get());
+    QList<PlaybackListener*> listeners = m_instanceToListenerMap.values(instance.get());
 
-    if (listeners->count() > 0) {
+    if (listeners.count() > 0) {
         result = true;
     }
 
@@ -195,7 +195,6 @@ bool PlaybackControl::hasSuscribers(shared_ptr<StreamInstance> instance)
 void PlaybackControl::addListener(PlaybackListener* listener, shared_ptr<StreamInstance> instance)
 {
     QMutexLocker locker(&m_lockListeners);
-    QList<shared_ptr<StreamInstance>>* instanceList = nullptr;
 
     // Set Playback
     if (listener->playback() != nullptr && listener->playback() != this) {
@@ -204,20 +203,12 @@ void PlaybackControl::addListener(PlaybackListener* listener, shared_ptr<StreamI
         listener->setPlayback(this);
     }
 
-    // Add to m_listeners and m_instanceToListenerMap
     if (!m_listeners.contains(listener)) {
         m_listeners << listener;
-        instanceList = new QList<shared_ptr<StreamInstance>>;
-        m_listenerToInstanceMap.insert(listener, instanceList);
-    } else {
-        instanceList = m_listenerToInstanceMap.value(listener);
     }
 
-    *instanceList << instance;
-
-    // Add to m_instanceToListenerMap
-    QList<PlaybackListener*>* listenerList = m_instanceToListenerMap.value(instance.get());
-    *listenerList << listener;
+    m_listenerToInstanceMap.insert(listener, instance);
+    m_instanceToListenerMap.insert(instance.get(), listener);
 }
 
 void PlaybackControl::removeListener(PlaybackListener *listener, StreamInstance::StreamType type)
@@ -228,8 +219,8 @@ void PlaybackControl::removeListener(PlaybackListener *listener, StreamInstance:
 
     if (m_listeners.contains(listener))
     {
-        QList<shared_ptr<StreamInstance>>* instanceList = m_listenerToInstanceMap.value(listener);
-        QListIterator<shared_ptr<StreamInstance>> it(*instanceList);
+        QList<shared_ptr<StreamInstance>> instanceList = m_listenerToInstanceMap.values(listener);
+        QListIterator<shared_ptr<StreamInstance>> it(instanceList);
 
         while (it.hasNext() && !instance) {
             shared_ptr<StreamInstance> tmpInstance = it.next();
@@ -252,23 +243,16 @@ void PlaybackControl::removeListener(PlaybackListener* listener, shared_ptr<Stre
     if (m_listeners.contains(listener))
     {
         // remove from m_listenerToInstanceMap
-        QList<shared_ptr<StreamInstance>>* instanceList = m_listenerToInstanceMap.value(listener);
-        instanceList->removeOne(instance);     
+        m_listenerToInstanceMap.remove(listener, instance);
 
-        if (instanceList->isEmpty()) {
-            delete instanceList;
-            m_listenerToInstanceMap.remove(listener);
-            // m_listeners when there are no instances
+        if (!m_listenerToInstanceMap.contains(listener)) {
             m_listeners.removeOne(listener);
         }
 
         // remove from m_instanceToListenerMap
-        QList<PlaybackListener*>* listenersList = m_instanceToListenerMap.value(instance.get());
-        listenersList->removeOne(listener);
+        m_instanceToListenerMap.remove(instance.get(), listener);
 
-        if (listenersList->isEmpty()) {
-            delete listenersList;
-            m_instanceToListenerMap.remove(instance.get());
+        if (!m_instanceToListenerMap.contains(instance.get())) {
             m_instances.removeOne(instance);
         }
     }
@@ -280,27 +264,18 @@ void PlaybackControl::removeListener(PlaybackListener *listener)
 
     if (m_listeners.contains(listener))
     {
-        QList<shared_ptr<StreamInstance>>* instanceList = m_listenerToInstanceMap.value(listener);
+        QList<shared_ptr<StreamInstance>> instanceList = m_listenerToInstanceMap.values(listener);
 
-        foreach (shared_ptr<StreamInstance> instance, *instanceList)
+        foreach (shared_ptr<StreamInstance> instance, instanceList)
         {
-            QList<PlaybackListener*>* listenerList = m_instanceToListenerMap.value(instance.get());
-            listenerList->removeOne(listener);
+            m_instanceToListenerMap.remove(instance.get(), listener);
 
-            if (listenerList->isEmpty()) {
-                delete listenerList;
-                // Remove from m_instanceToListenerMap
-                m_instanceToListenerMap.remove(instance.get());
-                // remove from m_instances
-                m_instances.removeOne(instance);
+            if (!m_instanceToListenerMap.contains(instance.get())) {
+                m_instances.removeAll(instance);
             }
         }
 
-        // remove from m_listenerToInstanceMap
-        instanceList->clear();
-        delete instanceList;
         m_listenerToInstanceMap.remove(listener);
-        // remove from m_listeners
         m_listeners.removeOne(listener);
     }
 }
@@ -308,21 +283,8 @@ void PlaybackControl::removeListener(PlaybackListener *listener)
 void PlaybackControl::removeAllListeners()
 {
     QMutexLocker locker(&m_lockListeners);
-
-    foreach (QList<shared_ptr<StreamInstance>>* instanceList, m_listenerToInstanceMap.values()) {
-        instanceList->clear();
-        delete instanceList;
-    }
-
     m_listenerToInstanceMap.clear();
-
-    foreach (QList<PlaybackListener*>* listenerList, m_instanceToListenerMap.values()) {
-        listenerList->clear();
-        delete listenerList;
-    }
-
     m_instanceToListenerMap.clear();
-
     m_listeners.clear();
     m_instances.clear();
 }
@@ -345,10 +307,7 @@ float PlaybackControl::getFPS() const
 void PlaybackControl::addInstance(shared_ptr<StreamInstance> instance)
 {
     if (!m_instances.contains(instance))
-    {
         m_instances << instance;
-        m_instanceToListenerMap.insert(instance.get(), new QList<PlaybackListener*>);
-    }
 }
 
 void PlaybackControl::enablePlayLoop(bool value)

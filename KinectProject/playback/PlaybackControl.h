@@ -8,7 +8,7 @@
 #include <QThread>
 #include <QObject>
 #include <QList>
-#include <QHash>
+#include <QMultiHash>
 #include <QMutex>
 #include <memory>
 
@@ -63,8 +63,8 @@ private:
     // Instances and Listeners
     QList<shared_ptr<StreamInstance>>                  m_instances;
     QList<PlaybackListener*>                           m_listeners;
-    QHash<PlaybackListener*, QList<shared_ptr<StreamInstance>>*>  m_listenerToInstanceMap;
-    QHash<StreamInstance*, QList<PlaybackListener*>*>  m_instanceToListenerMap;
+    QMultiHash<PlaybackListener*, shared_ptr<StreamInstance>> m_listenerToInstanceMap;
+    QMultiHash<StreamInstance*, PlaybackListener*>     m_instanceToListenerMap;
     QMutex                                             m_lockListeners;
 
     // Playback Setting Options
