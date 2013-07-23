@@ -113,7 +113,7 @@ QList<shared_ptr<StreamInstance> > PlaybackControl::readAllInstances()
     QList<shared_ptr<StreamInstance>> instances = m_instances; // implicit sharing
     QList<shared_ptr<StreamInstance>> changedInstances;
 
-    qDebug() << "Worker" << QThread::currentThreadId();
+    // qDebug() << "Worker" << QThread::currentThreadId();
 
     foreach (shared_ptr<StreamInstance> instance, instances)
     {
@@ -148,15 +148,12 @@ QList<shared_ptr<StreamInstance> > PlaybackControl::readAllInstances()
 // Called from Notifier thread
 void PlaybackControl::notifyListeners(QList<shared_ptr<StreamInstance>> changedInstances)
 {
-    QMutexLocker locker(&m_lockListeners);
-
-    qDebug() << "Notifier" << QThread::currentThreadId();
-
+    QMultiHash<StreamInstance*, PlaybackListener*> instanceToListenerMap = m_instanceToListenerMap;
     QHash<PlaybackListener*, QList<shared_ptr<DataFrame>>> sendResult;
 
     foreach (shared_ptr<StreamInstance> instance, changedInstances)
     {
-        QList<PlaybackListener*> listenerList = m_instanceToListenerMap.values(instance.get());
+        QList<PlaybackListener*> listenerList = instanceToListenerMap.values(instance.get());
         shared_ptr<DataFrame> frame = instance->frame();
 
         foreach (PlaybackListener* listener, listenerList)
@@ -169,14 +166,7 @@ void PlaybackControl::notifyListeners(QList<shared_ptr<StreamInstance>> changedI
     }
 
     foreach (PlaybackListener* listener, sendResult.keys())
-    {
         listener->onNewFrame(sendResult.value(listener));
-        //listener->manageFrames(sendResult.value(listener));
-
-        /*QMetaObject::invokeMethod(listener, "manageFrames",
-                                          Qt::AutoConnection,
-                                          Q_ARG(QList<shared_ptr<DataFrame>>, sendResult.value(listener)));*/
-    }
 }
 
 void PlaybackControl::addListener(PlaybackListener* listener, shared_ptr<StreamInstance> instance)

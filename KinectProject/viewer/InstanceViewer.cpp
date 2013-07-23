@@ -84,10 +84,6 @@ void InstanceViewer::enableFilter(int filter)
 
 void InstanceViewer::renderOpenGLScene()
 {
-    /*foreach (QByteArray name, window()->openglContext()->extensions()) {
-        qDebug() << name;
-    }*/
-
     // Init Each Frame (because QtQuick could change it)
     glDepthRange(0.0f, 1.0f);
     glDepthMask(GL_TRUE);

@@ -5,6 +5,8 @@
 #include "PlaybackNotifier.h"
 #include <memory>
 #include "types/StreamInstance.h"
+#include <QWaitCondition>
+#include <QMutex>
 
 using namespace std;
 
@@ -15,6 +17,8 @@ class PlaybackControl;
 class PlaybackWorker : public QObject
 {
     Q_OBJECT
+
+    friend class PlaybackNotifier;
 
 public:
     PlaybackWorker(PlaybackControl *parent);
@@ -30,6 +34,8 @@ signals:
 
 protected:
     void initialise();
+    void sync();
+    void waitForNotifier();
 
 private:
     bool                            m_running;
@@ -38,6 +44,9 @@ private:
     PlaybackControl*                m_parent;
     PlaybackNotifier*               m_notifier;
     QThread*                        m_thread;
+    QMutex                          m_lockSync;
+    QWaitCondition                  m_sync;
+    bool                            m_notifierFinish;
 };
 
 } // End namespace

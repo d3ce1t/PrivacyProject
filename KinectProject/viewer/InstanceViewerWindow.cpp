@@ -37,6 +37,7 @@ InstanceViewerWindow::InstanceViewerWindow()
 
     // Windows setup
     connect(m_window, SIGNAL(closing(QQuickCloseEvent*)), this, SLOT(deleteLater()));
+    connect(m_viewer, SIGNAL(frameRendered()), this, SLOT(completeAsyncTask()));
     setTitle("Instance Viewer");
 
     // Filters setup
@@ -102,21 +103,29 @@ void InstanceViewerWindow::onPlaybackStop()
 
 }
 
+// called from Notifier thread
 void InstanceViewerWindow:: onNewFrame(const QList<shared_ptr<DataFrame> > &dataFrames)
 {
-    m_fps = playback()->getFPS();
-    emit changeOfStatus();
-
     // Filter
     QList<shared_ptr<DataFrame> > filteredFrames = applyFilters(dataFrames);
 
-    // m_viewer->onNewFrame(filteredFrames);
-
     // Sent to viewer
-    // I want to execute method in the thread I belong to
+    // I want to execute method in the thread it belongs to
     QMetaObject::invokeMethod(m_viewer, "onNewFrame",
                                   Qt::AutoConnection,
                                   Q_ARG(QList<shared_ptr<DataFrame>>, filteredFrames));
+
+    // ¿Why this cause flickering?
+    m_fps = playback()->getFPS();
+    emit changeOfStatus();
+
+    // Block notifier thread
+    PlaybackListener::startAsyncTask();
+}
+
+void InstanceViewerWindow::completeAsyncTask()
+{
+    PlaybackListener::endAsyncTask();
 }
 
 QList<shared_ptr<DataFrame> > InstanceViewerWindow::applyFilters(const QList<shared_ptr<DataFrame>> &dataFrames) const

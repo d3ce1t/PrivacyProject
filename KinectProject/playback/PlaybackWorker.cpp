@@ -11,18 +11,22 @@ PlaybackWorker::PlaybackWorker(PlaybackControl* parent)
 {
     m_parent = parent;
     m_running = false;
+    m_notifierFinish = false;
 }
 
 void PlaybackWorker::initialise()
 {
     m_thread = new QThread;
-    m_notifier = new PlaybackNotifier(m_parent);
+    m_notifier = new PlaybackNotifier(m_parent, this);
     m_notifier->moveToThread(m_thread);
-    //QObject::connect(m_thread, SIGNAL(started()), m_notifier, SLOT(run()));
-    //QObject::connect(m_notifier, SIGNAL(finished()), m_thread, SLOT(quit()));
-    //QObject::connect(m_notifier, SIGNAL(finished()), m_notifier, SLOT(deleteLater()));
+
+    QObject::connect(this, SIGNAL(finished()), m_thread, SLOT(quit()));
+    QObject::connect(this, SIGNAL(finished()), m_notifier, SLOT(deleteLater()));
     QObject::connect(m_thread, SIGNAL(finished()), m_thread, SLOT(deleteLater()));
-    QObject::connect(this, SIGNAL(availableInstances(QList<shared_ptr<StreamInstance> >)), m_notifier, SLOT(notifyListeners(QList<shared_ptr<StreamInstance> >)));
+    QObject::connect(this,
+                     SIGNAL(availableInstances(QList<shared_ptr<StreamInstance>>)),
+                     m_notifier,
+                     SLOT(notifyListeners(QList<shared_ptr<StreamInstance>>)));
     m_thread->start();
 }
 
@@ -36,6 +40,9 @@ void PlaybackWorker::run()
     m_running = true;
     time.start();
 
+    // Initial Read; Here
+    // Initial Swap
+
     while (m_running)
     {
         // Compute time since last update
@@ -48,11 +55,19 @@ void PlaybackWorker::run()
             m_fps = 1.0 / (diffTime / 1000.0f);
             lastTime = timeNow;
 
-            // Do job
+            // Notify listeners; Here
+
+            // Prefetch read
             QList<shared_ptr<StreamInstance>> readInstances = m_parent->readAllInstances();
 
-            if (readInstances.count() > 0) {
+            // WaitForNotifiers
+
+            // Swap
+
+            // Notify
+            if (readInstances.count() > 0) {                
                 emit availableInstances(readInstances);
+                waitForNotifier();
             }
             else {
                 m_running = false;
@@ -64,6 +79,26 @@ void PlaybackWorker::run()
     }
 
     emit finished();
+}
+
+void PlaybackWorker::sync()
+{
+    m_lockSync.lock();
+    if (!m_notifierFinish) {
+        m_notifierFinish = true;
+        m_sync.wakeOne();
+    }
+    m_lockSync.unlock();
+}
+
+void PlaybackWorker::waitForNotifier()
+{
+    m_lockSync.lock();
+    while (!m_notifierFinish) {
+        m_sync.wait(&m_lockSync);
+    }
+    m_notifierFinish = false;
+    m_lockSync.unlock();
 }
 
 void PlaybackWorker::stop()

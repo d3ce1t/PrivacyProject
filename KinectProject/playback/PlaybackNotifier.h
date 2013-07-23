@@ -10,22 +10,21 @@ using namespace std;
 namespace dai {
 
 class PlaybackControl;
+class PlaybackWorker;
 
 class PlaybackNotifier : public QObject
 {
     Q_OBJECT
 
 public:
-    PlaybackNotifier(PlaybackControl* parent);
+    PlaybackNotifier(PlaybackControl* parent, PlaybackWorker* worker);
 
 public slots:
     void notifyListeners(QList<shared_ptr<StreamInstance>> instances);
 
-signals:
-    void finished();
-
 private:
     PlaybackControl*    m_parent;
+    PlaybackWorker*     m_worker;
 };
 
 } // End namespace

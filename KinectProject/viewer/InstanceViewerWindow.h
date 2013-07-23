@@ -34,6 +34,7 @@ public slots:
 
 private slots:
     float getFPS() const;
+    void completeAsyncTask();
 
 protected:
     void onNewFrame(const QList<shared_ptr<DataFrame>>& dataFrames);

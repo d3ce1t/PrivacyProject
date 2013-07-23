@@ -2,8 +2,9 @@
 #define PLAYBACKLISTENER_H
 
 #include <memory>
-//#include <QObject>
 #include <types/DataFrame.h>
+#include <QWaitCondition>
+#include <QMutex>
 
 using namespace std;
 
@@ -11,10 +12,8 @@ namespace dai {
 
 class PlaybackControl;
 
-class PlaybackListener // : public QObject
+class PlaybackListener
 {
-    //Q_OBJECT
-
     friend class PlaybackControl;
 
 public:
@@ -22,18 +21,21 @@ public:
     virtual ~PlaybackListener();
     PlaybackControl* playback();
 
-/*public:
-    void manageFrames(QList<shared_ptr<DataFrame>> frames);*/
-
 protected:
     virtual void onNewFrame(const QList<shared_ptr<DataFrame>>& frames) = 0;
     virtual void onPlaybackStart() = 0;
     virtual void onPlaybackStop() = 0;
 
+    void startAsyncTask();
+    void endAsyncTask();
+
 private:
     void setPlayback(PlaybackControl* playback);
 
     PlaybackControl* m_playback;
+    QMutex           m_lockSync;
+    QWaitCondition   m_sync;
+    bool             m_taskFinish;
 };
 
 } // End Namespace
