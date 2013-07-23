@@ -49,10 +49,14 @@ void PlaybackWorker::run()
             lastTime = timeNow;
 
             // Do job
-            QList<shared_ptr<StreamInstance>>  readInstances = m_parent->readAllInstances();
+            QList<shared_ptr<StreamInstance>> readInstances = m_parent->readAllInstances();
 
-            if (readInstances.count() > 0)
+            if (readInstances.count() > 0) {
                 emit availableInstances(readInstances);
+            }
+            else {
+                m_running = false;
+            }
         }
         else {
             QThread::currentThread()->msleep(m_sleepTime - diffTime);

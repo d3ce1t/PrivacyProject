@@ -52,7 +52,6 @@ private slots:
 private:
     QList<shared_ptr<StreamInstance> > readAllInstances();
     void notifyListeners(QList<shared_ptr<StreamInstance> > changedInstances);
-    bool hasSuscribers(shared_ptr<StreamInstance> instance);
     void notifySuscribersOnStop();
     void removeAllListeners();
 

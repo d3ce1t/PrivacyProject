@@ -119,8 +119,8 @@ QList<shared_ptr<StreamInstance> > PlaybackControl::readAllInstances()
     {
         if (instance->is_open())
         {
-
-            if (hasSuscribers(instance))
+            // Has Suscribers
+            if ( m_instanceToListenerMap.contains(instance.get()) )
             {
                 if (!instance->hasNext() && m_playloop_enabled)
                     instance->restart();
@@ -177,19 +177,6 @@ void PlaybackControl::notifyListeners(QList<shared_ptr<StreamInstance>> changedI
                                           Qt::AutoConnection,
                                           Q_ARG(QList<shared_ptr<DataFrame>>, sendResult.value(listener)));*/
     }
-}
-
-bool PlaybackControl::hasSuscribers(shared_ptr<StreamInstance> instance)
-{
-    bool result = false;
-
-    QList<PlaybackListener*> listeners = m_instanceToListenerMap.values(instance.get());
-
-    if (listeners.count() > 0) {
-        result = true;
-    }
-
-    return result;
 }
 
 void PlaybackControl::addListener(PlaybackListener* listener, shared_ptr<StreamInstance> instance)
@@ -252,9 +239,9 @@ void PlaybackControl::removeListener(PlaybackListener* listener, shared_ptr<Stre
         // remove from m_instanceToListenerMap
         m_instanceToListenerMap.remove(instance.get(), listener);
 
-        if (!m_instanceToListenerMap.contains(instance.get())) {
+        /*if (!m_instanceToListenerMap.contains(instance.get())) {
             m_instances.removeOne(instance);
-        }
+        }*/
     }
 }
 
@@ -270,9 +257,9 @@ void PlaybackControl::removeListener(PlaybackListener *listener)
         {
             m_instanceToListenerMap.remove(instance.get(), listener);
 
-            if (!m_instanceToListenerMap.contains(instance.get())) {
+            /*if (!m_instanceToListenerMap.contains(instance.get())) {
                 m_instances.removeAll(instance);
-            }
+            }*/
         }
 
         m_listenerToInstanceMap.remove(listener);
@@ -286,7 +273,7 @@ void PlaybackControl::removeAllListeners()
     m_listenerToInstanceMap.clear();
     m_instanceToListenerMap.clear();
     m_listeners.clear();
-    m_instances.clear();
+    //m_instances.clear();
 }
 
 void PlaybackControl::notifySuscribersOnStop()
