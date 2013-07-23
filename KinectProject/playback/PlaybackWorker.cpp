@@ -13,11 +13,25 @@ PlaybackWorker::PlaybackWorker(PlaybackControl* parent)
     m_running = false;
 }
 
+void PlaybackWorker::initialise()
+{
+    m_thread = new QThread;
+    m_notifier = new PlaybackNotifier(m_parent);
+    m_notifier->moveToThread(m_thread);
+    //QObject::connect(m_thread, SIGNAL(started()), m_notifier, SLOT(run()));
+    //QObject::connect(m_notifier, SIGNAL(finished()), m_thread, SLOT(quit()));
+    //QObject::connect(m_notifier, SIGNAL(finished()), m_notifier, SLOT(deleteLater()));
+    QObject::connect(m_thread, SIGNAL(finished()), m_thread, SLOT(deleteLater()));
+    QObject::connect(this, SIGNAL(availableInstances(QList<shared_ptr<StreamInstance> >)), m_notifier, SLOT(notifyListeners(QList<shared_ptr<StreamInstance> >)));
+    m_thread->start();
+}
+
 void PlaybackWorker::run()
 {
     QElapsedTimer time;
     qint64 lastTime = 0;
 
+    initialise();
     m_fps = 0;
     m_running = true;
     time.start();
@@ -35,10 +49,10 @@ void PlaybackWorker::run()
             lastTime = timeNow;
 
             // Do job
-            QList<shared_ptr<StreamInstance>>  availableInstances = m_parent->readAllInstances();
+            QList<shared_ptr<StreamInstance>>  readInstances = m_parent->readAllInstances();
 
-            if (availableInstances.count() > 0)
-                m_parent->notifyListeners(availableInstances);
+            if (readInstances.count() > 0)
+                emit availableInstances(readInstances);
         }
         else {
             QThread::currentThread()->msleep(m_sleepTime - diffTime);

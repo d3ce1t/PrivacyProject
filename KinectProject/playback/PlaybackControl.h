@@ -4,6 +4,7 @@
 #include "types/StreamInstance.h"
 #include "PlaybackListener.h"
 #include "PlaybackWorker.h"
+#include "PlaybackNotifier.h"
 #include <QThread>
 #include <QObject>
 #include <QList>
@@ -21,6 +22,7 @@ class PlaybackControl : public QObject
 
     friend class PlaybackWorker;
     friend class PlaybackListener;
+    friend class PlaybackNotifier;
 
 public:
     PlaybackControl();

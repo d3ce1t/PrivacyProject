@@ -2,6 +2,7 @@
 #include <QTimer>
 #include "types/DataFrame.h"
 #include <iostream>
+#include <QDebug>
 
 namespace dai {
 
@@ -112,6 +113,8 @@ QList<shared_ptr<StreamInstance> > PlaybackControl::readAllInstances()
     QList<shared_ptr<StreamInstance>> instances = m_instances; // implicit sharing
     QList<shared_ptr<StreamInstance>> changedInstances;
 
+    qDebug() << "Worker" << QThread::currentThreadId();
+
     foreach (shared_ptr<StreamInstance> instance, instances)
     {
         if (instance->is_open())
@@ -142,10 +145,12 @@ QList<shared_ptr<StreamInstance> > PlaybackControl::readAllInstances()
     return changedInstances;
 }
 
-// Called from Worker thread
+// Called from Notifier thread
 void PlaybackControl::notifyListeners(QList<shared_ptr<StreamInstance>> changedInstances)
 {
     QMutexLocker locker(&m_lockListeners);
+
+    qDebug() << "Notifier" << QThread::currentThreadId();
 
     QHash<PlaybackListener*, QList<shared_ptr<DataFrame>>> sendResult;
 
