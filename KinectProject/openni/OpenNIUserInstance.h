@@ -3,7 +3,7 @@
 
 #include "OpenNIRuntime.h"
 #include "types/StreamInstance.h"
-#include "types/ColorFrame.h"
+#include "types/UserFrame.h"
 #include <QFile>
 
 namespace dai {
@@ -24,7 +24,7 @@ protected:
 
 private:
     OpenNIRuntime*         m_openni;
-    shared_ptr<ColorFrame> m_frameBuffer[2];
+    shared_ptr<UserFrame>  m_frameBuffer[2];
     QFile                  m_of;
     QString                m_outputFile;
 };

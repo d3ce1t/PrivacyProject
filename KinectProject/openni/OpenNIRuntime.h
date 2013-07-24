@@ -5,6 +5,10 @@
 #include <OpenNI.h>
 #include <QMutex>
 #include <QReadWriteLock>
+#include "types/ColorFrame.h"
+#include "types/DepthFrame.h"
+#include "types/UserFrame.h"
+#include "types/Skeleton.h"
 
 namespace dai {
 
@@ -16,13 +20,17 @@ public:
 
     virtual ~OpenNIRuntime();
     void releaseInstance();
-    openni::VideoFrameRef readDepthFrame();
-    openni::VideoFrameRef readColorFrame();
-    nite::UserTrackerFrameRef readUserTrackerFrame();
+    DepthFrame readDepthFrame();
+    ColorFrame readColorFrame();
+    UserFrame readUserFrame();
+    Skeleton readSkeleton();
     void onNewFrame(openni::VideoStream& stream);
     void onNewFrame(nite::UserTracker& userTracker);
 
 private:
+    void oniLoadSkeleton();
+    SkeletonJoint::JointType mapNiteToOwn(int value);
+
     static QMutex          mutex;
     static OpenNIRuntime* _instance;
     static int            _instance_counter;
@@ -31,12 +39,19 @@ private:
     void initOpenNI();
     void shutdownOpenNI();
 
+    ColorFrame                m_colorFrame;
+    DepthFrame                m_depthFrame;
+    UserFrame                 m_userFrame;
+    Skeleton                  m_skeleton;
+    int                       m_activeUser;
+
+    // OpenNI Data
+    //openni::Recorder          m_recorder;
     openni::Device            m_device;
-    openni::VideoStream       m_colorStream;
-    nite::UserTracker         m_pUserTracker;
-    openni::VideoFrameRef	  m_colorFrame;
-    openni::VideoFrameRef     m_depthFrame;
-    nite::UserTrackerFrameRef m_userTrackerFrame;
+    openni::VideoStream       m_oniColorStream;
+    nite::UserTracker         m_oniUserTracker;
+    openni::VideoFrameRef	  m_oniColorFrame;
+    nite::UserTrackerFrameRef m_oniUserTrackerFrame;
     QReadWriteLock            m_lockColor;
     QReadWriteLock            m_lockDepth;
 };

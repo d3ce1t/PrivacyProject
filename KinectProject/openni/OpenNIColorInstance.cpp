@@ -99,33 +99,11 @@ void OpenNIColorInstance::nextFrame(DataFrame &frame)
 {
     // Read Data from OpenNI
     ColorFrame& colorFrame = (ColorFrame&) frame;
-    openni::VideoFrameRef oniColorFrame = m_openni->readColorFrame();
+    ColorFrame oniFrame = m_openni->readColorFrame(); // copy
+    colorFrame = oniFrame; // copy again
 
-    // RGB Frame
-    if ( oniColorFrame.isValid())
-    {
-        const openni::RGB888Pixel* pImageRow = (const openni::RGB888Pixel*) oniColorFrame.getData();
-        int rowSize = oniColorFrame.getStrideInBytes() / sizeof(openni::RGB888Pixel);
-
-        for (int y = 0; y < oniColorFrame.getHeight(); ++y)
-        {
-            const openni::RGB888Pixel* pImage = pImageRow;
-
-            for (int x = 0; x < oniColorFrame.getWidth(); ++x, ++pImage)
-            {
-                RGBColor color;
-                color.red = pImage->r;
-                color.green = pImage->g;
-                color.blue = pImage->b;
-                colorFrame.setItem(y, x, color);
-            }
-
-            pImageRow += rowSize;
-        }
-
-        if (m_of.isOpen()) {
-            colorFrame.write(m_of);
-        }
+    if (m_of.isOpen()) {
+        colorFrame.write(m_of);
     }
 }
 

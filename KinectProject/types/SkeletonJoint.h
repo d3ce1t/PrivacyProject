@@ -54,6 +54,7 @@ public:
     JointType getType() const;
     const Point3f& getPosition() const;
     const Point3f& getScreenPosition() const;
+    void enableJoint(bool value);
 
     SkeletonJoint& operator=(const SkeletonJoint& other);
 
@@ -61,6 +62,7 @@ private:
     JointType   m_type;
     Point3f     m_realworld_point;    // Real World Point
     Point3f     m_screen_point; // Screen Point
+    bool        m_used;
 };
 
 

@@ -4,6 +4,7 @@ namespace dai {
 
 SkeletonJoint::SkeletonJoint()
 {
+    m_used = false;
 }
 
 SkeletonJoint::SkeletonJoint(const Point3f point)
@@ -24,6 +25,11 @@ SkeletonJoint& SkeletonJoint::operator=(const SkeletonJoint& other)
     m_realworld_point = other.m_realworld_point;
     m_screen_point = other.m_screen_point;
     return *this;
+}
+
+void SkeletonJoint::enableJoint(bool value)
+{
+    m_used = value;
 }
 
 void SkeletonJoint::setPosition(const Point3f point)

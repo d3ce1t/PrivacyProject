@@ -12,7 +12,7 @@ SkeletonPainter::SkeletonPainter(InstanceViewer *parent)
     m_frame = nullptr;
 
     // Setup Joints Model
-    m_joints_model.setRowCount(20);
+    /*m_joints_model.setRowCount(20);
     m_joints_model.setColumnCount(3);
     m_joints_table_view.setWindowTitle("Joints info");
     m_joints_table_view.setModel(&m_joints_model);
@@ -91,7 +91,7 @@ SkeletonPainter::SkeletonPainter(InstanceViewer *parent)
             QStandardItem *item = new QStandardItem;
             m_quaternions_model.setItem(i, j, item);
         }
-    }
+    }*/
 }
 
 SkeletonPainter::~SkeletonPainter()
@@ -221,14 +221,14 @@ float SkeletonPainter::colorIntensity(float x)
 
 void SkeletonPainter::prepareData(shared_ptr<DataFrame> frame)
 {
-    if (m_frame == nullptr) {
+    /*if (m_frame == nullptr) {
         m_joints_table_view.show();
         m_distances_table_view.show();
         m_quaternions_table_view.show();
-    }
+    }*/
 
     m_frame = static_pointer_cast<Skeleton>(frame);
-    loadModels();
+    //loadModels();
 }
 
 void SkeletonPainter::render()
@@ -236,7 +236,7 @@ void SkeletonPainter::render()
     if (m_frame == nullptr)
         return;
 
-    drawLimb(m_frame->getNormalisedJoint(dai::SkeletonJoint::JOINT_HEAD), m_frame->getNormalisedJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER));
+    /*drawLimb(m_frame->getNormalisedJoint(dai::SkeletonJoint::JOINT_HEAD), m_frame->getNormalisedJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER));
     drawLimb(m_frame->getNormalisedJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER), m_frame->getNormalisedJoint(dai::SkeletonJoint::JOINT_SPINE));
     drawLimb(m_frame->getNormalisedJoint(dai::SkeletonJoint::JOINT_SPINE), m_frame->getNormalisedJoint(dai::SkeletonJoint::JOINT_CENTER_HIP));
 
@@ -260,7 +260,7 @@ void SkeletonPainter::render()
     drawLimb(m_frame->getNormalisedJoint(dai::SkeletonJoint::JOINT_CENTER_HIP), m_frame->getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_HIP));
     drawLimb(m_frame->getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_HIP), m_frame->getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_KNEE));
     drawLimb(m_frame->getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_KNEE), m_frame->getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_ANKLE));
-    drawLimb(m_frame->getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_ANKLE), m_frame->getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_FOOT));
+    drawLimb(m_frame->getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_ANKLE), m_frame->getNormalisedJoint(dai::SkeletonJoint::JOINT_RIGHT_FOOT));*/
 
     QVector3D red(1.0, 0.0, 0.0);
     QVector3D green(0.0, 1.0, 0.0);

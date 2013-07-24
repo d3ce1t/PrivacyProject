@@ -29,7 +29,7 @@ Skeleton::Skeleton()
     m_joints[SkeletonJoint::JOINT_LEFT_FOOT].setType(SkeletonJoint::JOINT_LEFT_FOOT);
     m_joints[SkeletonJoint::JOINT_RIGHT_FOOT].setType(SkeletonJoint::JOINT_RIGHT_FOOT);
 
-
+    // Quaternions Map
     SkeletonJoint::JointType map[20][3] = {
         {SkeletonJoint::JOINT_HEAD,             SkeletonJoint::JOINT_CENTER_SHOULDER,   SkeletonJoint::JOINT_SPINE}, // Q1
         {SkeletonJoint::JOINT_HEAD,             SkeletonJoint::JOINT_CENTER_SHOULDER,   SkeletonJoint::JOINT_LEFT_SHOULDER}, // Q2
@@ -171,11 +171,11 @@ void Skeleton::computeQuaternions()
 
 }
 
- void Skeleton::clear()
- {
-     m_joints_holder.clear();
-     m_normalised_joints_holder.clear();
- }
+void Skeleton::clear()
+{
+    m_joints_holder.clear();
+    m_normalised_joints_holder.clear();
+}
 
 //
 // Static methods

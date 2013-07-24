@@ -9,10 +9,10 @@ namespace dai {
 
 OpenNIUserInstance::OpenNIUserInstance()
 {
-    this->m_type = StreamInstance::Color;
-    this->m_title = "Color Live Stream";
-    m_frameBuffer[0].reset(new ColorFrame(640, 480));
-    m_frameBuffer[1].reset(new ColorFrame(640, 480));
+    this->m_type = StreamInstance::User;
+    this->m_title = "User Live Stream";
+    m_frameBuffer[0].reset(new UserFrame(640, 480));
+    m_frameBuffer[1].reset(new UserFrame(640, 480));
     StreamInstance::initFrameBuffer(m_frameBuffer[0], m_frameBuffer[1]);
     m_openni = nullptr;
 }
@@ -98,34 +98,12 @@ void OpenNIUserInstance::restartInstance()
 void OpenNIUserInstance::nextFrame(DataFrame &frame)
 {
     // Read Data from OpenNI
-    ColorFrame& colorFrame = (ColorFrame&) frame;
-    openni::VideoFrameRef oniColorFrame = m_openni->readColorFrame();
+    UserFrame& userFrame = (UserFrame&) frame;
+    UserFrame oniFrame = m_openni->readUserFrame(); // copy
+    userFrame = oniFrame; // copy again
 
-    // RGB Frame
-    if ( oniColorFrame.isValid())
-    {
-        const openni::RGB888Pixel* pImageRow = (const openni::RGB888Pixel*) oniColorFrame.getData();
-        int rowSize = oniColorFrame.getStrideInBytes() / sizeof(openni::RGB888Pixel);
-
-        for (int y = 0; y < oniColorFrame.getHeight(); ++y)
-        {
-            const openni::RGB888Pixel* pImage = pImageRow;
-
-            for (int x = 0; x < oniColorFrame.getWidth(); ++x, ++pImage)
-            {
-                RGBColor color;
-                color.red = pImage->r;
-                color.green = pImage->g;
-                color.blue = pImage->b;
-                colorFrame.setItem(y, x, color);
-            }
-
-            pImageRow += rowSize;
-        }
-
-        if (m_of.isOpen()) {
-            colorFrame.write(m_of);
-        }
+    if (m_of.isOpen()) {
+        userFrame.write(m_of);
     }
 }
 

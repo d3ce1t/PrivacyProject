@@ -1,4 +1,4 @@
-#include "OpenNIDepthInstance.h"
+#include "OpenNISkeletonInstance.h"
 #include "dataset/DataInstance.h"
 #include <exception>
 #include <iostream>
@@ -7,33 +7,33 @@ using namespace std;
 
 namespace dai {
 
-OpenNIDepthInstance::OpenNIDepthInstance()
+OpenNISkeletonInstance::OpenNISkeletonInstance()
 {
-    this->m_type = StreamInstance::Depth;
-    this->m_title = "Depth Live Stream";
-    m_frameBuffer[0].reset(new DepthFrame(640, 480));
-    m_frameBuffer[1].reset(new DepthFrame(640, 480));
+    this->m_type = StreamInstance::Skeleton;
+    this->m_title = "Skeleton Live Stream";
+    m_frameBuffer[0].reset(new dai::Skeleton);
+    m_frameBuffer[1].reset(new dai::Skeleton);
     StreamInstance::initFrameBuffer(m_frameBuffer[0], m_frameBuffer[1]);
     m_openni = nullptr;
 }
 
-OpenNIDepthInstance::~OpenNIDepthInstance()
+OpenNISkeletonInstance::~OpenNISkeletonInstance()
 {
     closeInstance();
     m_openni = nullptr;
 }
 
-void OpenNIDepthInstance::setOutputFile(QString file)
+void OpenNISkeletonInstance::setOutputFile(QString file)
 {
     m_outputFile = file;
 }
 
-bool OpenNIDepthInstance::is_open() const
+bool OpenNISkeletonInstance::is_open() const
 {
     return m_openni != nullptr;
 }
 
-void OpenNIDepthInstance::openInstance()
+void OpenNISkeletonInstance::openInstance()
 {
     if (!is_open())
     {
@@ -50,14 +50,10 @@ void OpenNIDepthInstance::openInstance()
                     throw 8;
                 }
 
-                int width = 640;
-                int height = 480;
                 int numFrames = 0;
 
                 m_of.seek(0);
                 m_of.write( (char*) &numFrames, sizeof(numFrames) );
-                m_of.write( (char*) &width, sizeof(width) );
-                m_of.write( (char*) &height, sizeof(height) );
             }
         }
         catch (int ex)
@@ -68,7 +64,7 @@ void OpenNIDepthInstance::openInstance()
     }
 }
 
-void OpenNIDepthInstance::closeInstance()
+void OpenNISkeletonInstance::closeInstance()
 {
     if (is_open())
     {
@@ -90,21 +86,21 @@ void OpenNIDepthInstance::closeInstance()
     }
 }
 
-void OpenNIDepthInstance::restartInstance()
+void OpenNISkeletonInstance::restartInstance()
 {
 
 }
 
-void OpenNIDepthInstance::nextFrame(DataFrame &frame)
+void OpenNISkeletonInstance::nextFrame(DataFrame &frame)
 {
     // Read Data from OpenNI
-    DepthFrame& depthFrame = (DepthFrame&) frame;
-    DepthFrame oniFrame = m_openni->readDepthFrame(); // copy
-    depthFrame = oniFrame; // copy again
+    dai::Skeleton& skeletonFrame = (dai::Skeleton&) frame;
+    dai::Skeleton oniFrame = m_openni->readSkeleton(); // copy
+    skeletonFrame = oniFrame; // copy again
 
-    if (m_of.isOpen()) {
-        depthFrame.write(m_of);
-    }
+    /*if (m_of.isOpen()) {
+        skeletonFrame.write(m_of);
+    }*/
 }
 
-} // End namespace
+} // End Namespace

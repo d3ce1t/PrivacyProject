@@ -11,6 +11,8 @@
 #include "dataset/DAI/DAIDataset.h"
 #include "openni/OpenNIDepthInstance.h"
 #include "openni/OpenNIColorInstance.h"
+#include "openni/OpenNIUserInstance.h"
+#include "openni/OpenNISkeletonInstance.h"
 #include "types/DepthFrame.h"
 #include "types/DataFrame.h"
 #include "playback/PlaybackControl.h"
@@ -238,6 +240,8 @@ void MainWindow::on_btnStartKinect_clicked()
     // Create instance
     shared_ptr<dai::OpenNIColorInstance> colorInstance(new dai::OpenNIColorInstance);
     shared_ptr<dai::OpenNIDepthInstance> depthInstance(new dai::OpenNIDepthInstance);
+    shared_ptr<dai::OpenNIUserInstance> userInstance(new dai::OpenNIUserInstance);
+    shared_ptr<dai::OpenNISkeletonInstance> skeletonInstance(new dai::OpenNISkeletonInstance);
     //colorInstance->setOutputFile("/files/capture/capture.rgb");
     //colorInstance->setOutputFile("/ramfs/jose/capture.rgb");
 
@@ -247,17 +251,25 @@ void MainWindow::on_btnStartKinect_clicked()
 
     // Create viewers
     dai::InstanceViewerWindow* colorViewer = new dai::InstanceViewerWindow;
-    dai::InstanceViewerWindow* depthViewer = new dai::InstanceViewerWindow;
+    //dai::InstanceViewerWindow* depthViewer = new dai::InstanceViewerWindow;
+    //dai::InstanceViewerWindow* userViewer = new dai::InstanceViewerWindow;
+    //dai::InstanceViewerWindow* skeletonViewer = new dai::InstanceViewerWindow;
 
     // Connect all together
     playback->addInstance(colorInstance);
     playback->addInstance(depthInstance);
+    playback->addInstance(userInstance);
+    playback->addInstance(skeletonInstance);
+
     playback->addListener(colorViewer, colorInstance);
-    playback->addListener(colorViewer, depthInstance);
-    playback->addListener(depthViewer, depthInstance);
+    //playback->addListener(depthViewer, depthInstance);
+    //playback->addListener(userViewer, userInstance);
+    //playback->addListener(skeletonViewer, skeletonInstance);
 
     // Run
     playback->play();
     colorViewer->show();
-    depthViewer->show();
+    //depthViewer->show();
+    //userViewer->show();
+    //skeletonViewer->show();
 }
