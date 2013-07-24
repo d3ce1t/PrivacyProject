@@ -66,7 +66,8 @@ HEADERS += \
     playback/PlaybackWorker.h \
     playback/PlaybackNotifier.h \
     playback/PlaybackListener.h \
-    playback/PlaybackControl.h
+    playback/PlaybackControl.h \
+    openni/OpenNIUserInstance.h
 
 SOURCES += \
     dataset/MSRAction3D/MSR3Action3D.cpp \
@@ -121,7 +122,8 @@ SOURCES += \
     playback/PlaybackWorker.cpp \
     playback/PlaybackNotifier.cpp \
     playback/PlaybackListener.cpp \
-    playback/PlaybackControl.cpp
+    playback/PlaybackControl.cpp \
+    openni/OpenNIUserInstance.cpp
 
 RESOURCES += openglunderqml.qrc
 

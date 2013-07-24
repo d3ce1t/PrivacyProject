@@ -1,5 +1,5 @@
-#ifndef OPENNICOLORINSTANCE_H
-#define OPENNICOLORINSTANCE_H
+#ifndef OPENNIUSERINSTANCE_H
+#define OPENNIUSERINSTANCE_H
 
 #include "OpenNIRuntime.h"
 #include "types/StreamInstance.h"
@@ -8,11 +8,11 @@
 
 namespace dai {
 
-class OpenNIColorInstance : public StreamInstance
+class OpenNIUserInstance : public StreamInstance
 {
 public:
-    OpenNIColorInstance();
-    virtual ~OpenNIColorInstance();
+    OpenNIUserInstance();
+    virtual ~OpenNIUserInstance();
     bool is_open() const override;
     void setOutputFile(QString file);
 
@@ -31,4 +31,4 @@ private:
 
 } // End namespace
 
-#endif // OPENNICOLORINSTANCE_H
+#endif // OPENNIUSERINSTANCE_H
