@@ -1,10 +1,5 @@
 #include "MSRActionDepthInstance.h"
 #include "types/DepthFrame.h"
-#include <cstddef>
-#include <math.h>
-#include <stdint.h>
-#include <QDebug>
-#include <limits>
 
 namespace dai {
 
@@ -77,9 +72,13 @@ void MSRActionDepthInstance::nextFrame(DataFrame &frame)
     for (int y=0; y<m_height; ++y) {
         for (int x=0; x<m_width; ++x)
         {
-            // FIX: I assume depth value is between 0 a 10000. But I'm not sure. This dataset
-            // is recorder using a kinect like device, but I dont'know which.
-            depthFrame.setItem(y, x, DataInstance::normalise(m_readBuffer[y].depthRow[x], 0, 10000, 0, 1));
+            float value = m_readBuffer[y].depthRow[x];
+
+            if (value != 0) {
+                value = 2.0 + DataInstance::normalise(m_readBuffer[y].depthRow[x], 290, 649, 0, 0.9);
+            }
+
+            depthFrame.setItem(y, x, value);
         }
     }
 }

@@ -64,7 +64,6 @@ void MSRDailySkeletonInstance::restartInstance()
 void MSRDailySkeletonInstance::nextFrame(DataFrame &frame)
 {
     dai::Skeleton& skeleton = (dai::Skeleton&) frame;
-    skeleton.clear();
 
     // Read Data from File
     int nRows = 0;
@@ -93,16 +92,11 @@ void MSRDailySkeletonInstance::nextFrame(DataFrame &frame)
         m_file >> s_z;
         m_file >> s_confidence;
 
-        SkeletonJoint& joint = skeleton.getJoint(convertIntToType(i));
-        joint.setPosition(Point3f(w_x, w_y, w_z));
-        joint.setScreenPosition( Point3f(s_x, s_y, s_z) );
-        joint.setType(convertIntToType(i));
+        SkeletonJoint joint(Point3f(w_x, w_y, w_z));
+        SkeletonJoint::JointType type = convertIntToType(i);
+        skeleton.setJoint(type, joint);
     }
 
-    // Normalise Depth
-    // In skeleton, depth values are in meters. In order to match with depth values I have
-    // to normalise it to be between 0 and 1. Like depth values, Kinect range is 0 to 4 meters.
-    skeleton.normaliseDepth(0, 4, 0, 1);
     skeleton.computeQuaternions();
 }
 

@@ -77,8 +77,9 @@ void MSRDailyDepthInstance::nextFrame(DataFrame &frame)
     for (int y=0; y<m_height; ++y) {
         for (int x=0; x<m_width; ++x)
         {
-            // Normalise: Kinect SDK provide depth values between 0 and 4000 in mm.
-            depthFrame.setItem(y, x, DataInstance::normalise(m_readBuffer[y].depthRow[x], 0, 4000, 0, 1));
+            // Kinect SDK provide depth values between 0 and 4000 in mm.
+            float value = m_readBuffer[y].depthRow[x] / 1000.0f; // I want meters
+            depthFrame.setItem(y, x, value);
         }
     }
 }

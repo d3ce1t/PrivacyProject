@@ -6,6 +6,7 @@ using namespace std;
 
 namespace dai {
 
+
 MSRActionSkeletonInstance::MSRActionSkeletonInstance(const InstanceInfo& info)
     : DataInstance(info)
 {
@@ -75,7 +76,6 @@ void MSRActionSkeletonInstance::restartInstance()
 void MSRActionSkeletonInstance::nextFrame(DataFrame &frame)
 {
     dai::Skeleton& skeleton = (dai::Skeleton&) frame;
-    skeleton.clear();
 
     // Read Data from File
     int nRows = m_nJoints;
@@ -91,13 +91,11 @@ void MSRActionSkeletonInstance::nextFrame(DataFrame &frame)
         m_file >> w_z;
         m_file >> w_confidence;
 
-        SkeletonJoint& joint = skeleton.getJoint(convertIntToType(i));
-        joint.setPosition(Point3f(w_x, w_y, w_z));
-        joint.setType(convertIntToType(i));
+        SkeletonJoint joint(Point3f(w_x, w_y, w_z));
+        SkeletonJoint::JointType type = convertIntToType(i);
+        skeleton.setJoint(type, joint);
     }
 
-    // Normalise Depth. I assume is between 0 and 10 meters. But I don't know.
-    skeleton.normaliseDepth(0, 10, 0, 1);
     skeleton.computeQuaternions();
 }
 

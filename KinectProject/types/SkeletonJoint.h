@@ -44,28 +44,16 @@ public:
         JOINT_RIGHT_FOOT
     };
 
-    explicit SkeletonJoint();
+    SkeletonJoint() = default;
     explicit SkeletonJoint(const Point3f point);
     SkeletonJoint(const SkeletonJoint& other);
     void setPosition(const Point3f point);
-    void setScreenPosition(const Point3f point);
-    void setType(JointType type);
-
-    JointType getType() const;
     const Point3f& getPosition() const;
-    const Point3f& getScreenPosition() const;
-    void enableJoint(bool value);
-
     SkeletonJoint& operator=(const SkeletonJoint& other);
 
 private:
-    JointType   m_type;
-    Point3f     m_realworld_point;    // Real World Point
-    Point3f     m_screen_point; // Screen Point
-    bool        m_used;
+    Point3f     m_realworld_point;    // Real World Point in meters
 };
-
-
 
 } // End Namespace
 

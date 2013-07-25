@@ -12,8 +12,7 @@ namespace dai {
  * @brief The DepthFrame class
  *
  * A depth frame stores a distance measure in each of his x,y coordinates. This
- * distance isn't normalized and could be whatever a dataset wants to.
- *
+ * distance must be provided in meters.
  */
 
 class DepthFrame : public GenericFrame<float>
