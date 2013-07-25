@@ -103,6 +103,21 @@ ApplicationWindow {
                 }
             }
         }
+        Menu {
+            title: "&Window"
+            MenuItem {
+                text: "Show Joints Positions"
+                onTriggered: viewerWindow.showJointsWindow()
+            }
+            MenuItem {
+                text: "Show Joints Distances"
+                onTriggered: viewerWindow.showDistancesWindow()
+            }
+            MenuItem {
+                text: "Show Quaternions"
+                onTriggered: viewerWindow.showQuaternionsWindow()
+            }
+        }
     }
 
     InstanceViewer {

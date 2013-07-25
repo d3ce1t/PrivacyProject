@@ -8,6 +8,9 @@
 #include "filters/FrameFilter.h"
 #include <QMultiHash>
 #include <QObject>
+#include <QTableView>
+#include "types/Skeleton.h"
+#include <QStandardItemModel>
 
 namespace dai {
 
@@ -28,6 +31,9 @@ signals:
 
 public slots:
     void processListItem(QListWidget* widget);
+    void showJointsWindow();
+    void showDistancesWindow();
+    void showQuaternionsWindow();
     //void enableInvisibilityFilter();
     //void enableBlurFilter();
     //void disableColorFilter();
@@ -44,6 +50,13 @@ protected:
 private:
     QList<shared_ptr<DataFrame>> applyFilters(const QList<shared_ptr<DataFrame> > &dataFrames) const;
     shared_ptr<DataFrame> applyFilter(shared_ptr<DataFrame> inputFrame, shared_ptr<UserFrame> userMask = nullptr) const;
+    void setupJointsModel(QStandardItemModel &model);
+    void setupDistancesModel(QStandardItemModel &model);
+    void setupQuaternionModel(QStandardItemModel &model);
+    void feedJointsModel(const Skeleton &skeleton, QStandardItemModel &model);
+    void feedDistancesModel(const Skeleton& skeleton, QStandardItemModel& model);
+    void feedQuaternionsModel(const Skeleton &skeleton, QStandardItemModel& model);
+    float colorIntensity(float value);
 
     float                      m_fps;
     QQmlApplicationEngine      m_engine;
@@ -51,6 +64,16 @@ private:
     QQuickWindow*              m_window;
     QMultiHash<DataFrame::FrameType, shared_ptr<FrameFilter>> m_filters;
     shared_ptr<FrameFilter>    m_activeFilterArray[4];
+
+    // Windows and models for Skeleton data
+    QTableView                 m_joints_table_view;
+    QTableView                 m_distances_table_view;
+    QTableView                 m_quaternions_table_view;
+    QStandardItemModel         m_joints_model;
+    QStandardItemModel         m_distances_model;
+    QStandardItemModel         m_quaternions_model;
+    Quaternion                 m_lastQuaternions[20];
+    long                       m_frameCounter;
 };
 
 } // End Namespace
