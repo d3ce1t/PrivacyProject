@@ -14,13 +14,25 @@ InstanceViewer::InstanceViewer()
     // QML Setup
     connect(this, SIGNAL(windowChanged(QQuickWindow*)), this, SLOT(handleWindowChanged(QQuickWindow*)));
 
-    // Viewer Setup
-    m_painters.insert(dai::DataFrame::Color, new dai::ColorFramePainter(this));
-    m_painters.insert(dai::DataFrame::Depth, new dai::DepthFramePainter(this));
-    m_painters.insert(dai::DataFrame::Skeleton, new dai::SkeletonPainter(this));
-    m_painters.insert(dai::DataFrame::User, new dai::UserFramePainter(this));
+    // Create Painters
+    dai::ColorFramePainter* color = new dai::ColorFramePainter(this);
+    dai::DepthFramePainter* depth = new dai::DepthFramePainter(this);
+    dai::SkeletonPainter* skeleton = new dai::SkeletonPainter(this);
+    dai::UserFramePainter* user = new dai::UserFramePainter(this);
 
-    m_dummyPainter.reset(new dai::DummyPainter(this));
+    // Store Painters in order print order
+    m_painters.append(color);
+    m_painters.append(depth);
+    m_painters.append(skeleton);
+    m_painters.append(user);
+
+    // Index Painters
+    m_paintersIndex.insert(dai::DataFrame::Color, color);
+    m_paintersIndex.insert(dai::DataFrame::Depth, depth);
+    m_paintersIndex.insert(dai::DataFrame::Skeleton, skeleton);
+    m_paintersIndex.insert(dai::DataFrame::User, user);
+
+    //m_dummyPainter.reset(new dai::DummyPainter(this));
 
     m_running = false;
     m_window = nullptr;
@@ -30,10 +42,11 @@ InstanceViewer::InstanceViewer()
 InstanceViewer::~InstanceViewer()
 {
     m_mutex.lock();
-    foreach (dai::Painter* painter, m_painters.values()) {
+    foreach (dai::Painter* painter, m_painters) {
         delete painter;
     }
     m_painters.clear();
+    m_paintersIndex.clear();
     m_mutex.unlock();
     m_running = false;
     m_window = nullptr;
@@ -63,7 +76,7 @@ void InstanceViewer::onNewFrame(QList<shared_ptr<DataFrame> > dataFrames)
 
     m_mutex.lock();
     foreach (shared_ptr<dai::DataFrame> frame, dataFrames) {
-        dai::Painter* painter = m_painters.value(frame->getType());
+        dai::Painter* painter = m_paintersIndex.value(frame->getType());
         if (painter) {
             painter->setMask(userMask);
             painter->prepareData(frame);
@@ -78,7 +91,7 @@ void InstanceViewer::onNewFrame(QList<shared_ptr<DataFrame> > dataFrames)
 
 void InstanceViewer::enableFilter(int filter)
 {
-    dai::ColorFramePainter* painter =  (dai::ColorFramePainter*) m_painters.value(dai::DataFrame::Color);
+    dai::ColorFramePainter* painter =  (dai::ColorFramePainter*) m_paintersIndex.value(dai::DataFrame::Color);
     painter->enableFilter( (QMLEnumsWrapper::ColorFilter) filter);
 }
 
@@ -107,7 +120,7 @@ void InstanceViewer::renderOpenGLScene()
     if (m_running)
     {
         m_mutex.lock();
-        foreach (dai::Painter* painter, m_painters.values()) {
+        foreach (dai::Painter* painter, m_painters) {
             painter->renderNow();
         }
         m_mutex.unlock();
@@ -138,7 +151,7 @@ void InstanceViewer::handleWindowChanged(QQuickWindow *win)
 void InstanceViewer::updatePaintersMatrix()
 {
     m_mutex.lock();
-    foreach (dai::Painter* painter, m_painters.values()) {
+    foreach (dai::Painter* painter, m_painters) {
         painter->setMatrix(m_matrix);
     }
     m_mutex.unlock();

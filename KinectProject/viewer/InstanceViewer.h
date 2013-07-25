@@ -49,11 +49,12 @@ private:
 
     // Private member attributes
     QQuickWindow*                                     m_window;
-    QHash<dai::DataFrame::FrameType, dai::Painter*>   m_painters;
+    QList<dai::Painter*>                              m_painters;
+    QHash<dai::DataFrame::FrameType, dai::Painter*>   m_paintersIndex;
     QMatrix4x4                                        m_matrix;
     bool                                              m_running;
     QMutex                                            m_mutex;
-    shared_ptr<dai::DummyPainter>                     m_dummyPainter;
+    //shared_ptr<dai::DummyPainter>                     m_dummyPainter;
 };
 
 #endif // INSTANCE_VIEWER_H
