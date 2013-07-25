@@ -149,7 +149,7 @@ QList<shared_ptr<StreamInstance> > PlaybackControl::readAllInstances()
 void PlaybackControl::notifyListeners(QList<shared_ptr<StreamInstance>> changedInstances)
 {
     QMultiHash<StreamInstance*, PlaybackListener*> instanceToListenerMap = m_instanceToListenerMap;
-    QHash<PlaybackListener*, QList<shared_ptr<DataFrame>>> sendResult;
+    QHash<PlaybackListener*, QHashDataFrames> sendResult;
 
     foreach (shared_ptr<StreamInstance> instance, changedInstances)
     {
@@ -158,10 +158,9 @@ void PlaybackControl::notifyListeners(QList<shared_ptr<StreamInstance>> changedI
 
         foreach (PlaybackListener* listener, listenerList)
         {
-           QList<shared_ptr<DataFrame>> listFrames;
-           listFrames = sendResult.value(listener);
-           listFrames << frame;
-           sendResult.insert(listener, listFrames);
+           QHashDataFrames hashFrames = sendResult.value(listener); // gets a copy
+           hashFrames.insert(frame->getType(), frame);
+           sendResult.insert(listener, hashFrames);
         }
     }
 

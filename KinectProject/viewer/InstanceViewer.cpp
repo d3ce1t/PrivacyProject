@@ -53,25 +53,19 @@ InstanceViewer::~InstanceViewer()
     qDebug() << "InstanceViewer::~InstanceViewer()";
 }
 
-void InstanceViewer::onNewFrame(QList<shared_ptr<DataFrame> > dataFrames)
+void InstanceViewer::onNewFrame(QHashDataFrames dataFrames)
 {
     m_running = true;
 
-    shared_ptr<dai::UserFrame> userMask;
-    int i = 0;
+    shared_ptr<dai::UserFrame> userMask = nullptr;
 
-    // HACK: Get UserFrame
-    while (!userMask && i < dataFrames.size())
+    // Get UserFrame in order to use as mask
+    if (dataFrames.contains(DataFrame::User))
     {
-        shared_ptr<dai::DataFrame> frame = dataFrames.at(i);
+        userMask = static_pointer_cast<UserFrame>( dataFrames.value(DataFrame::User) );
 
-        if (frame->getType() == dai::DataFrame::User) {
-            userMask = static_pointer_cast<dai::UserFrame>(frame);
-            if (dataFrames.size() > 1) // I only show user mask if it's the only one frame
-                dataFrames.removeAt(i);
-        }
-
-        i++;
+        if (dataFrames.size() > 1) // I only show user mask if it's the only one frame
+            dataFrames.remove(DataFrame::User);
     }
 
     m_mutex.lock();

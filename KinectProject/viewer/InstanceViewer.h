@@ -25,7 +25,7 @@ public:
     virtual ~InstanceViewer();
 
 public slots:
-    void onNewFrame(QList<shared_ptr<DataFrame> > dataFrames);
+    void onNewFrame(QHashDataFrames dataFrames);
     void enableFilter(int filter);
     void resetPerspective();
     void rotateAxisX(float angle);

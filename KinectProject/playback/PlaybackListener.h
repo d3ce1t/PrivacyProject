@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <types/DataFrame.h>
+#include <QHash>
 #include <QWaitCondition>
 #include <QMutex>
 
@@ -22,7 +23,8 @@ public:
     PlaybackControl* playback();
 
 protected:
-    virtual void onNewFrame(const QList<shared_ptr<DataFrame>>& frames) = 0;
+    // This method must be synchronous, so notifier block until it ends
+    virtual void onNewFrame(const QHash<DataFrame::FrameType, shared_ptr<DataFrame>>& frames) = 0;
     virtual void onPlaybackStart() = 0;
     virtual void onPlaybackStop() = 0;
 

@@ -3,6 +3,7 @@
 
 #include <QList>
 #include <memory>
+#include <QHash>
 
 using namespace std;
 
@@ -33,6 +34,8 @@ protected:
     unsigned int m_index;
     FrameType m_type;
 };
+
+typedef QHash<DataFrame::FrameType,shared_ptr<DataFrame>> QHashDataFrames;
 
 } // End Namespace
 

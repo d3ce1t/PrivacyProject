@@ -43,12 +43,11 @@ private slots:
     void completeAsyncTask();
 
 protected:
-    void onNewFrame(const QList<shared_ptr<DataFrame>>& dataFrames);
+    void onNewFrame(const QHash<DataFrame::FrameType, shared_ptr<DataFrame>>& dataFrames);
     void onPlaybackStart();
     void onPlaybackStop();
 
 private:
-    QList<shared_ptr<DataFrame>> applyFilters(const QList<shared_ptr<DataFrame> > &dataFrames) const;
     shared_ptr<DataFrame> applyFilter(shared_ptr<DataFrame> inputFrame, shared_ptr<UserFrame> userMask = nullptr) const;
     void setupJointsModel(QStandardItemModel &model);
     void setupDistancesModel(QStandardItemModel &model);

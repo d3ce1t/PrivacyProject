@@ -117,16 +117,34 @@ void InstanceViewerWindow::onPlaybackStop()
 }
 
 // called from Notifier thread
-void InstanceViewerWindow:: onNewFrame(const QList<shared_ptr<DataFrame> > &dataFrames)
+void InstanceViewerWindow::onNewFrame(const QHash<DataFrame::FrameType, shared_ptr<DataFrame>>& dataFrames)
 {
-    // Filter
-    QList<shared_ptr<DataFrame> > filteredFrames = applyFilters(dataFrames);
+    QHash<DataFrame::FrameType, shared_ptr<DataFrame>> filteredFrames;
+    shared_ptr<UserFrame> userMask;
+
+    // Get UserFrame in order to use as mask
+    if (dataFrames.contains(DataFrame::User)) {
+        // Apply Filter to Mask for later use
+        shared_ptr<DataFrame> filteredUserMask = applyFilter( dataFrames.value(DataFrame::User) );
+        userMask = static_pointer_cast<UserFrame>( filteredUserMask );
+        filteredFrames.insert(DataFrame::User, userMask);
+    }
+
+    // Then apply filters to the rest of frames
+    foreach (shared_ptr<DataFrame> inputFrame, dataFrames) {
+        if (inputFrame->getType() == DataFrame::User) {
+            continue;
+        }
+
+        shared_ptr<DataFrame> outputFrame = applyFilter(inputFrame, userMask);
+        filteredFrames.insert(outputFrame->getType(), outputFrame);
+    }
 
     // Sent to viewer
     // I want to execute method in the thread it belongs to
     QMetaObject::invokeMethod(m_viewer, "onNewFrame",
                                   Qt::AutoConnection,
-                                  Q_ARG(QList<shared_ptr<DataFrame>>, filteredFrames));
+                                  Q_ARG(QHashDataFrames, filteredFrames));
 
     // ¿Why this cause flickering?
     m_fps = playback()->getFPS();
@@ -139,39 +157,6 @@ void InstanceViewerWindow:: onNewFrame(const QList<shared_ptr<DataFrame> > &data
 void InstanceViewerWindow::completeAsyncTask()
 {
     PlaybackListener::endAsyncTask();
-}
-
-QList<shared_ptr<DataFrame> > InstanceViewerWindow::applyFilters(const QList<shared_ptr<DataFrame>> &dataFrames) const
-{
-    QList<shared_ptr<DataFrame>> filteredFrameList;
-    shared_ptr<UserFrame> userMask;
-    int i = 0;
-
-    // HACK: First I get the userframe (if it exists) and apply their filter
-    // I will use userframe as user mask
-    while (!userMask && i < dataFrames.size())
-    {
-        shared_ptr<DataFrame> frame = dataFrames.at(i);
-
-        if (frame->getType() == DataFrame::User) {
-            userMask = static_pointer_cast<UserFrame>(applyFilter(frame));
-            filteredFrameList << userMask;
-        }
-
-        i++;
-    }
-
-    // Filter rest of frames, using userMask
-    foreach (shared_ptr<DataFrame> inputFrame, dataFrames)
-    {
-        if (inputFrame->getType() == DataFrame::User) {
-            continue;
-        }
-
-        filteredFrameList << applyFilter(inputFrame, userMask);
-    }
-
-    return filteredFrameList;
 }
 
 shared_ptr<DataFrame> InstanceViewerWindow::applyFilter(shared_ptr<DataFrame> inputFrame, shared_ptr<UserFrame> userMask) const
