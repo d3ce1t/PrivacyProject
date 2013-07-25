@@ -68,7 +68,8 @@ HEADERS += \
     playback/PlaybackListener.h \
     playback/PlaybackControl.h \
     openni/OpenNIUserInstance.h \
-    openni/OpenNISkeletonInstance.h
+    openni/OpenNISkeletonInstance.h \
+    viewer/TestListener.h
 
 SOURCES += \
     dataset/MSRAction3D/MSR3Action3D.cpp \
@@ -125,7 +126,8 @@ SOURCES += \
     playback/PlaybackListener.cpp \
     playback/PlaybackControl.cpp \
     openni/OpenNIUserInstance.cpp \
-    openni/OpenNISkeletonInstance.cpp
+    openni/OpenNISkeletonInstance.cpp \
+    viewer/TestListener.cpp
 
 RESOURCES += openglunderqml.qrc
 
