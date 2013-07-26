@@ -41,6 +41,7 @@ public slots:
 private slots:
     float getFPS() const;
     void completeAsyncTask();
+    void feedDataModels(shared_ptr<Skeleton> skeleton);
 
 protected:
     void onNewFrame(const QHash<DataFrame::FrameType, shared_ptr<DataFrame>>& dataFrames);

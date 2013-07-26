@@ -146,6 +146,14 @@ void InstanceViewerWindow::onNewFrame(const QHash<DataFrame::FrameType, shared_p
                                   Qt::AutoConnection,
                                   Q_ARG(QHashDataFrames, filteredFrames));
 
+    // Feed skeleton data models
+    if (dataFrames.contains(DataFrame::Skeleton)) {
+        shared_ptr<Skeleton> skeleton = static_pointer_cast<Skeleton>( dataFrames.value(DataFrame::Skeleton) );
+        QMetaObject::invokeMethod(this, "feedDataModels",
+                                      Qt::AutoConnection,
+                                      Q_ARG(shared_ptr<Skeleton>, skeleton));
+    }
+
     // ¿Why this cause flickering?
     m_fps = playback()->getFPS();
     emit changeOfStatus();
@@ -355,6 +363,18 @@ void InstanceViewerWindow::setupQuaternionModel(QStandardItemModel &model)
             model.setItem(i, j, item);
         }
     }
+}
+
+void InstanceViewerWindow::feedDataModels(shared_ptr<Skeleton> skeleton)
+{
+    if (m_joints_table_view.isVisible())
+        feedJointsModel(*skeleton, m_joints_model);
+
+    if (m_distances_table_view.isVisible())
+        feedDistancesModel(*skeleton, m_distances_model);
+
+    if (m_quaternions_table_view.isVisible())
+        feedQuaternionsModel(*skeleton, m_quaternions_model);
 }
 
 void InstanceViewerWindow::feedJointsModel(const Skeleton& skeleton, QStandardItemModel& model)
