@@ -237,19 +237,21 @@ void OpenNIRuntime::oniLoadSkeleton()
     if (m_activeUser != -1)
     {
         const nite::Skeleton& oniSkeleton = users[m_activeUser].getSkeleton();
-        m_skeleton.clear();
+        //m_skeleton.clear();
 
         for (int i=0; i<15; ++i)
         {
-            SkeletonJoint& joint = m_skeleton.getJoint(mapNiteToOwn(i));
+            // Load nite::SkeletonJoint
             const nite::SkeletonJoint& niteJoint = oniSkeleton.getJoint((nite::JointType) i);
             nite::Point3f nitePos = niteJoint.getPosition();
-            joint.setPosition(Point3f(nitePos.x, nitePos.y, nitePos.z));
-            joint.setType(mapNiteToOwn(i));
-            joint.enableJoint(true);
+
+            // Create my own Joint
+            SkeletonJoint joint(Point3f(nitePos.x, nitePos.y, nitePos.z));
+            SkeletonJoint::JointType type = mapNiteToOwn(i);
+            m_skeleton.setJoint(type, joint);
         }
 
-        m_skeleton.normaliseDepth(0, 10000, 0, 1);
+        // m_skeleton.normaliseDepth(0, 10000, 0, 1);
         m_skeleton.computeQuaternions();
     }
 }
