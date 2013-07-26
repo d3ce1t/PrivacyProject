@@ -14,10 +14,12 @@
 #include "openni/OpenNIUserInstance.h"
 #include "openni/OpenNISkeletonInstance.h"
 #include "types/DepthFrame.h"
+#include "types/SkeletonFrame.h"
 #include "types/DataFrame.h"
 #include "playback/PlaybackControl.h"
 #include "viewer/InstanceViewerWindow.h"
 #include "viewer/InstanceRecorder.h"
+#include "viewer/TestListener.h"
 #include "KMeans.h"
 #include "DepthSeg.h"
 
@@ -173,12 +175,12 @@ void MainWindow::on_btnParseDataset_clicked()
         {
             dataInstance->readNextFrame();
 
-            shared_ptr<dai::Skeleton> skeletonFrame = static_pointer_cast<dai::Skeleton>(dataInstance->frame());
+            shared_ptr<dai::SkeletonFrame> skeletonFrame = static_pointer_cast<dai::SkeletonFrame>(dataInstance->frame());
             of << (skeletonFrame->getIndex() + 1) << endl;
 
             for (int i=0; i<17; ++i) {
                 dai::Quaternion::QuaternionType type = (dai::Quaternion::QuaternionType) i;
-                const dai::Quaternion& quaternion = skeletonFrame->getQuaternion(type);
+                const dai::Quaternion& quaternion = skeletonFrame->getSkeleton(1)->getQuaternion(type);
 
                 float w = quaternion.scalar();
                 float x = quaternion.vector().x();
@@ -201,12 +203,16 @@ void MainWindow::on_btnParseDataset_clicked()
 
 void MainWindow::on_btnTest_clicked()
 {
-    dai::DAIDataset dataset;
+    //searchMinAndMaxDepth();
+
+    //dai::DAIDataset dataset;
+    dai::MSR3Action3D dataset;
 
     // Create instances
-    shared_ptr<dai::DataInstance> colorInstance = dataset.getColorInstance(1, 1, 1);
-    //dai::DAIDepthInstance* depthInstance = dataset.getDepthInstance(1, 1, 1);
-    shared_ptr<dai::DataInstance> userInstance = dataset.getUserInstance(1, 1, 1);
+    //shared_ptr<dai::DataInstance> colorInstance = dataset.getColorInstance(1, 1, 1);
+    shared_ptr<dai::DataInstance> depthInstance = dataset.getDepthInstance(17, 1, 2);
+    //shared_ptr<dai::DataInstance> userInstance = dataset.getUserInstance(1, 1, 1);
+    shared_ptr<dai::DataInstance> skeletonInstance = dataset.getSkeletonInstance(17, 1, 2);
 
     // Create playback to control instances reading
     dai::PlaybackControl* playback = new dai::PlaybackControl;
@@ -214,23 +220,30 @@ void MainWindow::on_btnTest_clicked()
     connect(playback, &dai::PlaybackControl::onPlaybackFinished, playback, &dai::PlaybackControl::deleteLater);
 
     // Create Viewers
-    dai::InstanceViewerWindow* colorViewer = new dai::InstanceViewerWindow;
+    //dai::InstanceViewerWindow* colorViewer = new dai::InstanceViewerWindow;
     //dai::InstanceViewerWindow* depthViewer = new dai::InstanceViewerWindow;
     //dai::InstanceViewerWindow* userViewer = new dai::InstanceViewerWindow;
+    dai::InstanceViewerWindow* skeletonViewer = new dai::InstanceViewerWindow;
+    //dai::TestListener* skeletonViewer = new dai::TestListener;
 
     // Connect all together
-    playback->addInstance(colorInstance);
+    //playback->addInstance(colorInstance);
     //playback->addInstance(depthInstance);
-    playback->addInstance(userInstance);
+    //playback->addInstance(userInstance);
+    playback->addInstance(skeletonInstance);
+    playback->addInstance(depthInstance);
 
-    playback->addListener(colorViewer, colorInstance);
-    playback->addListener(colorViewer, userInstance);
+    //playback->addListener(colorViewer, colorInstance);
+    //playback->addListener(colorViewer, userInstance);
     //playback->addNewFrameListener(depthViewer, depthInstance);
     //playback->addNewFrameListener(userViewer, userInstance);
     //playback->addNewFrameListener(recorder, userInstance);
+    playback->addListener(skeletonViewer, skeletonInstance);
+    playback->addListener(skeletonViewer, depthInstance);
 
     playback->play();
-    colorViewer->show();
+    skeletonViewer->show();
+    //colorViewer->show();
     //depthViewer->show();
     //userViewer->show();
 }
@@ -272,4 +285,37 @@ void MainWindow::on_btnStartKinect_clicked()
     //depthViewer->show();
     //userViewer->show();
     //skeletonViewer->show();
+}
+
+void MainWindow::searchMinAndMaxDepth()
+{
+    dai::MSR3Action3D* dataset = new dai::MSR3Action3D();
+    const dai::DatasetMetadata& dsMetadata = dataset->getMetadata();
+    const dai::InstanceInfoList* instances = dsMetadata.instances(dai::InstanceInfo::Depth);
+
+    QListIterator<dai::InstanceInfo*> it(*instances);
+    int framesProcessed = 0;
+
+    // Traverse all dataset instances
+    while (it.hasNext())
+    {
+        dai::InstanceInfo* info = it.next();
+        shared_ptr<dai::DataInstance> dataInstance = dataset->getDepthInstance(info->getActivity(), info->getActor(), info->getSample());
+
+        dataInstance->open();
+
+        qDebug() << "Instance" << info->getActivity() << info->getActor() << info->getSample() << "open";
+
+        // Traverse each frame of this instance
+        while (dataInstance->hasNext())
+        {
+            dataInstance->readNextFrame();
+            //shared_ptr<dai::DepthFrame> depthFrame = static_pointer_cast<dai::DepthFrame>(dataInstance->frame());
+            framesProcessed++;
+            //qDebug() << "Frame: " << framesProcessed;
+        }
+
+        qDebug() << "Close instance";
+        dataInstance->close();
+    }
 }

@@ -2,7 +2,7 @@
 #define MSRDAILYSKELETONINSTANCE_H
 
 #include "dataset/DataInstance.h"
-#include "types/Skeleton.h"
+#include "types/SkeletonFrame.h"
 #include <fstream>
 
 using namespace std;
@@ -27,7 +27,7 @@ private:
 
     ifstream         m_file;
     int              m_nJoints;
-    shared_ptr<dai::Skeleton> m_frameBuffer[2];
+    shared_ptr<SkeletonFrame> m_frameBuffer[2];
 };
 
 } // End of namespace

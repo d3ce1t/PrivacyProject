@@ -2,13 +2,14 @@
 #define DATASETBROWSER_H
 
 #include <QMainWindow>
-#include <QListWidgetItem>
 #include "dataset/Dataset.h"
 #include "playback/PlaybackControl.h"
 
 namespace Ui {
     class DatasetBrowser;
 }
+
+class QListWidgetItem;
 
 class DatasetBrowser : public QMainWindow
 {

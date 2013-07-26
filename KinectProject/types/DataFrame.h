@@ -20,8 +20,13 @@ public:
         User
     };
 
+    // Constructor
     DataFrame(FrameType type);
     DataFrame(const DataFrame& other);
+
+    // Destructor
+    ~DataFrame() = default;
+
     virtual shared_ptr<DataFrame> clone() const = 0;
     void setIndex(unsigned int index);
     unsigned int getIndex() const;

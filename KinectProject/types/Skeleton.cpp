@@ -1,12 +1,9 @@
 #include "Skeleton.h"
-#include <limits>
-#include <QDebug>
-#include "../dataset/DataInstance.h"
 
 namespace dai {
 
 // Quaternions Map
-SkeletonJoint::JointType Skeleton::m_map[20][3] = {
+SkeletonJoint::JointType Skeleton::staticMap[20][3] = {
     {SkeletonJoint::JOINT_HEAD,             SkeletonJoint::JOINT_CENTER_SHOULDER,   SkeletonJoint::JOINT_SPINE}, // Q1
     {SkeletonJoint::JOINT_HEAD,             SkeletonJoint::JOINT_CENTER_SHOULDER,   SkeletonJoint::JOINT_LEFT_SHOULDER}, // Q2
     {SkeletonJoint::JOINT_HEAD,             SkeletonJoint::JOINT_CENTER_SHOULDER,   SkeletonJoint::JOINT_RIGHT_SHOULDER}, // Q3
@@ -29,13 +26,7 @@ SkeletonJoint::JointType Skeleton::m_map[20][3] = {
     {SkeletonJoint::JOINT_LEFT_HIP,         SkeletonJoint::JOINT_CENTER_HIP,        SkeletonJoint::JOINT_RIGHT_HIP} // Q20
 };
 
-Skeleton::Skeleton()
-    : DataFrame(DataFrame::Skeleton)
-{
-}
-
 Skeleton::Skeleton(const Skeleton& other)
-    : DataFrame(other)
 {
     for (int i=0; i<MAX_JOINTS; ++i) {
         m_joints[i] = other.m_joints[i];
@@ -63,14 +54,9 @@ const Quaternion& Skeleton::getQuaternion(Quaternion::QuaternionType type) const
     return m_quaternions[type];
 }
 
- int Skeleton::getJointsCount() const
- {
-     return MAX_JOINTS;
- }
-
-shared_ptr<DataFrame> Skeleton::clone() const
+int Skeleton::getJointsCount() const
 {
-    return shared_ptr<DataFrame>(new Skeleton(*this));
+    return MAX_JOINTS;
 }
 
 void Skeleton::setJoint(SkeletonJoint::JointType type, const SkeletonJoint& joint)
@@ -82,9 +68,9 @@ void Skeleton::computeQuaternions()
 {
     // Quaternions
     for (int i=0; i<20; ++i) {
-        SkeletonJoint::JointType joint1 = m_map[i][0];
-        SkeletonJoint::JointType joint2 = m_map[i][1]; // vertex
-        SkeletonJoint::JointType joint3 = m_map[i][2];
+        SkeletonJoint::JointType joint1 = staticMap[i][0];
+        SkeletonJoint::JointType joint2 = staticMap[i][1]; // vertex
+        SkeletonJoint::JointType joint3 = staticMap[i][2];
         m_quaternions[i] = Quaternion::getRotationBetween(m_joints[joint1].getPosition(),
                                                           m_joints[joint3].getPosition(),
                                                           m_joints[joint2].getPosition());

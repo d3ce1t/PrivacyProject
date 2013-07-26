@@ -19,14 +19,14 @@ void SkeletonPainter::initialise()
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
-Skeleton& SkeletonPainter::frame()
+SkeletonFrame &SkeletonPainter::frame()
 {
     return *m_frame;
 }
 
 void SkeletonPainter::prepareData(shared_ptr<DataFrame> frame)
 {
-    m_frame = static_pointer_cast<Skeleton>(frame);
+    m_frame = static_pointer_cast<SkeletonFrame>(frame);
 }
 
 void SkeletonPainter::render()
@@ -34,56 +34,61 @@ void SkeletonPainter::render()
     if (m_frame == nullptr)
         return;
 
-    drawLimb(m_frame->getJoint(dai::SkeletonJoint::JOINT_HEAD), m_frame->getJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER));
-    drawLimb(m_frame->getJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER), m_frame->getJoint(dai::SkeletonJoint::JOINT_SPINE));
-    drawLimb(m_frame->getJoint(dai::SkeletonJoint::JOINT_SPINE), m_frame->getJoint(dai::SkeletonJoint::JOINT_CENTER_HIP));
+    foreach (int userId, m_frame->getAllUsersId())
+    {
+        const dai::Skeleton& skeleton = *(m_frame->getSkeleton(userId));
 
-    // Left Part
-    drawLimb(m_frame->getJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER), m_frame->getJoint(dai::SkeletonJoint::JOINT_LEFT_SHOULDER));
-    drawLimb(m_frame->getJoint(dai::SkeletonJoint::JOINT_LEFT_SHOULDER), m_frame->getJoint(dai::SkeletonJoint::JOINT_LEFT_ELBOW));
-    drawLimb(m_frame->getJoint(dai::SkeletonJoint::JOINT_LEFT_ELBOW), m_frame->getJoint(dai::SkeletonJoint::JOINT_LEFT_WRIST));
-    drawLimb(m_frame->getJoint(dai::SkeletonJoint::JOINT_LEFT_WRIST), m_frame->getJoint(dai::SkeletonJoint::JOINT_LEFT_HAND));
+        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_HEAD), skeleton.getJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER));
+        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER), skeleton.getJoint(dai::SkeletonJoint::JOINT_SPINE));
+        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_SPINE), skeleton.getJoint(dai::SkeletonJoint::JOINT_CENTER_HIP));
 
-    drawLimb(m_frame->getJoint(dai::SkeletonJoint::JOINT_CENTER_HIP), m_frame->getJoint(dai::SkeletonJoint::JOINT_LEFT_HIP));
-    drawLimb(m_frame->getJoint(dai::SkeletonJoint::JOINT_LEFT_HIP), m_frame->getJoint(dai::SkeletonJoint::JOINT_LEFT_KNEE));
-    drawLimb(m_frame->getJoint(dai::SkeletonJoint::JOINT_LEFT_KNEE), m_frame->getJoint(dai::SkeletonJoint::JOINT_LEFT_ANKLE));
-    drawLimb(m_frame->getJoint(dai::SkeletonJoint::JOINT_LEFT_ANKLE), m_frame->getJoint(dai::SkeletonJoint::JOINT_LEFT_FOOT));
+        // Left Part
+        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER), skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_SHOULDER));
+        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_SHOULDER), skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_ELBOW));
+        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_ELBOW), skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_WRIST));
+        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_WRIST), skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_HAND));
 
-    // Right Part
-    drawLimb(m_frame->getJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER), m_frame->getJoint(dai::SkeletonJoint::JOINT_RIGHT_SHOULDER));
-    drawLimb(m_frame->getJoint(dai::SkeletonJoint::JOINT_RIGHT_SHOULDER), m_frame->getJoint(dai::SkeletonJoint::JOINT_RIGHT_ELBOW));
-    drawLimb(m_frame->getJoint(dai::SkeletonJoint::JOINT_RIGHT_ELBOW), m_frame->getJoint(dai::SkeletonJoint::JOINT_RIGHT_WRIST));
-    drawLimb(m_frame->getJoint(dai::SkeletonJoint::JOINT_RIGHT_WRIST), m_frame->getJoint(dai::SkeletonJoint::JOINT_RIGHT_HAND));
+        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_CENTER_HIP), skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_HIP));
+        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_HIP), skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_KNEE));
+        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_KNEE), skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_ANKLE));
+        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_ANKLE), skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_FOOT));
 
-    drawLimb(m_frame->getJoint(dai::SkeletonJoint::JOINT_CENTER_HIP), m_frame->getJoint(dai::SkeletonJoint::JOINT_RIGHT_HIP));
-    drawLimb(m_frame->getJoint(dai::SkeletonJoint::JOINT_RIGHT_HIP), m_frame->getJoint(dai::SkeletonJoint::JOINT_RIGHT_KNEE));
-    drawLimb(m_frame->getJoint(dai::SkeletonJoint::JOINT_RIGHT_KNEE), m_frame->getJoint(dai::SkeletonJoint::JOINT_RIGHT_ANKLE));
-    drawLimb(m_frame->getJoint(dai::SkeletonJoint::JOINT_RIGHT_ANKLE), m_frame->getJoint(dai::SkeletonJoint::JOINT_RIGHT_FOOT));
+        // Right Part
+        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER), skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_SHOULDER));
+        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_SHOULDER), skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_ELBOW));
+        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_ELBOW), skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_WRIST));
+        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_WRIST), skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_HAND));
 
-    QVector3D red(1.0, 0.0, 0.0);
-    QVector3D green(0.0, 1.0, 0.0);
-    QVector3D black(0.0, 0.0, 0.0);
+        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_CENTER_HIP), skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_HIP));
+        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_HIP), skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_KNEE));
+        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_KNEE), skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_ANKLE));
+        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_ANKLE), skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_FOOT));
 
-    drawJoint(m_frame->getJoint(dai::SkeletonJoint::JOINT_HEAD), black);
-    drawJoint(m_frame->getJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER), black);
-    drawJoint(m_frame->getJoint(dai::SkeletonJoint::JOINT_SPINE), black);
-    drawJoint(m_frame->getJoint(dai::SkeletonJoint::JOINT_CENTER_HIP), black);
-    drawJoint(m_frame->getJoint(dai::SkeletonJoint::JOINT_LEFT_SHOULDER), red);
-    drawJoint(m_frame->getJoint(dai::SkeletonJoint::JOINT_LEFT_ELBOW), red);
-    drawJoint(m_frame->getJoint(dai::SkeletonJoint::JOINT_LEFT_WRIST), red);
-    drawJoint(m_frame->getJoint(dai::SkeletonJoint::JOINT_LEFT_HAND), red);
-    drawJoint(m_frame->getJoint(dai::SkeletonJoint::JOINT_LEFT_HIP), red);
-    drawJoint(m_frame->getJoint(dai::SkeletonJoint::JOINT_LEFT_KNEE), red);
-    drawJoint(m_frame->getJoint(dai::SkeletonJoint::JOINT_LEFT_ANKLE), red);
-    drawJoint(m_frame->getJoint(dai::SkeletonJoint::JOINT_LEFT_FOOT), red);
-    drawJoint(m_frame->getJoint(dai::SkeletonJoint::JOINT_RIGHT_SHOULDER), green);
-    drawJoint(m_frame->getJoint(dai::SkeletonJoint::JOINT_RIGHT_ELBOW), green);
-    drawJoint(m_frame->getJoint(dai::SkeletonJoint::JOINT_RIGHT_WRIST), green);
-    drawJoint(m_frame->getJoint(dai::SkeletonJoint::JOINT_RIGHT_HAND), green);
-    drawJoint(m_frame->getJoint(dai::SkeletonJoint::JOINT_RIGHT_HIP), green);
-    drawJoint(m_frame->getJoint(dai::SkeletonJoint::JOINT_RIGHT_KNEE), green);
-    drawJoint(m_frame->getJoint(dai::SkeletonJoint::JOINT_RIGHT_ANKLE), green);
-    drawJoint(m_frame->getJoint(dai::SkeletonJoint::JOINT_RIGHT_FOOT), green);
+        QVector3D red(1.0, 0.0, 0.0);
+        QVector3D green(0.0, 1.0, 0.0);
+        QVector3D black(0.0, 0.0, 0.0);
+
+        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_HEAD), black);
+        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER), black);
+        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_SPINE), black);
+        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_CENTER_HIP), black);
+        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_SHOULDER), red);
+        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_ELBOW), red);
+        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_WRIST), red);
+        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_HAND), red);
+        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_HIP), red);
+        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_KNEE), red);
+        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_ANKLE), red);
+        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_FOOT), red);
+        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_SHOULDER), green);
+        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_ELBOW), green);
+        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_WRIST), green);
+        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_HAND), green);
+        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_HIP), green);
+        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_KNEE), green);
+        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_ANKLE), green);
+        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_FOOT), green);
+    }
 }
 
 void SkeletonPainter::prepareShaderProgram()

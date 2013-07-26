@@ -1,7 +1,6 @@
 #ifndef SKELETON_H
 #define SKELETON_H
 
-#include "DataFrame.h"
 #include "SkeletonJoint.h"
 #include "Quaternion.h"
 #include <QVector3D>
@@ -15,18 +14,17 @@ namespace dai {
  *
  * @brief The Skeleton class
  */
-class Skeleton : public DataFrame
+class Skeleton
 {
 public:
     // Constructors
-    Skeleton();
+    Skeleton() = default;
     Skeleton(const Skeleton& other);
 
     // Methods
     const SkeletonJoint& getJoint(SkeletonJoint::JointType type) const;
     const Quaternion& getQuaternion(Quaternion::QuaternionType type) const;
     int getJointsCount() const;
-    shared_ptr<DataFrame> clone() const;
     void setJoint(SkeletonJoint::JointType type, const SkeletonJoint& joint);
     void computeQuaternions();
 
@@ -34,7 +32,7 @@ public:
     Skeleton& operator=(const Skeleton& other);
 
 private:
-    static SkeletonJoint::JointType m_map[20][3];
+    static SkeletonJoint::JointType staticMap[20][3];
 
     SkeletonJoint m_joints[MAX_JOINTS]; // joints with real world coordinates in meters
     Quaternion m_quaternions[MAX_JOINTS];

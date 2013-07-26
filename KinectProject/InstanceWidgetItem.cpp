@@ -1,12 +1,10 @@
 #include "InstanceWidgetItem.h"
 
-namespace dai {
-
 InstanceWidgetItem::InstanceWidgetItem()
 {
 }
 
-InstanceWidgetItem::InstanceWidgetItem(const QString& text, QListWidget*& list)
+InstanceWidgetItem::InstanceWidgetItem(const QString& text, QListWidget *list)
     : QListWidgetItem(text, list)
 {
 
@@ -21,5 +19,3 @@ InstanceInfo& InstanceWidgetItem::getInfo()
 {
     return m_info;
 }
-
-} // End Namespace

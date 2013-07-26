@@ -4,9 +4,7 @@
 #include "Painter.h"
 #include <QMatrix4x4>
 #include <QOpenGLBuffer>
-#include "../types/Skeleton.h"
-#include "../types/SkeletonJoint.h"
-#include "../types/Quaternion.h"
+#include "types/SkeletonFrame.h"
 
 namespace dai {
 
@@ -15,7 +13,7 @@ class SkeletonPainter : public Painter
 public:
     explicit SkeletonPainter(InstanceViewer* parent);
     void prepareData(shared_ptr<DataFrame> frame);
-    Skeleton& frame();
+    SkeletonFrame& frame();
 
 protected:
     void initialise();
@@ -23,10 +21,10 @@ protected:
 
 private:
     void prepareShaderProgram();
-    void drawLimb(const dai::SkeletonJoint& joint1, const dai::SkeletonJoint& joint2);
-    void drawJoint(const dai::SkeletonJoint& joint, const QVector3D& color);
+    void drawLimb(const SkeletonJoint& joint1, const SkeletonJoint& joint2);
+    void drawJoint(const SkeletonJoint& joint, const QVector3D& color);
 
-    shared_ptr<Skeleton>    m_frame;
+    shared_ptr<SkeletonFrame> m_frame;
 
     // OpenGL identifiers
     GLuint                  m_posAttr;

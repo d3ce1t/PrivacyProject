@@ -5,8 +5,6 @@
 #include "dataset/Dataset.h"
 #include "dataset/InstanceInfo.h"
 #include "types/UserFrame.h"
-#include "types/SkeletonJoint.h"
-#include "types/Quaternion.h"
 #include "filters/InvisibilityFilter.h"
 #include "filters/DilateUserFilter.h"
 #include "filters/BlurFilter.h"
@@ -148,10 +146,10 @@ void InstanceViewerWindow::onNewFrame(const QHash<DataFrame::FrameType, shared_p
 
     // Feed skeleton data models
     if (dataFrames.contains(DataFrame::Skeleton)) {
-        shared_ptr<Skeleton> skeleton = static_pointer_cast<Skeleton>( dataFrames.value(DataFrame::Skeleton) );
+        shared_ptr<SkeletonFrame> skeleton = static_pointer_cast<SkeletonFrame>( dataFrames.value(DataFrame::Skeleton) );
         QMetaObject::invokeMethod(this, "feedDataModels",
                                       Qt::AutoConnection,
-                                      Q_ARG(shared_ptr<Skeleton>, skeleton));
+                                      Q_ARG(shared_ptr<SkeletonFrame>, skeleton));
     }
 
     // ¿Why this cause flickering?
@@ -365,16 +363,27 @@ void InstanceViewerWindow::setupQuaternionModel(QStandardItemModel &model)
     }
 }
 
-void InstanceViewerWindow::feedDataModels(shared_ptr<Skeleton> skeleton)
+void InstanceViewerWindow::feedDataModels(shared_ptr<SkeletonFrame> skeletonFrame)
 {
-    if (m_joints_table_view.isVisible())
-        feedJointsModel(*skeleton, m_joints_model);
+    if (!skeletonFrame)
+        return;
 
-    if (m_distances_table_view.isVisible())
-        feedDistancesModel(*skeleton, m_distances_model);
+    QList<int> allUsers = skeletonFrame->getAllUsersId();
 
-    if (m_quaternions_table_view.isVisible())
-        feedQuaternionsModel(*skeleton, m_quaternions_model);
+    if (!allUsers.isEmpty()) {
+
+        int userId = allUsers.first();
+        const Skeleton& skeleton = *(skeletonFrame->getSkeleton(userId));
+
+        if (m_joints_table_view.isVisible())
+            feedJointsModel(skeleton, m_joints_model);
+
+        if (m_distances_table_view.isVisible())
+            feedDistancesModel(skeleton, m_distances_model);
+
+        if (m_quaternions_table_view.isVisible())
+            feedQuaternionsModel(skeleton, m_quaternions_model);
+    }
 }
 
 void InstanceViewerWindow::feedJointsModel(const Skeleton& skeleton, QStandardItemModel& model)

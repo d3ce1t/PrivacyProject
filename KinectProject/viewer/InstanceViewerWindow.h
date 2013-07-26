@@ -3,14 +3,16 @@
 
 #include <QQuickWindow>
 #include "playback/PlaybackListener.h"
-#include "viewer/InstanceViewer.h"
-#include <QQmlApplicationEngine>
 #include "filters/FrameFilter.h"
+#include "types/SkeletonFrame.h"
+#include <QQmlApplicationEngine>
 #include <QMultiHash>
 #include <QObject>
 #include <QTableView>
-#include "types/Skeleton.h"
 #include <QStandardItemModel>
+
+class InstanceViewer;
+class QListWidget;
 
 namespace dai {
 
@@ -41,7 +43,7 @@ public slots:
 private slots:
     float getFPS() const;
     void completeAsyncTask();
-    void feedDataModels(shared_ptr<Skeleton> skeleton);
+    void feedDataModels(shared_ptr<SkeletonFrame> skeletonFrame);
 
 protected:
     void onNewFrame(const QHash<DataFrame::FrameType, shared_ptr<DataFrame>>& dataFrames);

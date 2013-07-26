@@ -9,8 +9,8 @@ namespace dai {
 MSRDailySkeletonInstance::MSRDailySkeletonInstance(const InstanceInfo& info)
     : DataInstance(info)
 {
-    m_frameBuffer[0].reset(new dai::Skeleton);
-    m_frameBuffer[1].reset(new dai::Skeleton);
+    m_frameBuffer[0].reset(new SkeletonFrame);
+    m_frameBuffer[1].reset(new SkeletonFrame);
     DataInstance::initFrameBuffer(m_frameBuffer[0], m_frameBuffer[1]);
     m_nJoints = 0;
 }
@@ -63,7 +63,8 @@ void MSRDailySkeletonInstance::restartInstance()
 
 void MSRDailySkeletonInstance::nextFrame(DataFrame &frame)
 {
-    dai::Skeleton& skeleton = (dai::Skeleton&) frame;
+    SkeletonFrame& skeletonFrame = static_cast<SkeletonFrame&>(frame);
+    shared_ptr<dai::Skeleton> skeleton = skeletonFrame.getSkeleton(1);
 
     // Read Data from File
     int nRows = 0;
@@ -94,10 +95,11 @@ void MSRDailySkeletonInstance::nextFrame(DataFrame &frame)
 
         SkeletonJoint joint(Point3f(w_x, w_y, w_z));
         SkeletonJoint::JointType type = convertIntToType(i);
-        skeleton.setJoint(type, joint);
+        skeleton->setJoint(type, joint);
     }
 
-    skeleton.computeQuaternions();
+    skeleton->computeQuaternions();
+    //skeletonFrame.setSkeleton(1, skeleton);
 }
 
 SkeletonJoint::JointType MSRDailySkeletonInstance::convertIntToType(int value)

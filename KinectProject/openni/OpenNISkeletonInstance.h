@@ -3,7 +3,7 @@
 
 #include "OpenNIRuntime.h"
 #include "types/StreamInstance.h"
-#include "types/Skeleton.h"
+#include "types/SkeletonFrame.h"
 #include <QFile>
 
 namespace dai {
@@ -24,7 +24,7 @@ protected:
 
 private:
     OpenNIRuntime*            m_openni;
-    shared_ptr<dai::Skeleton> m_frameBuffer[2];
+    shared_ptr<SkeletonFrame> m_frameBuffer[2];
     QFile                     m_of;
     QString                   m_outputFile;
 };

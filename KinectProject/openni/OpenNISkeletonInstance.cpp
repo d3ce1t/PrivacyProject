@@ -11,8 +11,8 @@ OpenNISkeletonInstance::OpenNISkeletonInstance()
 {
     this->m_type = StreamInstance::Skeleton;
     this->m_title = "Skeleton Live Stream";
-    m_frameBuffer[0].reset(new dai::Skeleton);
-    m_frameBuffer[1].reset(new dai::Skeleton);
+    m_frameBuffer[0].reset(new SkeletonFrame);
+    m_frameBuffer[1].reset(new SkeletonFrame);
     StreamInstance::initFrameBuffer(m_frameBuffer[0], m_frameBuffer[1]);
     m_openni = nullptr;
 }

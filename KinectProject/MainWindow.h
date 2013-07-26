@@ -24,6 +24,7 @@ private slots:
     void on_btnStartKinect_clicked();
 
 private:
+    void searchMinAndMaxDepth();
     static void testSegmentation();
 
 private:
