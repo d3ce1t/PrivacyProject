@@ -10,7 +10,6 @@
 #include <QDebug>
 #include <QtWidgets/QDesktopWidget>
 
-
 using namespace dai;
 
 DatasetBrowser::DatasetBrowser(QWidget *parent) :

@@ -1,6 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <limits>
 #include <QList>
 
 namespace dai {
@@ -18,9 +19,9 @@ T max(T a, T b) {
 template <class T>
 T max_element(const T* a, int n)
 {
-    T max = a[0];
+    T max = std::numeric_limits<T>::min();
 
-    for (int i=1; i<n; ++i) {
+    for (int i=0; i<n; ++i) {
         if (a[i] > max) {
             max = a[i];
         }
@@ -32,11 +33,27 @@ T max_element(const T* a, int n)
 template <class T>
 T min_element(const T* a, int n)
 {
-    T min = a[0];
+    T min = std::numeric_limits<T>::max();
 
-    for (int i=1; i<n; ++i) {
+    for (int i=0; i<n; ++i) {
         if (a[i] < min) {
             min = a[i];
+        }
+    }
+
+    return min;
+}
+
+template <class T>
+T min_element(const T* a, T min_threshold, int n)
+{
+    T min = std::numeric_limits<T>::max();
+
+    for (int i=0; i<n; ++i) {
+        if (a[i] > min_threshold) {
+            if (a[i] < min) {
+                min = a[i];
+            }
         }
     }
 
