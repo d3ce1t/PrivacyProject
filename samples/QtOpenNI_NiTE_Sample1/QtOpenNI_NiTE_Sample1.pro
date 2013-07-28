@@ -23,11 +23,11 @@ HEADERS  += \
 FORMS    +=
 
 # OpenNI2
-LIBS += -L/opt/OpenNI-2.2.0-x64/Tools/ -lOpenNI2
-INCLUDEPATH += /opt/OpenNI-2.2.0-x64/Include
-DEPENDPATH += /opt/OpenNI-2.2.0-x64/Include
+LIBS += -L/opt/OpenNI-Linux-x64-2.2/Redist/ -lOpenNI2
+INCLUDEPATH += /opt/OpenNI-Linux-x64-2.2/Include
+DEPENDPATH += /opt/OpenNI-Linux-x64-2.2/Include
 
 # NiTE2
-LIBS += -L/opt/NiTE-2.0.0/Redist/ -lNiTE2
-INCLUDEPATH += /opt/NiTE-2.0.0/Include
-DEPENDPATH += /opt/NiTE-2.0.0/Include
+LIBS += -L/opt/NiTE-Linux-x64-2.2/Redist/ -lNiTE2
+INCLUDEPATH += /opt/NiTE-Linux-x64-2.2/Include
+DEPENDPATH += /opt/NiTE-Linux-x64-2.2/Include
