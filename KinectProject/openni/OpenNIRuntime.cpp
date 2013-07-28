@@ -128,7 +128,7 @@ void OpenNIRuntime::shutdownOpenNI()
     m_oniColorStream.removeNewFrameListener(this);
 
     // Release frame refs
-    m_oniColorFrame.release();
+    //m_oniColorFrame.release();
 
     // Destroy streams and close device
     m_oniUserTracker.destroy();
@@ -147,40 +147,43 @@ void OpenNIRuntime::onNewFrame(openni::VideoStream& stream)
 
     if (type == openni::SENSOR_COLOR)
     {
-        if (stream.readFrame(&m_oniColorFrame) != openni::STATUS_OK) {
+        openni::VideoFrameRef oniColorFrame;
+
+        if (stream.readFrame(&oniColorFrame) != openni::STATUS_OK) {
             throw 1;
         }
 
-        if (!m_oniColorFrame.isValid()) {
+        if (!oniColorFrame.isValid()) {
             throw 2;
         }
 
-        int stride = m_oniColorFrame.getStrideInBytes() / sizeof(openni::RGB888Pixel) - m_oniColorFrame.getWidth();
+        int stride = oniColorFrame.getStrideInBytes() / sizeof(openni::RGB888Pixel) - oniColorFrame.getWidth();
 
         if (stride > 0) {
             qWarning() << "WARNING: OpenNIRuntime - Not managed color stride!!!";
             throw 3;
         }
 
-        memcpy((void*) m_colorFrame.getDataPtr(), m_oniColorFrame.getData(), 640 * 480 * sizeof(openni::RGB888Pixel));
+        memcpy((void*) m_colorFrame.getDataPtr(), oniColorFrame.getData(), 640 * 480 * sizeof(openni::RGB888Pixel));
     }
 }
 
-void OpenNIRuntime::onNewFrame(nite::UserTracker& userTracker)
+void OpenNIRuntime::onNewFrame(nite::UserTracker& oniUserTracker)
 {
     QWriteLocker locker(&m_lockDepth);
+    nite::UserTrackerFrameRef oniUserTrackerFrame;
 
-    if (userTracker.readFrame(&m_oniUserTrackerFrame) != nite::STATUS_OK) {
+    if (oniUserTracker.readFrame(&oniUserTrackerFrame) != nite::STATUS_OK) {
         throw 1;
     }
 
-    if (!m_oniUserTrackerFrame.isValid()) {
+    if (!oniUserTrackerFrame.isValid()) {
         throw 2;
     }
 
     //m_pUserTracker.setSkeletonSmoothingFactor(0.7);
-    openni::VideoFrameRef oniDepthFrame = m_oniUserTrackerFrame.getDepthFrame();
-    const nite::UserMap& userMap = m_oniUserTrackerFrame.getUserMap();
+    openni::VideoFrameRef oniDepthFrame = oniUserTrackerFrame.getDepthFrame();
+    const nite::UserMap& userMap = oniUserTrackerFrame.getUserMap();
 
     int strideDepth = oniDepthFrame.getStrideInBytes() / sizeof(openni::DepthPixel) - oniDepthFrame.getWidth();
     int strideUser = userMap.getStride() / sizeof(nite::UserId) - userMap.getWidth();
@@ -208,12 +211,12 @@ void OpenNIRuntime::onNewFrame(nite::UserTracker& userTracker)
     }
 
     // Read Skeleton
-    oniLoadSkeleton();
+    oniLoadSkeleton(oniUserTracker, oniUserTrackerFrame);
 }
 
-void OpenNIRuntime::oniLoadSkeleton()
+void OpenNIRuntime::oniLoadSkeleton(nite::UserTracker& oniUserTracker, nite::UserTrackerFrameRef oniUserTrackerFrame)
 {
-    const nite::Array<nite::UserData>& users = m_oniUserTrackerFrame.getUsers();
+    const nite::Array<nite::UserData>& users = oniUserTrackerFrame.getUsers();
     m_skeletonFrame.clear();
     int trackedSkeletons = 0;
 
@@ -222,44 +225,56 @@ void OpenNIRuntime::oniLoadSkeleton()
         const nite::UserData& user = users[i];
 
         if (user.isNew()) {
-            qDebug() << "New User!";
-            m_oniUserTracker.startSkeletonTracking(user.getId());
+            // Detect PSI pose to start skeleton tracking
+            std::cout << "New user!" << endl;
+            oniUserTracker.startSkeletonTracking(user.getId());
+            oniUserTracker.startPoseDetection(user.getId(), nite::POSE_CROSSED_HANDS);
         }
         else if (!user.isLost())
         {
-            //qDebug() << "No user lost!";
-            const nite::Skeleton& oniSkeleton = user.getSkeleton();
+            const nite::PoseData& poseData = user.getPose(nite::POSE_CROSSED_HANDS);
 
-            if (oniSkeleton.getState() == nite::SKELETON_TRACKED)
+            if (poseData.isEntered()) {
+                m_trackingStarted[user.getId()] = true;
+                std::cout << "Entered pose" << endl;
+            }
+
+            if (m_trackingStarted[user.getId()])
             {
-                trackedSkeletons++;
-                shared_ptr<dai::Skeleton> daiSkeleton = m_skeletonFrame.getSkeleton(user.getId());
+                const nite::Skeleton& oniSkeleton = user.getSkeleton();
+                const nite::SkeletonJoint& head = user.getSkeleton().getJoint(nite::JOINT_HEAD);
 
-                if (daiSkeleton == nullptr) {
-                    daiSkeleton.reset(new Skeleton(Skeleton::SKELETON_OPENNI));
-                    m_skeletonFrame.setSkeleton(user.getId(), daiSkeleton);
-                }
-
-                for (int j=0; j<15; ++j)
+                if (oniSkeleton.getState() == nite::SKELETON_TRACKED && head.getPositionConfidence() > 0.5)
                 {
-                    // Load nite::SkeletonJoint
-                    const nite::SkeletonJoint& niteJoint = oniSkeleton.getJoint((nite::JointType) j);
-                    nite::Point3f nitePos = niteJoint.getPosition();
+                    trackedSkeletons++;
+                    shared_ptr<dai::Skeleton> daiSkeleton = m_skeletonFrame.getSkeleton(user.getId());
 
-                    // Copy nite joint pos to my own Joint
-                    SkeletonJoint joint(Point3f(nitePos.x / 1000, nitePos.y / 1000, nitePos.z / 1000), staticMap[j]);
-                    daiSkeleton->setJoint(staticMap[j], joint);
+                    if (daiSkeleton == nullptr) {
+                        daiSkeleton.reset(new Skeleton(Skeleton::SKELETON_OPENNI));
+                        m_skeletonFrame.setSkeleton(user.getId(), daiSkeleton);
+                    }
+
+                    for (int j=0; j<15; ++j)
+                    {
+                        // Load nite::SkeletonJoint
+                        const nite::SkeletonJoint& niteJoint = oniSkeleton.getJoint((nite::JointType) j);
+                        nite::Point3f nitePos = niteJoint.getPosition();
+
+                        // Copy nite joint pos to my own Joint
+                        SkeletonJoint joint(Point3f(nitePos.x / 1000, nitePos.y / 1000, nitePos.z / 1000), staticMap[j]);
+                        daiSkeleton->setJoint(staticMap[j], joint);
+                    }
+
+                    daiSkeleton->computeQuaternions();
                 }
-
-                daiSkeleton->computeQuaternions();
             }
         }
-        else {
-            m_oniUserTracker.stopSkeletonTracking(user.getId());
+        else if (user.isLost()) {
+            qDebug() << "user lost" << user.getId();
+            m_trackingStarted[user.getId()] = false;
+            oniUserTracker.stopSkeletonTracking(user.getId());
         }
     } // End for
-
-    qDebug() << "Tracked Skeletons" << trackedSkeletons << "Users" << users.getSize();
 }
 
 } // End namespace

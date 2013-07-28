@@ -12,6 +12,8 @@
 
 namespace dai {
 
+#define MAX_USERS 10
+
 // Class Declaration
 class OpenNIRuntime : public openni::VideoStream::NewFrameListener, public nite::UserTracker::NewFrameListener
 {
@@ -25,12 +27,12 @@ public:
     UserFrame readUserFrame();
     SkeletonFrame readSkeletonFrame();
     void onNewFrame(openni::VideoStream& stream);
-    void onNewFrame(nite::UserTracker& userTracker);
+    void onNewFrame(nite::UserTracker& oniUserTracker);
 
 private:
     static SkeletonJoint::JointType staticMap[15];
 
-    void oniLoadSkeleton();
+    void oniLoadSkeleton(nite::UserTracker &oniUserTracker, nite::UserTrackerFrameRef oniUserTrackerFrame);
 
     static QMutex          mutex;
     static OpenNIRuntime* _instance;
@@ -49,10 +51,9 @@ private:
     openni::Device            m_device;
     openni::VideoStream       m_oniColorStream;
     nite::UserTracker         m_oniUserTracker;
-    openni::VideoFrameRef	  m_oniColorFrame;
-    nite::UserTrackerFrameRef m_oniUserTrackerFrame;
     QReadWriteLock            m_lockColor;
     QReadWriteLock            m_lockDepth;
+    bool                      m_trackingStarted[MAX_USERS];
 };
 
 } // End namespace
