@@ -5,6 +5,35 @@
 
 namespace dai {
 
+#define RedColor   QVector3D(1.0, 0, 0)
+#define GreenColor QVector3D(0, 1.0, 0)
+#define BlueColor  QVector3D(0, 0, 1.0)
+#define BlackColor QVector3D(0, 0, 0)
+#define YellowColor QVector3D(1.0, 1.0, 0);
+
+QVector3D SkeletonPainter::staticJointsColor[20] = {
+    BlueColor, // JOINT_HEAD
+    BlackColor, // JOINT_CENTER_SHOULDER
+    RedColor,   // JOINT_LEFT_SHOULDER
+    GreenColor, // JOINT_RIGHT_SHOULDER
+    RedColor,   // JOINT_LEFT_ELBOW
+    GreenColor, // JOINT_RIGHT_ELBOW
+    RedColor,   // JOINT_LEFT_WRIST
+    GreenColor, // JOINT_RIGHT_WRIST
+    RedColor,   // JOINT_LEFT_HAND
+    GreenColor, // JOINT_RIGHT_HAND
+    BlackColor, // JOINT_SPINE
+    BlackColor, // JOINT_CENTER_HIP
+    RedColor,   // JOINT_LEFT_HIP
+    GreenColor, // JOINT_RIGHT_HIP
+    RedColor,   // JOINT_LEFT_KNEE
+    GreenColor, // JOINT_RIGHT_KNEE
+    RedColor,   // JOINT_LEFT_ANKLE
+    GreenColor, // JOINT_RIGHT_ANKLE
+    RedColor,   // JOINT_LEFT_FOOT
+    GreenColor // JOINT_RIGHT_FOOT
+};
+
 SkeletonPainter::SkeletonPainter(InstanceViewer *parent)
     : Painter(parent)
 {
@@ -37,57 +66,11 @@ void SkeletonPainter::render()
     foreach (int userId, m_frame->getAllUsersId())
     {
         const dai::Skeleton& skeleton = *(m_frame->getSkeleton(userId));
+        const Skeleton::SkeletonLimb* limbMap = skeleton.getLimbsMap();
 
-        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_HEAD), skeleton.getJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER));
-        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER), skeleton.getJoint(dai::SkeletonJoint::JOINT_SPINE));
-        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_SPINE), skeleton.getJoint(dai::SkeletonJoint::JOINT_CENTER_HIP));
-
-        // Left Part
-        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER), skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_SHOULDER));
-        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_SHOULDER), skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_ELBOW));
-        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_ELBOW), skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_WRIST));
-        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_WRIST), skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_HAND));
-
-        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_CENTER_HIP), skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_HIP));
-        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_HIP), skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_KNEE));
-        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_KNEE), skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_ANKLE));
-        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_ANKLE), skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_FOOT));
-
-        // Right Part
-        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER), skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_SHOULDER));
-        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_SHOULDER), skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_ELBOW));
-        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_ELBOW), skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_WRIST));
-        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_WRIST), skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_HAND));
-
-        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_CENTER_HIP), skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_HIP));
-        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_HIP), skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_KNEE));
-        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_KNEE), skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_ANKLE));
-        drawLimb(skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_ANKLE), skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_FOOT));
-
-        QVector3D red(1.0, 0.0, 0.0);
-        QVector3D green(0.0, 1.0, 0.0);
-        QVector3D black(0.0, 0.0, 0.0);
-
-        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_HEAD), black);
-        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER), black);
-        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_SPINE), black);
-        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_CENTER_HIP), black);
-        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_SHOULDER), red);
-        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_ELBOW), red);
-        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_WRIST), red);
-        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_HAND), red);
-        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_HIP), red);
-        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_KNEE), red);
-        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_ANKLE), red);
-        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_LEFT_FOOT), red);
-        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_SHOULDER), green);
-        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_ELBOW), green);
-        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_WRIST), green);
-        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_HAND), green);
-        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_HIP), green);
-        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_KNEE), green);
-        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_ANKLE), green);
-        drawJoint(skeleton.getJoint(dai::SkeletonJoint::JOINT_RIGHT_FOOT), green);
+        for (int i=0; i<skeleton.getLimbsCount(); ++i) {
+            drawLimb( skeleton.getJoint(limbMap[i].joint1), skeleton.getJoint(limbMap[i].joint2) );
+        }
     }
 }
 
@@ -141,46 +124,19 @@ void SkeletonPainter::drawLimb(const dai::SkeletonJoint& joint1, const dai::Skel
     m_shaderProgram->enableAttributeArray(m_colorAttr);
     glDrawArrays(GL_LINES, m_posAttr, 2);
 
-    // Draw point for joint1
-    m_shaderProgram->setUniformValue(m_pointSize, 10.0f);
+    // Draw Joint 1
+    coorColours[0] = staticJointsColor[joint1.getType()].x();
+    coorColours[1] = staticJointsColor[joint1.getType()].y();
+    coorColours[2] = staticJointsColor[joint1.getType()].z();
     m_shaderProgram->setAttributeArray(m_colorAttr, coorColours, 3);
     glDrawArrays(GL_POINTS, m_posAttr, 1);
 
-    // Draw point for joint2
+    // Draw Joint 2
+    coorColours[0] = staticJointsColor[joint2.getType()].x();
+    coorColours[1] = staticJointsColor[joint2.getType()].y();
+    coorColours[2] = staticJointsColor[joint2.getType()].z();
     m_shaderProgram->setAttributeArray(m_colorAttr, coorColours, 3);
-    m_shaderProgram->setAttributeArray(m_posAttr, coordinates+3, 3);
-    glDrawArrays(GL_POINTS, m_posAttr, 1);
-
-    // Release
-    m_shaderProgram->disableAttributeArray(m_colorAttr);
-    m_shaderProgram->disableAttributeArray(m_posAttr);
-    m_shaderProgram->release();
-
-    glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
-}
-
-void SkeletonPainter::drawJoint(const dai::SkeletonJoint& joint, const QVector3D &color)
-{
-    float coordinates[] = {
-        (float) joint.getPosition().x(), (float) joint.getPosition().y(), (float) -joint.getPosition().z()
-    };
-
-    float coorColours[] = {
-        color.x(), color.y(), color.z()
-    };
-
-    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
-
-    // Bind Shader
-    m_shaderProgram->bind();
-
-     // Draw Line from joint1 to joint2
-    m_shaderProgram->setAttributeArray(m_posAttr, coordinates, 3);
-    m_shaderProgram->setAttributeArray(m_colorAttr, coorColours, 3);
-    m_shaderProgram->setUniformValue(m_pointSize, 8.0f);
-    m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
-    m_shaderProgram->enableAttributeArray(m_posAttr);
-    m_shaderProgram->enableAttributeArray(m_colorAttr);
+    m_shaderProgram->setAttributeArray(m_posAttr, coordinates + 3, 3);
     glDrawArrays(GL_POINTS, m_posAttr, 1);
 
     // Release
@@ -188,6 +144,7 @@ void SkeletonPainter::drawJoint(const dai::SkeletonJoint& joint, const QVector3D
     m_shaderProgram->disableAttributeArray(m_posAttr);
     m_shaderProgram->release();
 
+    glEnable(GL_DEPTH_TEST);
     glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
 }
 

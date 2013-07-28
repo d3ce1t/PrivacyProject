@@ -5,6 +5,7 @@
 #include <QMatrix4x4>
 #include <QOpenGLBuffer>
 #include "types/SkeletonFrame.h"
+#include <QVector3D>
 
 namespace dai {
 
@@ -20,9 +21,10 @@ protected:
     void render();
 
 private:
+    static QVector3D staticJointsColor[20];
+
     void prepareShaderProgram();
     void drawLimb(const SkeletonJoint& joint1, const SkeletonJoint& joint2);
-    void drawJoint(const SkeletonJoint& joint, const QVector3D& color);
 
     shared_ptr<SkeletonFrame> m_frame;
 

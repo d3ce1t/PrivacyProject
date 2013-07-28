@@ -23,7 +23,7 @@ public:
     // Methods
     shared_ptr<DataFrame> clone() const override;
     shared_ptr<dai::Skeleton> getSkeleton(int userId);
-    //void setSkeleton(int userId, const shared_ptr<dai::Skeleton> skeleton);
+    void setSkeleton(int userId, const shared_ptr<dai::Skeleton> skeleton);
     QList<int> getAllUsersId() const;
     void clear();
 

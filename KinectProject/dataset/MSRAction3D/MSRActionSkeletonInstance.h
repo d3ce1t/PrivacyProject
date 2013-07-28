@@ -23,7 +23,7 @@ protected:
     void nextFrame(DataFrame& frame) override;
 
 private:
-    static SkeletonJoint::JointType convertIntToType(int value);
+    static SkeletonJoint::JointType staticMap[20];
 
     ifstream         m_file;
     int              m_nJoints;

@@ -5,6 +5,24 @@
 
 namespace dai {
 
+SkeletonJoint::JointType OpenNIRuntime::staticMap[15] = {
+    SkeletonJoint::JOINT_HEAD,             // 0
+    SkeletonJoint::JOINT_CENTER_SHOULDER,  // 1
+    SkeletonJoint::JOINT_LEFT_SHOULDER,    // 2
+    SkeletonJoint::JOINT_RIGHT_SHOULDER,   // 3
+    SkeletonJoint::JOINT_LEFT_ELBOW,       // 4
+    SkeletonJoint::JOINT_RIGHT_ELBOW,      // 5
+    SkeletonJoint::JOINT_LEFT_HAND,        // 6
+    SkeletonJoint::JOINT_RIGHT_HAND,       // 7
+    SkeletonJoint::JOINT_SPINE,            // 8
+    SkeletonJoint::JOINT_LEFT_HIP,         // 9
+    SkeletonJoint::JOINT_RIGHT_HIP,        // 10
+    SkeletonJoint::JOINT_LEFT_KNEE,        // 11
+    SkeletonJoint::JOINT_RIGHT_KNEE,       // 12
+    SkeletonJoint::JOINT_LEFT_FOOT,        // 13
+    SkeletonJoint::JOINT_RIGHT_FOOT        // 14
+};
+
 OpenNIRuntime* OpenNIRuntime::_instance = nullptr;
 int OpenNIRuntime::_instance_counter = 0;
 QMutex             OpenNIRuntime::mutex;
@@ -33,14 +51,11 @@ void OpenNIRuntime::releaseInstance()
 OpenNIRuntime::OpenNIRuntime()
     : m_colorFrame(640, 480), m_depthFrame(640, 480), m_userFrame(640, 480)
 {
-    m_activeUser = -1;
     initOpenNI();
 }
 
 OpenNIRuntime::~OpenNIRuntime()
 {
-   //m_recorder.stop();
-   //m_recorder.destroy();
    shutdownOpenNI();
 }
 
@@ -50,10 +65,10 @@ DepthFrame OpenNIRuntime::readDepthFrame()
     return m_depthFrame;
 }
 
-Skeleton OpenNIRuntime::readSkeleton()
+SkeletonFrame OpenNIRuntime::readSkeletonFrame()
 {
     QReadLocker locker(&m_lockDepth);
-    return m_skeleton;
+    return m_skeletonFrame;
 }
 
 UserFrame OpenNIRuntime::readUserFrame()
@@ -94,17 +109,6 @@ void OpenNIRuntime::initOpenNI()
         if (!m_oniUserTracker.isValid() || !m_oniColorStream.isValid())
             throw 7;
 
-        /*if (m_recorder.create("/files/capture/kinect.oni") != openni::STATUS_OK) {
-            throw 8;
-        }
-
-        if (m_recorder.attach(m_oniColorStream) != openni::STATUS_OK) {
-            throw 9;
-        }
-
-        if (m_recorder.start() != openni::STATUS_OK) {
-            throw 10;
-        }*/
 
         m_oniColorStream.addNewFrameListener(this);
         m_oniUserTracker.addNewFrameListener(this);
@@ -193,8 +197,7 @@ void OpenNIRuntime::onNewFrame(nite::UserTracker& userTracker)
     for (int y=0; y < oniDepthFrame.getHeight(); ++y) {
         for (int x=0; x < oniDepthFrame.getWidth(); ++x) {
             u_int8_t label = *pLabel;
-            // FIX: I assume depth value is between 0 a 10000.
-            m_depthFrame.setItem(y, x, DataInstance::normalise(*pDepth, 0, 10000, 0, 1));
+            m_depthFrame.setItem(y, x, *pDepth / 1000.0f);
             m_userFrame.setItem(y, x, label);
             pDepth++;
             pLabel++;
@@ -211,6 +214,8 @@ void OpenNIRuntime::onNewFrame(nite::UserTracker& userTracker)
 void OpenNIRuntime::oniLoadSkeleton()
 {
     const nite::Array<nite::UserData>& users = m_oniUserTrackerFrame.getUsers();
+    m_skeletonFrame.clear();
+    int trackedSkeletons = 0;
 
     for (int i=0; i<users.getSize(); ++i)
     {
@@ -222,124 +227,39 @@ void OpenNIRuntime::oniLoadSkeleton()
         }
         else if (!user.isLost())
         {
+            //qDebug() << "No user lost!";
             const nite::Skeleton& oniSkeleton = user.getSkeleton();
 
-            if (oniSkeleton.getState() == nite::SKELETON_TRACKED) {
-                qDebug() << "Skeleton Tracked" << i;
-                m_activeUser = i;
-            } else {
-                m_activeUser = -1;
+            if (oniSkeleton.getState() == nite::SKELETON_TRACKED)
+            {
+                trackedSkeletons++;
+                shared_ptr<dai::Skeleton> daiSkeleton = m_skeletonFrame.getSkeleton(user.getId());
+
+                if (daiSkeleton == nullptr) {
+                    daiSkeleton.reset(new Skeleton(Skeleton::SKELETON_OPENNI));
+                    m_skeletonFrame.setSkeleton(user.getId(), daiSkeleton);
+                }
+
+                for (int j=0; j<15; ++j)
+                {
+                    // Load nite::SkeletonJoint
+                    const nite::SkeletonJoint& niteJoint = oniSkeleton.getJoint((nite::JointType) j);
+                    nite::Point3f nitePos = niteJoint.getPosition();
+
+                    // Copy nite joint pos to my own Joint
+                    SkeletonJoint joint(Point3f(nitePos.x / 1000, nitePos.y / 1000, nitePos.z / 1000), staticMap[j]);
+                    daiSkeleton->setJoint(staticMap[j], joint);
+                }
+
+                daiSkeleton->computeQuaternions();
             }
         }
-
-    }
-
-    if (m_activeUser != -1)
-    {
-        const nite::Skeleton& oniSkeleton = users[m_activeUser].getSkeleton();
-        //m_skeleton.clear();
-
-        for (int i=0; i<15; ++i)
-        {
-            // Load nite::SkeletonJoint
-            const nite::SkeletonJoint& niteJoint = oniSkeleton.getJoint((nite::JointType) i);
-            nite::Point3f nitePos = niteJoint.getPosition();
-
-            // Create my own Joint
-            SkeletonJoint joint(Point3f(nitePos.x, nitePos.y, nitePos.z));
-            SkeletonJoint::JointType type = mapNiteToOwn(i);
-            m_skeleton.setJoint(type, joint);
+        else {
+            m_oniUserTracker.stopSkeletonTracking(user.getId());
         }
+    } // End for
 
-        // m_skeleton.normaliseDepth(0, 10000, 0, 1);
-        m_skeleton.computeQuaternions();
-    }
+    qDebug() << "Tracked Skeletons" << trackedSkeletons << "Users" << users.getSize();
 }
-
-SkeletonJoint::JointType OpenNIRuntime::mapNiteToOwn(int value)
-{
-    SkeletonJoint::JointType result = SkeletonJoint::JOINT_HEAD;
-
-    switch (value) {
-    // NiTE JOINT_HEAD
-    case 0:
-        result = SkeletonJoint::JOINT_HEAD;
-        break;
-    // NiTE JOINT_NECK
-    case 1:
-        result = SkeletonJoint::JOINT_CENTER_SHOULDER;
-        break;
-
-    // NiTE JOINT_LEFT_SHOULDER,
-    case 2:
-        result = SkeletonJoint::JOINT_LEFT_SHOULDER;
-        break;
-
-    // NiTE JOINT_RIGHT_SHOULDER,
-    case 3:
-        result = SkeletonJoint::JOINT_RIGHT_SHOULDER;
-        break;
-
-    // NiTE JOINT_LEFT_ELBOW,
-    case 4:
-        result = SkeletonJoint::JOINT_LEFT_ELBOW;
-        break;
-
-    // NiTE JOINT_RIGHT_ELBOW,
-    case 5:
-        result = SkeletonJoint::JOINT_RIGHT_ELBOW;
-        break;
-
-    // NiTE JOINT_LEFT_HAND,
-    case 6:
-        result = SkeletonJoint::JOINT_LEFT_HAND;
-        break;
-
-    // NiTE JOINT_RIGHT_HAND,
-    case 7:
-        result = SkeletonJoint::JOINT_RIGHT_HAND;
-        break;
-
-    // NiTE JOINT_TORSO,
-    case 8:
-        result = SkeletonJoint::JOINT_SPINE;
-        break;
-
-    // NiTE JOINT_LEFT_HIP,
-    case 9:
-        result = SkeletonJoint::JOINT_LEFT_HIP;
-        break;
-
-    // NiTE JOINT_RIGHT_HIP,
-    case 10:
-        result = SkeletonJoint::JOINT_RIGHT_HIP;
-        break;
-
-    // NiTE JOINT_LEFT_KNEE,
-    case 11:
-        result = SkeletonJoint::JOINT_LEFT_KNEE;
-        break;
-
-    // NiTE JOINT_RIGHT_KNEE,
-    case 12:
-        result = SkeletonJoint::JOINT_RIGHT_KNEE;
-        break;
-
-    // NiTE JOINT_LEFT_FOOT,
-    case 13:
-        result = SkeletonJoint::JOINT_LEFT_FOOT;
-        break;
-
-    // NiTE JOINT_RIGHT_FOOT,
-    case 14:
-        result = SkeletonJoint::JOINT_RIGHT_FOOT;
-        break;
-    default:
-        qDebug() << "No se deberia entrar aqui";
-    }
-
-    return result;
-}
-
 
 } // End namespace

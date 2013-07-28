@@ -27,22 +27,13 @@ shared_ptr<DataFrame> SkeletonFrame::clone() const
 
 shared_ptr<dai::Skeleton> SkeletonFrame::getSkeleton(int userId)
 {
-    shared_ptr<dai::Skeleton> skeleton;
-
-    if (m_hashSkeletons.contains(userId))
-        skeleton = m_hashSkeletons.value(userId);
-    else {
-        skeleton.reset(new dai::Skeleton);
-        m_hashSkeletons.insert(userId, skeleton);
-    }
-
-    return skeleton;
+    return m_hashSkeletons.value(userId);;
 }
 
-/*void SkeletonFrame::setSkeleton(int userId, const shared_ptr<dai::Skeleton> skeleton)
+void SkeletonFrame::setSkeleton(int userId, shared_ptr<dai::Skeleton> skeleton)
 {
     m_hashSkeletons.insert(userId, skeleton);
-}*/
+}
 
 QList<int> SkeletonFrame::getAllUsersId() const
 {

@@ -264,9 +264,8 @@ void MainWindow::on_btnStartKinect_clicked()
 
     // Create viewers
     dai::InstanceViewerWindow* colorViewer = new dai::InstanceViewerWindow;
-    //dai::InstanceViewerWindow* depthViewer = new dai::InstanceViewerWindow;
-    //dai::InstanceViewerWindow* userViewer = new dai::InstanceViewerWindow;
-    //dai::InstanceViewerWindow* skeletonViewer = new dai::InstanceViewerWindow;
+    dai::InstanceViewerWindow* depthViewer = new dai::InstanceViewerWindow;
+    dai::InstanceViewerWindow* userViewer = new dai::InstanceViewerWindow;
 
     // Connect all together
     playback->addInstance(colorInstance);
@@ -275,16 +274,15 @@ void MainWindow::on_btnStartKinect_clicked()
     playback->addInstance(skeletonInstance);
 
     playback->addListener(colorViewer, colorInstance);
-    //playback->addListener(depthViewer, depthInstance);
-    //playback->addListener(userViewer, userInstance);
-    //playback->addListener(skeletonViewer, skeletonInstance);
+    playback->addListener(depthViewer, depthInstance);
+    playback->addListener(userViewer, userInstance);
+    playback->addListener(depthViewer, skeletonInstance);
 
     // Run
     playback->play();
     colorViewer->show();
-    //depthViewer->show();
-    //userViewer->show();
-    //skeletonViewer->show();
+    depthViewer->show();
+    userViewer->show();
 }
 
 void MainWindow::searchMinAndMaxDepth()

@@ -44,15 +44,18 @@ public:
         JOINT_RIGHT_FOOT
     };
 
-    SkeletonJoint() = default;
-    explicit SkeletonJoint(const Point3f point);
+    SkeletonJoint();
+    explicit SkeletonJoint(const Point3f point, JointType type);
     SkeletonJoint(const SkeletonJoint& other);
+    void setType(JointType type);
     void setPosition(const Point3f point);
     const Point3f& getPosition() const;
     SkeletonJoint& operator=(const SkeletonJoint& other);
+    JointType getType() const;
 
 private:
     Point3f     m_realworld_point;    // Real World Point in meters
+    JointType   m_type;               // Joint Type
 };
 
 } // End Namespace

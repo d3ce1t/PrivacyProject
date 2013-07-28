@@ -3,7 +3,7 @@
 namespace dai {
 
 // Quaternions Map
-SkeletonJoint::JointType Skeleton::staticMap[20][3] = {
+SkeletonJoint::JointType Skeleton::staticQuaternionsMap[20][3] = {
     {SkeletonJoint::JOINT_HEAD,             SkeletonJoint::JOINT_CENTER_SHOULDER,   SkeletonJoint::JOINT_SPINE}, // Q1
     {SkeletonJoint::JOINT_HEAD,             SkeletonJoint::JOINT_CENTER_SHOULDER,   SkeletonJoint::JOINT_LEFT_SHOULDER}, // Q2
     {SkeletonJoint::JOINT_HEAD,             SkeletonJoint::JOINT_CENTER_SHOULDER,   SkeletonJoint::JOINT_RIGHT_SHOULDER}, // Q3
@@ -26,20 +26,96 @@ SkeletonJoint::JointType Skeleton::staticMap[20][3] = {
     {SkeletonJoint::JOINT_LEFT_HIP,         SkeletonJoint::JOINT_CENTER_HIP,        SkeletonJoint::JOINT_RIGHT_HIP} // Q20
 };
 
+// Kinect Limbs
+Skeleton::SkeletonLimb Skeleton::staticKinectLimbsMap[MAX_LIMBS] = {
+    // Center
+    {SkeletonJoint::JOINT_HEAD, SkeletonJoint::JOINT_CENTER_SHOULDER},
+    {SkeletonJoint::JOINT_CENTER_SHOULDER, SkeletonJoint::JOINT_SPINE},
+    {SkeletonJoint::JOINT_SPINE, SkeletonJoint::JOINT_CENTER_HIP},
+    // Left
+    {SkeletonJoint::JOINT_CENTER_SHOULDER, SkeletonJoint::JOINT_LEFT_SHOULDER},
+    {SkeletonJoint::JOINT_LEFT_SHOULDER, SkeletonJoint::JOINT_LEFT_ELBOW},
+    {SkeletonJoint::JOINT_LEFT_ELBOW, SkeletonJoint::JOINT_LEFT_WRIST},
+    {SkeletonJoint::JOINT_LEFT_WRIST, SkeletonJoint::JOINT_LEFT_HAND},
+    {SkeletonJoint::JOINT_CENTER_HIP, SkeletonJoint::JOINT_LEFT_HIP},
+    {SkeletonJoint::JOINT_LEFT_HIP, SkeletonJoint::JOINT_LEFT_KNEE},
+    {SkeletonJoint::JOINT_LEFT_KNEE, SkeletonJoint::JOINT_LEFT_ANKLE},
+    {SkeletonJoint::JOINT_LEFT_ANKLE, SkeletonJoint::JOINT_LEFT_FOOT},
+    // Right
+    {SkeletonJoint::JOINT_CENTER_SHOULDER, SkeletonJoint::JOINT_RIGHT_SHOULDER},
+    {SkeletonJoint::JOINT_RIGHT_SHOULDER, SkeletonJoint::JOINT_RIGHT_ELBOW},
+    {SkeletonJoint::JOINT_RIGHT_ELBOW, SkeletonJoint::JOINT_RIGHT_WRIST},
+    {SkeletonJoint::JOINT_RIGHT_WRIST, SkeletonJoint::JOINT_RIGHT_HAND},
+    {SkeletonJoint::JOINT_CENTER_HIP, SkeletonJoint::JOINT_RIGHT_HIP},
+    {SkeletonJoint::JOINT_RIGHT_HIP, SkeletonJoint::JOINT_RIGHT_KNEE},
+    {SkeletonJoint::JOINT_RIGHT_KNEE, SkeletonJoint::JOINT_RIGHT_ANKLE},
+    {SkeletonJoint::JOINT_RIGHT_ANKLE, SkeletonJoint::JOINT_RIGHT_FOOT}
+};
+
+// OpenNI Limbs
+Skeleton::SkeletonLimb Skeleton::staticOpenNILimbsMap[16] = {
+    // Center
+    {SkeletonJoint::JOINT_HEAD, SkeletonJoint::JOINT_CENTER_SHOULDER},
+    {SkeletonJoint::JOINT_LEFT_SHOULDER, SkeletonJoint::JOINT_SPINE},
+    {SkeletonJoint::JOINT_RIGHT_SHOULDER, SkeletonJoint::JOINT_SPINE},
+    {SkeletonJoint::JOINT_SPINE, SkeletonJoint::JOINT_LEFT_HIP},
+    {SkeletonJoint::JOINT_SPINE, SkeletonJoint::JOINT_RIGHT_HIP},
+    {SkeletonJoint::JOINT_LEFT_HIP, SkeletonJoint::JOINT_RIGHT_HIP},
+    // Left
+    {SkeletonJoint::JOINT_CENTER_SHOULDER, SkeletonJoint::JOINT_LEFT_SHOULDER},
+    {SkeletonJoint::JOINT_LEFT_SHOULDER, SkeletonJoint::JOINT_LEFT_ELBOW},
+    {SkeletonJoint::JOINT_LEFT_ELBOW, SkeletonJoint::JOINT_LEFT_HAND},
+    {SkeletonJoint::JOINT_LEFT_HIP, SkeletonJoint::JOINT_LEFT_KNEE},
+    {SkeletonJoint::JOINT_LEFT_KNEE, SkeletonJoint::JOINT_LEFT_FOOT},
+    // Right
+    {SkeletonJoint::JOINT_CENTER_SHOULDER, SkeletonJoint::JOINT_RIGHT_SHOULDER},
+    {SkeletonJoint::JOINT_RIGHT_SHOULDER, SkeletonJoint::JOINT_RIGHT_ELBOW},
+    {SkeletonJoint::JOINT_RIGHT_ELBOW, SkeletonJoint::JOINT_RIGHT_HAND},
+    {SkeletonJoint::JOINT_RIGHT_HIP, SkeletonJoint::JOINT_RIGHT_KNEE},
+    {SkeletonJoint::JOINT_RIGHT_KNEE, SkeletonJoint::JOINT_RIGHT_FOOT}
+};
+
+Skeleton::Skeleton(SkeletonType type)
+{
+    m_type = type;
+
+    if (type == SKELETON_OPENNI) {
+        memcpy(m_limbs, staticOpenNILimbsMap, 16 * sizeof(SkeletonLimb));
+        m_jointsCount = 15;
+        m_limbsSize = 16;
+    } else {
+        memcpy(m_limbs, staticKinectLimbsMap, 19 * sizeof(SkeletonLimb));
+        m_jointsCount = 20;
+        m_limbsSize = 19;
+    }
+}
+
 Skeleton::Skeleton(const Skeleton& other)
 {
-    for (int i=0; i<MAX_JOINTS; ++i) {
+    m_type = other.m_type;
+    m_jointsCount = other.m_jointsCount;
+    m_limbsSize = other.m_limbsSize;
+
+    for (int i=0; i<other.m_jointsCount; ++i) {
         m_joints[i] = other.m_joints[i];
         m_quaternions[i] = other.m_quaternions[i];
     }
+
+    memcpy(m_limbs, other.m_limbs, other.m_limbsSize * sizeof(SkeletonLimb));
 }
 
 Skeleton& Skeleton::operator=(const Skeleton& other)
 {
-    for (int i=0; i<MAX_JOINTS; ++i) {
+    m_type = other.m_type;
+    m_jointsCount = other.m_jointsCount;
+    m_limbsSize = other.m_limbsSize;
+
+    for (int i=0; i<other.m_jointsCount; ++i) {
         m_joints[i] = other.m_joints[i];
         m_quaternions[i] = other.m_quaternions[i];
     }
+
+    memcpy(m_limbs, other.m_limbs, other.m_limbsSize * sizeof(SkeletonLimb));
 
     return *this;
 }
@@ -54,9 +130,19 @@ const Quaternion& Skeleton::getQuaternion(Quaternion::QuaternionType type) const
     return m_quaternions[type];
 }
 
-int Skeleton::getJointsCount() const
+const Skeleton::SkeletonLimb *Skeleton::getLimbsMap() const
 {
-    return MAX_JOINTS;
+    return m_limbs;
+}
+
+short Skeleton::getJointsCount() const
+{
+    return m_jointsCount;
+}
+
+short Skeleton::getLimbsCount() const
+{
+    return m_limbsSize;
 }
 
 void Skeleton::setJoint(SkeletonJoint::JointType type, const SkeletonJoint& joint)
@@ -68,9 +154,9 @@ void Skeleton::computeQuaternions()
 {
     // Quaternions
     for (int i=0; i<20; ++i) {
-        SkeletonJoint::JointType joint1 = staticMap[i][0];
-        SkeletonJoint::JointType joint2 = staticMap[i][1]; // vertex
-        SkeletonJoint::JointType joint3 = staticMap[i][2];
+        SkeletonJoint::JointType joint1 = staticQuaternionsMap[i][0];
+        SkeletonJoint::JointType joint2 = staticQuaternionsMap[i][1]; // vertex
+        SkeletonJoint::JointType joint3 = staticQuaternionsMap[i][2];
         m_quaternions[i] = Quaternion::getRotationBetween(m_joints[joint1].getPosition(),
                                                           m_joints[joint3].getPosition(),
                                                           m_joints[joint2].getPosition());

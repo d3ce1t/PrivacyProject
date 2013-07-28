@@ -99,8 +99,7 @@ void OpenNIDepthInstance::nextFrame(DataFrame &frame)
 {
     // Read Data from OpenNI
     DepthFrame& depthFrame = (DepthFrame&) frame;
-    DepthFrame oniFrame = m_openni->readDepthFrame(); // copy
-    depthFrame = oniFrame; // copy again
+    depthFrame = m_openni->readDepthFrame(); // copy
 
     if (m_of.isOpen()) {
         depthFrame.write(m_of);

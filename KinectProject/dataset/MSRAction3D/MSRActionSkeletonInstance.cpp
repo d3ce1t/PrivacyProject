@@ -6,6 +6,29 @@ using namespace std;
 
 namespace dai {
 
+SkeletonJoint::JointType MSRActionSkeletonInstance::staticMap[20] = {
+    SkeletonJoint::JOINT_RIGHT_SHOULDER,  // 0
+    SkeletonJoint::JOINT_LEFT_SHOULDER,   // 1
+    SkeletonJoint::JOINT_CENTER_SHOULDER, // 2
+    SkeletonJoint::JOINT_SPINE,           // 3
+    SkeletonJoint::JOINT_RIGHT_HIP,       // 4
+    SkeletonJoint::JOINT_LEFT_HIP,        // 5
+    SkeletonJoint::JOINT_CENTER_HIP,      // 6
+    SkeletonJoint::JOINT_RIGHT_ELBOW,     // 7
+    SkeletonJoint::JOINT_LEFT_ELBOW,      // 8
+    SkeletonJoint::JOINT_RIGHT_WRIST,     // 9
+    SkeletonJoint::JOINT_LEFT_WRIST,      // 10
+    SkeletonJoint::JOINT_RIGHT_HAND,      // 11
+    SkeletonJoint::JOINT_LEFT_HAND,       // 12
+    SkeletonJoint::JOINT_RIGHT_KNEE,      // 13
+    SkeletonJoint::JOINT_LEFT_KNEE,       // 14
+    SkeletonJoint::JOINT_RIGHT_ANKLE,     // 15
+    SkeletonJoint::JOINT_LEFT_ANKLE,      // 16
+    SkeletonJoint::JOINT_RIGHT_FOOT,      // 17
+    SkeletonJoint::JOINT_LEFT_FOOT,       // 18
+    SkeletonJoint::JOINT_HEAD             // 19
+};
+
 MSRActionSkeletonInstance::MSRActionSkeletonInstance(const InstanceInfo& info)
     : DataInstance(info)
 {
@@ -77,6 +100,11 @@ void MSRActionSkeletonInstance::nextFrame(DataFrame &frame)
     SkeletonFrame& skeletonFrame = static_cast<SkeletonFrame&>(frame);
     shared_ptr<dai::Skeleton> skeleton = skeletonFrame.getSkeleton(1);
 
+    if (skeleton == nullptr) {
+        skeleton.reset(new dai::Skeleton(dai::Skeleton::SKELETON_KINECT));
+        skeletonFrame.setSkeleton(1, skeleton);
+    }
+
     // Read Data from File
     int nRows = m_nJoints;
 
@@ -91,85 +119,11 @@ void MSRActionSkeletonInstance::nextFrame(DataFrame &frame)
         m_file >> w_z;
         m_file >> w_confidence;
 
-        SkeletonJoint joint(Point3f(w_x, w_y, w_z));
-        SkeletonJoint::JointType type = convertIntToType(i);
-        skeleton->setJoint(type, joint);
+        SkeletonJoint joint(Point3f(w_x, w_y, w_z), staticMap[i]);
+        skeleton->setJoint(staticMap[i], joint);
     }
 
     skeleton->computeQuaternions();
-    //skeletonFrame.setSkeleton(1, skeleton);
-}
-
-SkeletonJoint::JointType MSRActionSkeletonInstance::convertIntToType(int value)
-{
-    SkeletonJoint::JointType result = SkeletonJoint::JOINT_HEAD;
-
-    switch (value) {
-    case 0:
-        result = SkeletonJoint::JOINT_RIGHT_SHOULDER; // Checked
-        break;
-    case 1:
-        result = SkeletonJoint::JOINT_LEFT_SHOULDER; // Checked
-        break;
-    case 2:
-        result = SkeletonJoint::JOINT_CENTER_SHOULDER; // Checked
-        break;
-    case 3:
-        result = SkeletonJoint::JOINT_SPINE; // Checked
-        break;
-    case 4:
-        result = SkeletonJoint::JOINT_RIGHT_HIP; // Checked
-        break;
-    case 5:
-        result = SkeletonJoint::JOINT_LEFT_HIP; // Checked
-        break;
-    case 6:
-        result = SkeletonJoint::JOINT_CENTER_HIP; // Checked
-        break;
-    case 7:
-        result = SkeletonJoint::JOINT_RIGHT_ELBOW; // Checked
-        break;
-    case 8:
-        result = SkeletonJoint::JOINT_LEFT_ELBOW; // Checked
-        break;
-    case 9:
-        result = SkeletonJoint::JOINT_RIGHT_WRIST; // Checked
-        break;
-    case 10:
-        result = SkeletonJoint::JOINT_LEFT_WRIST; // Checked
-        break;
-    case 11:
-        result = SkeletonJoint::JOINT_RIGHT_HAND; // Checked
-        break;
-    case 12:
-        result = SkeletonJoint::JOINT_LEFT_HAND; // Checked
-        break;
-    case 13:
-        result = SkeletonJoint::JOINT_RIGHT_KNEE; // Checked
-        break;
-    case 14:
-        result = SkeletonJoint::JOINT_LEFT_KNEE; // Checked
-        break;
-    case 15:
-        result = SkeletonJoint::JOINT_RIGHT_ANKLE; // Checked
-        break;
-    case 16:
-        result = SkeletonJoint::JOINT_LEFT_ANKLE; // Checked
-        break;
-    case 17:
-        result = SkeletonJoint::JOINT_RIGHT_FOOT; // Checked
-        break;
-    case 18:
-        result = SkeletonJoint::JOINT_LEFT_FOOT; // Checked
-        break;
-    case 19:
-        result = SkeletonJoint::JOINT_HEAD; // Checked
-        break;
-    default:
-        qDebug() << "No se deberia entrar aqui";
-    }
-
-    return result;
 }
 
 } // End Namespace

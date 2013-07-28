@@ -94,9 +94,8 @@ void OpenNISkeletonInstance::restartInstance()
 void OpenNISkeletonInstance::nextFrame(DataFrame &frame)
 {
     // Read Data from OpenNI
-    dai::Skeleton& skeletonFrame = (dai::Skeleton&) frame;
-    dai::Skeleton oniFrame = m_openni->readSkeleton(); // copy
-    skeletonFrame = oniFrame; // copy again
+    SkeletonFrame& skeletonFrame = static_cast<SkeletonFrame&>(frame);
+    skeletonFrame = m_openni->readSkeletonFrame(); // copy
 
     /*if (m_of.isOpen()) {
         skeletonFrame.write(m_of);

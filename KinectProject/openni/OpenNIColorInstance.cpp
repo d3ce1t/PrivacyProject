@@ -99,8 +99,7 @@ void OpenNIColorInstance::nextFrame(DataFrame &frame)
 {
     // Read Data from OpenNI
     ColorFrame& colorFrame = (ColorFrame&) frame;
-    ColorFrame oniFrame = m_openni->readColorFrame(); // copy
-    colorFrame = oniFrame; // copy again
+    colorFrame = m_openni->readColorFrame(); // copy
 
     if (m_of.isOpen()) {
         colorFrame.write(m_of);
