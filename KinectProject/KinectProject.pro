@@ -31,7 +31,6 @@ HEADERS += \
     types/DepthFrame.h \
     types/DataFrame.h \
     types/ColorFrame.h \
-    viewer/SkeletonPainter.h \
     viewer/ColorFramePainter.h \
     dataset/MSRAction3D/MSRActionDepthInstance.h \
     dataset/MSRAction3D/MSRActionSkeletonInstance.h \
@@ -70,7 +69,8 @@ HEADERS += \
     openni/OpenNIUserInstance.h \
     openni/OpenNISkeletonInstance.h \
     viewer/TestListener.h \
-    types/SkeletonFrame.h
+    types/SkeletonFrame.h \
+    viewer/SkeletonFramePainter.h
 
 SOURCES += \
     dataset/MSRAction3D/MSR3Action3D.cpp \
@@ -95,7 +95,6 @@ SOURCES += \
     types/DepthFrame.cpp \
     types/DataFrame.cpp \
     types/ColorFrame.cpp \
-    viewer/SkeletonPainter.cpp \
     viewer/ColorFramePainter.cpp \
     dataset/MSRAction3D/MSRActionDepthInstance.cpp \
     dataset/MSRAction3D/MSRActionSkeletonInstance.cpp \
@@ -129,7 +128,8 @@ SOURCES += \
     openni/OpenNIUserInstance.cpp \
     openni/OpenNISkeletonInstance.cpp \
     viewer/TestListener.cpp \
-    types/SkeletonFrame.cpp
+    types/SkeletonFrame.cpp \
+    viewer/SkeletonFramePainter.cpp
 
 RESOURCES += openglunderqml.qrc
 

@@ -5,7 +5,7 @@
 #include <QQuickWindow>
 #include <iostream>
 #include "DepthFramePainter.h"
-#include "SkeletonPainter.h"
+#include "SkeletonFramePainter.h"
 #include "ColorFramePainter.h"
 #include "UserFramePainter.h"
 
@@ -17,7 +17,7 @@ InstanceViewer::InstanceViewer()
     // Create Painters
     dai::ColorFramePainter* color = new dai::ColorFramePainter(this);
     dai::DepthFramePainter* depth = new dai::DepthFramePainter(this);
-    dai::SkeletonPainter* skeleton = new dai::SkeletonPainter(this);
+    dai::SkeletonFramePainter* skeleton = new dai::SkeletonFramePainter(this);
     dai::UserFramePainter* user = new dai::UserFramePainter(this);
 
     // Store Painters in order print order

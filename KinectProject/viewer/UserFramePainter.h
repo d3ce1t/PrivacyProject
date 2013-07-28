@@ -6,6 +6,9 @@
 #include <QOpenGLVertexArrayObject>
 #include <QMatrix4x4>
 #include "types/UserFrame.h"
+#include "types/ColorFrame.h"
+
+#define USER_COLORS 6
 
 class QOpenGLShaderProgram;
 
@@ -24,12 +27,14 @@ protected:
     void render();
 
 private:
+    static RGBColor staticUserColors[USER_COLORS];
+
     void prepareShaderProgram();
     void prepareVertexBuffer();
     void loadVideoTexture(void *texture, GLsizei width, GLsizei height, GLuint glTextureId);
 
     shared_ptr<UserFrame>    m_frame;
-    u_int8_t*                m_textureMask;
+    RGBColor*                m_textureMask;
     const int                textureUnit;
     QOpenGLVertexArrayObject m_vao;
     QOpenGLBuffer            m_positionsBuffer;

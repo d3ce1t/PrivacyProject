@@ -2,18 +2,26 @@
 
 namespace dai {
 
+RGBColor UserFramePainter::staticUserColors[USER_COLORS] = {
+    {  0,   0,   0},
+    {255,   0,   0},
+    {  0, 255,   0},
+    {  0,   0, 255},
+    {255, 255,   0},
+    {  0, 255, 255}
+};
+
 UserFramePainter::UserFramePainter(InstanceViewer *parent)
     : Painter(parent), textureUnit(0)
 {
     m_frame = nullptr;
-    m_textureMask = new u_int8_t[640*480];
+    m_textureMask = new RGBColor[640*480];
 }
 
 UserFramePainter::~UserFramePainter()
 {
     delete[] m_textureMask;
     m_textureMask = nullptr;
-
     m_frame = nullptr;
 }
 
@@ -38,12 +46,12 @@ void UserFramePainter::prepareData(shared_ptr<DataFrame> frame)
 {
     m_frame = static_pointer_cast<UserFrame>(frame);
 
-    memset(m_textureMask, 0, 640*480*sizeof(u_int8_t));
+    //memset(m_textureMask, 0, 640*480*sizeof(RGBColor));
 
     for (int i=0; i<480; ++i) {
         for (int j=0; j<640; ++j) {
-            u_int8_t label = m_frame->getItem(i,j);
-            m_textureMask[i*640+j] = label > 0 ? 255 : 0;
+            short userColor = m_frame->getItem(i,j) % USER_COLORS;
+            m_textureMask[i*640+j] = staticUserColors[userColor];
         }
     }
 }
@@ -139,7 +147,7 @@ void UserFramePainter::loadVideoTexture(void* texture, GLsizei width, GLsizei he
     glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, texture);
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 

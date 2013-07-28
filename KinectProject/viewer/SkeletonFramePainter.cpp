@@ -1,4 +1,4 @@
-#include "SkeletonPainter.h"
+#include "SkeletonFramePainter.h"
 #include "../dataset/DataInstance.h"
 #include <QMetaEnum>
 #include <cmath>
@@ -11,7 +11,7 @@ namespace dai {
 #define BlackColor QVector3D(0, 0, 0)
 #define YellowColor QVector3D(1.0, 1.0, 0);
 
-QVector3D SkeletonPainter::staticJointsColor[20] = {
+QVector3D SkeletonFramePainter::staticJointsColor[20] = {
     BlueColor, // JOINT_HEAD
     BlackColor, // JOINT_CENTER_SHOULDER
     RedColor,   // JOINT_LEFT_SHOULDER
@@ -34,12 +34,12 @@ QVector3D SkeletonPainter::staticJointsColor[20] = {
     GreenColor // JOINT_RIGHT_FOOT
 };
 
-SkeletonPainter::SkeletonPainter(InstanceViewer *parent)
+SkeletonFramePainter::SkeletonFramePainter(InstanceViewer *parent)
     : Painter(parent)
 {
 }
 
-void SkeletonPainter::initialise()
+void SkeletonFramePainter::initialise()
 {
     // Load, compile and link the shader program
     prepareShaderProgram();
@@ -48,17 +48,17 @@ void SkeletonPainter::initialise()
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
-SkeletonFrame &SkeletonPainter::frame()
+SkeletonFrame &SkeletonFramePainter::frame()
 {
     return *m_frame;
 }
 
-void SkeletonPainter::prepareData(shared_ptr<DataFrame> frame)
+void SkeletonFramePainter::prepareData(shared_ptr<DataFrame> frame)
 {
     m_frame = static_pointer_cast<SkeletonFrame>(frame);
 }
 
-void SkeletonPainter::render()
+void SkeletonFramePainter::render()
 {
     if (m_frame == nullptr)
         return;
@@ -74,7 +74,7 @@ void SkeletonPainter::render()
     }
 }
 
-void SkeletonPainter::prepareShaderProgram()
+void SkeletonFramePainter::prepareShaderProgram()
 {
     m_shaderProgram = new QOpenGLShaderProgram();
     m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/glsl/glsl/simpleVertex.vsh");
@@ -95,7 +95,7 @@ void SkeletonPainter::prepareShaderProgram()
     m_shaderProgram->release();
 }
 
-void SkeletonPainter::drawLimb(const dai::SkeletonJoint& joint1, const dai::SkeletonJoint& joint2)
+void SkeletonFramePainter::drawLimb(const dai::SkeletonJoint& joint1, const dai::SkeletonJoint& joint2)
 {
     float coordinates[] = {
         (float) joint1.getPosition().x(), (float) joint1.getPosition().y(), (float) -joint1.getPosition().z(),

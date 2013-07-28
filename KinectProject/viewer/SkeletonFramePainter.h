@@ -1,5 +1,5 @@
-﻿#ifndef SKELETON_PAINTER_H
-#define SKELETON_PAINTER_H
+﻿#ifndef SKELETON_FRAME_PAINTER_H
+#define SKELETON_FRAME_PAINTER_H
 
 #include "Painter.h"
 #include <QMatrix4x4>
@@ -9,10 +9,10 @@
 
 namespace dai {
 
-class SkeletonPainter : public Painter
+class SkeletonFramePainter : public Painter
 {
 public:
-    explicit SkeletonPainter(InstanceViewer* parent);
+    explicit SkeletonFramePainter(InstanceViewer* parent);
     void prepareData(shared_ptr<DataFrame> frame);
     SkeletonFrame& frame();
 
@@ -37,4 +37,4 @@ private:
 
 } // End Namespace
 
-#endif // SKELETON_PAINTER_H
+#endif // SKELETON_FRAME_PAINTER_H
