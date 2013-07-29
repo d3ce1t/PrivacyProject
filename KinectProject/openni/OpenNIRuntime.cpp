@@ -85,7 +85,8 @@ ColorFrame OpenNIRuntime::readColorFrame()
 
 void OpenNIRuntime::initOpenNI()
 {
-    const char* deviceURI = openni::ANY_DEVICE;
+    //const char* deviceURI = openni::ANY_DEVICE;
+    const char* deviceURI = "/files/capture/Captured.oni";
 
     try {
         if (openni::OpenNI::initialize() != openni::STATUS_OK)
@@ -97,18 +98,41 @@ void OpenNIRuntime::initOpenNI()
         if (nite::NiTE::initialize() != nite::STATUS_OK)
             throw 3;
 
+        // Create Color Stream and Setup Mode
         if (m_oniColorStream.create(m_device, openni::SENSOR_COLOR) != openni::STATUS_OK)
             throw 4;
 
-        if (m_oniColorStream.start() != openni::STATUS_OK)
+        openni::VideoMode videoMode = m_oniColorStream.getVideoMode();
+        videoMode.setResolution(640, 480);
+        //videoMode.setPixelFormat(openni::PIXEL_FORMAT_RGB888);
+        m_oniColorStream.setVideoMode(videoMode);
+
+        // Create Depth Stream and Setup Mode
+        if (m_oniDepthStream.create(m_device, openni::SENSOR_DEPTH) != openni::STATUS_OK)
             throw 5;
 
-        if (m_oniUserTracker.create(&m_device) != nite::STATUS_OK)
+        videoMode = m_oniDepthStream.getVideoMode();
+        videoMode.setResolution(640, 480);
+        m_oniDepthStream.setVideoMode(videoMode);
+
+        // Enable Depth and Color sync
+        if (!m_device.getDepthColorSyncEnabled())
+            m_device.setDepthColorSyncEnabled(true);
+
+        if (m_oniColorStream.start() != openni::STATUS_OK)
             throw 6;
 
-        if (!m_oniUserTracker.isValid() || !m_oniColorStream.isValid())
+        /*if (m_oniDepthStream.start() != openni::STATUS_OK)
+            throw 6;*/
+
+        if (m_oniUserTracker.create(&m_device) != nite::STATUS_OK)
             throw 7;
 
+        if (!m_oniUserTracker.isValid() || !m_oniColorStream.isValid())
+            throw 8;
+
+
+        qDebug() << "Sync Enabled:" << m_device.getDepthColorSyncEnabled();
 
         m_oniColorStream.addNewFrameListener(this);
         m_oniUserTracker.addNewFrameListener(this);
@@ -131,9 +155,10 @@ void OpenNIRuntime::shutdownOpenNI()
     //m_oniColorFrame.release();
 
     // Destroy streams and close device
-    m_oniUserTracker.destroy();
-    m_oniColorStream.destroy();
-    m_device.close();
+    //m_oniUserTracker.destroy();
+    //m_oniDepthStream.destroy();
+    //m_oniColorStream.destroy();
+    //m_device.close();
 
     // Shutdown library
     nite::NiTE::shutdown();
@@ -164,6 +189,7 @@ void OpenNIRuntime::onNewFrame(openni::VideoStream& stream)
             throw 3;
         }
 
+        // qDebug() << oniColorFrame.getWidth() << oniColorFrame.getHeight();
         memcpy((void*) m_colorFrame.getDataPtr(), oniColorFrame.getData(), 640 * 480 * sizeof(openni::RGB888Pixel));
     }
 }
@@ -184,6 +210,8 @@ void OpenNIRuntime::onNewFrame(nite::UserTracker& oniUserTracker)
     //m_pUserTracker.setSkeletonSmoothingFactor(0.7);
     openni::VideoFrameRef oniDepthFrame = oniUserTrackerFrame.getDepthFrame();
     const nite::UserMap& userMap = oniUserTrackerFrame.getUserMap();
+
+    //qDebug() << oniDepthFrame.getWidth() << oniDepthFrame.getHeight();
 
     int strideDepth = oniDepthFrame.getStrideInBytes() / sizeof(openni::DepthPixel) - oniDepthFrame.getWidth();
     int strideUser = userMap.getStride() / sizeof(nite::UserId) - userMap.getWidth();
@@ -218,6 +246,7 @@ void OpenNIRuntime::oniLoadSkeleton(nite::UserTracker& oniUserTracker, nite::Use
 {
     const nite::Array<nite::UserData>& users = oniUserTrackerFrame.getUsers();
     m_skeletonFrame.clear();
+    m_skeletonFrame.setIndex(oniUserTrackerFrame.getFrameIndex());
     int trackedSkeletons = 0;
 
     for (int i=0; i<users.getSize(); ++i)
@@ -228,19 +257,19 @@ void OpenNIRuntime::oniLoadSkeleton(nite::UserTracker& oniUserTracker, nite::Use
             // Detect PSI pose to start skeleton tracking
             std::cout << "New user!" << endl;
             oniUserTracker.startSkeletonTracking(user.getId());
-            oniUserTracker.startPoseDetection(user.getId(), nite::POSE_CROSSED_HANDS);
+            //oniUserTracker.startPoseDetection(user.getId(), nite::POSE_CROSSED_HANDS);
         }
         else if (!user.isLost())
         {
-            const nite::PoseData& poseData = user.getPose(nite::POSE_CROSSED_HANDS);
+            //const nite::PoseData& poseData = user.getPose(nite::POSE_CROSSED_HANDS);
 
-            if (poseData.isEntered()) {
+            /*if (poseData.isEntered()) {
                 m_trackingStarted[user.getId()] = true;
                 std::cout << "Entered pose" << endl;
-            }
+            }*/
 
-            if (m_trackingStarted[user.getId()])
-            {
+            //if (m_trackingStarted[user.getId()])
+            //{
                 const nite::Skeleton& oniSkeleton = user.getSkeleton();
                 const nite::SkeletonJoint& head = user.getSkeleton().getJoint(nite::JOINT_HEAD);
 
@@ -267,11 +296,11 @@ void OpenNIRuntime::oniLoadSkeleton(nite::UserTracker& oniUserTracker, nite::Use
 
                     daiSkeleton->computeQuaternions();
                 }
-            }
+            //}
         }
         else if (user.isLost()) {
             qDebug() << "user lost" << user.getId();
-            m_trackingStarted[user.getId()] = false;
+            //m_trackingStarted[user.getId()] = false;
             //oniUserTracker.stopSkeletonTracking(user.getId());
         }
     } // End for

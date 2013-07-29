@@ -51,6 +51,7 @@ private:
     // OpenNI Data
     openni::Device            m_device;
     openni::VideoStream       m_oniColorStream;
+    openni::VideoStream       m_oniDepthStream;
     nite::UserTracker         m_oniUserTracker;
     QReadWriteLock            m_lockColor;
     QReadWriteLock            m_lockDepth;
