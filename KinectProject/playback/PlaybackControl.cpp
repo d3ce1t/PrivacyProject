@@ -165,7 +165,8 @@ void PlaybackControl::notifyListeners(QList<shared_ptr<StreamInstance>> changedI
     }
 
     foreach (PlaybackListener* listener, sendResult.keys())
-        listener->onNewFrame(sendResult.value(listener));
+        if (listener != nullptr)
+            listener->onNewFrame(sendResult.value(listener));
 }
 
 void PlaybackControl::addListener(PlaybackListener* listener, shared_ptr<StreamInstance> instance)

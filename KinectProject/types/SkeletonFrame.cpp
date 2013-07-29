@@ -70,7 +70,7 @@ void SkeletonFrame::write(QFile &of) const
         for (int i=0; i<MAX_JOINTS; ++i) {
             const SkeletonJoint& joint = skeleton->getJoint( (SkeletonJoint::JointType) i);
             const Point3f& position = joint.getPosition();
-            of.write( (char*) position.dataPtr(), sizeof(double) );
+            of.write( (char*) position.dataPtr(), 3 * sizeof(double) );
         }
     }
 

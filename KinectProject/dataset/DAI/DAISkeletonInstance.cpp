@@ -91,7 +91,7 @@ void DAISkeletonInstance::nextFrame(DataFrame &frame)
         // Read all joints (by now, used and unused)
         for (int i=0; i<MAX_JOINTS; ++i) {
             Point3f position;
-            m_file.read( (char*) position.dataPtr(), sizeof(double) );
+            m_file.read( (char*) position.dataPtr(), 3 * sizeof(double) );
             SkeletonJoint joint(position, (SkeletonJoint::JointType) i);
             skeleton->setJoint( (SkeletonJoint::JointType) i, joint);
         }
