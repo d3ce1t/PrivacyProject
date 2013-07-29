@@ -2,9 +2,6 @@
 #define DAIDATASET_H
 
 #include "dataset/Dataset.h"
-#include "DAIDepthInstance.h"
-#include "DAIColorInstance.h"
-#include "DAIUserInstance.h"
 
 namespace dai {
 

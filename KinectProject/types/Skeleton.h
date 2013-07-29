@@ -38,6 +38,7 @@ public:
     const SkeletonLimb* getLimbsMap() const;
     short getJointsCount() const;
     short getLimbsCount() const;
+    SkeletonType getType() const;
     void setJoint(SkeletonJoint::JointType type, const SkeletonJoint& joint);
     void computeQuaternions();
 

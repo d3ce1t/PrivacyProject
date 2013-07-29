@@ -52,6 +52,7 @@ void OpenNISkeletonInstance::openInstance()
 
                 int numFrames = 0;
 
+                m_ts.setDevice(&m_of);
                 m_of.seek(0);
                 m_of.write( (char*) &numFrames, sizeof(numFrames) );
             }
@@ -97,9 +98,9 @@ void OpenNISkeletonInstance::nextFrame(DataFrame &frame)
     SkeletonFrame& skeletonFrame = static_cast<SkeletonFrame&>(frame);
     skeletonFrame = m_openni->readSkeletonFrame(); // copy
 
-    /*if (m_of.isOpen()) {
+    if (m_of.isOpen()) {
         skeletonFrame.write(m_of);
-    }*/
+    }
 }
 
 } // End Namespace

@@ -70,7 +70,8 @@ HEADERS += \
     openni/OpenNISkeletonInstance.h \
     viewer/TestListener.h \
     types/SkeletonFrame.h \
-    viewer/SkeletonFramePainter.h
+    viewer/SkeletonFramePainter.h \
+    dataset/DAI/DAISkeletonInstance.h
 
 SOURCES += \
     dataset/MSRAction3D/MSR3Action3D.cpp \
@@ -129,7 +130,8 @@ SOURCES += \
     openni/OpenNISkeletonInstance.cpp \
     viewer/TestListener.cpp \
     types/SkeletonFrame.cpp \
-    viewer/SkeletonFramePainter.cpp
+    viewer/SkeletonFramePainter.cpp \
+    dataset/DAI/DAISkeletonInstance.cpp
 
 RESOURCES += openglunderqml.qrc
 

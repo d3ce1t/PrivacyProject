@@ -10,9 +10,9 @@
 #include <QObject>
 #include <QTableView>
 #include <QStandardItemModel>
+#include <QListWidget>
 
 class InstanceViewer;
-class QListWidget;
 
 namespace dai {
 

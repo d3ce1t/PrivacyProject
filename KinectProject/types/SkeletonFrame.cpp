@@ -45,4 +45,36 @@ void SkeletonFrame::clear()
     m_hashSkeletons.clear();
 }
 
+void SkeletonFrame::write(QFile &of) const
+{
+    // Write frame index
+    of.write( (char*) &m_index, sizeof(m_index) );
+
+    // Write Num Skeletons
+    int numSkeletons = m_hashSkeletons.size();
+    of.write( (char*) &numSkeletons, sizeof(numSkeletons) );
+
+    // Write all skeletons
+    foreach (int key, m_hashSkeletons.keys())
+    {
+        shared_ptr<dai::Skeleton> skeleton = m_hashSkeletons.value(key);
+
+        // Write user key
+        of.write( (char*) &key, sizeof(key) );
+
+        // Write Skeleton Type (determine used joints)
+        Skeleton::SkeletonType type = skeleton->getType();
+        of.write( (char*) &type, sizeof(Skeleton::SkeletonType) );
+
+        // Write all joints (by now, used and unused)
+        for (int i=0; i<MAX_JOINTS; ++i) {
+            const SkeletonJoint& joint = skeleton->getJoint( (SkeletonJoint::JointType) i);
+            const Point3f& position = joint.getPosition();
+            of.write( (char*) position.dataPtr(), sizeof(double) );
+        }
+    }
+
+    of.flush();
+}
+
 } // End Namespace

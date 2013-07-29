@@ -5,6 +5,7 @@
 #include <QOpenGLBuffer>
 #include <QMatrix4x4>
 #include "../types/DepthFrame.h"
+#include <QMutex>
 
 namespace dai {
 
@@ -21,10 +22,11 @@ protected:
     void render();
 
 private:
+    void convertDepthToRealWorld(int x, int y, float distance, float &outX, float &outY);
     void prepareShaderProgram();
 
     shared_ptr<DepthFrame>  m_frame;
-    const static QVector3D  m_colors[5];
+    QMutex                  m_lockFrame;
     QMap<float, float>      m_pDepthHist;
 
     // OpenGL identifiers

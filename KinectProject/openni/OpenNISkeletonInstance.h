@@ -5,6 +5,7 @@
 #include "types/StreamInstance.h"
 #include "types/SkeletonFrame.h"
 #include <QFile>
+#include <QTextStream>
 
 namespace dai {
 
@@ -26,6 +27,7 @@ private:
     OpenNIRuntime*            m_openni;
     shared_ptr<SkeletonFrame> m_frameBuffer[2];
     QFile                     m_of;
+    QTextStream               m_ts;
     QString                   m_outputFile;
 };
 

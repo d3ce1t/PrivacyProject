@@ -1,4 +1,8 @@
 #include "DAIDataset.h"
+#include "DAIDepthInstance.h"
+#include "DAIColorInstance.h"
+#include "DAIUserInstance.h"
+#include "DAISkeletonInstance.h"
 
 namespace dai {
 
@@ -16,7 +20,7 @@ shared_ptr<DataInstance> DAIDataset::getDepthInstance(int activity, int actor, i
 shared_ptr<DataInstance> DAIDataset::getSkeletonInstance(int activity, int actor, int sample) const
 {
     const InstanceInfo instanceInfo = m_metadata->instance(InstanceInfo::Skeleton, activity, actor, sample);
-    return shared_ptr<DataInstance>(new DataInstance(instanceInfo));
+    return shared_ptr<DataInstance>(new DAISkeletonInstance(instanceInfo));
 }
 
 shared_ptr<DataInstance> DAIDataset::getColorInstance(int activity, int actor, int sample) const

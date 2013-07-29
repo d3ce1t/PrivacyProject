@@ -28,6 +28,7 @@ public:
     SkeletonFrame readSkeletonFrame();
     void onNewFrame(openni::VideoStream& stream);
     void onNewFrame(nite::UserTracker& oniUserTracker);
+    void convertDepthToRealWorld(int x, int y, float distance, float &outX, float &outY);
 
 private:
     static SkeletonJoint::JointType staticMap[15];

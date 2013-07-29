@@ -157,8 +157,8 @@ void InstanceViewer::updatePaintersMatrix()
 void InstanceViewer::resetPerspective()
 {
     m_matrix.setToIdentity();
-    m_matrix.perspective(70, 1.0, 0.01, 10.0);
-    m_matrix.translate(0, 0, -1.425);
+    m_matrix.perspective(43, 640/480, 0.01, 10.0);
+    //m_matrix.translate(0, 0, 0.2);
     updatePaintersMatrix();
 }
 

@@ -7,6 +7,8 @@ varying vec2 v_texCoord;
 
 void main()
 {
-    gl_Position = perspectiveMatrix * posAttr;
+    vec4 position = posAttr;
+    position.z -= 2.5;
+    gl_Position = perspectiveMatrix * position;
     v_texCoord = texCoord;
 }

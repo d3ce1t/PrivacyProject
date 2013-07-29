@@ -5,16 +5,11 @@
 #include "DepthSeg.h"
 #include "Utils.h"*/
 #include <QColor>
+#include <NiTE.h>
+#include "openni/OpenNIRuntime.h"
+#include <QMutexLocker>
 
 namespace dai {
-
-const QVector3D DepthFramePainter::m_colors[5] = {
-    QVector3D(1.0, 0.0, 0.0),
-    QVector3D(0.0, 1.0, 0.0),
-    QVector3D(0.0, 0.0, 1.0),
-    QVector3D(1.0, 1.0, 0.0),
-    QVector3D(0.0, 1.0, 1.0)
-};
 
 DepthFramePainter::DepthFramePainter(InstanceViewer *parent)
     : Painter(parent)
@@ -35,17 +30,21 @@ void DepthFramePainter::initialise()
 
 DepthFrame& DepthFramePainter::frame()
 {
+    QMutexLocker locker(&m_lockFrame);
     return *m_frame;
 }
 
 void DepthFramePainter::prepareData(shared_ptr<DataFrame> frame)
 {
+    QMutexLocker locker(&m_lockFrame);
     m_frame = static_pointer_cast<DepthFrame>(frame);
     DepthFrame::calculateHistogram(m_pDepthHist, *m_frame);
 }
 
 void DepthFramePainter::render()
 {
+    QMutexLocker locker(&m_lockFrame);
+
     if (m_frame == nullptr)
         return;
 
@@ -89,40 +88,28 @@ void DepthFramePainter::render()
         {
             float distance = m_frame->getItem(y, x);
 
-            //qDebug() << m_frame.getNumOfNonZeroPoints();
-
             if (distance > 0)
             {
-                float normX = DataInstance::normalise(x, 0, m_frame->getWidth()-1, -1, 1);
-                float normY = DataInstance::normalise(y, 0, m_frame->getHeight()-1, -1, 1);
-                //float norm_color = DataInstance::normalise(distance, min_distance, max_distance, 0, 0.83);
+                float normX;// = DataInstance::normalise(x, 0, m_frame->getWidth()-1, -1, 1);
+                float normY;// = DataInstance::normalise(y, 0, m_frame->getHeight()-1, -1, 1);
+                float norm_color = DataInstance::normalise(distance, 0, 6, 0, 0.83);
+                convertDepthToRealWorld(x, y, distance, normX, normY);
+
+                if (norm_color > 0.83)
+                    norm_color = 0.83;
 
                 vertex[offset] = normX;
                 vertex[offset+1] = -normY;
                 vertex[offset+2] = -distance;
 
-                //float cluster = dseg->getCluster(y, x);
+                QColor depthColor = QColor::fromHsvF(norm_color, 1.0, 1.0);
+                color[offset] = depthColor.redF();
+                color[offset+1] = depthColor.greenF();
+                color[offset+2] = depthColor.blueF();
 
-                /*if (cluster != -1) {
-                    float norm_color = DataInstance::normalise(cluster / max_cluster, 0, 1, 0, 0.83);
-                    QColor cluster_color = QColor::fromHsvF(norm_color, 1.0, 1.0);
-                    color[offset] = cluster_color.redF();
-                    color[offset+1] = cluster_color.greenF();
-                    color[offset+2] = cluster_color.blueF();
-                }*/
-                /*else {*/
-
-                //short int label = m_frame->getLabel(y, x);
-
-                //if (label == 0) {
-                    color[offset] = m_pDepthHist[distance];
-                    color[offset+1] = m_pDepthHist[distance];
-                    color[offset+2] = m_pDepthHist[distance];
-                /*} else {
-                    color[offset] = m_colors[label-1 % 5].x();
-                    color[offset+1] = m_colors[label-1 % 5].y();
-                    color[offset+2] = m_colors[label-1 % 5].z();
-                }*/
+                /*color[offset] = m_pDepthHist[distance];
+                color[offset+1] = m_pDepthHist[distance];
+                color[offset+2] = m_pDepthHist[distance];*/
 
                 offset+=3;
             }
@@ -147,6 +134,8 @@ void DepthFramePainter::render()
     delete[] color;
     //delete[] data;
 
+    m_frame = nullptr;
+
     //glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
 }
 
@@ -169,6 +158,19 @@ void DepthFramePainter::prepareShaderProgram()
     m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
     m_shaderProgram->setUniformValue(m_pointSize, 2.0f);
     m_shaderProgram->release();
+}
+
+void DepthFramePainter::convertDepthToRealWorld(int x, int y, float distance, float &outX, float &outY) {
+
+    static const double fx_d = 1.0 / 5.9421434211923247e+02;
+    static const double fy_d = 1.0 / 5.9104053696870778e+02;
+    static const double cx_d = m_frame->getWidth() / 2; // 3.3930780975300314e+02;
+    static const double cy_d = m_frame->getHeight() / 2; // 2.4273913761751615e+02;
+
+    outX = float((x - cx_d) * distance * fx_d);
+    outY = float((y - cy_d) * distance * fy_d);
+
+    //qDebug() << outX << outY;
 }
 
 } // End Namespace

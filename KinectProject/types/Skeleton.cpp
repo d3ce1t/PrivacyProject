@@ -145,6 +145,11 @@ short Skeleton::getLimbsCount() const
     return m_limbsSize;
 }
 
+Skeleton::SkeletonType Skeleton::getType() const
+{
+    return m_type;
+}
+
 void Skeleton::setJoint(SkeletonJoint::JointType type, const SkeletonJoint& joint)
 {
     m_joints[type] = joint; // copy

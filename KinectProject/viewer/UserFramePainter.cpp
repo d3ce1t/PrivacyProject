@@ -64,7 +64,6 @@ void UserFramePainter::render()
     // Load into GPU
     loadVideoTexture((void *) m_textureMask, m_frame->getWidth(), m_frame->getHeight(), m_frameTexture);
 
-
     // Render
     m_shaderProgram->bind();
     m_vao.bind();

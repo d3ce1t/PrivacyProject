@@ -6,7 +6,7 @@ namespace dai {
 
 Point3f::Point3f()
 {
-    m_x = m_y = m_z = 0.0f;
+    m_pos[0] = m_pos[1] = m_pos[2] = 0.0f;
 }
 
 Point3f::Point3f(double x, double y, double z)
@@ -21,20 +21,20 @@ Point3f::Point3f(const Point3f& other)
 
 void Point3f::set(double x, double y, double z)
 {
-    m_x = x;
-    m_y = y;
-    m_z = z;
+    m_pos[0] = x;
+    m_pos[1] = y;
+    m_pos[2] = z;
 }
 
 Point3f& Point3f::operator=(const Point3f& other)
 {
-    set(other.m_x, other.m_y, other.m_z);
+    set(other.m_pos[0], other.m_pos[1], other.m_pos[2]);
     return *this;
 }
 
 bool Point3f::operator==(const Point3f& other) const
 {
-    return m_x == other.m_x && m_y == other.m_y && m_z == other.m_z;
+    return m_pos[0] == other.m_pos[0] && m_pos[1] == other.m_pos[1] && m_pos[2] == other.m_pos[2];
 }
 
 bool Point3f::operator!=(const Point3f& other) const
@@ -44,17 +44,22 @@ bool Point3f::operator!=(const Point3f& other) const
 
 double Point3f::x() const
 {
-    return m_x;
+    return m_pos[0];
 }
 
 double Point3f::y() const
 {
-    return m_y;
+    return m_pos[1];
 }
 
 double Point3f::z() const
 {
-    return m_z;
+    return m_pos[2];
+}
+
+const double* Point3f::dataPtr() const
+{
+    return m_pos;
 }
 
 //
@@ -74,9 +79,9 @@ double Point3f::distance(const Point3f& point1, const Point3f& point2, DistanceT
 
 double Point3f::euclideanDistance(const Point3f& point1, const Point3f& point2)
 {
-    double dx = point2.m_x - point1.m_x;
-    double dy = point2.m_y - point1.m_y;
-    double dz = point2.m_z - point1.m_z;
+    double dx = point2.x() - point1.x();
+    double dy = point2.y() - point1.y();
+    double dz = point2.z() - point1.z();
     return sqrt(pow(dx, 2) + pow(dy, 2) + pow(dz, 2));
 }
 

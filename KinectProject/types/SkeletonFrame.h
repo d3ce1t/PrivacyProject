@@ -5,6 +5,7 @@
 #include "types/Skeleton.h"
 #include <QHash>
 #include <memory>
+#include <QFile>
 
 using namespace std;
 
@@ -26,6 +27,7 @@ public:
     void setSkeleton(int userId, const shared_ptr<dai::Skeleton> skeleton);
     QList<int> getAllUsersId() const;
     void clear();
+    void write(QFile &of) const;
 
     // Overload operators
     SkeletonFrame& operator=(const SkeletonFrame& other);

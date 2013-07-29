@@ -272,9 +272,14 @@ void OpenNIRuntime::oniLoadSkeleton(nite::UserTracker& oniUserTracker, nite::Use
         else if (user.isLost()) {
             qDebug() << "user lost" << user.getId();
             m_trackingStarted[user.getId()] = false;
-            oniUserTracker.stopSkeletonTracking(user.getId());
+            //oniUserTracker.stopSkeletonTracking(user.getId());
         }
     } // End for
+}
+
+void OpenNIRuntime::convertDepthToRealWorld(int x, int y, float distance, float &outX, float &outY)
+{
+    m_oniUserTracker.convertDepthCoordinatesToJoint(x, y, distance * 1000, &outX, &outY);
 }
 
 } // End namespace

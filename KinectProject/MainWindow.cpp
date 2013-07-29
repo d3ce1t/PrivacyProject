@@ -257,6 +257,7 @@ void MainWindow::on_btnStartKinect_clicked()
     shared_ptr<dai::OpenNISkeletonInstance> skeletonInstance(new dai::OpenNISkeletonInstance);
     //colorInstance->setOutputFile("/files/capture/capture.rgb");
     //colorInstance->setOutputFile("/ramfs/jose/capture.rgb");
+    //skeletonInstance->setOutputFile("/files/capture/capture.bskel");
 
     // Create Playback
     dai::PlaybackControl* playback = new dai::PlaybackControl;
