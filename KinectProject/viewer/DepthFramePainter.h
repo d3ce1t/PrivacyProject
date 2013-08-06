@@ -28,7 +28,6 @@ private:
 
     shared_ptr<DepthFrame>  m_frame;
     QMutex                  m_lockFrame;
-    QMap<float, float>      m_pDepthHist;
 
     // OpenGL Buffer
     QOpenGLVertexArrayObject              m_vao;
@@ -37,7 +36,7 @@ private:
 
     // OpenGL identifiers
     GLuint                  m_perspectiveMatrix; // Matrix in the shader
-    GLuint                  m_posAttr; // Pos attr in the shader
+    GLuint                  m_indexAttr; // Pos attr in the shader
     GLuint                  m_distanceAttr;
     GLuint                  m_widthUniform;
     GLuint                  m_heightUniform;

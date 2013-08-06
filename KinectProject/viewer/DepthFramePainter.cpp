@@ -38,17 +38,13 @@ void DepthFramePainter::prepareData(shared_ptr<DataFrame> frame)
 {
     QMutexLocker locker(&m_lockFrame);
     m_frame = static_pointer_cast<DepthFrame>(frame);
-    //DepthFrame::calculateHistogram(m_pDepthHist, *m_frame);
 }
 
 void DepthFramePainter::render()
 {
-    //QMutexLocker locker(&m_lockFrame);
-
     if (m_frame == nullptr)
         return;
 
-    //glDisable(GL_DEPTH_TEST);   
     m_shaderProgram->bind();
     m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
     m_shaderProgram->setUniformValue(m_widthUniform, (float) m_frame->getWidth());
@@ -61,7 +57,7 @@ void DepthFramePainter::render()
     m_distancesBuffer.write(0, m_frame->getDataPtr(), count * sizeof(float));
     m_distancesBuffer.release();
 
-    glDrawArrays(GL_POINTS, m_posAttr, count);
+    glDrawArrays(GL_POINTS, m_indexAttr, count);
 
     // Release
     m_vao.release();
@@ -79,7 +75,7 @@ void DepthFramePainter::prepareShaderProgram()
 
     m_shaderProgram->link();
 
-    m_posAttr = m_shaderProgram->attributeLocation("posAttr");
+    m_indexAttr = m_shaderProgram->attributeLocation("indexAttr");
     m_distanceAttr = m_shaderProgram->attributeLocation("distanceAttr");
     m_widthUniform = m_shaderProgram->uniformLocation("width");
     m_heightUniform = m_shaderProgram->uniformLocation("height");
@@ -94,22 +90,17 @@ void DepthFramePainter::prepareShaderProgram()
 
 void DepthFramePainter::prepareVertexBuffer()
 {
-    float posData[640 * 480 * 2];
-    float* pData = posData;
+    float indexData[640 * 480];
+    float* pData = indexData;
 
-    for (int i=0; i<640*480; ++i)
-    {
-        int row = i / 640;
-        int col = (int) fmod(i, 640);
-        *(pData++) = col;
-        *(pData++) = row;
+    for (int i=0; i<640*480; ++i) {
+        *(pData++) = i;
     }
 
     float distanceData[640 * 480];
     pData = distanceData;
 
-    for (int i=0; i<640*480; ++i)
-    {
+    for (int i=0; i<640*480; ++i) {
         *(pData++) = 0.0f;
     }
 
@@ -119,9 +110,9 @@ void DepthFramePainter::prepareVertexBuffer()
     m_positionsBuffer.create(); // Create a vertex buffer
     m_positionsBuffer.setUsagePattern(QOpenGLBuffer::StreamDraw);
     m_positionsBuffer.bind();
-    m_positionsBuffer.allocate(posData, 640*480*2*sizeof(float));
-    m_shaderProgram->enableAttributeArray(m_posAttr);
-    m_shaderProgram->setAttributeBuffer(m_posAttr, GL_FLOAT, 0, 2);
+    m_positionsBuffer.allocate(indexData, 640*480*sizeof(float));
+    m_shaderProgram->enableAttributeArray(m_indexAttr);
+    m_shaderProgram->setAttributeBuffer(m_indexAttr, GL_FLOAT, 0, 1);
     m_positionsBuffer.release();
 
     m_distancesBuffer.create(); // Create a vertex buffer

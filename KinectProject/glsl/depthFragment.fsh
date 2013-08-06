@@ -6,7 +6,7 @@ vec4 hsv_to_rgb(float h, float s, float v, float a);
 
 void main()
 {
-    float norm_color = normalise(v_distance, 0, 4, 0, 0.9);
+    float norm_color = normalise(v_distance, 0.9, 6, 0, 0.85);
 
     if (norm_color > 0.9)
         norm_color = 0.9;

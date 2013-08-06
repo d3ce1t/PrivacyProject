@@ -1,5 +1,5 @@
 #version 130
-attribute highp vec2 posAttr;
+attribute highp float indexAttr;
 attribute highp float distanceAttr;
 uniform highp float width;
 uniform highp float height;
@@ -20,7 +20,9 @@ vec3 convertDepthToRealWorld(vec2 coordinates, float distance)
 
 void main()
 {
-    vec3 realPos = convertDepthToRealWorld(posAttr, distanceAttr);
+    float row = floor(indexAttr / width);
+    float col = mod(indexAttr, width);
+    vec3 realPos = convertDepthToRealWorld(vec2(col, row), distanceAttr);
     gl_Position = perspectiveMatrix * vec4(realPos.xyz, 1.0);
     v_distance = distanceAttr;
 }
