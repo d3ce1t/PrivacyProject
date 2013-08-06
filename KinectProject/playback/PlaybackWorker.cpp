@@ -7,7 +7,7 @@
 namespace dai {
 
 PlaybackWorker::PlaybackWorker(PlaybackControl* parent)
-    : m_sleepTime(100)
+    : m_sleepTime(40000) // 40000 microseconds = 40 ms
 {
     m_parent = parent;
     m_running = false;
@@ -41,44 +41,53 @@ void PlaybackWorker::run()
     time.start();
 
     // Initial Read; Here
+    QList<shared_ptr<StreamInstance>> readInstances = m_parent->readAllInstances();
+
     // Initial Swap
+    swap(readInstances);
 
     while (m_running)
     {
         // Compute time since last update
-        qint64 timeNow = time.elapsed();
+        qint64 timeNow = time.nsecsElapsed() / 1000; // nano seconds to microseconds
         qint64 diffTime = timeNow - lastTime;
 
         if (diffTime >= m_sleepTime)
         {
-            // Compute Frame Per Seconds
-            m_fps = 1.0 / (diffTime / 1000.0f);
-            lastTime = timeNow;
-
             // Notify listeners; Here
-
-            // Prefetch read
-            QList<shared_ptr<StreamInstance>> readInstances = m_parent->readAllInstances();
-
-            // WaitForNotifiers
-
-            // Swap
-
-            // Notify
-            if (readInstances.count() > 0) {                
+            if (readInstances.count() > 0) {
                 emit availableInstances(readInstances);
-                waitForNotifier();
             }
             else {
                 m_running = false;
             }
+
+            // Prefetch read
+            readInstances = m_parent->readAllInstances();
+
+            // WaitForNotifiers
+            waitForNotifier();
+
+            // Swap
+            swap(readInstances);
+
+            // Compute Frame Per Seconds
+            m_fps = 1.0 / (diffTime / 1000000.0f);
+            lastTime = timeNow;
         }
         else {
-            QThread::currentThread()->msleep(m_sleepTime - diffTime);
+            QThread::currentThread()->usleep(m_sleepTime - diffTime); // microseconds
         }
     }
 
     emit finished();
+}
+
+void PlaybackWorker::swap(QList<shared_ptr<StreamInstance>> instances)
+{
+    foreach (shared_ptr<StreamInstance> instance, instances) {
+        instance->swapBuffer();
+    }
 }
 
 void PlaybackWorker::sync()
@@ -100,6 +109,7 @@ void PlaybackWorker::waitForNotifier()
     m_notifierFinish = false;
     m_lockSync.unlock();
 }
+
 
 void PlaybackWorker::stop()
 {

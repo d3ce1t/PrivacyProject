@@ -70,7 +70,6 @@ void StreamInstance::readNextFrame()
         m_writeFrame->setIndex(m_frameIndex);
         nextFrame(*m_writeFrame);
         m_frameIndex++;
-        swapBuffer();
     }
     else {
         closeInstance();

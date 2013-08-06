@@ -31,6 +31,7 @@ public:
     StreamType getType() const;
     const QString& getTitle() const;
     unsigned int getFrameIndex() const;
+    void swapBuffer();
 
 protected:
     virtual void openInstance() = 0;
@@ -45,8 +46,6 @@ protected:
     QString         m_title;
 
 private:
-    void swapBuffer();
-
     unsigned int    m_frameIndex;
     QReadWriteLock  m_locker;
     shared_ptr<DataFrame> m_writeFrame;
