@@ -55,7 +55,7 @@ private:
     nite::UserTracker         m_oniUserTracker;
     QReadWriteLock            m_lockColor;
     QReadWriteLock            m_lockDepth;
-    bool                      m_trackingStarted[MAX_USERS];
+    //bool                      m_trackingStarted[MAX_USERS];
 };
 
 } // End namespace

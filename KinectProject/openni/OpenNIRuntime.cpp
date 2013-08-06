@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cstdio>
 #include "dataset/DataInstance.h"
+#include <QThread>
 
 namespace dai {
 
@@ -25,7 +26,7 @@ SkeletonJoint::JointType OpenNIRuntime::staticMap[15] = {
 
 OpenNIRuntime* OpenNIRuntime::_instance = nullptr;
 int OpenNIRuntime::_instance_counter = 0;
-QMutex             OpenNIRuntime::mutex;
+QMutex OpenNIRuntime::mutex;
 
 OpenNIRuntime* OpenNIRuntime::getInstance()
 {
@@ -86,7 +87,7 @@ ColorFrame OpenNIRuntime::readColorFrame()
 void OpenNIRuntime::initOpenNI()
 {
     //const char* deviceURI = openni::ANY_DEVICE;
-    const char* deviceURI = "/files/capture/Captured.oni";
+    const char* deviceURI = "/files/capture/PrimeSense Short-Range (1.09) - 1 user.oni";
 
     try {
         if (openni::OpenNI::initialize() != openni::STATUS_OK)
@@ -104,7 +105,6 @@ void OpenNIRuntime::initOpenNI()
 
         openni::VideoMode videoMode = m_oniColorStream.getVideoMode();
         videoMode.setResolution(640, 480);
-        //videoMode.setPixelFormat(openni::PIXEL_FORMAT_RGB888);
         m_oniColorStream.setVideoMode(videoMode);
 
         // Create Depth Stream and Setup Mode
@@ -122,16 +122,13 @@ void OpenNIRuntime::initOpenNI()
         if (m_oniColorStream.start() != openni::STATUS_OK)
             throw 6;
 
-        /*if (m_oniDepthStream.start() != openni::STATUS_OK)
-            throw 6;*/
-
         if (m_oniUserTracker.create(&m_device) != nite::STATUS_OK)
             throw 7;
 
         if (!m_oniUserTracker.isValid() || !m_oniColorStream.isValid())
             throw 8;
 
-
+        qDebug() << m_oniColorStream.getVideoMode().getFps();
         qDebug() << "Sync Enabled:" << m_device.getDepthColorSyncEnabled();
 
         m_oniColorStream.addNewFrameListener(this);
@@ -140,7 +137,6 @@ void OpenNIRuntime::initOpenNI()
     catch (int ex)
     {
         printf("OpenNI init error:\n%s\n", openni::OpenNI::getExtendedError());
-        shutdownOpenNI();
         throw ex;
     }
 }
@@ -155,10 +151,10 @@ void OpenNIRuntime::shutdownOpenNI()
     //m_oniColorFrame.release();
 
     // Destroy streams and close device
-    //m_oniUserTracker.destroy();
-    //m_oniDepthStream.destroy();
-    //m_oniColorStream.destroy();
-    //m_device.close();
+    m_oniUserTracker.destroy();
+    m_oniDepthStream.destroy();
+    m_oniColorStream.destroy();
+    m_device.close();
 
     // Shutdown library
     nite::NiTE::shutdown();
@@ -254,7 +250,6 @@ void OpenNIRuntime::oniLoadSkeleton(nite::UserTracker& oniUserTracker, nite::Use
         const nite::UserData& user = users[i];
 
         if (user.isNew()) {
-            // Detect PSI pose to start skeleton tracking
             std::cout << "New user!" << endl;
             oniUserTracker.startSkeletonTracking(user.getId());
             //oniUserTracker.startPoseDetection(user.getId(), nite::POSE_CROSSED_HANDS);
