@@ -16,7 +16,6 @@
 #include "types/DepthFrame.h"
 #include "types/SkeletonFrame.h"
 #include "types/DataFrame.h"
-#include "playback/PlaybackControl.h"
 #include "viewer/InstanceViewerWindow.h"
 #include "viewer/InstanceRecorder.h"
 #include "viewer/TestListener.h"
@@ -31,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {   
     ui->setupUi(this);
+    m_playback = nullptr;
 
     // Show this window centered
     QDesktopWidget *desktop = QApplication::desktop();
@@ -255,15 +255,14 @@ void MainWindow::on_btnStartKinect_clicked()
     shared_ptr<dai::OpenNIDepthInstance> depthInstance(new dai::OpenNIDepthInstance);
     shared_ptr<dai::OpenNIUserInstance> userInstance(new dai::OpenNIUserInstance);
     shared_ptr<dai::OpenNISkeletonInstance> skeletonInstance(new dai::OpenNISkeletonInstance);
-    /*colorInstance->setOutputFile("/ramfs/capture.rgb");
-    depthInstance->setOutputFile("/ramfs/capture.bin");
-    skeletonInstance->setOutputFile("/ramfs/capture.bskel");
-    userInstance->setOutputFile("/ramfs/capture.user");*/
-    //depthInstance->setOutputFile("/ramfs/jose/capture.rgb");
+    /*colorInstance->setOutputFile("/files/capture/capture.rgb");
+    depthInstance->setOutputFile("/files/capture/capture.bin");
+    skeletonInstance->setOutputFile("/files/capture/capture.bskel");
+    userInstance->setOutputFile("/files/capture/capture.user");*/
 
     // Create Playback
-    dai::PlaybackControl* playback = new dai::PlaybackControl;
-    connect(playback, &dai::PlaybackControl::onPlaybackFinished, playback, &dai::PlaybackControl::deleteLater);
+    m_playback = new dai::PlaybackControl;
+    connect(m_playback, &dai::PlaybackControl::onPlaybackFinished, m_playback, &dai::PlaybackControl::deleteLater);
 
     // Create viewers
     dai::InstanceViewerWindow* colorViewer = new dai::InstanceViewerWindow;
@@ -271,18 +270,19 @@ void MainWindow::on_btnStartKinect_clicked()
     dai::InstanceViewerWindow* userViewer = new dai::InstanceViewerWindow;
 
     // Connect all together
-    playback->addInstance(colorInstance);
-    playback->addInstance(depthInstance);
-    playback->addInstance(userInstance);
-    playback->addInstance(skeletonInstance);
+    m_playback->addInstance(colorInstance);
+    m_playback->addInstance(depthInstance);
+    m_playback->addInstance(userInstance);
+    m_playback->addInstance(skeletonInstance);
 
-    playback->addListener(colorViewer, colorInstance);
-    playback->addListener(depthViewer, depthInstance);
-    playback->addListener(userViewer, userInstance);
-    playback->addListener(depthViewer, skeletonInstance);
+    m_playback->addListener(colorViewer, colorInstance);
+    m_playback->addListener(colorViewer, userInstance);
+    m_playback->addListener(depthViewer, depthInstance);
+    m_playback->addListener(userViewer, userInstance);
+    m_playback->addListener(depthViewer, skeletonInstance);
 
     // Run
-    playback->play();
+    m_playback->play();
     colorViewer->show();
     depthViewer->show();
     userViewer->show();
@@ -319,4 +319,13 @@ void MainWindow::searchMinAndMaxDepth()
         qDebug() << "Close instance";
         dataInstance->close();
     }
+}
+
+void MainWindow::on_btnQuit_clicked()
+{
+    if (m_playback != nullptr) {
+        m_playback->stop();
+    }
+
+    //QApplication::exit(0);
 }

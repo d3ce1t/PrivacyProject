@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include "DatasetBrowser.h"
+#include "playback/PlaybackControl.h"
 
 namespace Ui {
 class MainWindow;
@@ -23,11 +24,14 @@ private slots:
     void on_btnTest_clicked();
     void on_btnStartKinect_clicked();
 
+    void on_btnQuit_clicked();
+
 private:
     void searchMinAndMaxDepth();
     static void testSegmentation();
 
 private:
+    dai::PlaybackControl* m_playback;
     Ui::MainWindow *ui;
     DatasetBrowser m_browser;
 };
