@@ -130,6 +130,9 @@ const InstanceInfoList* DatasetMetadata::instances(
     {
         InstanceInfoList* instancesList = hashInstances.value(i); // instances with actors and samples
 
+        if (instancesList == nullptr)
+            continue;
+
         for (int l=0; l<instancesList->size(); ++l)
         {
             InstanceInfo* instance = instancesList->at(l);
