@@ -1,13 +1,10 @@
 #include "DepthFramePainter.h"
-#include "../dataset/DataInstance.h"
-/*#include <cstdio>
-#include "KMeans.h"
-#include "DepthSeg.h"
-#include "Utils.h"*/
+#include "dataset/DataInstance.h"
 #include <QColor>
 #include <NiTE.h>
 #include "openni/OpenNIRuntime.h"
 #include <QMutexLocker>
+#include <cmath>
 
 namespace dai {
 
@@ -26,6 +23,9 @@ void DepthFramePainter::initialise()
 {
     // Load, compile and link the shader program
     prepareShaderProgram();
+
+    // Init Vertex Buffer
+    prepareVertexBuffer();
 }
 
 DepthFrame& DepthFramePainter::frame()
@@ -38,139 +38,101 @@ void DepthFramePainter::prepareData(shared_ptr<DataFrame> frame)
 {
     QMutexLocker locker(&m_lockFrame);
     m_frame = static_pointer_cast<DepthFrame>(frame);
-    DepthFrame::calculateHistogram(m_pDepthHist, *m_frame);
+    //DepthFrame::calculateHistogram(m_pDepthHist, *m_frame);
 }
 
 void DepthFramePainter::render()
 {
-    QMutexLocker locker(&m_lockFrame);
+    //QMutexLocker locker(&m_lockFrame);
 
     if (m_frame == nullptr)
         return;
 
-    //glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
-    //glDisable(GL_DEPTH_TEST);
-
-    // Filter data
-    /*float* data = new float[m_frame.getNumOfNonZeroPoints()];
-    int index = 0;
-
-    for (int i=0; i<m_frame.getHeight(); ++i) {
-        for (int j=0; j<m_frame.getWidth(); ++j) {
-            float value = m_frame.getItem(i, j);
-            if (value != 0) {
-                data[index] = value;
-                index++;
-            }
-        }
-    }
-
-    float min_distance = dai::min_element(data, m_frame.getNumOfNonZeroPoints());
-    float max_distance = dai::max_element(data, m_frame.getNumOfNonZeroPoints());*/
-
-
-    //float max_cluster = 3;
-    //const KMeans* kmeans = KMeans::execute(data, m_frame.getNumOfNonZeroPoints(), max_cluster);
-    //DepthSeg* dseg = new DepthSeg(m_frame);
-    //dseg->execute();
-    //float max_cluster = dai::max_element(dseg->getClusterMask(), m_frame.getWidth() * m_frame.getHeight());
-
-    // Bind Shader
+    //glDisable(GL_DEPTH_TEST);   
     m_shaderProgram->bind();
-
-    float* vertex = new float[m_frame->getNumOfNonZeroPoints() * 3];
-    float* color = new float[m_frame->getNumOfNonZeroPoints() * 3];
-    int offset = 0;
-
-    for (int y = 0; y < m_frame->getHeight(); ++y)
-    {
-        for (int x = 0; x < m_frame->getWidth(); ++x)
-        {
-            float distance = m_frame->getItem(y, x);
-
-            if (distance > 0)
-            {
-                float normX;// = DataInstance::normalise(x, 0, m_frame->getWidth()-1, -1, 1);
-                float normY;// = DataInstance::normalise(y, 0, m_frame->getHeight()-1, -1, 1);
-                float norm_color = DataInstance::normalise(distance, 0, 6, 0, 0.83);
-                convertDepthToRealWorld(x, y, distance, normX, normY);
-
-                if (norm_color > 0.83)
-                    norm_color = 0.83;
-
-                vertex[offset] = normX;
-                vertex[offset+1] = -normY;
-                vertex[offset+2] = -distance;
-
-                QColor depthColor = QColor::fromHsvF(norm_color, 1.0, 1.0);
-                color[offset] = depthColor.redF();
-                color[offset+1] = depthColor.greenF();
-                color[offset+2] = depthColor.blueF();
-
-                /*color[offset] = m_pDepthHist[distance];
-                color[offset+1] = m_pDepthHist[distance];
-                color[offset+2] = m_pDepthHist[distance];*/
-
-                offset+=3;
-            }
-        }
-    }
-
-    m_shaderProgram->setAttributeArray(m_posAttr, vertex, 3);
-    m_shaderProgram->setAttributeArray(m_colorAttr, color, 3);
-    m_shaderProgram->setUniformValue(m_pointSize, 2.0f);
     m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
-    m_shaderProgram->enableAttributeArray(m_posAttr);
-    m_shaderProgram->enableAttributeArray(m_colorAttr);
+    m_shaderProgram->setUniformValue(m_widthUniform, (float) m_frame->getWidth());
+    m_shaderProgram->setUniformValue(m_heightUniform, (float) m_frame->getHeight());
 
-    glDrawArrays(GL_POINTS, m_posAttr, m_frame->getNumOfNonZeroPoints());
+    m_vao.bind();
+
+    int count = m_frame->getWidth() * m_frame->getHeight();
+    m_distancesBuffer.bind();
+    m_distancesBuffer.write(0, m_frame->getDataPtr(), count * sizeof(float));
+    m_distancesBuffer.release();
+
+    glDrawArrays(GL_POINTS, m_posAttr, count);
 
     // Release
-    m_shaderProgram->disableAttributeArray(m_colorAttr);
-    m_shaderProgram->disableAttributeArray(m_posAttr);
+    m_vao.release();
     m_shaderProgram->release();
-
-    delete[] vertex;
-    delete[] color;
-    //delete[] data;
-
-    m_frame = nullptr;
-
-    //glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
 }
 
 void DepthFramePainter::prepareShaderProgram()
 {
     m_shaderProgram = new QOpenGLShaderProgram();
-    m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/glsl/glsl/simpleVertex.vsh");
-    m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/glsl/glsl/simpleFragment.fsh");
+    m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/glsl/glsl/depthVertex.vsh");
+    m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/glsl/glsl/depthFragment.fsh");
     m_shaderProgram->bindAttributeLocation("posAttr", 0);
     m_shaderProgram->bindAttributeLocation("colAttr", 1);
+    m_shaderProgram->bindAttributeLocation("distanceAttr", 2);
 
     m_shaderProgram->link();
 
     m_posAttr = m_shaderProgram->attributeLocation("posAttr");
-    m_colorAttr = m_shaderProgram->attributeLocation("colAttr");
-    m_pointSize = m_shaderProgram->uniformLocation("sizeAttr");
+    m_distanceAttr = m_shaderProgram->attributeLocation("distanceAttr");
+    m_widthUniform = m_shaderProgram->uniformLocation("width");
+    m_heightUniform = m_shaderProgram->uniformLocation("height");
     m_perspectiveMatrix = m_shaderProgram->uniformLocation("perspectiveMatrix");
 
     m_shaderProgram->bind();
     m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
-    m_shaderProgram->setUniformValue(m_pointSize, 2.0f);
+    m_shaderProgram->setUniformValue(m_widthUniform, 640.0f);
+    m_shaderProgram->setUniformValue(m_heightUniform, 480.0f);
     m_shaderProgram->release();
 }
 
-void DepthFramePainter::convertDepthToRealWorld(int x, int y, float distance, float &outX, float &outY) {
+void DepthFramePainter::prepareVertexBuffer()
+{
+    float posData[640 * 480 * 2];
+    float* pData = posData;
 
-    static const double fx_d = 1.0 / 5.9421434211923247e+02;
-    static const double fy_d = 1.0 / 5.9104053696870778e+02;
-    static const double cx_d = m_frame->getWidth() / 2; // 3.3930780975300314e+02;
-    static const double cy_d = m_frame->getHeight() / 2; // 2.4273913761751615e+02;
+    for (int i=0; i<640*480; ++i)
+    {
+        int row = i / 640;
+        int col = (int) fmod(i, 640);
+        *(pData++) = col;
+        *(pData++) = row;
+    }
 
-    outX = float((x - cx_d) * distance * fx_d);
-    outY = float((y - cy_d) * distance * fy_d);
+    float distanceData[640 * 480];
+    pData = distanceData;
 
-    //qDebug() << outX << outY;
+    for (int i=0; i<640*480; ++i)
+    {
+        *(pData++) = 0.0f;
+    }
+
+    m_vao.create();
+    m_vao.bind();
+
+    m_positionsBuffer.create(); // Create a vertex buffer
+    m_positionsBuffer.setUsagePattern(QOpenGLBuffer::StreamDraw);
+    m_positionsBuffer.bind();
+    m_positionsBuffer.allocate(posData, 640*480*2*sizeof(float));
+    m_shaderProgram->enableAttributeArray(m_posAttr);
+    m_shaderProgram->setAttributeBuffer(m_posAttr, GL_FLOAT, 0, 2);
+    m_positionsBuffer.release();
+
+    m_distancesBuffer.create(); // Create a vertex buffer
+    m_distancesBuffer.setUsagePattern(QOpenGLBuffer::StreamDraw);
+    m_distancesBuffer.bind();
+    m_distancesBuffer.allocate(distanceData, 640*480*sizeof(float));
+    m_shaderProgram->enableAttributeArray(m_distanceAttr);
+    m_shaderProgram->setAttributeBuffer(m_distanceAttr, GL_FLOAT, 0, 1);
+    m_distancesBuffer.release();
+
+    m_vao.release();
 }
 
 } // End Namespace

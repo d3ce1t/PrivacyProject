@@ -1,3 +1,4 @@
+#version 130
 attribute highp vec4 posAttr;
 attribute highp vec4 colAttr;
 uniform highp float sizeAttr;

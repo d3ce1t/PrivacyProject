@@ -11,6 +11,8 @@
         <file>glsl/userVertex.vsh</file>
         <file>glsl/dummyVertex.vsh</file>
         <file>glsl/dummyFragment.fsh</file>
+        <file>glsl/depthVertex.vsh</file>
+        <file>glsl/depthFragment.fsh</file>
     </qresource>
     <qresource prefix="/icons">
         <file>kinect.png</file>

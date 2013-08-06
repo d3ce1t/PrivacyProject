@@ -191,4 +191,6 @@ OTHER_FILES += \
     glsl/userFragment.fsh \
     glsl/userVertex.vsh \
     glsl/dummyVertex.vsh \
-    glsl/dummyFragment.fsh
+    glsl/dummyFragment.fsh \
+    glsl/depthVertex.vsh \
+    glsl/depthFragment.fsh
