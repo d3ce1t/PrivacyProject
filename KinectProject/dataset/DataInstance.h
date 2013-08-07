@@ -16,7 +16,6 @@ public:
     virtual ~DataInstance();
     const InstanceInfo& getMetadata() const;
     unsigned int getTotalFrames() const;
-
     virtual bool is_open() const override;
     bool hasNext() const override;
 

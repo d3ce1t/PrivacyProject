@@ -47,8 +47,8 @@ private slots:
 
 protected:
     void onNewFrame(const QHash<DataFrame::FrameType, shared_ptr<DataFrame>>& dataFrames);
-    void onPlaybackStart();
-    void onPlaybackStop();
+    void onPlaybackStart() {}
+    void onPlaybackStop() {}
 
 private:
     shared_ptr<DataFrame> applyFilter(shared_ptr<DataFrame> inputFrame, shared_ptr<UserFrame> userMask = nullptr) const;

@@ -74,7 +74,6 @@ void InstanceViewer::onNewFrame(QHashDataFrames dataFrames)
         if (painter) {
             painter->setMask(userMask);
             painter->prepareData(frame);
-            //painter->setMask(nullptr);
         }
     }
     m_mutex.unlock();

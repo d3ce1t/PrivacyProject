@@ -18,11 +18,15 @@ void DilateUserFilter::applyFilter(shared_ptr<DataFrame> frame)
 void DilateUserFilter::dilateUserMask(u_int8_t *labels)
 {
     cv::Mat newImag(480, 640, cv::DataType<u_int8_t>::type, labels);
-    int dilation_size = 15;
     cv::Mat kernel = cv::getStructuringElement(cv::MORPH_CROSS,
-                                               cv::Size(2*dilation_size + 1, 2*dilation_size+1),
-                                               cv::Point( dilation_size, dilation_size ) );
+                                               cv::Size(2*m_dilation_size + 1, 2*m_dilation_size+1),
+                                               cv::Point( m_dilation_size, m_dilation_size ) );
     cv::dilate(newImag, newImag, kernel);
+}
+
+void DilateUserFilter::setDilationSize(int value)
+{
+    m_dilation_size = value;
 }
 
 } // End Namespace

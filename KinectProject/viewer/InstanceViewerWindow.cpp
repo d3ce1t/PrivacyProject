@@ -44,14 +44,14 @@ InstanceViewerWindow::InstanceViewerWindow()
     // Filters setup
     //shared_ptr<BlurFilter> blurFilter(new BlurFilter);
     //shared_ptr<InvisibilityFilter> invisibilityFilter(new InvisibilityFilter);
-    //shared_ptr<DilateUserFilter> dilateFilter(new DilateUserFilter);
+    shared_ptr<DilateUserFilter> dilateFilter(new DilateUserFilter);
 
-    //dilateFilter->enableFilter(true);
+    dilateFilter->enableFilter(true);
 
     // Filters are later retrieved from more recently to less recently inserted
     //m_filters.insert(DataFrame::Color, blurFilter);
     //m_filters.insert(DataFrame::Color, invisibilityFilter);
-    //m_filters.insert(DataFrame::User, dilateFilter);
+    m_filters.insert(DataFrame::User, dilateFilter);
 }
 
 InstanceViewerWindow::~InstanceViewerWindow()
@@ -102,16 +102,6 @@ void InstanceViewerWindow::processListItem(QListWidget* widget)
     playback()->addListener(this, instance);
     playback()->play(true);
     setTitle("Instance Viewer (" + instance->getTitle() + ")");
-}
-
-void InstanceViewerWindow::onPlaybackStart()
-{
-
-}
-
-void InstanceViewerWindow::onPlaybackStop()
-{
-
 }
 
 // called from Notifier thread

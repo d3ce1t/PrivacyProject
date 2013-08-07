@@ -9,9 +9,12 @@ class DilateUserFilter : public FrameFilter
 {
 public:
     void applyFilter(shared_ptr<DataFrame> frame);
+    void setDilationSize(int value);
 
 private:
     void dilateUserMask(u_int8_t* labels);
+
+    int m_dilation_size = 15;
 };
 
 } // End Namespace
