@@ -13,7 +13,7 @@ MSRDailyDepthInstance::MSRDailyDepthInstance(const InstanceInfo &info)
 {
     m_frameBuffer[0].reset(new DepthFrame(320, 240));
     m_frameBuffer[1].reset(new DepthFrame(320, 240));
-    DataInstance::initFrameBuffer(m_frameBuffer[0], m_frameBuffer[1]);
+    initFrameBuffer(m_frameBuffer[0], m_frameBuffer[1]);
     m_width = 0;
     m_height = 0;
 }
@@ -68,10 +68,9 @@ void MSRDailyDepthInstance::restartInstance()
     }
 }
 
-void MSRDailyDepthInstance::nextFrame(DataFrame &frame)
+void MSRDailyDepthInstance::nextFrame(DepthFrame &frame)
 {
     // Read Data from File
-    DepthFrame& depthFrame = (DepthFrame&) frame;
     m_file.read( (char *) m_readBuffer, sizeof(m_readBuffer) );
 
     for (int y=0; y<m_height; ++y) {
@@ -80,7 +79,7 @@ void MSRDailyDepthInstance::nextFrame(DataFrame &frame)
             // Kinect SDK provide depth values between 0 and 4000 in mm.
             float value = m_readBuffer[y].depthRow[x] / 1000.0f; // I want meters
             //float value = DataInstance::normalise(m_readBuffer[y].depthRow[x], 0, 4000, 0, 1);
-            depthFrame.setItem(y, x, value);
+            frame.setItem(y, x, value);
         }
     }
 }

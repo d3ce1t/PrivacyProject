@@ -2,14 +2,14 @@
 #define DAIUSERINSTANCE_H
 
 #include <fstream>
-#include "dataset/DataInstance.h"
+#include "types/DataInstance.h"
 #include "types/UserFrame.h"
 
 using namespace std;
 
 namespace dai {
 
-class DAIUserInstance : public DataInstance
+class DAIUserInstance : public DataInstance<UserFrame>
 {
 public:
     explicit DAIUserInstance(const InstanceInfo& info);
@@ -20,7 +20,7 @@ protected:
     void openInstance() override;
     void closeInstance() override;
     void restartInstance() override;
-    void nextFrame(DataFrame& frame) override;
+    void nextFrame(UserFrame& frame) override;
 
 private:
     ifstream    m_file;

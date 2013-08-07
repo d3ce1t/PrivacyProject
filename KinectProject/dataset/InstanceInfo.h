@@ -2,6 +2,7 @@
 #define INSTANCE_INFO_H
 
 #include <QString>
+#include "types/BaseInstance.h"
 
 namespace dai {
 
@@ -10,22 +11,11 @@ class DatasetMetadata;
 class InstanceInfo
 {
 public:
-
-    enum InstanceType {
-        Depth,
-        Color,
-        Skeleton,
-        User,
-        Uninitialised
-    };
-
     InstanceInfo(DatasetMetadata* parent = nullptr);
     explicit InstanceInfo(InstanceType type, DatasetMetadata* parent = nullptr);
     InstanceInfo(const InstanceInfo& other);
-    virtual ~InstanceInfo();
 
     InstanceType getType() const;
-
     int getActivity() const;
     int getActor() const;
     int getSample() const;

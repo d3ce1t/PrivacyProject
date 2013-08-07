@@ -20,7 +20,7 @@ public:
     PlaybackNotifier(PlaybackControl* parent, PlaybackWorker* worker);
 
 public slots:
-    void notifyListeners(QList<shared_ptr<StreamInstance>> instances);
+    void notifyListeners(QList<shared_ptr<BaseInstance>> instances);
 
 private:
     PlaybackControl*    m_parent;

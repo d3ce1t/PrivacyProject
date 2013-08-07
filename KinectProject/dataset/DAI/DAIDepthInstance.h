@@ -2,14 +2,14 @@
 #define DAIDEPTHINSTANCE_H
 
 #include <fstream>
-#include "dataset/DataInstance.h"
+#include "types/DataInstance.h"
 #include "types/DepthFrame.h"
 
 using namespace std;
 
 namespace dai {
 
-class DAIDepthInstance : public DataInstance
+class DAIDepthInstance : public DataInstance<DepthFrame>
 {
 public:
     struct BinaryDepthFrame {
@@ -24,7 +24,7 @@ protected:
     void openInstance() override;
     void closeInstance() override;
     void restartInstance() override;
-    void nextFrame(DataFrame& frame) override;
+    void nextFrame(DepthFrame& frame) override;
 
 private:
     ifstream    m_file;

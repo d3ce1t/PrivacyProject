@@ -63,17 +63,16 @@ void DAIDepthInstance::restartInstance()
     }
 }
 
-void DAIDepthInstance::nextFrame(DataFrame &frame)
+void DAIDepthInstance::nextFrame(DepthFrame &frame)
 {
     // Read Data from File
-    DepthFrame& depthFrame = (DepthFrame&) frame;
     m_file.read( (char *) m_readDepthBuffer, sizeof(m_readDepthBuffer) );
 
     for (int y=0; y<m_height; ++y) {
         for (int x=0; x<m_width; ++x)
         {
             //Loaded depths are already normalised because I did it when saved
-            depthFrame.setItem(y, x, m_readDepthBuffer[y].depthRow[x]);
+            frame.setItem(y, x, m_readDepthBuffer[y].depthRow[x]);
         }
     }
 }

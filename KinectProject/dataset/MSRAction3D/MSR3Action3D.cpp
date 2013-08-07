@@ -1,5 +1,6 @@
 #include "MSR3Action3D.h"
-
+#include "MSRActionDepthInstance.h"
+#include "MSRActionSkeletonInstance.h"
 
 namespace dai {
 
@@ -8,28 +9,20 @@ MSR3Action3D::MSR3Action3D()
 {
 }
 
-shared_ptr<DataInstance> MSR3Action3D::getDepthInstance(int activity, int actor, int sample) const
+shared_ptr<BaseInstance> MSR3Action3D::getInstance(int activity, int actor, int sample, InstanceType type) const
 {
-    const InstanceInfo instanceInfo = m_metadata->instance(InstanceInfo::Depth, activity, actor, sample);
-    return shared_ptr<DataInstance>(new MSRActionDepthInstance(instanceInfo));
-}
+    const InstanceInfo instanceInfo = m_metadata->instance(type, activity, actor, sample);
 
-shared_ptr<DataInstance> MSR3Action3D::getSkeletonInstance(int activity, int actor, int sample) const
-{
-    const InstanceInfo instanceInfo = m_metadata->instance(InstanceInfo::Skeleton, activity, actor, sample);
-    return shared_ptr<DataInstance>(new MSRActionSkeletonInstance(instanceInfo));
-}
-
-shared_ptr<DataInstance> MSR3Action3D::getColorInstance(int activity, int actor, int sample) const
-{
-    const InstanceInfo instanceInfo = m_metadata->instance(InstanceInfo::Color, activity, actor, sample);
-    return shared_ptr<DataInstance>(new DataInstance(instanceInfo));
-}
-
-shared_ptr<DataInstance> MSR3Action3D::getUserInstance(int activity, int actor, int sample) const
-{
-    const InstanceInfo instanceInfo = m_metadata->instance(InstanceInfo::User, activity, actor, sample);
-    return shared_ptr<DataInstance>(new DataInstance(instanceInfo));
+    switch (type) {
+    case INSTANCE_DEPTH:
+        return shared_ptr<BaseInstance>(new MSRActionDepthInstance(instanceInfo));
+        break;
+    case INSTANCE_SKELETON:
+        return shared_ptr<BaseInstance>(new MSRActionSkeletonInstance(instanceInfo));
+        break;
+    default:
+        return nullptr;
+    }
 }
 
 } // End namespace

@@ -1,7 +1,7 @@
 #include "OpenNIRuntime.h"
 #include <iostream>
 #include <cstdio>
-#include "dataset/DataInstance.h"
+#include "types/DataInstance.h"
 #include <QThread>
 
 namespace dai {
@@ -271,10 +271,10 @@ void OpenNIRuntime::oniLoadSkeleton(nite::UserTracker& oniUserTracker, nite::Use
                 if (oniSkeleton.getState() == nite::SKELETON_TRACKED && head.getPositionConfidence() > 0.5)
                 {
                     trackedSkeletons++;
-                    shared_ptr<dai::Skeleton> daiSkeleton = m_skeletonFrame.getSkeleton(user.getId());
+                    auto daiSkeleton = m_skeletonFrame.getSkeleton(user.getId());
 
                     if (daiSkeleton == nullptr) {
-                        daiSkeleton.reset(new Skeleton(Skeleton::SKELETON_OPENNI));
+                        daiSkeleton.reset(new dai::Skeleton(dai::Skeleton::SKELETON_OPENNI));
                         m_skeletonFrame.setSkeleton(user.getId(), daiSkeleton);
                     }
 

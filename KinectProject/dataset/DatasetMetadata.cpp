@@ -29,9 +29,10 @@ DatasetMetadata::~DatasetMetadata()
     m_sampleTypes.clear();
 
 
-    QHashIterator<InstanceInfo::InstanceType, QHash<int, InstanceInfoList*>* > it(m_instances);
+    QHashIterator<InstanceType, QHash<int, InstanceInfoList*>* > it(m_instances);
 
-    while (it.hasNext()) {
+    while (it.hasNext())
+    {
         it.next();
         QHash<int, InstanceInfoList*>* activities = it.value();
         QHashIterator<int, InstanceInfoList*> it2(*activities);
@@ -88,7 +89,7 @@ int DatasetMetadata::getNumberOfSampleTypes() const
     return m_numberOfSampleTypes;
 }
 
-const InstanceInfo DatasetMetadata::instance(InstanceInfo::InstanceType type, int activity, int actor, int sample)
+const InstanceInfo DatasetMetadata::instance(InstanceType type, int activity, int actor, int sample)
 {
     InstanceInfo* result = 0;
     QHash<int, InstanceInfoList*>& hashInstances = *(m_instances[type]);
@@ -117,7 +118,7 @@ const InstanceInfo DatasetMetadata::instance(InstanceInfo::InstanceType type, in
 }
 
 const InstanceInfoList* DatasetMetadata::instances(
-        InstanceInfo::InstanceType type, const QList<int>* activities, const QList<int>* actors, const QList<int>* samples) const
+        InstanceType type, const QList<int>* activities, const QList<int>* actors, const QList<int>* samples) const
 {
     InstanceInfoList* result = new InstanceInfoList();
 
@@ -284,18 +285,16 @@ DatasetMetadata* DatasetMetadata::load(QString xmlPath)
                 reader.readNext(); // seek into text
                 QString file = reader.text().toString();
 
-                InstanceInfo::InstanceType type;
+                InstanceType type = INSTANCE_UNINITIALISED;
 
                 if (strType == "depth")
-                    type = InstanceInfo::Depth;
+                    type = INSTANCE_DEPTH;
                 else if (strType == "color")
-                    type = InstanceInfo::Color;
+                    type = INSTANCE_COLOR;
                 else if (strType == "skeleton")
-                    type = InstanceInfo::Skeleton;
+                    type = INSTANCE_SKELETON;
                 else if (strType == "user")
-                    type = InstanceInfo::User;
-                else
-                    type = InstanceInfo::Uninitialised;
+                    type = INSTANCE_USER;
 
                 InstanceInfo* instanceInfo = new InstanceInfo(type, result);
                 instanceInfo->setActivity(activity);

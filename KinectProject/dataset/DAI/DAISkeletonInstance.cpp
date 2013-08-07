@@ -55,11 +55,10 @@ void DAISkeletonInstance::restartInstance()
     }
 }
 
-void DAISkeletonInstance::nextFrame(DataFrame &frame)
+void DAISkeletonInstance::nextFrame(SkeletonFrame &frame)
 {
     // Read Data from File
-    SkeletonFrame& skeletonFrame = (SkeletonFrame&) frame;
-    skeletonFrame.clear();
+    frame.clear();
 
     // Read frame index
     unsigned int frameId;
@@ -81,11 +80,11 @@ void DAISkeletonInstance::nextFrame(DataFrame &frame)
         m_file.read( (char*) &type, sizeof(Skeleton::SkeletonType) );
 
         // Create skeleton for user with the read type
-        shared_ptr<dai::Skeleton> skeleton = skeletonFrame.getSkeleton(userId);
+        shared_ptr<Skeleton> skeleton = frame.getSkeleton(userId);
 
         if (skeleton == nullptr) {
-            skeleton.reset(new dai::Skeleton(type));
-            skeletonFrame.setSkeleton(userId, skeleton);
+            skeleton.reset(new Skeleton(type));
+            frame.setSkeleton(userId, skeleton);
         }
 
         // Read all joints (by now, used and unused)

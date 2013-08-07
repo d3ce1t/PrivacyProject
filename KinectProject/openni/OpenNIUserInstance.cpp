@@ -1,5 +1,5 @@
 #include "OpenNIUserInstance.h"
-#include "dataset/DataInstance.h"
+#include "types/DataInstance.h"
 #include <exception>
 #include <iostream>
 
@@ -9,7 +9,7 @@ namespace dai {
 
 OpenNIUserInstance::OpenNIUserInstance()
 {
-    this->m_type = StreamInstance::User;
+    this->m_type = INSTANCE_USER;
     this->m_title = "User Live Stream";
     m_frameBuffer[0].reset(new UserFrame(640, 480));
     m_frameBuffer[1].reset(new UserFrame(640, 480));
@@ -95,7 +95,7 @@ void OpenNIUserInstance::restartInstance()
 
 }
 
-void OpenNIUserInstance::nextFrame(DataFrame &frame)
+void OpenNIUserInstance::nextFrame(UserFrame &frame)
 {
     // Read Data from OpenNI
     UserFrame& userFrame = (UserFrame&) frame;

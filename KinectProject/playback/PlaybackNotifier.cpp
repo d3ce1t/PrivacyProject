@@ -13,7 +13,7 @@ PlaybackNotifier::PlaybackNotifier(PlaybackControl* parent, PlaybackWorker* work
     m_worker = worker;
 }
 
-void PlaybackNotifier::notifyListeners(QList<shared_ptr<StreamInstance>> instances)
+void PlaybackNotifier::notifyListeners(QList<shared_ptr<BaseInstance> > instances)
 {
     m_parent->notifyListeners(instances);
     m_worker->sync();

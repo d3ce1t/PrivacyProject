@@ -71,7 +71,8 @@ T avg(const T* a, int n)
     return n == 0 ? 0 : sum / n;
 }
 
-template <class T>T avg(const QList<T>& a)
+template <class T>
+T avg(const QList<T>& a)
 {
     T sum = 0;
     int n = a.size();
@@ -82,6 +83,12 @@ template <class T>T avg(const QList<T>& a)
     }
 
     return n == 0 ? 0 : sum / n;
+}
+
+template <class T>
+T normalise(T value, T minValue, T maxValue, T newMin, T newMax)
+{
+    return ( (value - minValue) * (newMax - newMin) ) / (maxValue - minValue) + newMin;
 }
 
 } // End Namespace

@@ -6,13 +6,13 @@ using namespace dai;
 
 InstanceInfo::InstanceInfo(DatasetMetadata *parent)
 {
-    m_type = Uninitialised;
+    m_type = INSTANCE_UNINITIALISED;
     m_parent = parent;
 }
 
 InstanceInfo::InstanceInfo(InstanceType type, DatasetMetadata *parent)
 {
-    if (type == InstanceInfo::Uninitialised)
+    if (type == INSTANCE_UNINITIALISED)
         throw NotImplementedException();
 
     m_type = type;
@@ -30,11 +30,6 @@ InstanceInfo::InstanceInfo(const InstanceInfo& other)
     m_parent = other.m_parent;
 }
 
-InstanceInfo::~InstanceInfo()
-{
-    m_type = Uninitialised;
-}
-
 InstanceInfo& InstanceInfo::operator=(const InstanceInfo& other)
 {
     m_type = other.m_type;
@@ -47,7 +42,7 @@ InstanceInfo& InstanceInfo::operator=(const InstanceInfo& other)
     return *this;
 }
 
-InstanceInfo::InstanceType InstanceInfo::getType() const
+InstanceType InstanceInfo::getType() const
 {
     return m_type;
 }

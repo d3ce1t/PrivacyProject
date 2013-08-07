@@ -84,14 +84,13 @@ void MSRDailySkeletonInstance::restartInstance()
     }
 }
 
-void MSRDailySkeletonInstance::nextFrame(DataFrame &frame)
+void MSRDailySkeletonInstance::nextFrame(SkeletonFrame &frame)
 {
-    SkeletonFrame& skeletonFrame = static_cast<SkeletonFrame&>(frame);
-    shared_ptr<dai::Skeleton> skeleton = skeletonFrame.getSkeleton(1);
+    auto skeleton = frame.getSkeleton(1);
 
     if (skeleton == nullptr) {
-        skeleton.reset(new dai::Skeleton(dai::Skeleton::SKELETON_KINECT));
-        skeletonFrame.setSkeleton(1, skeleton);
+        skeleton.reset(new Skeleton(Skeleton::SKELETON_KINECT));
+        frame.setSkeleton(1, skeleton);
     }
 
     // Read Data from File

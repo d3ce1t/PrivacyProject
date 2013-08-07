@@ -1,5 +1,6 @@
 #include "MSRActionDepthInstance.h"
 #include "types/DepthFrame.h"
+#include "Utils.h"
 
 namespace dai {
 
@@ -63,10 +64,9 @@ void MSRActionDepthInstance::restartInstance()
     }
 }
 
-void MSRActionDepthInstance::nextFrame(DataFrame &frame)
+void MSRActionDepthInstance::nextFrame(DepthFrame &frame)
 {
     // Read Data from File
-    DepthFrame& depthFrame = (DepthFrame&) frame;
     m_file.read( (char *) m_readBuffer, sizeof(m_readBuffer) );
 
     for (int y=0; y<m_height; ++y) {
@@ -75,10 +75,10 @@ void MSRActionDepthInstance::nextFrame(DataFrame &frame)
             float value = m_readBuffer[y].depthRow[x];
 
             if (value != 0) {
-                value = 2.0 + DataInstance::normalise(m_readBuffer[y].depthRow[x], 290, 649, 0, 0.9);
+                value = 2.0 + normalise<float>(m_readBuffer[y].depthRow[x], 290, 649, 0, 0.9);
             }
 
-            depthFrame.setItem(y, x, value);
+            frame.setItem(y, x, value);
         }
     }
 }

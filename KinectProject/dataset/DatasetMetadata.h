@@ -27,8 +27,8 @@ public:
     int getNumberOfActivities() const;
     int getNumberOfActors() const;
     int getNumberOfSampleTypes() const;
-    const InstanceInfoList* instances(InstanceInfo::InstanceType type, const QList<int> *activities = 0, const QList<int> *actors = 0, const QList<int> *samples = 0) const;
-    const InstanceInfo instance(InstanceInfo::InstanceType type, int activity, int actor, int sample);
+    const InstanceInfoList* instances(InstanceType type, const QList<int> *activities = 0, const QList<int> *actors = 0, const QList<int> *samples = 0) const;
+    const InstanceInfo instance(InstanceType type, int activity, int actor, int sample);
     const QString& getActivityName(int key) const;
     const QString& getActorName(int key) const;
     const QString& getSampleName(int key) const;
@@ -58,7 +58,7 @@ private:
      * Each instance type (depth, color, skeleton) has a hash of InstanceInfo* elements
      * indexed by activity keys. Each instanceInfo must match the given key.
      */
-    QHash<InstanceInfo::InstanceType, QHash<int, InstanceInfoList*>* > m_instances;
+    QHash<InstanceType, QHash<int, InstanceInfoList*>* > m_instances;
 };
 
 }

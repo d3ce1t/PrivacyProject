@@ -1,5 +1,5 @@
 #include "OpenNIColorInstance.h"
-#include "dataset/DataInstance.h"
+#include "types/DataInstance.h"
 #include <exception>
 #include <iostream>
 
@@ -9,7 +9,7 @@ namespace dai {
 
 OpenNIColorInstance::OpenNIColorInstance()
 {
-    this->m_type = StreamInstance::Color;
+    this->m_type = dai::INSTANCE_COLOR;
     this->m_title = "Color Live Stream";
     m_frameBuffer[0].reset(new ColorFrame(640, 480));
     m_frameBuffer[1].reset(new ColorFrame(640, 480));
@@ -95,7 +95,7 @@ void OpenNIColorInstance::restartInstance()
 
 }
 
-void OpenNIColorInstance::nextFrame(DataFrame &frame)
+void OpenNIColorInstance::nextFrame(ColorFrame &frame)
 {
     // Read Data from OpenNI
     ColorFrame& colorFrame = (ColorFrame&) frame;

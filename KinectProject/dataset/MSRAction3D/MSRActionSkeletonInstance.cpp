@@ -95,14 +95,13 @@ void MSRActionSkeletonInstance::restartInstance()
     }
 }
 
-void MSRActionSkeletonInstance::nextFrame(DataFrame &frame)
+void MSRActionSkeletonInstance::nextFrame(SkeletonFrame &frame)
 {
-    SkeletonFrame& skeletonFrame = static_cast<SkeletonFrame&>(frame);
-    shared_ptr<dai::Skeleton> skeleton = skeletonFrame.getSkeleton(1);
+    auto skeleton = frame.getSkeleton(1);
 
     if (skeleton == nullptr) {
         skeleton.reset(new dai::Skeleton(dai::Skeleton::SKELETON_KINECT));
-        skeletonFrame.setSkeleton(1, skeleton);
+        frame.setSkeleton(1, skeleton);
     }
 
     // Read Data from File

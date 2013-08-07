@@ -1,5 +1,5 @@
 #include "SkeletonFramePainter.h"
-#include "../dataset/DataInstance.h"
+#include "types/DataInstance.h"
 #include <QMetaEnum>
 #include <cmath>
 
@@ -66,7 +66,7 @@ void SkeletonFramePainter::render()
     foreach (int userId, m_frame->getAllUsersId())
     {
         const dai::Skeleton& skeleton = *(m_frame->getSkeleton(userId));
-        const Skeleton::SkeletonLimb* limbMap = skeleton.getLimbsMap();
+        const dai::Skeleton::SkeletonLimb* limbMap = skeleton.getLimbsMap();
 
         for (int i=0; i<skeleton.getLimbsCount(); ++i) {
             drawLimb( skeleton.getJoint(limbMap[i].joint1), skeleton.getJoint(limbMap[i].joint2) );

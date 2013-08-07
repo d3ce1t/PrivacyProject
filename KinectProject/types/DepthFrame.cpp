@@ -1,7 +1,7 @@
 #include "DepthFrame.h"
 #include <cstring>
 #include <limits>
-#include "../dataset/DataInstance.h"
+#include "types/DataInstance.h"
 #include <QDebug>
 
 namespace dai {

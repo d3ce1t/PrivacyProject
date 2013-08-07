@@ -1,7 +1,7 @@
 #ifndef MSRDAILYSKELETONINSTANCE_H
 #define MSRDAILYSKELETONINSTANCE_H
 
-#include "dataset/DataInstance.h"
+#include "types/DataInstance.h"
 #include "types/SkeletonFrame.h"
 #include <fstream>
 
@@ -9,7 +9,7 @@ using namespace std;
 
 namespace dai {
 
-class MSRDailySkeletonInstance : public DataInstance
+class MSRDailySkeletonInstance : public DataInstance<SkeletonFrame>
 {
 public:
     explicit MSRDailySkeletonInstance(const InstanceInfo& info);
@@ -20,7 +20,7 @@ protected:
     void openInstance() override;
     void closeInstance() override;
     void restartInstance() override;
-    void nextFrame(DataFrame& frame) override;
+    void nextFrame(SkeletonFrame& frame) override;
 
 private:
     static SkeletonJoint::JointType staticMap[20];

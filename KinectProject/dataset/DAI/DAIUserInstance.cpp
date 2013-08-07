@@ -62,12 +62,11 @@ void DAIUserInstance::restartInstance()
     }
 }
 
-void DAIUserInstance::nextFrame(DataFrame &frame)
+void DAIUserInstance::nextFrame(UserFrame &frame)
 {
     // Read Data from File
-    UserFrame& userFrame = (UserFrame&) frame;
-    u_int8_t* ptrImg = (u_int8_t*) userFrame.getDataPtr();
-    m_file.read( (char *) ptrImg, userFrame.getWidth() * userFrame.getHeight() * sizeof(u_int8_t) );
+    u_int8_t* ptrImg = (u_int8_t*) frame.getDataPtr();
+    m_file.read( (char *) ptrImg, frame.getWidth() * frame.getHeight() * sizeof(u_int8_t) );
 }
 
 } // End Namespace

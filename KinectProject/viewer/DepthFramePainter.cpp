@@ -1,5 +1,5 @@
 #include "DepthFramePainter.h"
-#include "dataset/DataInstance.h"
+#include "types/DataInstance.h"
 #include <QColor>
 #include <NiTE.h>
 #include "openni/OpenNIRuntime.h"

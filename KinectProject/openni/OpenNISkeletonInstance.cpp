@@ -1,5 +1,5 @@
 #include "OpenNISkeletonInstance.h"
-#include "dataset/DataInstance.h"
+#include "types/DataInstance.h"
 #include <exception>
 #include <iostream>
 
@@ -9,7 +9,7 @@ namespace dai {
 
 OpenNISkeletonInstance::OpenNISkeletonInstance()
 {
-    this->m_type = StreamInstance::Skeleton;
+    this->m_type = INSTANCE_SKELETON;
     this->m_title = "Skeleton Live Stream";
     m_frameBuffer[0].reset(new SkeletonFrame);
     m_frameBuffer[1].reset(new SkeletonFrame);
@@ -92,7 +92,7 @@ void OpenNISkeletonInstance::restartInstance()
 
 }
 
-void OpenNISkeletonInstance::nextFrame(DataFrame &frame)
+void OpenNISkeletonInstance::nextFrame(SkeletonFrame &frame)
 {
     // Read Data from OpenNI
     SkeletonFrame& skeletonFrame = static_cast<SkeletonFrame&>(frame);

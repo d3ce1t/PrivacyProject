@@ -24,9 +24,9 @@ void PlaybackWorker::initialise()
     QObject::connect(this, SIGNAL(finished()), m_notifier, SLOT(deleteLater()));
     QObject::connect(m_thread, SIGNAL(finished()), m_thread, SLOT(deleteLater()));
     QObject::connect(this,
-                     SIGNAL(availableInstances(QList<shared_ptr<StreamInstance>>)),
+                     SIGNAL(availableInstances(QList<shared_ptr<BaseInstance> >)),
                      m_notifier,
-                     SLOT(notifyListeners(QList<shared_ptr<StreamInstance>>)));
+                     SLOT(notifyListeners(QList<shared_ptr<BaseInstance> >)));
     m_thread->start();
 }
 
@@ -41,7 +41,7 @@ void PlaybackWorker::run()
     time.start();
 
     // Initial Read; Here
-    QList<shared_ptr<StreamInstance>> readInstances = m_parent->readAllInstances();
+    QList<shared_ptr<BaseInstance>> readInstances = m_parent->readAllInstances();
 
     // Initial Swap
     swap(readInstances);
@@ -82,9 +82,9 @@ void PlaybackWorker::run()
     emit finished();
 }
 
-void PlaybackWorker::swap(const QList<shared_ptr<StreamInstance> > &instances)
+void PlaybackWorker::swap(const QList<shared_ptr<BaseInstance> > &instances)
 {
-    foreach (shared_ptr<StreamInstance> instance, instances) {
+    foreach (shared_ptr<BaseInstance> instance, instances) {
         instance->swapBuffer();
     }
 }

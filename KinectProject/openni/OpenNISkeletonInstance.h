@@ -3,13 +3,12 @@
 
 #include "OpenNIRuntime.h"
 #include "types/StreamInstance.h"
-#include "types/SkeletonFrame.h"
 #include <QFile>
 #include <QTextStream>
 
 namespace dai {
 
-class OpenNISkeletonInstance : public StreamInstance
+class OpenNISkeletonInstance : public StreamInstance<SkeletonFrame>
 {
 public:
     OpenNISkeletonInstance();
@@ -21,7 +20,7 @@ protected:
     void openInstance() override;
     void closeInstance() override;
     void restartInstance() override;
-    void nextFrame(DataFrame& frame) override;
+    void nextFrame(SkeletonFrame& frame) override;
 
 private:
     OpenNIRuntime*            m_openni;

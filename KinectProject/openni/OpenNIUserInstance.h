@@ -3,12 +3,11 @@
 
 #include "OpenNIRuntime.h"
 #include "types/StreamInstance.h"
-#include "types/UserFrame.h"
 #include <QFile>
 
 namespace dai {
 
-class OpenNIUserInstance : public StreamInstance
+class OpenNIUserInstance : public StreamInstance<UserFrame>
 {
 public:
     OpenNIUserInstance();
@@ -20,7 +19,7 @@ protected:
     void openInstance() override;
     void closeInstance() override;
     void restartInstance() override;
-    void nextFrame(DataFrame& frame) override;
+    void nextFrame(UserFrame& frame) override;
 
 private:
     OpenNIRuntime*         m_openni;

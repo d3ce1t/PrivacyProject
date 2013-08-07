@@ -20,7 +20,6 @@ HEADERS += \
     dataset/DatasetMetadata.h \
     dataset/MSRDaily/MSRDailyActivity3D.h \
     InstanceWidgetItem.h \
-    dataset/DataInstance.h \
     viewer/DepthFramePainter.h \
     dataset/MSRDaily/MSRDailyDepthInstance.h \
     viewer/InstanceViewer.h \
@@ -71,7 +70,9 @@ HEADERS += \
     viewer/TestListener.h \
     types/SkeletonFrame.h \
     viewer/SkeletonFramePainter.h \
-    dataset/DAI/DAISkeletonInstance.h
+    dataset/DAI/DAISkeletonInstance.h \
+    types/BaseInstance.h \
+    types/DataInstance.h
 
 SOURCES += \
     dataset/MSRAction3D/MSR3Action3D.cpp \
@@ -85,7 +86,6 @@ SOURCES += \
     dataset/DatasetMetadata.cpp \
     dataset/MSRDaily/MSRDailyActivity3D.cpp \
     InstanceWidgetItem.cpp \
-    dataset/DataInstance.cpp \
     viewer/DepthFramePainter.cpp \
     dataset/MSRDaily/MSRDailyDepthInstance.cpp \
     viewer/InstanceViewer.cpp \
@@ -101,7 +101,6 @@ SOURCES += \
     dataset/MSRAction3D/MSRActionSkeletonInstance.cpp \
     types/Quaternion.cpp \
     viewer/CustomItem.cpp \
-    types/StreamInstance.cpp \
     openni/OpenNIDepthInstance.cpp \
     KMeans.cpp \
     DepthSeg.cpp \
@@ -131,7 +130,8 @@ SOURCES += \
     viewer/TestListener.cpp \
     types/SkeletonFrame.cpp \
     viewer/SkeletonFramePainter.cpp \
-    dataset/DAI/DAISkeletonInstance.cpp
+    dataset/DAI/DAISkeletonInstance.cpp \
+    types/BaseInstance.cpp
 
 RESOURCES += openglunderqml.qrc
 

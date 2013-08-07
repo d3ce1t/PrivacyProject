@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <fstream>
-#include "dataset/DataInstance.h"
+#include "types/DataInstance.h"
 #include "types/DepthFrame.h"
 #include <stdint.h>
 
@@ -11,7 +11,7 @@ using namespace std;
 
 namespace dai {
 
-class MSRDailyDepthInstance : public DataInstance
+class MSRDailyDepthInstance : public DataInstance<DepthFrame>
 {
 public:
     struct BinaryDepthFrame {
@@ -27,13 +27,13 @@ protected:
     void openInstance() override;
     void closeInstance() override;
     void restartInstance() override;
-    void nextFrame(DataFrame& frame) override;
+    void nextFrame(DepthFrame& frame) override;
 
 private:
     ifstream    m_file;
     int         m_width;
     int         m_height;
-    shared_ptr<DataFrame>  m_frameBuffer[2];
+    shared_ptr<DepthFrame>  m_frameBuffer[2];
     BinaryDepthFrame m_readBuffer[240]; // I know MSR Daily Activity 3D depth is 320 x 240
 };
 

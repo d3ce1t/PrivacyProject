@@ -2,14 +2,14 @@
 #define DAI_SKELETON_INSTANCE_H
 
 #include <fstream>
-#include "dataset/DataInstance.h"
+#include "types/DataInstance.h"
 #include "types/SkeletonFrame.h"
 
 using namespace std;
 
 namespace dai {
 
-class DAISkeletonInstance : public DataInstance
+class DAISkeletonInstance : public DataInstance<SkeletonFrame>
 {
 public:
     explicit DAISkeletonInstance(const InstanceInfo& info);
@@ -20,7 +20,7 @@ protected:
     void openInstance() override;
     void closeInstance() override;
     void restartInstance() override;
-    void nextFrame(DataFrame& frame) override;
+    void nextFrame(SkeletonFrame& frame) override;
 
 private:
     ifstream    m_file;

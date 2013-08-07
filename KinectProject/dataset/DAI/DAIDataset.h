@@ -8,11 +8,8 @@ namespace dai {
 class DAIDataset : public Dataset
 {
 public:
-    explicit DAIDataset();
-    shared_ptr<DataInstance> getDepthInstance(int activity, int actor, int sample) const;
-    shared_ptr<DataInstance> getSkeletonInstance(int activity, int actor, int sample) const;
-    shared_ptr<DataInstance> getColorInstance(int activity, int actor, int sample) const;
-    shared_ptr<DataInstance> getUserInstance(int activity, int actor, int sample) const;
+    DAIDataset();
+    shared_ptr<BaseInstance> getInstance(int activity, int actor, int sample, InstanceType type) const;
 };
 
 } // End namespace

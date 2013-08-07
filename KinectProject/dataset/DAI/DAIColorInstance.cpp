@@ -62,12 +62,11 @@ void DAIColorInstance::restartInstance()
     }
 }
 
-void DAIColorInstance::nextFrame(DataFrame &frame)
+void DAIColorInstance::nextFrame(ColorFrame &frame)
 {
     // Read Data from File
-    ColorFrame& colorFrame = (ColorFrame&) frame;
-    RGBColor* ptrImg = (RGBColor*) colorFrame.getDataPtr();
-    m_file.read( (char *) ptrImg, colorFrame.getWidth() * colorFrame.getHeight() * sizeof(RGBColor) );
+    RGBColor* ptrImg = (RGBColor*) frame.getDataPtr();
+    m_file.read( (char *) ptrImg, frame.getWidth() * frame.getHeight() * sizeof(RGBColor) );
 }
 
 } // End namespace

@@ -20,17 +20,6 @@ KMeans::KMeans(const float* sample, const int n, const int k)
     initialise();
 }
 
-/*KMeans::KMeans(const float *sample, const int dim, const int n, const int k)
-    : m_sample(sample), m_dim(dim), m_n(n), m_k(k)
-{
-    if (k > n)
-        throw 0;
-
-    m_clusters_mask = new float[n];
-    m_clusters_list = new QList<float>[m_k];
-    initialise();
-}*/
-
 KMeans::~KMeans()
 {
     m_centroid.clear();

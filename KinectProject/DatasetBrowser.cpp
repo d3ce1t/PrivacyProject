@@ -87,29 +87,16 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
 {
     InstanceWidgetItem* instanceItem = dynamic_cast<InstanceWidgetItem*>(item);
     InstanceInfo& info = instanceItem->getInfo();
-    shared_ptr<DataInstance> instance;
+    shared_ptr<BaseInstance> instance = m_dataset->getInstance(info);
 
-    if (info.getType() == InstanceInfo::Depth)
-        instance = m_dataset->getDepthInstance(info);
-    else if (info.getType() == InstanceInfo::Skeleton) {
-        instance = m_dataset->getSkeletonInstance(info);
+    if (instance) {
+        InstanceViewerWindow* viewer = new InstanceViewerWindow;
+        m_playback.addInstance(instance);
+        m_playback.addListener(viewer, instance);
+        m_playback.play(ui->checkSync->isChecked());
+        viewer->setTitle("Instance Viewer (" + instance->getTitle() + ")");
+        viewer->show();
     }
-    else if (info.getType() == InstanceInfo::Color) {
-        instance = m_dataset->getColorInstance(info);
-    }
-    else if (info.getType() == InstanceInfo::User) {
-        instance = m_dataset->getUserInstance(info);
-    }
-    else {
-        return;
-    }
-
-    InstanceViewerWindow* viewer = new InstanceViewerWindow;
-    m_playback.addInstance(instance);
-    m_playback.addListener(viewer, instance);
-    m_playback.play(ui->checkSync->isChecked());
-    viewer->setTitle("Instance Viewer (" + instance->getTitle() + ")");
-    viewer->show();
 }
 
 void DatasetBrowser::loadDataset(Dataset::DatasetType type)
@@ -163,21 +150,8 @@ void DatasetBrowser::loadInstances()
 
     ui->listInstances->clear();
 
-    InstanceInfo::InstanceType showType;
-
-    if (ui->comboType->currentIndex() == 0) {
-        showType = InstanceInfo::Depth;
-    } else if (ui->comboType->currentIndex() == 1) {
-        showType = InstanceInfo::Color;
-    } else if (ui->comboType->currentIndex() == 2) {
-        showType = InstanceInfo::Skeleton;
-    } else if (ui->comboType->currentIndex() == 3) {
-        showType = InstanceInfo::User;
-    } else {
-        showType = InstanceInfo::Uninitialised;
-    }
-
     // Prepare Filter
+    InstanceType showType = (InstanceType) ui->comboType->currentIndex();
     QList<int> activities;
 
     for (int i=0; i<ui->listActivities->count(); ++i) {

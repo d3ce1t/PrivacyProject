@@ -1,5 +1,5 @@
 #include "OpenNIDepthInstance.h"
-#include "dataset/DataInstance.h"
+#include "types/DataInstance.h"
 #include <exception>
 #include <iostream>
 
@@ -9,7 +9,7 @@ namespace dai {
 
 OpenNIDepthInstance::OpenNIDepthInstance()
 {
-    this->m_type = StreamInstance::Depth;
+    this->m_type = dai::INSTANCE_DEPTH;
     this->m_title = "Depth Live Stream";
     m_frameBuffer[0].reset(new DepthFrame(640, 480));
     m_frameBuffer[1].reset(new DepthFrame(640, 480));
@@ -95,7 +95,7 @@ void OpenNIDepthInstance::restartInstance()
 
 }
 
-void OpenNIDepthInstance::nextFrame(DataFrame &frame)
+void OpenNIDepthInstance::nextFrame(DepthFrame &frame)
 {
     // Read Data from OpenNI
     DepthFrame& depthFrame = (DepthFrame&) frame;

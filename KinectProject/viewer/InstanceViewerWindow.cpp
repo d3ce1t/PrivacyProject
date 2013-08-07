@@ -80,28 +80,15 @@ void InstanceViewerWindow::processListItem(QListWidget* widget)
     InstanceWidgetItem* instanceItem = (InstanceWidgetItem*) widget->selectedItems().at(0);
     InstanceInfo& info = instanceItem->getInfo();
     const Dataset* dataset = info.parent()->dataset();
-    shared_ptr<DataInstance> instance;
+    shared_ptr<BaseInstance> instance = dataset->getInstance(info);
 
-    if (info.getType() == InstanceInfo::Depth)
-        instance = dataset->getDepthInstance(info);
-    else if (info.getType() == InstanceInfo::Skeleton) {
-        instance = dataset->getSkeletonInstance(info);
+    if (instance) {
+        playback()->removeListener(this, instance->getType());
+        playback()->addInstance(instance);
+        playback()->addListener(this, instance);
+        playback()->play(true);
+        setTitle("Instance Viewer (" + instance->getTitle() + ")");
     }
-    else if (info.getType() == InstanceInfo::Color) {
-        instance = dataset->getColorInstance(info);
-    }
-    else if (info.getType() == InstanceInfo::User) {
-        instance = dataset->getUserInstance(info);
-    }
-    else {
-        return;
-    }
-
-    playback()->removeListener(this, instance->getType());
-    playback()->addInstance(instance);
-    playback()->addListener(this, instance);
-    playback()->play(true);
-    setTitle("Instance Viewer (" + instance->getTitle() + ")");
 }
 
 // called from Notifier thread
@@ -363,7 +350,7 @@ void InstanceViewerWindow::feedDataModels(shared_ptr<SkeletonFrame> skeletonFram
     if (!allUsers.isEmpty()) {
 
         int userId = allUsers.first();
-        const Skeleton& skeleton = *(skeletonFrame->getSkeleton(userId));
+        const auto& skeleton = *(skeletonFrame->getSkeleton(userId));
 
         if (m_joints_table_view.isVisible())
             feedJointsModel(skeleton, m_joints_model);
@@ -376,7 +363,7 @@ void InstanceViewerWindow::feedDataModels(shared_ptr<SkeletonFrame> skeletonFram
     }
 }
 
-void InstanceViewerWindow::feedJointsModel(const Skeleton& skeleton, QStandardItemModel& model)
+void InstanceViewerWindow::feedJointsModel(const dai::Skeleton& skeleton, QStandardItemModel& model)
 {
     // Joints Model
     for (int i=0; i<skeleton.getJointsCount(); ++i)
@@ -393,7 +380,7 @@ void InstanceViewerWindow::feedJointsModel(const Skeleton& skeleton, QStandardIt
     }
 }
 
-void InstanceViewerWindow::feedDistancesModel(const Skeleton &skeleton, QStandardItemModel& model)
+void InstanceViewerWindow::feedDistancesModel(const dai::Skeleton &skeleton, QStandardItemModel& model)
 {
     // Distances Model
     for (int i=0; i<skeleton.getJointsCount(); ++i)
@@ -419,7 +406,7 @@ void InstanceViewerWindow::feedDistancesModel(const Skeleton &skeleton, QStandar
     m_distances_table_view.resizeColumnsToContents();
 }
 
-void InstanceViewerWindow::feedQuaternionsModel(const Skeleton &skeleton, QStandardItemModel& model)
+void InstanceViewerWindow::feedQuaternionsModel(const dai::Skeleton &skeleton, QStandardItemModel& model)
 {
     // Quaternions Model
     for (int i=0; i<20; ++i)

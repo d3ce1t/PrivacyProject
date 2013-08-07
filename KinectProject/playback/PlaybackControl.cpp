@@ -44,10 +44,10 @@ void PlaybackControl::play(bool restartAll)
     }
     else {
         // Open all instances
-        QListIterator<shared_ptr<StreamInstance>> it(m_instances);
+        QListIterator<shared_ptr<BaseInstance>> it(m_instances);
 
         while (it.hasNext()) {
-            shared_ptr<StreamInstance> instance = it.next();
+            shared_ptr<BaseInstance> instance = it.next();
             if (!instance->is_open()) {
                 instance->open();
                 std::cerr << "Open" << std::endl;
@@ -80,7 +80,7 @@ void PlaybackControl::stop()
 void PlaybackControl::stopAsync()
 {
     std::cerr << "PlaybackControl::stopAsync()" << std::endl;
-    QListIterator<shared_ptr<StreamInstance> > it(m_instances);
+    QListIterator<shared_ptr<BaseInstance> > it(m_instances);
 
     // m_thread and m_worker are connected to deleteLater, so I only
     // mark they as null
@@ -89,7 +89,7 @@ void PlaybackControl::stopAsync()
 
     // Close all opened instances
     while (it.hasNext()) {
-        shared_ptr<StreamInstance> instance = it.next();
+        auto instance = it.next();
         if (instance->is_open()) {
             instance->close();
             std::cerr << "Close" << std::endl;
@@ -108,14 +108,14 @@ void PlaybackControl::stopAsync()
 }
 
 // Called from Worker thread
-QList<shared_ptr<StreamInstance> > PlaybackControl::readAllInstances()
+QList<shared_ptr<BaseInstance> > PlaybackControl::readAllInstances()
 {
-    QList<shared_ptr<StreamInstance>> instances = m_instances; // implicit sharing
-    QList<shared_ptr<StreamInstance>> changedInstances;
+    QList<shared_ptr<BaseInstance>> instances = m_instances; // implicit sharing
+    QList<shared_ptr<BaseInstance>> changedInstances;
 
     // qDebug() << "Worker" << QThread::currentThreadId();
 
-    foreach (shared_ptr<StreamInstance> instance, instances)
+    foreach (shared_ptr<BaseInstance> instance, instances)
     {
         if (instance->is_open())
         {
@@ -146,12 +146,12 @@ QList<shared_ptr<StreamInstance> > PlaybackControl::readAllInstances()
 }
 
 // Called from Notifier thread
-void PlaybackControl::notifyListeners(QList<shared_ptr<StreamInstance>> changedInstances)
+void PlaybackControl::notifyListeners(QList<shared_ptr<BaseInstance> > changedInstances)
 {
-    QMultiHash<StreamInstance*, PlaybackListener*> instanceToListenerMap = m_instanceToListenerMap;
+    auto instanceToListenerMap = m_instanceToListenerMap;
     QHash<PlaybackListener*, QHashDataFrames> sendResult;
 
-    foreach (shared_ptr<StreamInstance> instance, changedInstances)
+    foreach (shared_ptr<BaseInstance> instance, changedInstances)
     {
         QList<PlaybackListener*> listenerList = instanceToListenerMap.values(instance.get());
         shared_ptr<DataFrame> frame = instance->frame();
@@ -169,7 +169,7 @@ void PlaybackControl::notifyListeners(QList<shared_ptr<StreamInstance>> changedI
             listener->onNewFrame(sendResult.value(listener));
 }
 
-void PlaybackControl::addListener(PlaybackListener* listener, shared_ptr<StreamInstance> instance)
+void PlaybackControl::addListener(PlaybackListener* listener, shared_ptr<BaseInstance> instance)
 {
     QMutexLocker locker(&m_lockListeners);
 
@@ -188,19 +188,19 @@ void PlaybackControl::addListener(PlaybackListener* listener, shared_ptr<StreamI
     m_instanceToListenerMap.insert(instance.get(), listener);
 }
 
-void PlaybackControl::removeListener(PlaybackListener *listener, StreamInstance::StreamType type)
+void PlaybackControl::removeListener(PlaybackListener *listener, InstanceType type)
 {
-    shared_ptr<StreamInstance> instance = nullptr;
+    shared_ptr<BaseInstance> instance = nullptr;
 
     m_lockListeners.lock();
 
     if (m_listeners.contains(listener))
     {
-        QList<shared_ptr<StreamInstance>> instanceList = m_listenerToInstanceMap.values(listener);
-        QListIterator<shared_ptr<StreamInstance>> it(instanceList);
+        QList<shared_ptr<BaseInstance>> instanceList = m_listenerToInstanceMap.values(listener);
+        QListIterator<shared_ptr<BaseInstance>> it(instanceList);
 
         while (it.hasNext() && !instance) {
-            shared_ptr<StreamInstance> tmpInstance = it.next();
+            shared_ptr<BaseInstance> tmpInstance = it.next();
             if (tmpInstance->getType() == type) {
                 instance = tmpInstance;
             }
@@ -213,7 +213,7 @@ void PlaybackControl::removeListener(PlaybackListener *listener, StreamInstance:
 }
 
 // remove from m_listeners, m_listenerToInstanceMap and m_instanceToListenerMap
-void PlaybackControl::removeListener(PlaybackListener* listener, shared_ptr<StreamInstance> instance)
+void PlaybackControl::removeListener(PlaybackListener* listener, shared_ptr<BaseInstance> instance)
 {
     QMutexLocker locker(&m_lockListeners);
 
@@ -241,9 +241,9 @@ void PlaybackControl::removeListener(PlaybackListener *listener)
 
     if (m_listeners.contains(listener))
     {
-        QList<shared_ptr<StreamInstance>> instanceList = m_listenerToInstanceMap.values(listener);
+        QList<shared_ptr<BaseInstance>> instanceList = m_listenerToInstanceMap.values(listener);
 
-        foreach (shared_ptr<StreamInstance> instance, instanceList)
+        foreach (shared_ptr<BaseInstance> instance, instanceList)
         {
             m_instanceToListenerMap.remove(instance.get(), listener);
 
@@ -281,7 +281,7 @@ float PlaybackControl::getFPS() const
     return m_worker->getFPS();
 }
 
-void PlaybackControl::addInstance(shared_ptr<StreamInstance> instance)
+void PlaybackControl::addInstance(shared_ptr<BaseInstance> instance)
 {
     if (!m_instances.contains(instance))
         m_instances << instance;

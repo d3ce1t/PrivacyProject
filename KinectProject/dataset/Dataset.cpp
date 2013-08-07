@@ -22,24 +22,9 @@ const DatasetMetadata& Dataset::getMetadata() const
     return *m_metadata;
 }
 
-shared_ptr<DataInstance> Dataset::getSkeletonInstance(InstanceInfo info) const
+shared_ptr<BaseInstance> Dataset::getInstance(InstanceInfo info) const
 {
-    return getSkeletonInstance(info.getActivity(), info.getActor(), info.getSample());
-}
-
-shared_ptr<DataInstance> Dataset::getDepthInstance(InstanceInfo info) const
-{
-    return getDepthInstance(info.getActivity(), info.getActor(), info.getSample());
-}
-
-shared_ptr<DataInstance> Dataset::getColorInstance(InstanceInfo info) const
-{
-    return getColorInstance(info.getActivity(), info.getActor(), info.getSample());
-}
-
-shared_ptr<DataInstance> Dataset::getUserInstance(InstanceInfo info) const
-{
-    return getUserInstance(info.getActivity(), info.getActor(), info.getSample());
+    return getInstance(info.getActivity(), info.getActor(), info.getSample(), info.getType());
 }
 
 } // End Namespace

@@ -29,14 +29,14 @@ public slots:
     void run();
 
 signals:
-    void availableInstances(QList<shared_ptr<StreamInstance>> instances);
+    void availableInstances(QList<shared_ptr<BaseInstance>> instances);
     void finished();
 
 protected:
     void initialise();
     void sync();
     void waitForNotifier();
-    void swap(const QList<shared_ptr<StreamInstance> > &instances);
+    void swap(const QList<shared_ptr<BaseInstance> > &instances);
 
 private:
     bool                            m_running;

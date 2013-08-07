@@ -57,7 +57,7 @@ void SkeletonFrame::write(QFile &of) const
     // Write all skeletons
     foreach (int key, m_hashSkeletons.keys())
     {
-        shared_ptr<dai::Skeleton> skeleton = m_hashSkeletons.value(key);
+        auto skeleton = m_hashSkeletons.value(key);
 
         // Write user key
         of.write( (char*) &key, sizeof(key) );

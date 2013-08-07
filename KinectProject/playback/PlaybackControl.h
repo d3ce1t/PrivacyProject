@@ -32,12 +32,12 @@ public:
     void play(bool restartAll = false);
     void stop();
     void enablePlayLoop(bool value);
-    void addInstance(shared_ptr<StreamInstance> instance);
+    void addInstance(shared_ptr<BaseInstance> instance);
 
     // Listeners
-    void addListener(PlaybackListener* listener, shared_ptr<StreamInstance> instance);
-    void removeListener(PlaybackListener* listener, StreamInstance::StreamType type);
-    void removeListener(PlaybackListener* listener, shared_ptr<StreamInstance> instance);
+    void addListener(PlaybackListener* listener, shared_ptr<BaseInstance> instance);
+    void removeListener(PlaybackListener* listener, InstanceType type);
+    void removeListener(PlaybackListener* listener, shared_ptr<BaseInstance> instance);
     void removeListener(PlaybackListener* listener);
 
     // Query
@@ -50,8 +50,8 @@ private slots:
     void stopAsync();
 
 private:
-    QList<shared_ptr<StreamInstance> > readAllInstances();
-    void notifyListeners(QList<shared_ptr<StreamInstance> > changedInstances);
+    QList<shared_ptr<BaseInstance> > readAllInstances();
+    void notifyListeners(QList<shared_ptr<BaseInstance> > changedInstances);
     void notifySuscribersOnStop();
     void removeAllListeners();
 
@@ -60,10 +60,10 @@ private:
     QThread*                                           m_thread;
 
     // Instances and Listeners
-    QList<shared_ptr<StreamInstance>>                  m_instances;
+    QList<shared_ptr<BaseInstance>>                    m_instances;
     QList<PlaybackListener*>                           m_listeners;
-    QMultiHash<PlaybackListener*, shared_ptr<StreamInstance>> m_listenerToInstanceMap;
-    QMultiHash<StreamInstance*, PlaybackListener*>     m_instanceToListenerMap;
+    QMultiHash<PlaybackListener*, shared_ptr<BaseInstance>> m_listenerToInstanceMap;
+    QMultiHash<BaseInstance*, PlaybackListener*>       m_instanceToListenerMap;
     QMutex                                             m_lockListeners;
 
     // Playback Setting Options

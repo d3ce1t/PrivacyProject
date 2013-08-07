@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <fstream>
-#include "dataset/DataInstance.h"
+#include "types/DataInstance.h"
 #include "types/DepthFrame.h"
 #include <stdint.h>
 
@@ -11,7 +11,7 @@ using namespace std;
 
 namespace dai {
 
-class MSRActionDepthInstance : public DataInstance
+class MSRActionDepthInstance : public DataInstance<DepthFrame>
 {
 public:
     struct BinaryDepthFrame {
@@ -26,7 +26,7 @@ protected:
     void openInstance() override;
     void closeInstance() override;
     void restartInstance() override;
-    void nextFrame(DataFrame& frame) override;
+    void nextFrame(DepthFrame& frame) override;
 
 private:
     ifstream    m_file;

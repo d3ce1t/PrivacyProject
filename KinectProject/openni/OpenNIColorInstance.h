@@ -8,7 +8,7 @@
 
 namespace dai {
 
-class OpenNIColorInstance : public StreamInstance
+class OpenNIColorInstance : public StreamInstance<ColorFrame>
 {
 public:
     OpenNIColorInstance();
@@ -20,7 +20,7 @@ protected:
     void openInstance() override;
     void closeInstance() override;
     void restartInstance() override;
-    void nextFrame(DataFrame& frame) override;
+    void nextFrame(ColorFrame& frame) override;
 
 private:
     OpenNIRuntime*         m_openni;

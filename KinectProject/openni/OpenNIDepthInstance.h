@@ -8,7 +8,7 @@
 
 namespace dai {
 
-class OpenNIDepthInstance : public StreamInstance
+class OpenNIDepthInstance : public StreamInstance<DepthFrame>
 {
 public:
     OpenNIDepthInstance();
@@ -20,7 +20,7 @@ protected:
     void openInstance() override;
     void closeInstance() override;
     void restartInstance() override;
-    void nextFrame(DataFrame& frame) override;
+    void nextFrame(DepthFrame& frame) override;
 
 private:
     OpenNIRuntime*          m_openni;

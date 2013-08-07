@@ -2,14 +2,14 @@
 #define DAI_COLOR_INSTANCE_H
 
 #include <fstream>
-#include "dataset/DataInstance.h"
+#include "types/DataInstance.h"
 #include "types/ColorFrame.h"
 
 using namespace std;
 
 namespace dai {
 
-class DAIColorInstance : public DataInstance
+class DAIColorInstance : public DataInstance<ColorFrame>
 {
 public:
     explicit DAIColorInstance(const InstanceInfo& info);
@@ -20,7 +20,7 @@ protected:
     void openInstance() override;
     void closeInstance() override;
     void restartInstance() override;
-    void nextFrame(DataFrame& frame) override;
+    void nextFrame(ColorFrame& frame) override;
 
 private:
     ifstream    m_file;

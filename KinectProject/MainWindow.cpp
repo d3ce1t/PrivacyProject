@@ -16,6 +16,7 @@
 #include "types/DepthFrame.h"
 #include "types/SkeletonFrame.h"
 #include "types/DataFrame.h"
+#include "types/BaseInstance.h"
 #include "viewer/InstanceViewerWindow.h"
 #include "viewer/InstanceRecorder.h"
 #include "viewer/TestListener.h"
@@ -147,7 +148,7 @@ void MainWindow::on_btnOpenDataSets_clicked()
 
 void MainWindow::on_btnParseDataset_clicked()
 {
-    dai::MSR3Action3D* dataset = new dai::MSR3Action3D();
+    /*dai::MSR3Action3D* dataset = new dai::MSR3Action3D();
     const dai::DatasetMetadata& dsMetadata = dataset->getMetadata();
     const dai::InstanceInfoList* instances = dsMetadata.instances(dai::InstanceInfo::Skeleton);
 
@@ -198,7 +199,7 @@ void MainWindow::on_btnParseDataset_clicked()
         qDebug() << "Close instance";
         dataInstance->close();
         of.close();
-    }
+    }*/
 }
 
 void MainWindow::on_btnTest_clicked()
@@ -210,9 +211,9 @@ void MainWindow::on_btnTest_clicked()
 
     // Create instances
     //shared_ptr<dai::DataInstance> colorInstance = dataset.getColorInstance(1, 1, 1);
-    shared_ptr<dai::DataInstance> depthInstance = dataset.getDepthInstance(17, 1, 2);
+    auto depthInstance = dataset.getInstance(17, 1, 2, dai::INSTANCE_DEPTH);
     //shared_ptr<dai::DataInstance> userInstance = dataset.getUserInstance(1, 1, 1);
-    shared_ptr<dai::DataInstance> skeletonInstance = dataset.getSkeletonInstance(17, 1, 2);
+    auto skeletonInstance = dataset.getInstance(17, 1, 2, dai::INSTANCE_SKELETON);
 
     // Create playback to control instances reading
     dai::PlaybackControl* playback = new dai::PlaybackControl;
@@ -289,7 +290,7 @@ void MainWindow::searchMinAndMaxDepth()
 {
     dai::MSR3Action3D* dataset = new dai::MSR3Action3D();
     const dai::DatasetMetadata& dsMetadata = dataset->getMetadata();
-    const dai::InstanceInfoList* instances = dsMetadata.instances(dai::InstanceInfo::Depth);
+    const dai::InstanceInfoList* instances = dsMetadata.instances(dai::INSTANCE_DEPTH);
 
     QListIterator<dai::InstanceInfo*> it(*instances);
     int framesProcessed = 0;
@@ -298,7 +299,8 @@ void MainWindow::searchMinAndMaxDepth()
     while (it.hasNext())
     {
         dai::InstanceInfo* info = it.next();
-        shared_ptr<dai::DataInstance> dataInstance = dataset->getDepthInstance(info->getActivity(), info->getActor(), info->getSample());
+        auto dataInstance = dataset->getInstance(info->getActivity(), info->getActor(),
+                                                 info->getSample(), info->getType());
 
         dataInstance->open();
 
