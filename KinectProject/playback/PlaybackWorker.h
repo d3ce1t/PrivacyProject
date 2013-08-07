@@ -36,7 +36,7 @@ protected:
     void initialise();
     void sync();
     void waitForNotifier();
-    void swap(QList<shared_ptr<StreamInstance>> instances);
+    void swap(const QList<shared_ptr<StreamInstance> > &instances);
 
 private:
     bool                            m_running;

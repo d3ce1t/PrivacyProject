@@ -7,7 +7,7 @@
 namespace dai {
 
 PlaybackWorker::PlaybackWorker(PlaybackControl* parent)
-    : m_sleepTime(40000) // 40000 microseconds = 40 ms
+    : m_sleepTime(33000) // 33333 microseconds = 33.33 ms
 {
     m_parent = parent;
     m_running = false;
@@ -48,19 +48,18 @@ void PlaybackWorker::run()
 
     while (m_running)
     {
-        // Compute time since last update
+        // Compute time since last update and fps
         qint64 timeNow = time.nsecsElapsed() / 1000; // nano seconds to microseconds
         qint64 diffTime = timeNow - lastTime;
+        m_fps = 1.0 / (diffTime / 1000000.0f); // in seconds
 
-        if (diffTime >= m_sleepTime)
+        if (diffTime < m_sleepTime) {
+            QThread::currentThread()->usleep(m_sleepTime - diffTime); // microseconds
+        }
+        else if (readInstances.count() > 0)
         {
-            // Notify listeners; Here
-            if (readInstances.count() > 0) {
-                emit availableInstances(readInstances);
-            }
-            else {
-                m_running = false;
-            }
+            // Notify listeners
+            emit availableInstances(readInstances);
 
             // Prefetch read
             readInstances = m_parent->readAllInstances();
@@ -71,19 +70,19 @@ void PlaybackWorker::run()
             // Swap
             swap(readInstances);
 
-            // Compute Frame Per Seconds
-            m_fps = 1.0 / (diffTime / 1000000.0f);
+            // Set last time
             lastTime = timeNow;
         }
         else {
-            QThread::currentThread()->usleep(m_sleepTime - diffTime); // microseconds
+            m_running = false;
         }
     }
 
+    std::cerr << "PlaybackWorker::finished()" << std::endl;
     emit finished();
 }
 
-void PlaybackWorker::swap(QList<shared_ptr<StreamInstance>> instances)
+void PlaybackWorker::swap(const QList<shared_ptr<StreamInstance> > &instances)
 {
     foreach (shared_ptr<StreamInstance> instance, instances) {
         instance->swapBuffer();
