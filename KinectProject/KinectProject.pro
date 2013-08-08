@@ -10,7 +10,6 @@ QMAKE_LFLAGS = -std=c++11
 HEADERS += \
     dataset/MSRAction3D/MSR3Action3D.h \
     dataset/InstanceInfo.h \
-    Grill.h \
     HistogramScene.h \
     dataset/Dataset.h \
     dataset/NotSupportedDatasetException.h \
@@ -77,7 +76,6 @@ HEADERS += \
 SOURCES += \
     dataset/MSRAction3D/MSR3Action3D.cpp \
     dataset/InstanceInfo.cpp \
-    Grill.cpp \
     HistogramScene.cpp \
     Main.cpp \
     dataset/Dataset.cpp \

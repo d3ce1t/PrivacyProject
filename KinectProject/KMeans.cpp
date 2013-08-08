@@ -10,7 +10,7 @@
 namespace dai {
 
 KMeans::KMeans(const float* sample, const int n, const int k)
-    : m_sample(sample), m_n(n), m_k(k), m_dim(1)
+    : m_sample(sample), m_dim(1), m_n(n), m_k(k)
 {
     if (k > n)
         throw 0;

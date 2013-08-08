@@ -20,7 +20,6 @@ public:
     UserFramePainter(InstanceViewer* parent);
     virtual ~UserFramePainter();
     void prepareData(shared_ptr<DataFrame> frame);
-    UserFrame& frame();
 
 protected:
     void initialise();

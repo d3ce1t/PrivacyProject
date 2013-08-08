@@ -23,7 +23,6 @@ public:
     virtual ~ColorFramePainter();
     void prepareData(shared_ptr<DataFrame> frame);
     void enableFilter(QMLEnumsWrapper::ColorFilter type);
-    ColorFrame& frame();
 
 protected:
     void initialise();

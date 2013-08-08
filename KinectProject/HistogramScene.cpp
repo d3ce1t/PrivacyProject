@@ -25,11 +25,6 @@ void HistogramScene::initialise()
     glGenTextures(1, &m_frameTexture);
 }
 
-void HistogramScene::update(float t)
-{
-
-}
-
 void HistogramScene::render()
 {
     float vertexData[] = {
@@ -74,11 +69,6 @@ void HistogramScene::render()
     m_shaderProgram->release();
 
     glDisable(GL_TEXTURE_2D);
-}
-
-void HistogramScene::resize( float w, float h )
-{
-
 }
 
 void HistogramScene::prepareShaderProgram()

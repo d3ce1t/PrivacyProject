@@ -28,12 +28,6 @@ void DepthFramePainter::initialise()
     prepareVertexBuffer();
 }
 
-DepthFrame& DepthFramePainter::frame()
-{
-    QMutexLocker locker(&m_lockFrame);
-    return *m_frame;
-}
-
 void DepthFramePainter::prepareData(shared_ptr<DataFrame> frame)
 {
     QMutexLocker locker(&m_lockFrame);

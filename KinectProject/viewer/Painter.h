@@ -26,7 +26,6 @@ public:
     void renderNow();
     void setMask(shared_ptr<UserFrame> mask);
     virtual void prepareData(shared_ptr<DataFrame> frame) = 0;
-    virtual DataFrame& frame() = 0;
 
 protected:
     virtual void prepareShaderProgram() = 0;

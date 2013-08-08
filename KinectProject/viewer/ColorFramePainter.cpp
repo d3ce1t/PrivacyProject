@@ -315,11 +315,6 @@ void ColorFramePainter::loadMaskTexture(GLuint glTextureId, GLsizei width, GLsiz
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-ColorFrame& ColorFramePainter::frame()
-{
-    return *m_frame;
-}
-
 void ColorFramePainter::prepareData(shared_ptr<DataFrame> frame)
 {
     m_frame = static_pointer_cast<ColorFrame>(frame);

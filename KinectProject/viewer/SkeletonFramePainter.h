@@ -14,7 +14,6 @@ class SkeletonFramePainter : public Painter
 public:
     explicit SkeletonFramePainter(InstanceViewer* parent);
     void prepareData(shared_ptr<DataFrame> frame);
-    SkeletonFrame& frame();
 
 protected:
     void initialise();

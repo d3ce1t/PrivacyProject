@@ -14,6 +14,7 @@ SkeletonJoint::SkeletonJoint(const Point3f point, JointType type)
 }
 
 SkeletonJoint::SkeletonJoint(const SkeletonJoint& other)
+    : QObject(0)
 {
     m_realworld_point = other.m_realworld_point;
     m_type = other.m_type;

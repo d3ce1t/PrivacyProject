@@ -13,7 +13,6 @@ public:
     DummyPainter(InstanceViewer* parent);
     virtual ~DummyPainter();
     void prepareData(shared_ptr<DataFrame> frame);
-    DataFrame& frame();
 
 protected:
     void prepareShaderProgram();

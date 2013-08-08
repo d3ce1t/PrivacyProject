@@ -133,6 +133,8 @@ bool DepthSeg::is_continuous(int row1, int col1, int row2, int col2) const
 
 void DepthSeg::merge_clusters(int row, int column, float src_cluster, float merge_cluster)
 {
+    Q_UNUSED(column);
+
     for (int i=0; i<=row; i++)
     {
         for (int j=0; j<m_frame.getWidth(); ++j)

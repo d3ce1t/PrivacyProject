@@ -37,11 +37,6 @@ void UserFramePainter::initialise()
     glGenTextures(1, &m_frameTexture);
 }
 
-UserFrame& UserFramePainter::frame()
-{
-    return *m_frame;
-}
-
 void UserFramePainter::prepareData(shared_ptr<DataFrame> frame)
 {
     m_frame = static_pointer_cast<UserFrame>(frame);

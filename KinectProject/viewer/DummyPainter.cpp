@@ -151,11 +151,6 @@ void DummyPainter::prepareData(shared_ptr<DataFrame> frame)
     Q_UNUSED(frame)
 }
 
-DataFrame& DummyPainter::frame()
-{
-
-}
-
 void DummyPainter::loadTexture(GLuint glTextureId, GLsizei width, GLsizei height, void *texture)
 {
     glBindTexture(GL_TEXTURE_2D, glTextureId);

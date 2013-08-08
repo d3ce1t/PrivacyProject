@@ -16,7 +16,6 @@ public:
     DepthFramePainter(InstanceViewer* parent);
     virtual ~DepthFramePainter();
     void prepareData(shared_ptr<DataFrame> frame);
-    DepthFrame& frame();
 
 protected:
     void initialise();

@@ -48,11 +48,6 @@ void SkeletonFramePainter::initialise()
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
-SkeletonFrame &SkeletonFramePainter::frame()
-{
-    return *m_frame;
-}
-
 void SkeletonFramePainter::prepareData(shared_ptr<DataFrame> frame)
 {
     m_frame = static_pointer_cast<SkeletonFrame>(frame);
