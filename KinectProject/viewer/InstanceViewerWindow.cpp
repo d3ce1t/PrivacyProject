@@ -79,8 +79,8 @@ void InstanceViewerWindow::processListItem(QListWidget* widget)
 
     InstanceWidgetItem* instanceItem = (InstanceWidgetItem*) widget->selectedItems().at(0);
     InstanceInfo& info = instanceItem->getInfo();
-    const Dataset* dataset = info.parent()->dataset();
-    shared_ptr<BaseInstance> instance = dataset->getInstance(info);
+    const Dataset& dataset = info.parent().dataset();
+    shared_ptr<BaseInstance> instance = dataset.getInstance(info);
 
     if (instance) {
         playback()->removeListener(this, instance->getType());

@@ -199,9 +199,9 @@ void DatasetMetadata::addInstanceInfo(InstanceInfo* instance)
     list->push_back(instance);
 }
 
-DatasetMetadata* DatasetMetadata::load(QString xmlPath)
+shared_ptr<DatasetMetadata> DatasetMetadata::load(QString xmlPath)
 {
-    DatasetMetadata* result = new DatasetMetadata();
+    shared_ptr<DatasetMetadata> result(new DatasetMetadata());
     QFile file(xmlPath);
     file.open(QIODevice::ReadOnly);
 
@@ -344,7 +344,7 @@ void DatasetMetadata::setDataset(Dataset* dataset)
     m_dataset = dataset;
 }
 
-const Dataset* DatasetMetadata::dataset() const
+const Dataset &DatasetMetadata::dataset() const
 {
-    return m_dataset;
+    return *m_dataset;
 }

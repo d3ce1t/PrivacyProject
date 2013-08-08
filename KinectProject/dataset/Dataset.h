@@ -26,14 +26,14 @@ public:
     };
 
     explicit Dataset(QString path);
-    virtual ~Dataset();
+    virtual ~Dataset() = default;
     const DatasetMetadata& getMetadata() const;
 
     virtual shared_ptr<BaseInstance> getInstance(int activity, int actor, int sample, InstanceType type) const = 0;
     shared_ptr<BaseInstance> getInstance(InstanceInfo info) const;
 
 protected:
-    DatasetMetadata* m_metadata;
+    shared_ptr<DatasetMetadata> m_metadata;
 };
 
 }

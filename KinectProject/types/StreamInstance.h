@@ -11,21 +11,20 @@
 
 namespace dai {
 
-
 template <class T>
 class StreamInstance : public BaseInstance
 {
 public:
     StreamInstance();
-    virtual ~StreamInstance();
+    virtual ~StreamInstance() = default;
     void open() override;
     void close() override;
     void restart() override;
     virtual bool hasNext() const override;
-    void readNextFrame();
+    void readNextFrame() override;
     shared_ptr<DataFrame> frame() override;
-    unsigned int getFrameIndex() const;
     void swapBuffer() override;
+    unsigned int getFrameIndex() const;
 
 protected:
     virtual void openInstance() = 0;
@@ -49,16 +48,6 @@ StreamInstance<T>::StreamInstance()
     m_writeFrame = nullptr;
     m_readFrame = nullptr;
     m_frameIndex = 0;
-}
-
-template <class T>
-StreamInstance<T>::~StreamInstance()
-{
-    m_type = INSTANCE_UNINITIALISED;
-    m_writeFrame = nullptr;
-    m_readFrame = nullptr;
-    m_frameIndex = 0;
-    qDebug() << "StreamInstance::~StreamInstance()";
 }
 
 template <class T>

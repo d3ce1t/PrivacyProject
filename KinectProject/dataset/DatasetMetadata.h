@@ -5,20 +5,21 @@
 #include <QHash>
 #include <QList>
 #include "InstanceInfo.h"
+#include <memory>
 
+using namespace std;
 
 namespace dai {
 
 typedef QList<InstanceInfo*> InstanceInfoList;
 class Dataset;
 
-
 class DatasetMetadata
 {
     friend class Dataset;
 
 public:
-    static DatasetMetadata* load(QString xmlPath);
+    static shared_ptr<DatasetMetadata> load(QString xmlPath);
 
     virtual ~DatasetMetadata();
     const QString getName() const;
@@ -32,7 +33,7 @@ public:
     const QString& getActivityName(int key) const;
     const QString& getActorName(int key) const;
     const QString& getSampleName(int key) const;
-    const Dataset* dataset() const;
+    const Dataset& dataset() const;
 
 private:
     void setDataset(Dataset* dataset);
@@ -61,6 +62,6 @@ private:
     QHash<InstanceType, QHash<int, InstanceInfoList*>* > m_instances;
 };
 
-}
+} // End Namespace
 
 #endif // DATASETINFO_H

@@ -4,13 +4,13 @@
 
 using namespace dai;
 
-InstanceInfo::InstanceInfo(DatasetMetadata *parent)
+InstanceInfo::InstanceInfo(shared_ptr<DatasetMetadata> parent)
 {
     m_type = INSTANCE_UNINITIALISED;
     m_parent = parent;
 }
 
-InstanceInfo::InstanceInfo(InstanceType type, DatasetMetadata *parent)
+InstanceInfo::InstanceInfo(InstanceType type, shared_ptr<DatasetMetadata> parent)
 {
     if (type == INSTANCE_UNINITIALISED)
         throw NotImplementedException();
@@ -72,9 +72,9 @@ QString InstanceInfo::getDatasetPath() const
     return m_path;
 }
 
-const DatasetMetadata* InstanceInfo::parent() const
+const DatasetMetadata &InstanceInfo::parent() const
 {
-    return m_parent;
+    return *m_parent;
 }
 
 void InstanceInfo::setType(InstanceType type)

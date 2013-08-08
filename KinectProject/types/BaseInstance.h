@@ -18,8 +18,10 @@ class BaseInstance
 {
 public:
     BaseInstance();
+    virtual ~BaseInstance() = default;
     InstanceType getType() const;
     const QString& getTitle() const;
+
     virtual void open() = 0;
     virtual void close() = 0;
     virtual void restart() = 0;
@@ -32,7 +34,6 @@ public:
 protected:
     InstanceType    m_type;
     QString         m_title;
-
 };
 
 } // End Namespace

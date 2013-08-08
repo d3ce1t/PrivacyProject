@@ -11,8 +11,8 @@ class DatasetMetadata;
 class InstanceInfo
 {
 public:
-    InstanceInfo(DatasetMetadata* parent = nullptr);
-    explicit InstanceInfo(InstanceType type, DatasetMetadata* parent = nullptr);
+    InstanceInfo(shared_ptr<DatasetMetadata> parent = nullptr);
+    explicit InstanceInfo(InstanceType type, shared_ptr<DatasetMetadata> parent = nullptr);
     InstanceInfo(const InstanceInfo& other);
 
     InstanceType getType() const;
@@ -21,7 +21,7 @@ public:
     int getSample() const;
     QString getFileName() const;
     QString getDatasetPath() const;
-    const DatasetMetadata* parent() const;
+    const DatasetMetadata& parent() const;
     void setType(InstanceType type);
     void setActivity(int activity);
     void setActor(int actor);
@@ -38,7 +38,7 @@ private:
     int m_sample;
     QString m_file;
     QString m_path;
-    DatasetMetadata* m_parent;
+    shared_ptr<DatasetMetadata> m_parent;
 };
 
 }

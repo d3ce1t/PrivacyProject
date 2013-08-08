@@ -78,7 +78,6 @@ void PlaybackWorker::run()
         }
     }
 
-    std::cerr << "PlaybackWorker::finished()" << std::endl;
     emit finished();
 }
 
