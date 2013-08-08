@@ -148,16 +148,16 @@ void MainWindow::on_btnOpenDataSets_clicked()
 
 void MainWindow::on_btnParseDataset_clicked()
 {
-    /*dai::MSR3Action3D* dataset = new dai::MSR3Action3D();
-    const dai::DatasetMetadata& dsMetadata = dataset->getMetadata();
-    const dai::InstanceInfoList* instances = dsMetadata.instances(dai::InstanceInfo::Skeleton);
+    dai::MSR3Action3D dataset;
+    const dai::DatasetMetadata& dsMetadata = dataset.getMetadata();
+    const dai::InstanceInfoList* instances = dsMetadata.instances(dai::INSTANCE_SKELETON);
 
     QListIterator<dai::InstanceInfo*> it(*instances);
 
     while (it.hasNext())
     {
         dai::InstanceInfo* info = it.next();
-        shared_ptr<dai::DataInstance> dataInstance = dataset->getSkeletonInstance(info->getActivity(), info->getActor(), info->getSample());
+        auto dataInstance = static_pointer_cast<dai::DataInstance<dai::SkeletonFrame>>(dataset.getInstance(*info));
 
         dataInstance->open();
 
@@ -199,7 +199,7 @@ void MainWindow::on_btnParseDataset_clicked()
         qDebug() << "Close instance";
         dataInstance->close();
         of.close();
-    }*/
+    }
 }
 
 void MainWindow::on_btnTest_clicked()

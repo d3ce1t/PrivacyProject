@@ -11,7 +11,7 @@ DAIDataset::DAIDataset()
 {
 }
 
-shared_ptr<BaseInstance> DAIDataset::getInstance(int activity, int actor, int sample, InstanceType type) const
+shared_ptr<BaseInstance> DAIDataset::instance(int activity, int actor, int sample, InstanceType type) const
 {
     const InstanceInfo instanceInfo = m_metadata->instance(type, activity, actor, sample);
 

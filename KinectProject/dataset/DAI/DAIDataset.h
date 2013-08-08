@@ -9,7 +9,9 @@ class DAIDataset : public Dataset
 {
 public:
     DAIDataset();
-    shared_ptr<BaseInstance> getInstance(int activity, int actor, int sample, InstanceType type) const;
+
+protected:
+    shared_ptr<BaseInstance> instance(int activity, int actor, int sample, InstanceType type) const;
 };
 
 } // End namespace

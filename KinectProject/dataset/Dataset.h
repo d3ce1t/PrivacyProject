@@ -29,10 +29,12 @@ public:
     virtual ~Dataset() = default;
     const DatasetMetadata& getMetadata() const;
 
-    virtual shared_ptr<BaseInstance> getInstance(int activity, int actor, int sample, InstanceType type) const = 0;
-    shared_ptr<BaseInstance> getInstance(InstanceInfo info) const;
+    shared_ptr<BaseInstance> getInstance(int activity, int actor, int sample, InstanceType type) const;
+    shared_ptr<BaseInstance> getInstance(const InstanceInfo &info) const;
 
 protected:
+    virtual shared_ptr<BaseInstance> instance(int activity, int actor, int sample, InstanceType type) const = 0;
+
     shared_ptr<DatasetMetadata> m_metadata;
 };
 
