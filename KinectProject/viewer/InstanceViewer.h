@@ -11,6 +11,9 @@
 #include "viewer/Painter.h"
 #include "viewer/DummyPainter.h"
 #include "viewer/QMLEnumsWrapper.h"
+#include "filters/InvisibilityFilter.h"
+#include "filters/DilateUserFilter.h"
+#include "filters/BlurFilter.h"
 
 using namespace dai;
 
@@ -44,6 +47,7 @@ private slots:
 
 private:
     // Private Functions
+    shared_ptr<DataFrame> applyFilter(shared_ptr<DataFrame> inputFrame, shared_ptr<UserFrame> userMask = nullptr) const;
     void testOutput();
     void updatePaintersMatrix();
 
@@ -54,6 +58,7 @@ private:
     QMatrix4x4                                        m_matrix;
     bool                                              m_running;
     QMutex                                            m_mutex;
+    QMultiHash<DataFrame::FrameType, shared_ptr<FrameFilter>> m_filters;
     //shared_ptr<dai::DummyPainter>                     m_dummyPainter;
 };
 

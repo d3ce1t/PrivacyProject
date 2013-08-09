@@ -32,6 +32,7 @@ void ColorFramePainter::initialise()
     // Create texture
     glGenTextures(1, &m_fgTextureId);
     glGenTextures(1, &m_maskTextureId);
+    glGenTextures(1, &m_mask2TextureId);
 }
 
 void ColorFramePainter::render()
@@ -66,9 +67,10 @@ void ColorFramePainter::renderBackground()
         // Load Foreground
         loadVideoTexture(m_fgTextureId, m_frame->getWidth(), m_frame->getHeight(), (void *) m_frame->getDataPtr());
 
-        // Load Mask
-        if (m_mask) {
-            loadMaskTexture(m_maskTextureId, m_mask->getWidth(), m_mask->getHeight(), (void *) m_mask->getDataPtr());
+        // Load Mask 1 and 2
+        if (m_mask1 && m_mask2) {
+            loadMaskTexture(m_maskTextureId, m_mask1->getWidth(), m_mask1->getHeight(), (void *) m_mask1->getDataPtr());
+            loadMaskTexture(m_mask2TextureId, m_mask2->getWidth(), m_mask2->getHeight(), (void *) m_mask2->getDataPtr());
         }
 
         m_needLoading.store(0);
@@ -78,7 +80,7 @@ void ColorFramePainter::renderBackground()
     glActiveTexture(GL_TEXTURE0 + 0);
     glBindTexture(GL_TEXTURE_2D, m_fgTextureId);
 
-    // Enable Mask
+    // Enable Mask1 for BG filter
     glActiveTexture(GL_TEXTURE0 + 1);
     glBindTexture(GL_TEXTURE_2D, m_maskTextureId);
 
@@ -116,7 +118,7 @@ void ColorFramePainter::renderFilter()
 
     // Enable Mask
     glActiveTexture(GL_TEXTURE0 + 1);
-    glBindTexture(GL_TEXTURE_2D, m_maskTextureId);
+    glBindTexture(GL_TEXTURE_2D, m_mask2TextureId);
 
     // Enable bgTexture (for read)
     glActiveTexture(GL_TEXTURE0 + 2);
@@ -202,7 +204,7 @@ void ColorFramePainter::displayRenderedTexture()
 
     // Enable Mask
     glActiveTexture(GL_TEXTURE0 + 1);
-    glBindTexture(GL_TEXTURE_2D, m_maskTextureId);
+    glBindTexture(GL_TEXTURE_2D, m_mask2TextureId);
 
     // Enable FBO and generate Mipmap
     glActiveTexture(GL_TEXTURE0 + 2);
@@ -244,6 +246,7 @@ void ColorFramePainter::prepareShaderProgram()
     m_texColorSampler = m_shaderProgram->uniformLocation("texForeground");
     m_texMaskSampler = m_shaderProgram->uniformLocation("texMask");
     m_texBackgroundSampler = m_shaderProgram->uniformLocation("texBackground");
+    m_texMask2Sampler = m_shaderProgram->uniformLocation("texMask2");
 
     m_shaderProgram->bind();
     m_shaderProgram->setUniformValue(m_currentFilterUniform, m_currentFilter); // No Filter
@@ -251,6 +254,7 @@ void ColorFramePainter::prepareShaderProgram()
     m_shaderProgram->setUniformValue(m_texColorSampler, 0);
     m_shaderProgram->setUniformValue(m_texMaskSampler, 1);
     m_shaderProgram->setUniformValue(m_texBackgroundSampler, 2);
+    m_shaderProgram->setUniformValue(m_texMask2Sampler, 3);
     m_shaderProgram->setUniformValue(m_perspectiveMatrixUniform, m_matrix);
     m_shaderProgram->release();
 }

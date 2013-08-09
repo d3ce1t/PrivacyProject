@@ -5,9 +5,6 @@
 #include "dataset/Dataset.h"
 #include "dataset/InstanceInfo.h"
 #include "types/UserFrame.h"
-#include "filters/InvisibilityFilter.h"
-#include "filters/DilateUserFilter.h"
-#include "filters/BlurFilter.h"
 #include <QQmlContext>
 #include "CustomItem.h"
 
@@ -40,18 +37,6 @@ InstanceViewerWindow::InstanceViewerWindow()
     connect(m_window, SIGNAL(closing(QQuickCloseEvent*)), this, SLOT(deleteLater()));
     connect(m_viewer, SIGNAL(frameRendered()), this, SLOT(completeAsyncTask()));
     setTitle("Instance Viewer");
-
-    // Filters setup
-    //shared_ptr<BlurFilter> blurFilter(new BlurFilter);
-    //shared_ptr<InvisibilityFilter> invisibilityFilter(new InvisibilityFilter);
-    shared_ptr<DilateUserFilter> dilateFilter(new DilateUserFilter);
-
-    dilateFilter->enableFilter(true);
-
-    // Filters are later retrieved from more recently to less recently inserted
-    //m_filters.insert(DataFrame::Color, blurFilter);
-    //m_filters.insert(DataFrame::Color, invisibilityFilter);
-    m_filters.insert(DataFrame::User, dilateFilter);
 }
 
 InstanceViewerWindow::~InstanceViewerWindow()
@@ -59,7 +44,6 @@ InstanceViewerWindow::~InstanceViewerWindow()
     qDebug() << "InstanceViewerWindow::~InstanceViewerWindow()";
     m_viewer = nullptr;
     m_window = nullptr;
-    m_filters.clear();
 
     // Close windows and clear models
     m_joints_table_view.close();
@@ -94,32 +78,11 @@ void InstanceViewerWindow::processListItem(QListWidget* widget)
 // called from Notifier thread
 void InstanceViewerWindow::onNewFrame(const QHash<DataFrame::FrameType, shared_ptr<DataFrame>>& dataFrames)
 {
-    QHash<DataFrame::FrameType, shared_ptr<DataFrame>> filteredFrames;
-    shared_ptr<UserFrame> userMask;
-
-    // Get UserFrame in order to use as mask
-    if (dataFrames.contains(DataFrame::User)) {
-        // Apply Filter to Mask for later use
-        shared_ptr<DataFrame> filteredUserMask = applyFilter( dataFrames.value(DataFrame::User) );
-        userMask = static_pointer_cast<UserFrame>( filteredUserMask );
-        filteredFrames.insert(DataFrame::User, userMask);
-    }
-
-    // Then apply filters to the rest of frames
-    foreach (shared_ptr<DataFrame> inputFrame, dataFrames) {
-        if (inputFrame->getType() == DataFrame::User) {
-            continue;
-        }
-
-        shared_ptr<DataFrame> outputFrame = applyFilter(inputFrame, userMask);
-        filteredFrames.insert(outputFrame->getType(), outputFrame);
-    }
-
     // Sent to viewer
     // I want to execute method in the thread it belongs to
     QMetaObject::invokeMethod(m_viewer, "onNewFrame",
                                   Qt::AutoConnection,
-                                  Q_ARG(QHashDataFrames, filteredFrames));
+                                  Q_ARG(QHashDataFrames, dataFrames));
 
     // Feed skeleton data models
     if (dataFrames.contains(DataFrame::Skeleton)) {
@@ -142,26 +105,6 @@ void InstanceViewerWindow::completeAsyncTask()
     PlaybackListener::endAsyncTask();
 }
 
-shared_ptr<DataFrame> InstanceViewerWindow::applyFilter(shared_ptr<DataFrame> inputFrame, shared_ptr<UserFrame> userMask) const
-{    
-    QList<shared_ptr<FrameFilter>> filters = m_filters.values(inputFrame->getType());
-
-    if (filters.count() == 0)
-        return inputFrame;
-
-    // I clone the frame because I do not want to modify the frame read by the instance
-    shared_ptr<DataFrame> outputFrame = inputFrame->clone();
-
-    foreach (shared_ptr<FrameFilter> frameFilter, filters)
-    {
-        frameFilter->setMask(userMask);
-        frameFilter->applyFilter(outputFrame);
-        frameFilter->setMask(nullptr); // Hack
-    }
-
-    return outputFrame;
-}
-
 float InstanceViewerWindow::getFPS() const
 {
     return m_fps;
@@ -172,36 +115,6 @@ void InstanceViewerWindow::setTitle(const QString& title)
     if (m_window)
         m_window->setTitle(title);
 }
-
-/*void InstanceViewerWindow::enableInvisibilityFilter()
-{
-    shared_ptr<FrameFilter> filter = m_filters.values(DataFrame::Color).at(0);
-
-    if (m_activeFilterArray[DataFrame::Color])
-        m_activeFilterArray[DataFrame::Color]->enableFilter(false);
-
-    m_activeFilterArray[DataFrame::Color] = filter;
-    filter->enableFilter(true);
-}
-
-void InstanceViewerWindow::enableBlurFilter()
-{
-    shared_ptr<FrameFilter> filter = m_filters.values(DataFrame::Color).at(1);
-
-    if (m_activeFilterArray[DataFrame::Color])
-        m_activeFilterArray[DataFrame::Color]->enableFilter(false);
-
-    m_activeFilterArray[DataFrame::Color] = filter;
-    filter->enableFilter(true);
-}
-
-void InstanceViewerWindow::disableColorFilter()
-{
-    if (m_activeFilterArray[DataFrame::Color]) {
-        m_activeFilterArray[DataFrame::Color]->enableFilter(false);
-        m_activeFilterArray[DataFrame::Color] = nullptr;
-    }
-}*/
 
 void InstanceViewerWindow::show()
 {

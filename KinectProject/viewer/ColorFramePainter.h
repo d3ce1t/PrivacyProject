@@ -55,6 +55,7 @@ private:
     GLuint                   m_bgTextureId;
     GLuint                   m_fgTextureId;
     GLuint                   m_maskTextureId;
+    GLuint                   m_mask2TextureId;
 
     // Shader identifiers
     GLuint                   m_perspectiveMatrixUniform;
@@ -65,6 +66,7 @@ private:
     GLuint                   m_texColorSampler;
     GLuint                   m_texMaskSampler;
     GLuint                   m_texBackgroundSampler;
+    GLuint                   m_texMask2Sampler;
 };
 
 } // End Namespace

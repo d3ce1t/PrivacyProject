@@ -24,7 +24,8 @@ public:
     InstanceViewer* parent() const;
     void setMatrix(QMatrix4x4& m_matrix);
     void renderNow();
-    void setMask(shared_ptr<UserFrame> mask);
+    void setMask1(shared_ptr<UserFrame> mask);
+    void setMask2(shared_ptr<UserFrame> mask);
     virtual void prepareData(shared_ptr<DataFrame> frame) = 0;
 
 protected:
@@ -35,7 +36,8 @@ protected:
     QOpenGLShaderProgram*   m_shaderProgram;
     QMatrix4x4              m_matrix;
     InstanceViewer*         m_viewer;
-    shared_ptr<UserFrame>   m_mask;
+    shared_ptr<UserFrame>   m_mask1;
+    shared_ptr<UserFrame>   m_mask2;
 
 private:
     bool                    m_initialised;

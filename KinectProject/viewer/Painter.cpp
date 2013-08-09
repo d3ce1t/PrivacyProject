@@ -30,9 +30,14 @@ void Painter::setMatrix(QMatrix4x4& matrix) {
     this->m_matrix = matrix;
 }
 
-void Painter::setMask(shared_ptr<UserFrame> mask)
+void Painter::setMask1(shared_ptr<UserFrame> mask)
 {
-    m_mask = mask;
+    m_mask1 = mask;
+}
+
+void Painter::setMask2(shared_ptr<UserFrame> mask)
+{
+    m_mask2 = mask;
 }
 
 void Painter::renderNow()

@@ -3,7 +3,6 @@
 
 #include <QQuickWindow>
 #include "playback/PlaybackListener.h"
-#include "filters/FrameFilter.h"
 #include "types/SkeletonFrame.h"
 #include <QQmlApplicationEngine>
 #include <QMultiHash>
@@ -36,9 +35,6 @@ public slots:
     void showJointsWindow();
     void showDistancesWindow();
     void showQuaternionsWindow();
-    //void enableInvisibilityFilter();
-    //void enableBlurFilter();
-    //void disableColorFilter();
 
 private slots:
     float getFPS() const;
@@ -51,7 +47,6 @@ protected:
     void onPlaybackStop() {}
 
 private:
-    shared_ptr<DataFrame> applyFilter(shared_ptr<DataFrame> inputFrame, shared_ptr<UserFrame> userMask = nullptr) const;
     void setupJointsModel(QStandardItemModel &model);
     void setupDistancesModel(QStandardItemModel &model);
     void setupQuaternionModel(QStandardItemModel &model);
@@ -64,8 +59,6 @@ private:
     QQmlApplicationEngine      m_engine;
     InstanceViewer*            m_viewer;
     QQuickWindow*              m_window;
-    QMultiHash<DataFrame::FrameType, shared_ptr<FrameFilter>> m_filters;
-    shared_ptr<FrameFilter>    m_activeFilterArray[4];
 
     // Windows and models for Skeleton data
     QTableView                 m_joints_table_view;

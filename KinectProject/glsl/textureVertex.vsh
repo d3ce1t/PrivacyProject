@@ -1,7 +1,6 @@
 #version 130
-
-in vec4 posAttr;
-in vec2 texCoord;
+attribute highp vec4 posAttr;
+attribute highp vec2 texCoord;
 uniform int stage;
 uniform mat4 perspectiveMatrix;
 uniform int currentFilter; // 0: no filter; 1: invisibility; 2: blur

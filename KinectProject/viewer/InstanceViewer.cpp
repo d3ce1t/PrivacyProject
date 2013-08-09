@@ -37,6 +37,13 @@ InstanceViewer::InstanceViewer()
     m_running = false;
     m_window = nullptr;
     resetPerspective();
+
+    // Filters setup
+    shared_ptr<DilateUserFilter> dilateFilter(new DilateUserFilter);
+    dilateFilter->enableFilter(true);
+
+    // Filters are later retrieved from more recently to less recently inserted
+    m_filters.insert(DataFrame::User, dilateFilter);
 }
 
 InstanceViewer::~InstanceViewer()
@@ -48,6 +55,7 @@ InstanceViewer::~InstanceViewer()
     m_painters.clear();
     m_paintersIndex.clear();
     m_mutex.unlock();
+    m_filters.clear();
     m_running = false;
     m_window = nullptr;
     qDebug() << "InstanceViewer::~InstanceViewer()";
@@ -56,30 +64,61 @@ InstanceViewer::~InstanceViewer()
 void InstanceViewer::onNewFrame(QHashDataFrames dataFrames)
 {
     m_running = true;
-
-    shared_ptr<dai::UserFrame> userMask = nullptr;
+    shared_ptr<UserFrame> userMask1;
+    shared_ptr<UserFrame> userMask2;
 
     // Get UserFrame in order to use as mask
     if (dataFrames.contains(DataFrame::User))
     {
-        userMask = static_pointer_cast<UserFrame>( dataFrames.value(DataFrame::User) );
+        shared_ptr<DilateUserFilter> dilateFilter = static_pointer_cast<DilateUserFilter>(m_filters.value(DataFrame::User));
+
+        dilateFilter->setDilationSize(18);
+        userMask1 = static_pointer_cast<UserFrame>(applyFilter(dataFrames.value(DataFrame::User)));
+        //dilateFilter->setDilationSize(5);
+        userMask2 = static_pointer_cast<UserFrame>(dataFrames.value(DataFrame::User));
 
         if (dataFrames.size() > 1) // I only show user mask if it's the only one frame
             dataFrames.remove(DataFrame::User);
     }
 
+    // Then apply filters to the rest of frames
     m_mutex.lock();
-    foreach (shared_ptr<dai::DataFrame> frame, dataFrames) {
-        dai::Painter* painter = m_paintersIndex.value(frame->getType());
+
+    foreach (shared_ptr<dai::DataFrame> inputFrame, dataFrames)
+    {
+        dai::Painter* painter = m_paintersIndex.value(inputFrame->getType());
+
         if (painter) {
-            painter->setMask(userMask);
-            painter->prepareData(frame);
+            painter->setMask1(userMask1);
+            painter->setMask2(userMask2);
+            painter->prepareData(inputFrame);
         }
     }
+
     m_mutex.unlock();
 
     if (m_window != nullptr)
         m_window->update();
+}
+
+shared_ptr<DataFrame> InstanceViewer::applyFilter(shared_ptr<DataFrame> inputFrame, shared_ptr<UserFrame> userMask) const
+{
+    QList<shared_ptr<FrameFilter>> filters = m_filters.values(inputFrame->getType());
+
+    if (filters.count() == 0)
+        return inputFrame;
+
+    // I clone the frame because I do not want to modify the frame read by the instance
+    shared_ptr<DataFrame> outputFrame = inputFrame->clone();
+
+    foreach (shared_ptr<FrameFilter> frameFilter, filters)
+    {
+        frameFilter->setMask(userMask);
+        frameFilter->applyFilter(outputFrame);
+        frameFilter->setMask(nullptr); // Hack
+    }
+
+    return outputFrame;
 }
 
 void InstanceViewer::enableFilter(int filter)
