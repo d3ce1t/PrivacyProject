@@ -254,8 +254,8 @@ void MainWindow::on_btnStartKinect_clicked()
     // Create instance
     shared_ptr<dai::OpenNIColorInstance> colorInstance(new dai::OpenNIColorInstance);
     shared_ptr<dai::OpenNIDepthInstance> depthInstance(new dai::OpenNIDepthInstance);
-    shared_ptr<dai::OpenNIUserInstance> userInstance(new dai::OpenNIUserInstance);
     shared_ptr<dai::OpenNISkeletonInstance> skeletonInstance(new dai::OpenNISkeletonInstance);
+    shared_ptr<dai::OpenNIUserInstance> userInstance(new dai::OpenNIUserInstance);
     /*colorInstance->setOutputFile("/files/capture/capture.rgb");
     depthInstance->setOutputFile("/files/capture/capture.bin");
     skeletonInstance->setOutputFile("/files/capture/capture.bskel");

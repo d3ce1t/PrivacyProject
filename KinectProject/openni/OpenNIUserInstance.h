@@ -3,7 +3,9 @@
 
 #include "OpenNIRuntime.h"
 #include "types/StreamInstance.h"
+#include "types/UserFrame.h"
 #include <QFile>
+#include <QMutex>
 
 namespace dai {
 
@@ -22,10 +24,12 @@ protected:
     void nextFrame(UserFrame& frame) override;
 
 private:
-    OpenNIRuntime*         m_openni;
-    shared_ptr<UserFrame>  m_frameBuffer[2];
-    QFile                  m_of;
-    QString                m_outputFile;
+    OpenNIRuntime*            m_openni;
+    shared_ptr<UserFrame>     m_frameBuffer[2];
+    QFile                     m_of;
+    QString                   m_outputFile;
+    nite::UserTrackerFrameRef m_oniUserTrackerFrame;
+    QMutex                    m_lockFrame;
 };
 
 } // End namespace

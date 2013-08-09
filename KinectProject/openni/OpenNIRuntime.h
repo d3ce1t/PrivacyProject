@@ -3,37 +3,46 @@
 
 #include <NiTE.h>
 #include <OpenNI.h>
-#include <QMutex>
 #include <QReadWriteLock>
-#include "types/ColorFrame.h"
-#include "types/DepthFrame.h"
-#include "types/UserFrame.h"
+#include <QMutex>
+#include <QWaitCondition>
 #include "types/SkeletonFrame.h"
+#include "types/UserFrame.h"
 
 namespace dai {
 
 #define MAX_USERS 10
 
 // Class Declaration
-class OpenNIRuntime : public openni::VideoStream::NewFrameListener, public nite::UserTracker::NewFrameListener
+class OpenNIRuntime : public nite::UserTracker::NewFrameListener
 {
 public:
     static OpenNIRuntime* getInstance();
-
     virtual ~OpenNIRuntime();
     void releaseInstance();
-    DepthFrame readDepthFrame();
-    ColorFrame readColorFrame();
-    UserFrame readUserFrame();
     SkeletonFrame readSkeletonFrame();
-    void onNewFrame(openni::VideoStream& stream);
-    void onNewFrame(nite::UserTracker& oniUserTracker);
+    UserFrame readUserFrame();
+    void addNewColorListener(openni::VideoStream::NewFrameListener* listener);
+    void addNewDepthListener(openni::VideoStream::NewFrameListener* listener);
+    //void addNewUserTrackerListener(nite::UserTracker::NewFrameListener* listener);
+    void removeColorListener(openni::VideoStream::NewFrameListener* listener);
+    void removeDepthListener(openni::VideoStream::NewFrameListener* listener);
+    //void removeUserTrackerListener(nite::UserTracker::NewFrameListener* listener);
     void convertDepthToRealWorld(int x, int y, float distance, float &outX, float &outY);
+    void onNewFrame(nite::UserTracker& oniUserTracker);
 
 private:
     static SkeletonJoint::JointType staticMap[15];
 
-    void oniLoadSkeleton(nite::UserTracker &oniUserTracker, nite::UserTrackerFrameRef oniUserTrackerFrame);
+    // Hack: I cannot add two listener to the same userTracker so I use the listener from this class.
+    // However, due to this hack I cannot have more than one instance of each instance type.
+    void notifyNewUserFrame();
+    void waitForNewUserFrame();
+    void notifyNewSkeletonFrame();
+    void waitForNewSkeletonFrame();
+
+    void loadSkeleton(nite::UserTracker &oniUserTracker, nite::UserTrackerFrameRef& oniUserTrackerFrame);
+    void loadUser(nite::UserTrackerFrameRef& oniUserTrackerFrame);
 
     static QMutex          mutex;
     static OpenNIRuntime* _instance;
@@ -43,19 +52,24 @@ private:
     void initOpenNI();
     void shutdownOpenNI();
 
-    ColorFrame                m_colorFrame;
-    DepthFrame                m_depthFrame;
-    UserFrame                 m_userFrame;
-    SkeletonFrame             m_skeletonFrame;
-
     // OpenNI Data
     openni::Device            m_device;
     openni::VideoStream       m_oniColorStream;
     openni::VideoStream       m_oniDepthStream;
     nite::UserTracker         m_oniUserTracker;
-    QReadWriteLock            m_lockColor;
-    QReadWriteLock            m_lockDepth;
-    //bool                      m_trackingStarted[MAX_USERS];
+    SkeletonFrame             m_skeletonFrame;
+    UserFrame                 m_userFrame;
+    QReadWriteLock            m_lockUserTracker;
+
+    // Hack for User Frame
+    QMutex          m_lockUserSync;
+    QWaitCondition  m_userSync;
+    bool            m_newUserFrameGenerated;
+
+    // Hack for SkeletonFrame
+    QMutex          m_lockSkeletonSync;
+    QWaitCondition  m_skeletonSync;
+    bool            m_newSkeletonFrameGenerated;
 };
 
 } // End namespace

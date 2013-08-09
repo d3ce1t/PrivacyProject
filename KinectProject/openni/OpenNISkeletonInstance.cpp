@@ -95,11 +95,10 @@ void OpenNISkeletonInstance::restartInstance()
 void OpenNISkeletonInstance::nextFrame(SkeletonFrame &frame)
 {
     // Read Data from OpenNI
-    SkeletonFrame& skeletonFrame = static_cast<SkeletonFrame&>(frame);
-    skeletonFrame = m_openni->readSkeletonFrame(); // copy
+    frame = m_openni->readSkeletonFrame(); // copy (block until there are a new frame)
 
     if (m_of.isOpen()) {
-        skeletonFrame.write(m_of);
+        frame.write(m_of);
     }
 }
 

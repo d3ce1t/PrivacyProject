@@ -97,13 +97,11 @@ void OpenNIUserInstance::restartInstance()
 
 void OpenNIUserInstance::nextFrame(UserFrame &frame)
 {
-    // Read Data from OpenNI
-    UserFrame& userFrame = (UserFrame&) frame;
-    UserFrame oniFrame = m_openni->readUserFrame(); // copy
-    userFrame = oniFrame; // copy again
+    frame = m_openni->readUserFrame(); // copy (block until there are a new frame)
 
+    // Write if enabled
     if (m_of.isOpen()) {
-        userFrame.write(m_of);
+        frame.write(m_of);
     }
 }
 

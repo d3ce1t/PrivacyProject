@@ -18,6 +18,7 @@ class BaseInstance
 {
 public:
     BaseInstance();
+    BaseInstance(const BaseInstance& other) = delete;
     virtual ~BaseInstance() = default;
     InstanceType getType() const;
     const QString& getTitle() const;

@@ -16,6 +16,7 @@ class StreamInstance : public BaseInstance
 {
 public:
     StreamInstance();
+    StreamInstance(const StreamInstance& other) = delete;
     virtual ~StreamInstance() = default;
     void open() override;
     void close() override;

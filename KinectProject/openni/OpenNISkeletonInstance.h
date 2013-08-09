@@ -5,6 +5,7 @@
 #include "types/StreamInstance.h"
 #include <QFile>
 #include <QTextStream>
+#include "types/SkeletonFrame.h"
 
 namespace dai {
 

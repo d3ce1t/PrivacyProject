@@ -11,6 +11,7 @@ class DataInstance : public StreamInstance<T>
 {
 public:
     explicit DataInstance(const InstanceInfo& info);
+    DataInstance(const DataInstance& other) = delete;
     virtual ~DataInstance() = default;
     const InstanceInfo& getMetadata() const;
     unsigned int getTotalFrames() const;

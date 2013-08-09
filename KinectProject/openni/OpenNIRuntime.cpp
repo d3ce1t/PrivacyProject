@@ -1,8 +1,7 @@
 #include "OpenNIRuntime.h"
 #include <iostream>
 #include <cstdio>
-#include "types/DataInstance.h"
-#include <QThread>
+#include <QDebug>
 
 namespace dai {
 
@@ -50,8 +49,10 @@ void OpenNIRuntime::releaseInstance()
 }
 
 OpenNIRuntime::OpenNIRuntime()
-    : m_colorFrame(640, 480), m_depthFrame(640, 480), m_userFrame(640, 480)
+    : m_userFrame(640, 480)
 {
+    m_newUserFrameGenerated = false;
+    m_newSkeletonFrameGenerated = false;
     initOpenNI();
 }
 
@@ -60,29 +61,49 @@ OpenNIRuntime::~OpenNIRuntime()
    shutdownOpenNI();
 }
 
-DepthFrame OpenNIRuntime::readDepthFrame()
-{
-    QReadLocker locker(&m_lockDepth);
-    return m_depthFrame;
-}
-
 SkeletonFrame OpenNIRuntime::readSkeletonFrame()
 {
-    QReadLocker locker(&m_lockDepth);
+    waitForNewSkeletonFrame();
+    QReadLocker locker(&m_lockUserTracker);
     return m_skeletonFrame;
 }
 
 UserFrame OpenNIRuntime::readUserFrame()
 {
-    QReadLocker locker(&m_lockDepth);
+    waitForNewUserFrame();
+    QReadLocker locker(&m_lockUserTracker);
     return m_userFrame;
 }
 
-ColorFrame OpenNIRuntime::readColorFrame()
+void OpenNIRuntime::addNewColorListener(openni::VideoStream::NewFrameListener* listener)
 {
-    QReadLocker locker(&m_lockColor);
-    return m_colorFrame;
+    m_oniColorStream.addNewFrameListener(listener);
 }
+
+void OpenNIRuntime::removeColorListener(openni::VideoStream::NewFrameListener* listener)
+{
+    m_oniColorStream.removeNewFrameListener(listener);
+}
+
+void OpenNIRuntime::addNewDepthListener(openni::VideoStream::NewFrameListener* listener)
+{
+    m_oniDepthStream.addNewFrameListener(listener);
+}
+
+void OpenNIRuntime::removeDepthListener(openni::VideoStream::NewFrameListener* listener)
+{
+    m_oniDepthStream.removeNewFrameListener(listener);
+}
+
+/*void OpenNIRuntime::addNewUserTrackerListener(nite::UserTracker::NewFrameListener* listener)
+{
+    m_oniUserTracker.addNewFrameListener(listener);
+}
+
+void OpenNIRuntime::removeUserTrackerListener(nite::UserTracker::NewFrameListener* listener)
+{
+    m_oniUserTracker.removeNewFrameListener(listener);
+}*/
 
 void OpenNIRuntime::initOpenNI()
 {
@@ -93,11 +114,23 @@ void OpenNIRuntime::initOpenNI()
         if (openni::OpenNI::initialize() != openni::STATUS_OK)
             throw 1;
 
-        if (m_device.open(deviceURI) != openni::STATUS_OK)
+        if (nite::NiTE::initialize() != nite::STATUS_OK)
             throw 2;
 
-        if (nite::NiTE::initialize() != nite::STATUS_OK)
+        if (m_device.open(deviceURI) != openni::STATUS_OK)
             throw 3;
+
+        // Enable Depth to Color image registration
+        if (m_device.isImageRegistrationModeSupported(openni::IMAGE_REGISTRATION_DEPTH_TO_COLOR)) {
+            if (m_device.getImageRegistrationMode() == openni::IMAGE_REGISTRATION_OFF)
+                m_device.setImageRegistrationMode(openni::IMAGE_REGISTRATION_DEPTH_TO_COLOR);
+        }
+
+        // Enable Depth and Color sync
+        if (!m_device.getDepthColorSyncEnabled())
+            m_device.setDepthColorSyncEnabled(true);
+
+        qDebug() << "Sync Enabled:" << m_device.getDepthColorSyncEnabled();
 
         // Create Color Stream and Setup Mode
         if (m_oniColorStream.create(m_device, openni::SENSOR_COLOR) != openni::STATUS_OK)
@@ -115,23 +148,19 @@ void OpenNIRuntime::initOpenNI()
         videoMode.setResolution(640, 480);
         m_oniDepthStream.setVideoMode(videoMode);
 
-        // Enable Depth and Color sync
-        if (!m_device.getDepthColorSyncEnabled())
-            m_device.setDepthColorSyncEnabled(true);
-
+        // Start
         if (m_oniColorStream.start() != openni::STATUS_OK)
             throw 6;
 
-        if (m_oniUserTracker.create(&m_device) != nite::STATUS_OK)
+        if (m_oniDepthStream.start() != openni::STATUS_OK)
             throw 7;
 
-        if (!m_oniUserTracker.isValid() || !m_oniColorStream.isValid())
+        if (m_oniUserTracker.create(&m_device) != nite::STATUS_OK)
             throw 8;
 
-        qDebug() << m_oniColorStream.getVideoMode().getFps();
-        qDebug() << "Sync Enabled:" << m_device.getDepthColorSyncEnabled();
+        if (!m_oniUserTracker.isValid() || !m_oniColorStream.isValid())
+            throw 9;
 
-        m_oniColorStream.addNewFrameListener(this);
         m_oniUserTracker.addNewFrameListener(this);
     }
     catch (int ex)
@@ -143,12 +172,12 @@ void OpenNIRuntime::initOpenNI()
 
 void OpenNIRuntime::shutdownOpenNI()
 {
-    // Remove listeners
     m_oniUserTracker.removeNewFrameListener(this);
-    m_oniColorStream.removeNewFrameListener(this);
 
     // Release frame refs
     //m_oniColorFrame.release();
+    /*m_oniDepthStream.stop();
+    m_oniColorStream.stop();*/
 
     // Destroy streams and close device
     m_oniUserTracker.destroy();
@@ -161,38 +190,8 @@ void OpenNIRuntime::shutdownOpenNI()
     openni::OpenNI::shutdown();
 }
 
-void OpenNIRuntime::onNewFrame(openni::VideoStream& stream)
-{
-    QWriteLocker locker(&m_lockColor);
-    openni::SensorType type = stream.getSensorInfo().getSensorType();
-
-    if (type == openni::SENSOR_COLOR)
-    {
-        openni::VideoFrameRef oniColorFrame;
-
-        if (stream.readFrame(&oniColorFrame) != openni::STATUS_OK) {
-            throw 1;
-        }
-
-        if (!oniColorFrame.isValid()) {
-            throw 2;
-        }
-
-        int stride = oniColorFrame.getStrideInBytes() / sizeof(openni::RGB888Pixel) - oniColorFrame.getWidth();
-
-        if (stride > 0) {
-            qWarning() << "WARNING: OpenNIRuntime - Not managed color stride!!!";
-            throw 3;
-        }
-
-        // qDebug() << oniColorFrame.getWidth() << oniColorFrame.getHeight();
-        memcpy((void*) m_colorFrame.getDataPtr(), oniColorFrame.getData(), 640 * 480 * sizeof(openni::RGB888Pixel));
-    }
-}
-
 void OpenNIRuntime::onNewFrame(nite::UserTracker& oniUserTracker)
 {
-    QWriteLocker locker(&m_lockDepth);
     nite::UserTrackerFrameRef oniUserTrackerFrame;
 
     if (oniUserTracker.readFrame(&oniUserTrackerFrame) != nite::STATUS_OK) {
@@ -203,42 +202,42 @@ void OpenNIRuntime::onNewFrame(nite::UserTracker& oniUserTracker)
         throw 2;
     }
 
-    //m_pUserTracker.setSkeletonSmoothingFactor(0.7);
-    openni::VideoFrameRef oniDepthFrame = oniUserTrackerFrame.getDepthFrame();
+    m_lockUserTracker.lockForWrite();
+    loadUser(oniUserTrackerFrame);
+    loadSkeleton(oniUserTracker, oniUserTrackerFrame);
+    m_lockUserTracker.unlock();
+
+    notifyNewUserFrame();
+    notifyNewSkeletonFrame();
+}
+
+void OpenNIRuntime::loadUser(nite::UserTrackerFrameRef& oniUserTrackerFrame)
+{
     const nite::UserMap& userMap = oniUserTrackerFrame.getUserMap();
 
-    //qDebug() << oniDepthFrame.getWidth() << oniDepthFrame.getHeight();
-
-    int strideDepth = oniDepthFrame.getStrideInBytes() / sizeof(openni::DepthPixel) - oniDepthFrame.getWidth();
     int strideUser = userMap.getStride() / sizeof(nite::UserId) - userMap.getWidth();
 
-    if (strideDepth > 0 || strideUser > 0) {
-        qWarning() << "WARNING: OpenNIRuntime - Not managed depth or user stride!!!";
+    if (strideUser > 0) {
+        qWarning() << "WARNING: OpenNIRuntime - Not managed user stride!!!";
         throw 3;
     }
 
-    const openni::DepthPixel* pDepth = (const openni::DepthPixel*) oniDepthFrame.getData();
     const nite::UserId* pLabel = userMap.getPixels();
+    m_userFrame.setIndex(oniUserTrackerFrame.getFrameIndex());
 
     // Read Depth Frame and Labels
-    for (int y=0; y < oniDepthFrame.getHeight(); ++y) {
-        for (int x=0; x < oniDepthFrame.getWidth(); ++x) {
+    for (int y=0; y < userMap.getHeight(); ++y) {
+        for (int x=0; x < userMap.getWidth(); ++x) {
             u_int8_t label = *pLabel;
-            m_depthFrame.setItem(y, x, *pDepth / 1000.0f);
             m_userFrame.setItem(y, x, label);
-            pDepth++;
             pLabel++;
         }
         // Skip rest of row (in case it exists)
-        pDepth += strideDepth;
-        pLabel += strideUser;
+        //pLabel += strideUser;
     }
-
-    // Read Skeleton
-    oniLoadSkeleton(oniUserTracker, oniUserTrackerFrame);
 }
 
-void OpenNIRuntime::oniLoadSkeleton(nite::UserTracker& oniUserTracker, nite::UserTrackerFrameRef oniUserTrackerFrame)
+void OpenNIRuntime::loadSkeleton(nite::UserTracker& oniUserTracker, nite::UserTrackerFrameRef& oniUserTrackerFrame)
 {
     const nite::Array<nite::UserData>& users = oniUserTrackerFrame.getUsers();
     m_skeletonFrame.clear();
@@ -250,53 +249,40 @@ void OpenNIRuntime::oniLoadSkeleton(nite::UserTracker& oniUserTracker, nite::Use
         const nite::UserData& user = users[i];
 
         if (user.isNew()) {
-            std::cout << "New user!" << endl;
+            qDebug()<< "New user!" << user.getId();
             oniUserTracker.startSkeletonTracking(user.getId());
-            //oniUserTracker.startPoseDetection(user.getId(), nite::POSE_CROSSED_HANDS);
         }
         else if (!user.isLost())
         {
-            //const nite::PoseData& poseData = user.getPose(nite::POSE_CROSSED_HANDS);
+            const nite::Skeleton& oniSkeleton = user.getSkeleton();
+            const nite::SkeletonJoint& head = user.getSkeleton().getJoint(nite::JOINT_HEAD);
 
-            /*if (poseData.isEntered()) {
-                m_trackingStarted[user.getId()] = true;
-                std::cout << "Entered pose" << endl;
-            }*/
+            if (oniSkeleton.getState() == nite::SKELETON_TRACKED && head.getPositionConfidence() > 0.5)
+            {
+                trackedSkeletons++;
+                auto daiSkeleton = m_skeletonFrame.getSkeleton(user.getId());
 
-            //if (m_trackingStarted[user.getId()])
-            //{
-                const nite::Skeleton& oniSkeleton = user.getSkeleton();
-                const nite::SkeletonJoint& head = user.getSkeleton().getJoint(nite::JOINT_HEAD);
-
-                if (oniSkeleton.getState() == nite::SKELETON_TRACKED && head.getPositionConfidence() > 0.5)
-                {
-                    trackedSkeletons++;
-                    auto daiSkeleton = m_skeletonFrame.getSkeleton(user.getId());
-
-                    if (daiSkeleton == nullptr) {
-                        daiSkeleton.reset(new dai::Skeleton(dai::Skeleton::SKELETON_OPENNI));
-                        m_skeletonFrame.setSkeleton(user.getId(), daiSkeleton);
-                    }
-
-                    for (int j=0; j<15; ++j)
-                    {
-                        // Load nite::SkeletonJoint
-                        const nite::SkeletonJoint& niteJoint = oniSkeleton.getJoint((nite::JointType) j);
-                        nite::Point3f nitePos = niteJoint.getPosition();
-
-                        // Copy nite joint pos to my own Joint
-                        SkeletonJoint joint(Point3f(nitePos.x / 1000, nitePos.y / 1000, nitePos.z / 1000), staticMap[j]);
-                        daiSkeleton->setJoint(staticMap[j], joint);
-                    }
-
-                    daiSkeleton->computeQuaternions();
+                if (daiSkeleton == nullptr) {
+                    daiSkeleton.reset(new dai::Skeleton(dai::Skeleton::SKELETON_OPENNI));
+                    m_skeletonFrame.setSkeleton(user.getId(), daiSkeleton);
                 }
-            //}
+
+                for (int j=0; j<15; ++j)
+                {
+                    // Load nite::SkeletonJoint
+                    const nite::SkeletonJoint& niteJoint = oniSkeleton.getJoint((nite::JointType) j);
+                    nite::Point3f nitePos = niteJoint.getPosition();
+
+                    // Copy nite joint pos to my own Joint
+                    SkeletonJoint joint(Point3f(nitePos.x / 1000, nitePos.y / 1000, nitePos.z / 1000), staticMap[j]);
+                    daiSkeleton->setJoint(staticMap[j], joint);
+                }
+
+                daiSkeleton->computeQuaternions();
+            }
         }
         else if (user.isLost()) {
             qDebug() << "user lost" << user.getId();
-            //m_trackingStarted[user.getId()] = false;
-            //oniUserTracker.stopSkeletonTracking(user.getId());
         }
     } // End for
 }
@@ -304,6 +290,46 @@ void OpenNIRuntime::oniLoadSkeleton(nite::UserTracker& oniUserTracker, nite::Use
 void OpenNIRuntime::convertDepthToRealWorld(int x, int y, float distance, float &outX, float &outY)
 {
     m_oniUserTracker.convertDepthCoordinatesToJoint(x, y, distance * 1000, &outX, &outY);
+}
+
+void OpenNIRuntime::notifyNewUserFrame()
+{
+    m_lockUserSync.lock();
+    if (!m_newUserFrameGenerated) {
+        m_newUserFrameGenerated = true;
+        m_userSync.wakeOne();
+    }
+    m_lockUserSync.unlock();
+}
+
+void OpenNIRuntime::waitForNewUserFrame()
+{
+    m_lockUserSync.lock();
+    while (!m_newUserFrameGenerated) {
+        m_userSync.wait(&m_lockUserSync);
+    }
+    m_newUserFrameGenerated = false;
+    m_lockUserSync.unlock();
+}
+
+void OpenNIRuntime::notifyNewSkeletonFrame()
+{
+    m_lockSkeletonSync.lock();
+    if (!m_newSkeletonFrameGenerated) {
+        m_newSkeletonFrameGenerated = true;
+        m_skeletonSync.wakeOne();
+    }
+    m_lockSkeletonSync.unlock();
+}
+
+void OpenNIRuntime::waitForNewSkeletonFrame()
+{
+    m_lockSkeletonSync.lock();
+    while (!m_newSkeletonFrameGenerated) {
+        m_skeletonSync.wait(&m_lockSkeletonSync);
+    }
+    m_newSkeletonFrameGenerated = false;
+    m_lockSkeletonSync.unlock();
 }
 
 } // End namespace
