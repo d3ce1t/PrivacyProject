@@ -8,14 +8,21 @@
 #include <QList>
 #include <QListWidget>
 #include "types/DataFrame.h"
+#include "viewer/ScenePainter.h"
 #include "viewer/Painter.h"
-#include "viewer/DummyPainter.h"
 #include "viewer/QMLEnumsWrapper.h"
 #include "filters/InvisibilityFilter.h"
 #include "filters/DilateUserFilter.h"
 #include "filters/BlurFilter.h"
 
 using namespace dai;
+
+namespace dai {
+    enum ViewerMode {
+        MODE_2D,
+        MODE_3D
+    };
+}
 
 class QListWidget;
 
@@ -26,6 +33,8 @@ class InstanceViewer : public QQuickItem
 public:
     explicit InstanceViewer();
     virtual ~InstanceViewer();
+    void setMode(ViewerMode mode);
+    ViewerMode getMode() const;
 
 public slots:
     void onNewFrame(QHashDataFrames dataFrames);
@@ -53,13 +62,10 @@ private:
 
     // Private member attributes
     QQuickWindow*                                     m_window;
-    QList<dai::Painter*>                              m_painters;
-    QHash<dai::DataFrame::FrameType, dai::Painter*>   m_paintersIndex;
-    QMatrix4x4                                        m_matrix;
+    shared_ptr<ScenePainter>                          m_scene;
+    ViewerMode                                        m_mode;
     bool                                              m_running;
-    QMutex                                            m_mutex;
     QMultiHash<DataFrame::FrameType, shared_ptr<FrameFilter>> m_filters;
-    //shared_ptr<dai::DummyPainter>                     m_dummyPainter;
 };
 
 #endif // INSTANCE_VIEWER_H

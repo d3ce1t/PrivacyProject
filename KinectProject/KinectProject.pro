@@ -29,7 +29,6 @@ HEADERS += \
     types/DepthFrame.h \
     types/DataFrame.h \
     types/ColorFrame.h \
-    viewer/ColorFramePainter.h \
     dataset/MSRAction3D/MSRActionDepthInstance.h \
     dataset/MSRAction3D/MSRActionSkeletonInstance.h \
     types/Quaternion.h \
@@ -72,7 +71,14 @@ HEADERS += \
     dataset/DAI/DAISkeletonInstance.h \
     types/BaseInstance.h \
     types/DataInstance.h \
-    openni/OpenNIBaseInstance.h
+    openni/OpenNIBaseInstance.h \
+    viewer/ScenePainter.h \
+    viewer/SceneItem.h \
+    viewer/Scene2DPainter.h \
+    viewer/Scene3DPainter.h \
+    viewer/SkeletonItem.h \
+    viewer/Model3DItem.h \
+    viewer/SilhouetteItem.h
 
 SOURCES += \
     dataset/MSRAction3D/MSR3Action3D.cpp \
@@ -95,7 +101,6 @@ SOURCES += \
     types/DepthFrame.cpp \
     types/DataFrame.cpp \
     types/ColorFrame.cpp \
-    viewer/ColorFramePainter.cpp \
     dataset/MSRAction3D/MSRActionDepthInstance.cpp \
     dataset/MSRAction3D/MSRActionSkeletonInstance.cpp \
     types/Quaternion.cpp \
@@ -131,7 +136,14 @@ SOURCES += \
     viewer/SkeletonFramePainter.cpp \
     dataset/DAI/DAISkeletonInstance.cpp \
     types/BaseInstance.cpp \
-    openni/OpenNIBaseInstance.cpp
+    openni/OpenNIBaseInstance.cpp \
+    viewer/ScenePainter.cpp \
+    viewer/SceneItem.cpp \
+    viewer/Scene2DPainter.cpp \
+    viewer/Scene3DPainter.cpp \
+    viewer/SkeletonItem.cpp \
+    viewer/Model3DItem.cpp \
+    viewer/SilhouetteItem.cpp
 
 RESOURCES += openglunderqml.qrc
 

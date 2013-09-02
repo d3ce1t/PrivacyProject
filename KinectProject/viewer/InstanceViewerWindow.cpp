@@ -1,5 +1,4 @@
 #include "InstanceViewerWindow.h"
-#include "viewer/InstanceViewer.h"
 #include "playback/PlaybackControl.h"
 #include "InstanceWidgetItem.h"
 #include "dataset/Dataset.h"
@@ -78,8 +77,7 @@ void InstanceViewerWindow::processListItem(QListWidget* widget)
 // called from Notifier thread
 void InstanceViewerWindow::onNewFrame(const QHash<DataFrame::FrameType, shared_ptr<DataFrame>>& dataFrames)
 {
-    // Sent to viewer
-    // I want to execute method in the thread it belongs to
+    // Sent to viewer (execute the method in the thread it belongs to)
     QMetaObject::invokeMethod(m_viewer, "onNewFrame",
                                   Qt::AutoConnection,
                                   Q_ARG(QHashDataFrames, dataFrames));
@@ -92,7 +90,7 @@ void InstanceViewerWindow::onNewFrame(const QHash<DataFrame::FrameType, shared_p
                                       Q_ARG(shared_ptr<SkeletonFrame>, skeleton));
     }
 
-    // ¿Why this cause flickering?
+    // ¿Why is this causing flickering?
     m_fps = playback()->getFPS();
     emit changeOfStatus();
 
@@ -120,6 +118,11 @@ void InstanceViewerWindow::show()
 {
     if (m_window)
         m_window->show();
+}
+
+void InstanceViewerWindow::setMode(ViewerMode mode)
+{
+    m_viewer->setMode(mode);
 }
 
 void InstanceViewerWindow::showJointsWindow()

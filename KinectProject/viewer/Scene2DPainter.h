@@ -1,32 +1,28 @@
-#ifndef COLOR_FRAME_PAINTER_H
-#define COLOR_FRAME_PAINTER_H
+#ifndef SCENE2DPAINTER_H
+#define SCENE2DPAINTER_H
 
-#include "Painter.h"
+#include <QOpenGLShaderProgram>
 #include <QOpenGLFramebufferObject>
 #include <QOpenGLBuffer>
 #include <QOpenGLVertexArrayObject>
-#include <QMatrix4x4>
-#include "types/ColorFrame.h"
-#include <atomic>
+#include "viewer/ScenePainter.h"
+#include "types/UserFrame.h"
 #include "QMLEnumsWrapper.h"
-
-class QOpenGLShaderProgram;
-
-using namespace std;
 
 namespace dai {
 
-class ColorFramePainter : public Painter
+class Scene2DPainter : public ScenePainter
 {
 public:
-    ColorFramePainter(InstanceViewer* parent);
-    virtual ~ColorFramePainter();
-    void prepareData(shared_ptr<DataFrame> frame);
+    Scene2DPainter();
+    ~Scene2DPainter();
+    void setMask1(shared_ptr<UserFrame> mask);
+    void setMask2(shared_ptr<UserFrame> mask);
     void enableFilter(QMLEnumsWrapper::ColorFilter type);
 
 protected:
-    void initialise();
-    void render();
+    void initialise() override;
+    void render() override;
 
 private:
     void createFrameBuffer();
@@ -40,9 +36,11 @@ private:
     void loadVideoTexture(GLuint glTextureId, GLsizei width, GLsizei height, void *texture);
     void loadMaskTexture(GLuint glTextureId, GLsizei width, GLsizei height, void *texture);
 
-    shared_ptr<ColorFrame>    m_frame;
+
     QMLEnumsWrapper::ColorFilter m_currentFilter = QMLEnumsWrapper::FILTER_DISABLED;
-    atomic<int>               m_needLoading;
+    QOpenGLShaderProgram*   m_shaderProgram;
+    shared_ptr<UserFrame>   m_mask1;
+    shared_ptr<UserFrame>   m_mask2;
 
     // OpenGL Buffer
     shared_ptr<QOpenGLFramebufferObject>  m_fbo;
@@ -71,4 +69,4 @@ private:
 
 } // End Namespace
 
-#endif // COLOR_FRAME_PAINTER_H
+#endif // SCENE2DPAINTER_H

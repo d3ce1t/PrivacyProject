@@ -1,24 +1,30 @@
-#include "ColorFramePainter.h"
-#include "types/UserFrame.h"
-#include "viewer/InstanceViewer.h"
-#include <QQuickWindow>
-#include <QImage>
+#include "Scene2DPainter.h"
+#include "types/ColorFrame.h"
 
 namespace dai {
 
-ColorFramePainter::ColorFramePainter(InstanceViewer *parent)
-    : Painter(parent)
+Scene2DPainter::Scene2DPainter()
 {
-    m_frame = nullptr;
-    m_needLoading.store(0);
 }
 
-ColorFramePainter::~ColorFramePainter()
+Scene2DPainter::~Scene2DPainter()
 {
-    m_frame = nullptr;
+    m_fbo->release();
+    m_fboFilter->release();
+    m_shaderProgram->removeAllShaders();
 }
 
-void ColorFramePainter::initialise()
+void Scene2DPainter::setMask1(shared_ptr<UserFrame> mask)
+{
+    m_mask1 = mask;
+}
+
+void Scene2DPainter::setMask2(shared_ptr<UserFrame> mask)
+{
+    m_mask2 = mask;
+}
+
+void Scene2DPainter::initialise()
 {
     // Load, compile and link the shader program
     prepareShaderProgram();
@@ -35,9 +41,28 @@ void ColorFramePainter::initialise()
     glGenTextures(1, &m_mask2TextureId);
 }
 
-void ColorFramePainter::render()
+void Scene2DPainter::render()
 {
-    if (m_frame == nullptr)
+    Q_ASSERT(m_bg->getType() == DataFrame::Color);
+
+    // Init Each Frame (because QtQuick could change it)
+    glDepthRange(0.0f, 1.0f);
+    glDepthMask(GL_TRUE);
+    glDepthFunc(GL_LEQUAL);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+
+    // Configure ViewPort and Clear Screen
+    glViewport(0, 0, m_width, m_height);
+
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClearDepth(1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+
+    // Draw Background
+    if (m_bg == nullptr)
         return;
 
     m_shaderProgram->bind();
@@ -56,16 +81,22 @@ void ColorFramePainter::render()
 
     m_shaderProgram->release();
     glDisable(GL_TEXTURE_2D);
+
+    // Restore
+    glDisable(GL_BLEND);
+    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_DEPTH_TEST);
 }
 
-void ColorFramePainter::renderBackground()
+void Scene2DPainter::renderBackground()
 {
     m_vao.bind();
 
     if (m_needLoading.load())
     {
+        shared_ptr<ColorFrame> bgFrame = static_pointer_cast<ColorFrame>(m_bg);
         // Load Foreground
-        loadVideoTexture(m_fgTextureId, m_frame->getWidth(), m_frame->getHeight(), (void *) m_frame->getDataPtr());
+        loadVideoTexture(m_fgTextureId, bgFrame->getWidth(), bgFrame->getHeight(), (void *) bgFrame->getDataPtr());
 
         // Load Mask 1 and 2
         if (m_mask1 && m_mask2) {
@@ -108,7 +139,7 @@ void ColorFramePainter::renderBackground()
     m_vao.release();
 }
 
-void ColorFramePainter::renderFilter()
+void Scene2DPainter::renderFilter()
 {
     m_vao.bind();
 
@@ -141,7 +172,7 @@ void ColorFramePainter::renderFilter()
     m_vao.release();
 }
 
-void ColorFramePainter::createFrameBuffer()
+void Scene2DPainter::createFrameBuffer()
 {
     m_fbo.reset(new QOpenGLFramebufferObject(640, 480));
 
@@ -165,7 +196,7 @@ void ColorFramePainter::createFrameBuffer()
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void ColorFramePainter::enableBGRendering()
+void Scene2DPainter::enableBGRendering()
 {
     m_fbo->bind();
 
@@ -177,7 +208,7 @@ void ColorFramePainter::enableBGRendering()
     m_shaderProgram->setUniformValue(m_stageUniform, 1);
 }
 
-void ColorFramePainter::enableFilterRendering()
+void Scene2DPainter::enableFilterRendering()
 {
     m_fboFilter->bind();
 
@@ -189,13 +220,12 @@ void ColorFramePainter::enableFilterRendering()
     m_shaderProgram->setUniformValue(m_stageUniform, 2);
 }
 
-void ColorFramePainter::displayRenderedTexture()
+void Scene2DPainter::displayRenderedTexture()
 {
     m_fboFilter->release();
 
     // Configure Viewport
-    glViewport(0, 0, parent()->width(), parent()->height());
-
+    glViewport(0, 0, m_width, m_height);
     m_vao.bind();
 
     // Enabe FG
@@ -228,7 +258,7 @@ void ColorFramePainter::displayRenderedTexture()
     m_vao.release();
 }
 
-void ColorFramePainter::prepareShaderProgram()
+void Scene2DPainter::prepareShaderProgram()
 {
     m_shaderProgram = new QOpenGLShaderProgram();
     m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/glsl/glsl/textureVertex.vsh");
@@ -259,7 +289,7 @@ void ColorFramePainter::prepareShaderProgram()
     m_shaderProgram->release();
 }
 
-void ColorFramePainter::prepareVertexBuffer()
+void Scene2DPainter::prepareVertexBuffer()
 {
     float vertexData[] = {
         -1.0, -1.0, 0.0,
@@ -298,7 +328,7 @@ void ColorFramePainter::prepareVertexBuffer()
 }
 
 // Create Texture (overwrite previous)
-void ColorFramePainter::loadVideoTexture(GLuint glTextureId, GLsizei width, GLsizei height, void* texture)
+void Scene2DPainter::loadVideoTexture(GLuint glTextureId, GLsizei width, GLsizei height, void* texture)
 {
     glBindTexture(GL_TEXTURE_2D, glTextureId);
     glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
@@ -309,7 +339,7 @@ void ColorFramePainter::loadVideoTexture(GLuint glTextureId, GLsizei width, GLsi
 }
 
 // Create Texture (overwrite previous)
-void ColorFramePainter::loadMaskTexture(GLuint glTextureId, GLsizei width, GLsizei height, void* texture)
+void Scene2DPainter::loadMaskTexture(GLuint glTextureId, GLsizei width, GLsizei height, void* texture)
 {
     glBindTexture(GL_TEXTURE_2D, glTextureId);
     glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
@@ -319,13 +349,7 @@ void ColorFramePainter::loadMaskTexture(GLuint glTextureId, GLsizei width, GLsiz
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void ColorFramePainter::prepareData(shared_ptr<DataFrame> frame)
-{
-    m_frame = static_pointer_cast<ColorFrame>(frame);
-    m_needLoading.store(1);
-}
-
-void ColorFramePainter::enableFilter(QMLEnumsWrapper::ColorFilter type)
+void Scene2DPainter::enableFilter(QMLEnumsWrapper::ColorFilter type)
 {
     m_currentFilter = type;
 }

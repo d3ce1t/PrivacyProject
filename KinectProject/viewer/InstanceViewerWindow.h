@@ -10,8 +10,8 @@
 #include <QTableView>
 #include <QStandardItemModel>
 #include <QListWidget>
+#include "viewer/InstanceViewer.h"
 
-class InstanceViewer;
 
 namespace dai {
 
@@ -26,6 +26,7 @@ public:
     virtual ~InstanceViewerWindow();
     void setTitle(const QString& title);
     void show();
+    void setMode(ViewerMode mode);
 
 signals:
     void changeOfStatus();

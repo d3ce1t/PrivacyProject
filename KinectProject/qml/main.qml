@@ -127,7 +127,7 @@ ApplicationWindow {
         //height: 480
         implicitWidth: 640
         implicitHeight: 480
-        //focus: true
+        focus: true
         anchors.fill: parent
 
         // Draw FPS

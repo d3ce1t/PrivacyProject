@@ -267,7 +267,9 @@ void MainWindow::on_btnStartKinect_clicked()
 
     // Create viewers
     dai::InstanceViewerWindow* colorViewer = new dai::InstanceViewerWindow;
+    colorViewer->setMode(MODE_2D);
     dai::InstanceViewerWindow* depthViewer = new dai::InstanceViewerWindow;
+    depthViewer->setMode(MODE_3D);
 
     // Connect all together
     m_playback->addInstance(colorInstance);
@@ -277,6 +279,7 @@ void MainWindow::on_btnStartKinect_clicked()
 
     m_playback->addListener(colorViewer, colorInstance);
     m_playback->addListener(colorViewer, userInstance);
+    m_playback->addListener(colorViewer, skeletonInstance);
     m_playback->addListener(depthViewer, depthInstance);
     m_playback->addListener(depthViewer, skeletonInstance);
 

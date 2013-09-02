@@ -89,13 +89,22 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
     InstanceInfo& info = instanceItem->getInfo();
     shared_ptr<BaseInstance> instance = m_dataset->getInstance(info);
 
-    if (instance) {
-        InstanceViewerWindow* viewer = new InstanceViewerWindow;
+    if (instance)
+    {
+        InstanceViewerWindow* windowViewer = new InstanceViewerWindow;
+
+        if (instance->getType() == INSTANCE_COLOR) {
+            windowViewer->setMode(MODE_2D);
+        }
+        else if (instance->getType() == INSTANCE_DEPTH) {
+            windowViewer->setMode(MODE_3D);
+        }
+
         m_playback.addInstance(instance);
-        m_playback.addListener(viewer, instance);
+        m_playback.addListener(windowViewer, instance);
         m_playback.play(ui->checkSync->isChecked());
-        viewer->setTitle("Instance Viewer (" + instance->getTitle() + ")");
-        viewer->show();
+        windowViewer->setTitle("Instance Viewer (" + instance->getTitle() + ")");
+        windowViewer->show();
     }
 }
 
