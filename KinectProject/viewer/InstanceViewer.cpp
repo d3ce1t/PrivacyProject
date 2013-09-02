@@ -6,7 +6,6 @@
 #include <iostream>
 #include "viewer/Scene2DPainter.h"
 #include "viewer/Scene3DPainter.h"
-#include "DepthFramePainter.h"
 #include "SkeletonFramePainter.h"
 #include "UserFramePainter.h"
 

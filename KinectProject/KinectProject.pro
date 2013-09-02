@@ -19,7 +19,6 @@ HEADERS += \
     dataset/DatasetMetadata.h \
     dataset/MSRDaily/MSRDailyActivity3D.h \
     InstanceWidgetItem.h \
-    viewer/DepthFramePainter.h \
     dataset/MSRDaily/MSRDailyDepthInstance.h \
     viewer/InstanceViewer.h \
     dataset/MSRDaily/MSRDailySkeletonInstance.h \
@@ -91,7 +90,6 @@ SOURCES += \
     dataset/DatasetMetadata.cpp \
     dataset/MSRDaily/MSRDailyActivity3D.cpp \
     InstanceWidgetItem.cpp \
-    viewer/DepthFramePainter.cpp \
     dataset/MSRDaily/MSRDailyDepthInstance.cpp \
     viewer/InstanceViewer.cpp \
     dataset/MSRDaily/MSRDailySkeletonInstance.cpp \
