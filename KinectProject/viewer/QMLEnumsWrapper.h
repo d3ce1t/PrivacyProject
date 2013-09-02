@@ -14,7 +14,8 @@ public:
         FILTER_INVISIBILITY,
         FILTER_BLUR,
         FILTER_PIXELATION,
-        FILTER_EMBOSS
+        FILTER_EMBOSS,
+        FILTER_SILHOUETTE
     };
 };
 

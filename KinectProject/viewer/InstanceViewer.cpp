@@ -6,6 +6,7 @@
 #include <iostream>
 #include "viewer/Scene2DPainter.h"
 #include "viewer/Scene3DPainter.h"
+#include "viewer/SilhouetteItem.h"
 #include "SkeletonFramePainter.h"
 #include "UserFramePainter.h"
 
@@ -56,7 +57,7 @@ void InstanceViewer::onNewFrame(QHashDataFrames dataFrames)
 {
     m_running = true;
     shared_ptr<UserFrame> userMask1;
-    shared_ptr<UserFrame> userMask2;
+    shared_ptr<SilhouetteItem> silhouetteItem;
 
     // Get UserFrame in order to use as mask
     if (dataFrames.contains(DataFrame::User))
@@ -65,24 +66,32 @@ void InstanceViewer::onNewFrame(QHashDataFrames dataFrames)
 
         dilateFilter->setDilationSize(18);
         userMask1 = static_pointer_cast<UserFrame>(applyFilter(dataFrames.value(DataFrame::User)));
-        userMask2 = static_pointer_cast<UserFrame>(dataFrames.value(DataFrame::User));
+        shared_ptr<UserFrame> userMask2 = static_pointer_cast<UserFrame>(dataFrames.value(DataFrame::User));
 
         if (dataFrames.size() > 1) // I only show user mask if it's the only one frame
             dataFrames.remove(DataFrame::User);
+
+        silhouetteItem.reset(new SilhouetteItem);
+        silhouetteItem->setUser(userMask2);
     }
 
     // Then apply filters to the rest of frames
     shared_ptr<DataFrame> bg;
 
-    if (dataFrames.contains(DataFrame::Color)) {
+    if (dataFrames.contains(DataFrame::Color))
+    {
         shared_ptr<Scene2DPainter> scene = static_pointer_cast<Scene2DPainter>(m_scene);
-        scene->setMask1(userMask1);
-        scene->setMask2(userMask2);
+        scene->setMask(userMask1);
         bg = dataFrames.value(DataFrame::Color);
     }
     else if (dataFrames.contains(DataFrame::Depth)) {
         bg = dataFrames.value(DataFrame::Depth);
     }
+
+    m_scene->clearItems();
+
+    if (silhouetteItem)
+        m_scene->addItem(silhouetteItem);
 
     m_scene->setBackground(bg);
 

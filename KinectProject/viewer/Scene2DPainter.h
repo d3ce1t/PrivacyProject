@@ -16,7 +16,7 @@ class Scene2DPainter : public ScenePainter
 public:
     Scene2DPainter();
     ~Scene2DPainter();
-    void setMask1(shared_ptr<UserFrame> mask);
+    void setMask(shared_ptr<UserFrame> mask);
     void setMask2(shared_ptr<UserFrame> mask);
     void enableFilter(QMLEnumsWrapper::ColorFilter type);
 
@@ -39,8 +39,7 @@ private:
 
     QMLEnumsWrapper::ColorFilter m_currentFilter = QMLEnumsWrapper::FILTER_DISABLED;
     QOpenGLShaderProgram*   m_shaderProgram;
-    shared_ptr<UserFrame>   m_mask1;
-    shared_ptr<UserFrame>   m_mask2;
+    shared_ptr<UserFrame>   m_mask;
 
     // OpenGL Buffer
     shared_ptr<QOpenGLFramebufferObject>  m_fbo;

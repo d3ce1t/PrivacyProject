@@ -14,14 +14,9 @@ Scene2DPainter::~Scene2DPainter()
     m_shaderProgram->removeAllShaders();
 }
 
-void Scene2DPainter::setMask1(shared_ptr<UserFrame> mask)
+void Scene2DPainter::setMask(shared_ptr<UserFrame> mask)
 {
-    m_mask1 = mask;
-}
-
-void Scene2DPainter::setMask2(shared_ptr<UserFrame> mask)
-{
-    m_mask2 = mask;
+    m_mask = mask;
 }
 
 void Scene2DPainter::initialise()
@@ -86,6 +81,9 @@ void Scene2DPainter::render()
     glDisable(GL_BLEND);
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_DEPTH_TEST);
+
+    // Render Items
+    ScenePainter::renderItems();
 }
 
 void Scene2DPainter::renderBackground()
@@ -98,10 +96,10 @@ void Scene2DPainter::renderBackground()
         // Load Foreground
         loadVideoTexture(m_fgTextureId, bgFrame->getWidth(), bgFrame->getHeight(), (void *) bgFrame->getDataPtr());
 
-        // Load Mask 1 and 2
-        if (m_mask1 && m_mask2) {
-            loadMaskTexture(m_maskTextureId, m_mask1->getWidth(), m_mask1->getHeight(), (void *) m_mask1->getDataPtr());
-            loadMaskTexture(m_mask2TextureId, m_mask2->getWidth(), m_mask2->getHeight(), (void *) m_mask2->getDataPtr());
+        // Load Mask 1
+        if (m_mask) {
+            loadMaskTexture(m_maskTextureId, m_mask->getWidth(), m_mask->getHeight(), (void *) m_mask->getDataPtr());
+            // loadMaskTexture(m_mask2TextureId, m_mask2->getWidth(), m_mask2->getHeight(), (void *) m_mask2->getDataPtr());
         }
 
         m_needLoading.store(0);

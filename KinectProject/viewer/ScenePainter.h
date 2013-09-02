@@ -5,7 +5,7 @@
 #include "viewer/SceneItem.h"
 #include <memory>
 #include <atomic>
-#include <QMap>
+#include <QMultiMap>
 #include <QMatrix4x4>
 #include <QOpenGLFunctions>
 
@@ -18,6 +18,7 @@ class ScenePainter : public QOpenGLFunctions
 public:
     ScenePainter();
     virtual ~ScenePainter();
+    void clearItems();
     void addItem(shared_ptr<SceneItem> item);
     void setBackground(shared_ptr<DataFrame> background);
     void renderScene();
@@ -28,6 +29,7 @@ public:
     void setSize(qreal width, qreal height);
 
 protected:
+    void renderItems();
     virtual void initialise() = 0;
     virtual void render() = 0;
 
@@ -38,7 +40,7 @@ protected:
     QMatrix4x4                       m_matrix;
 
 private:
-    QMap<int, shared_ptr<SceneItem>> m_items;
+    QMultiMap<int, shared_ptr<SceneItem>> m_items;
     bool                             m_initialised;
 };
 

@@ -13,8 +13,14 @@ ScenePainter::~ScenePainter()
 
 }
 
+void ScenePainter::clearItems()
+{
+    m_items.clear();
+}
+
 void ScenePainter::addItem(shared_ptr<SceneItem> item)
 {
+    item->m_scene = this;
     m_items.insert(item->getZOrder(), item);
 }
 
@@ -70,6 +76,14 @@ void ScenePainter::renderScene()
     }
 
     render();
+}
+
+void ScenePainter::renderItems()
+{
+    foreach (shared_ptr<SceneItem> item, m_items)
+    {
+        item->renderItem();
+    }
 }
 
 } // End Namespace

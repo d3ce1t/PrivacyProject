@@ -40,15 +40,15 @@ void Scene3DPainter::render()
     if (m_bg == nullptr)
         return;
 
+    shared_ptr<DepthFrame> bgFrame = static_pointer_cast<DepthFrame>(m_bg);
+
     m_shaderProgram->bind();
     m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
-    m_shaderProgram->setUniformValue(m_widthUniform, (float) m_width);
-    m_shaderProgram->setUniformValue(m_heightUniform, (float) m_height);
+    m_shaderProgram->setUniformValue(m_widthUniform, (float) bgFrame->getWidth());
+    m_shaderProgram->setUniformValue(m_heightUniform, (float) bgFrame->getHeight());
 
     m_vao.bind();
-
-    int count = m_width * m_height;
-    shared_ptr<DepthFrame> bgFrame = static_pointer_cast<DepthFrame>(m_bg);
+    int count = bgFrame->getWidth() * bgFrame->getHeight();
 
     m_distancesBuffer.bind();
     m_distancesBuffer.write(0, bgFrame->getDataPtr(), count * sizeof(float));
@@ -64,7 +64,6 @@ void Scene3DPainter::render()
     glDisable(GL_BLEND);
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_DEPTH_TEST);
-
 }
 
 void Scene3DPainter::prepareShaderProgram()

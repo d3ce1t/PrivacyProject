@@ -42,7 +42,6 @@ ApplicationWindow {
                     overlayText.opacity = 1
                     overlayTextHide.start()
                     instanceViewer.enableFilter(ColorFilter.FILTER_DISABLED) // GPU - No Filter
-                    //viewerWindow.disableColorFilter() // CPU
                 }
             }
 
@@ -56,8 +55,6 @@ ApplicationWindow {
                     overlayText.opacity = 1
                     overlayTextHide.start()
                     instanceViewer.enableFilter(ColorFilter.FILTER_INVISIBILITY) // GPU
-                    //viewerWindow.enableInvisibilityFilter() // CPU
-                    //viewerWindow.disableColorFilter()
                 }
             }
             MenuItem {
@@ -70,8 +67,6 @@ ApplicationWindow {
                     overlayText.opacity = 1
                     overlayTextHide.start()
                     instanceViewer.enableFilter(ColorFilter.FILTER_BLUR) // GPU
-                    //viewerWindow.enableBlurFilter() // CPU
-                    //viewerWindow.disableColorFilter()
                 }
             }
             MenuItem {
@@ -84,8 +79,6 @@ ApplicationWindow {
                     overlayText.opacity = 1
                     overlayTextHide.start()
                     instanceViewer.enableFilter(ColorFilter.FILTER_PIXELATION) // GPU
-                    //viewerWindow.enableBlurFilter() // CPU
-                    //viewerWindow.disableColorFilter()
                 }
             }
             MenuItem {
@@ -98,8 +91,18 @@ ApplicationWindow {
                     overlayText.opacity = 1
                     overlayTextHide.start()
                     instanceViewer.enableFilter(ColorFilter.FILTER_EMBOSS) // GPU
-                    //viewerWindow.enableBlurFilter() // CPU
-                    //viewerWindow.disableColorFilter()
+                }
+            }
+            MenuItem {
+                text: "Silhouette"
+                checkable: true
+                exclusiveGroup: privacyFilter
+                shortcut: "Ctrl+5"
+                onTriggered: {
+                    overlayText.text = "Silhouette Filter Enabled"
+                    overlayText.opacity = 1
+                    overlayTextHide.start()
+                    instanceViewer.enableFilter(ColorFilter.FILTER_SILHOUETTE) // GPU
                 }
             }
         }
