@@ -7,7 +7,7 @@
 #include "viewer/Scene2DPainter.h"
 #include "viewer/Scene3DPainter.h"
 #include "viewer/SilhouetteItem.h"
-#include "SkeletonFramePainter.h"
+#include "viewer/SkeletonItem.h"
 #include "UserFramePainter.h"
 
 InstanceViewer::InstanceViewer()
@@ -56,58 +56,50 @@ ViewerMode InstanceViewer::getMode() const
 void InstanceViewer::onNewFrame(QHashDataFrames dataFrames)
 {
     m_running = true;
-    shared_ptr<UserFrame> userMask1;
+
     shared_ptr<SilhouetteItem> silhouetteItem = static_pointer_cast<SilhouetteItem>(m_scene->getFirstItem(ITEM_SILHOUETTE));
+    shared_ptr<SkeletonItem> skeletonItem = static_pointer_cast<SkeletonItem>(m_scene->getFirstItem(ITEM_SKELETON));
 
-    // Get UserFrame in order to use as mask
-    if (dataFrames.contains(DataFrame::User))
-    {
-        shared_ptr<DilateUserFilter> dilateFilter = static_pointer_cast<DilateUserFilter>(m_filters.value(DataFrame::User));
-        dilateFilter->setDilationSize(18);
-        userMask1 = static_pointer_cast<UserFrame>(applyFilter(dataFrames.value(DataFrame::User)));
-        shared_ptr<UserFrame> userMask2 = static_pointer_cast<UserFrame>(dataFrames.value(DataFrame::User));
-
-        if (dataFrames.size() > 1) // I only show user mask if it's the only one frame
-            dataFrames.remove(DataFrame::User);
-
-        if (silhouetteItem)
-            silhouetteItem->setUser(userMask2);
-        else
-            silhouetteItem.reset(new SilhouetteItem);
-    }
-
-    // Then apply filters to the rest of frames
-    shared_ptr<DataFrame> bg;
-
-    if (dataFrames.contains(DataFrame::Color))
-    {
-        shared_ptr<Scene2DPainter> scene = static_pointer_cast<Scene2DPainter>(m_scene);
-        scene->setMask(userMask1);
-        bg = dataFrames.value(DataFrame::Color);
-    }
-    else if (dataFrames.contains(DataFrame::Depth)) {
-        bg = dataFrames.value(DataFrame::Depth);
-    }
-
+    // Clear items of the scene
     m_scene->clearItems();
 
-    if (silhouetteItem)
-        m_scene->addItem(silhouetteItem);
+    // Background of Scene
+    if (dataFrames.contains(DataFrame::Color)) {
+        // Compute dilate user mask to separate background from foreground
+        if (dataFrames.contains(DataFrame::User)) {
+             shared_ptr<DilateUserFilter> dilateFilter = static_pointer_cast<DilateUserFilter>(m_filters.value(DataFrame::User));
+             dilateFilter->setDilationSize(18);
+             shared_ptr<UserFrame> userMask = static_pointer_cast<UserFrame>(applyFilter(dataFrames.value(DataFrame::User)));
+             shared_ptr<Scene2DPainter> scene = static_pointer_cast<Scene2DPainter>(m_scene);
+             scene->setMask(userMask);
 
-    m_scene->setBackground(bg);
+             // Add silhuette item to the scene
+             if (!silhouetteItem)
+                 silhouetteItem.reset(new SilhouetteItem);
 
-    /*foreach (shared_ptr<dai::DataFrame> inputFrame, dataFrames)
-    {
-        //m_scene->addItem();
-
-        dai::Painter* painter = m_paintersIndex.value(inputFrame->getType());
-
-        if (painter) {
-            painter->setMask1(userMask1);
-            painter->setMask2(userMask2);
-            painter->prepareData(inputFrame);
+             silhouetteItem->setUser( static_pointer_cast<UserFrame>(dataFrames.value(DataFrame::User)) );
+             m_scene->addItem(silhouetteItem);
         }
-    }*/
+
+        m_scene->setBackground( dataFrames.value(DataFrame::Color) );
+    }
+    else if (dataFrames.contains(DataFrame::Depth)) {
+        m_scene->setBackground( dataFrames.value(DataFrame::Depth) );
+    }
+
+    // I only show user mask if it's the only one frame
+    if (dataFrames.size() > 1)
+        dataFrames.remove(DataFrame::User);
+
+    // Add skeleton item to the scene
+    if (dataFrames.contains(DataFrame::Skeleton))
+    {
+        if (!skeletonItem)
+            skeletonItem.reset(new SkeletonItem);
+
+        skeletonItem->setSkeleton( static_pointer_cast<SkeletonFrame>(dataFrames.value(DataFrame::Skeleton)) );
+        m_scene->addItem(skeletonItem);
+    }
 
     if (m_window != nullptr)
         m_window->update();

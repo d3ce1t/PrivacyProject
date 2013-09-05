@@ -93,10 +93,10 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
     {
         InstanceViewerWindow* windowViewer = new InstanceViewerWindow;
 
-        if (instance->getType() == INSTANCE_COLOR) {
+        if (instance->getType() == INSTANCE_COLOR || instance->getType() == INSTANCE_USER) {
             windowViewer->setMode(MODE_2D);
         }
-        else if (instance->getType() == INSTANCE_DEPTH) {
+        else if (instance->getType() == INSTANCE_DEPTH || instance->getType() == INSTANCE_SKELETON) {
             windowViewer->setMode(MODE_3D);
         }
 

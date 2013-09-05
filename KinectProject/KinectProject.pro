@@ -66,7 +66,6 @@ HEADERS += \
     openni/OpenNISkeletonInstance.h \
     viewer/TestListener.h \
     types/SkeletonFrame.h \
-    viewer/SkeletonFramePainter.h \
     dataset/DAI/DAISkeletonInstance.h \
     types/BaseInstance.h \
     types/DataInstance.h \
@@ -131,7 +130,6 @@ SOURCES += \
     openni/OpenNISkeletonInstance.cpp \
     viewer/TestListener.cpp \
     types/SkeletonFrame.cpp \
-    viewer/SkeletonFramePainter.cpp \
     dataset/DAI/DAISkeletonInstance.cpp \
     types/BaseInstance.cpp \
     openni/OpenNIBaseInstance.cpp \
