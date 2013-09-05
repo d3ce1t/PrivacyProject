@@ -1,5 +1,6 @@
 #include "Scene2DPainter.h"
 #include "types/ColorFrame.h"
+#include <QDebug>
 
 namespace dai {
 
@@ -9,8 +10,8 @@ Scene2DPainter::Scene2DPainter()
 
 Scene2DPainter::~Scene2DPainter()
 {
-    m_fbo->release();
-    m_fboFilter->release();
+    m_fboFirstPass->release();
+    m_fboSecondPass->release();
     m_shaderProgram->removeAllShaders();
 }
 
@@ -33,7 +34,6 @@ void Scene2DPainter::initialise()
     // Create texture
     glGenTextures(1, &m_fgTextureId);
     glGenTextures(1, &m_maskTextureId);
-    glGenTextures(1, &m_mask2TextureId);
 }
 
 void Scene2DPainter::render()
@@ -55,24 +55,23 @@ void Scene2DPainter::render()
     glClearDepth(1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-
     // Draw Background
     if (m_bg == nullptr)
         return;
 
     m_shaderProgram->bind();
     m_shaderProgram->setUniformValue(m_perspectiveMatrixUniform, m_matrix);
-    m_shaderProgram->setUniformValue(m_currentFilterUniform, m_currentFilter);
 
+    // Stage 1
     enableBGRendering();
-    renderBackground();
-    m_fbo->release();
+    extractBackground();// background is in bgTexture, foreground is in fgTexture
+    renderBackground(); // it renders bg or fg into fboFirstPass
 
-    enableFilterRendering();
-    renderFilter();
-    m_fboFilter->release();
+    // Stage 2
+    renderItems(); // items first-pass rendering (fboFirstPass)
 
-    displayRenderedTexture();
+    // Stage 4
+    displayRenderedTexture(); // here framebuffer (display) and second-pass rendering
 
     m_shaderProgram->release();
     glDisable(GL_TEXTURE_2D);
@@ -81,25 +80,34 @@ void Scene2DPainter::render()
     glDisable(GL_BLEND);
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_DEPTH_TEST);
-
-    // Render Items
-    ScenePainter::renderItems();
 }
 
-void Scene2DPainter::renderBackground()
+void Scene2DPainter::enableBGRendering()
+{
+    m_fboFirstPass->bind();
+
+    glViewport(0, 0, 640, 480);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClearDepth(1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    m_shaderProgram->setUniformValue(m_stageUniform, 1);
+}
+
+void Scene2DPainter::extractBackground()
 {
     m_vao.bind();
 
     if (m_needLoading.load())
     {
-        shared_ptr<ColorFrame> bgFrame = static_pointer_cast<ColorFrame>(m_bg);
-        // Load Foreground
-        loadVideoTexture(m_fgTextureId, bgFrame->getWidth(), bgFrame->getHeight(), (void *) bgFrame->getDataPtr());
+        shared_ptr<ColorFrame> frame = static_pointer_cast<ColorFrame>(m_bg);
 
-        // Load Mask 1
+        // Load Foreground
+        loadVideoTexture(m_fgTextureId, frame->getWidth(), frame->getHeight(), (void *) frame->getDataPtr());
+
+        // Load Mask
         if (m_mask) {
             loadMaskTexture(m_maskTextureId, m_mask->getWidth(), m_mask->getHeight(), (void *) m_mask->getDataPtr());
-            // loadMaskTexture(m_mask2TextureId, m_mask2->getWidth(), m_mask2->getHeight(), (void *) m_mask2->getDataPtr());
         }
 
         m_needLoading.store(0);
@@ -109,18 +117,18 @@ void Scene2DPainter::renderBackground()
     glActiveTexture(GL_TEXTURE0 + 0);
     glBindTexture(GL_TEXTURE_2D, m_fgTextureId);
 
-    // Enable Mask1 for BG filter
+    // Enable Mask
     glActiveTexture(GL_TEXTURE0 + 1);
     glBindTexture(GL_TEXTURE_2D, m_maskTextureId);
 
-    // Enable bgTexture (for read)
+    // Enable BG (for read)
     glActiveTexture(GL_TEXTURE0 + 2);
     glBindTexture(GL_TEXTURE_2D, m_bgTextureId);
 
     // Draw
     glDrawArrays(GL_TRIANGLE_FAN, m_posAttr, 4);
 
-    // Copy rendered scene to bgTexture for read in next iteration
+    // Copy rendered scene to bound texture (bgTexture) for read in next iteration
     glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, 640, 480, 0);
 
     // Unbind bgTexture
@@ -137,50 +145,116 @@ void Scene2DPainter::renderBackground()
     m_vao.release();
 }
 
-void Scene2DPainter::renderFilter()
+void Scene2DPainter::renderBackground()
 {
+    m_shaderProgram->setUniformValue(m_stageUniform, 2);
     m_vao.bind();
 
-    // Enabe FG
     glActiveTexture(GL_TEXTURE0 + 0);
-    glBindTexture(GL_TEXTURE_2D, m_fgTextureId);
 
-    // Enable Mask
-    glActiveTexture(GL_TEXTURE0 + 1);
-    glBindTexture(GL_TEXTURE_2D, m_mask2TextureId);
-
-    // Enable bgTexture (for read)
-    glActiveTexture(GL_TEXTURE0 + 2);
-    glBindTexture(GL_TEXTURE_2D, m_bgTextureId);
+    // Enable BG
+    if (m_currentFilter == QMLEnumsWrapper::FILTER_INVISIBILITY) {
+        glBindTexture(GL_TEXTURE_2D, m_bgTextureId);
+    }
+    // Enable FG
+    else {
+        glBindTexture(GL_TEXTURE_2D, m_fgTextureId);
+    }
 
     // Draw
     glDrawArrays(GL_TRIANGLE_FAN, m_posAttr, 4);
 
-    // Unbind bgTexture
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    // Unbind Mask
-    glActiveTexture(GL_TEXTURE0 + 1);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    // Unbind Foreground
-    glActiveTexture(GL_TEXTURE0 + 0);
+    // Unbind FG/BG texture
     glBindTexture(GL_TEXTURE_2D, 0);
 
     m_vao.release();
 }
 
+void Scene2DPainter::renderItems()
+{
+    GLuint bg;
+
+    if (m_currentFilter == QMLEnumsWrapper::FILTER_INVISIBILITY) {
+        bg = m_bgTextureId;
+    } else {
+        bg = m_fgTextureId;
+    }
+
+    m_shaderProgram->release();
+
+    // First-pass (on fboFirstPass)
+    foreach (shared_ptr<SceneItem> item, m_items)
+    {
+        item->setBackgroundTex(bg);
+        item->renderItem(1);
+    }
+
+    m_fboFirstPass->release();
+
+    // Second-pass (write to fboSecondPass, read from fboFirstPass)
+    m_fboSecondPass->bind();
+
+    glViewport(0, 0, 640, 480);
+
+    m_shaderProgram->bind();
+    m_vao.bind();
+
+    glActiveTexture(GL_TEXTURE0 + 0);
+    glBindTexture(GL_TEXTURE_2D, m_fboFirstPass->texture());
+
+    // Draw
+    glDrawArrays(GL_TRIANGLE_FAN, m_posAttr, 4);
+
+    // Unbind texture
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    m_vao.release();
+    m_shaderProgram->release();
+
+    foreach (shared_ptr<SceneItem> item, m_items)
+    {
+        if (item->neededPasses() == 2) {
+            item->setBackgroundTex(m_fboFirstPass->texture());
+            item->renderItem(2);
+        }
+    }
+
+    m_fboSecondPass->release();
+}
+
+void Scene2DPainter::displayRenderedTexture()
+{
+    m_shaderProgram->bind();
+    m_shaderProgram->setUniformValue(m_stageUniform, 3);
+
+    // Configure Viewport
+    glViewport(0, 0, m_width, m_height);
+    m_vao.bind();
+
+    // Enabe FG
+    glActiveTexture(GL_TEXTURE0 + 0);
+    glBindTexture(GL_TEXTURE_2D, m_fboSecondPass->texture());
+
+    glDrawArrays(GL_TRIANGLE_FAN, m_posAttr, 4);
+
+    // Unbind FG
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    m_shaderProgram->release();
+    m_vao.release();
+}
+
 void Scene2DPainter::createFrameBuffer()
 {
-    m_fbo.reset(new QOpenGLFramebufferObject(640, 480));
+    m_fboFirstPass.reset(new QOpenGLFramebufferObject(640, 480));
 
-    if (!m_fbo->isValid()) {
+    if (!m_fboFirstPass->isValid()) {
         qDebug() << "FBO Error";
     }
 
-    m_fboFilter.reset(new QOpenGLFramebufferObject(640, 480));
+    m_fboSecondPass.reset(new QOpenGLFramebufferObject(640, 480));
 
-    if (!m_fboFilter->isValid()) {
+    if (!m_fboSecondPass->isValid()) {
         qDebug() << "FBO Error";
     }
 
@@ -192,68 +266,6 @@ void Scene2DPainter::createFrameBuffer()
     glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE); // automatic mipmap
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 640, 480, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
     glBindTexture(GL_TEXTURE_2D, 0);
-}
-
-void Scene2DPainter::enableBGRendering()
-{
-    m_fbo->bind();
-
-    glViewport(0, 0, 640, 480);
-    /*glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-    glClearDepth(1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);*/
-
-    m_shaderProgram->setUniformValue(m_stageUniform, 1);
-}
-
-void Scene2DPainter::enableFilterRendering()
-{
-    m_fboFilter->bind();
-
-    glViewport(0, 0, 640, 480);
-    /*glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-    glClearDepth(1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);*/
-
-    m_shaderProgram->setUniformValue(m_stageUniform, 2);
-}
-
-void Scene2DPainter::displayRenderedTexture()
-{
-    m_fboFilter->release();
-
-    // Configure Viewport
-    glViewport(0, 0, m_width, m_height);
-    m_vao.bind();
-
-    // Enabe FG
-    glActiveTexture(GL_TEXTURE0 + 0);
-    glBindTexture(GL_TEXTURE_2D, m_fboFilter->texture());
-
-    // Enable Mask
-    glActiveTexture(GL_TEXTURE0 + 1);
-    glBindTexture(GL_TEXTURE_2D, m_mask2TextureId);
-
-    // Enable FBO and generate Mipmap
-    glActiveTexture(GL_TEXTURE0 + 2);
-    glBindTexture(GL_TEXTURE_2D, m_fbo->texture());
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    m_shaderProgram->setUniformValue(m_stageUniform, 3);
-    glDrawArrays(GL_TRIANGLE_FAN, m_posAttr, 4);
-
-    // Unbind Background
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    // Unbind Mask
-    glActiveTexture(GL_TEXTURE0 + 1);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    // Unbind FG
-    glActiveTexture(GL_TEXTURE0 + 0);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    m_vao.release();
 }
 
 void Scene2DPainter::prepareShaderProgram()
@@ -268,21 +280,17 @@ void Scene2DPainter::prepareShaderProgram()
 
     m_posAttr = m_shaderProgram->attributeLocation("posAttr");
     m_textCoordAttr = m_shaderProgram->attributeLocation("texCoord");
-    m_currentFilterUniform = m_shaderProgram->uniformLocation("currentFilter");
     m_stageUniform = m_shaderProgram->uniformLocation("stage");
     m_perspectiveMatrixUniform = m_shaderProgram->uniformLocation("perspectiveMatrix");
     m_texColorSampler = m_shaderProgram->uniformLocation("texForeground");
     m_texMaskSampler = m_shaderProgram->uniformLocation("texMask");
     m_texBackgroundSampler = m_shaderProgram->uniformLocation("texBackground");
-    m_texMask2Sampler = m_shaderProgram->uniformLocation("texMask2");
 
     m_shaderProgram->bind();
-    m_shaderProgram->setUniformValue(m_currentFilterUniform, m_currentFilter); // No Filter
     m_shaderProgram->setUniformValue(m_stageUniform, 1);
     m_shaderProgram->setUniformValue(m_texColorSampler, 0);
     m_shaderProgram->setUniformValue(m_texMaskSampler, 1);
     m_shaderProgram->setUniformValue(m_texBackgroundSampler, 2);
-    m_shaderProgram->setUniformValue(m_texMask2Sampler, 3);
     m_shaderProgram->setUniformValue(m_perspectiveMatrixUniform, m_matrix);
     m_shaderProgram->release();
 }
@@ -350,6 +358,11 @@ void Scene2DPainter::loadMaskTexture(GLuint glTextureId, GLsizei width, GLsizei 
 void Scene2DPainter::enableFilter(QMLEnumsWrapper::ColorFilter type)
 {
     m_currentFilter = type;
+}
+
+QMLEnumsWrapper::ColorFilter Scene2DPainter::currentFilter() const
+{
+    return m_currentFilter;
 }
 
 } // End Namespace

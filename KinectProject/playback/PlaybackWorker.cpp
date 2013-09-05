@@ -7,7 +7,7 @@
 namespace dai {
 
 PlaybackWorker::PlaybackWorker(PlaybackControl* parent)
-    : m_sleepTime(33333) // 33333 microseconds = 33.33 ms
+    : m_sleepTime(40000) // 40000 microseconds = 40 ms
 {
     m_parent = parent;
     m_running = false;

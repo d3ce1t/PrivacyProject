@@ -1,34 +1,18 @@
 #include "SilhouetteItem.h"
 #include "viewer/ScenePainter.h"
+#include "viewer/Scene2DPainter.h"
 
 namespace dai {
 
-RGBColor SilhouetteItem::staticUserColors[USER_COLORS] = {
-    {  0,   0,   0},
-    {255,   0,   0},
-    {  0, 255,   0},
-    {  0,   0, 255},
-    {255, 255,   0},
-    {  0, 255, 255}
-};
-
 SilhouetteItem::SilhouetteItem()
-    : textureUnit(0)
 {
     m_user = nullptr;
-    m_textureMask = new RGBColor[640*480];
+    m_neededPasses = 2;
 }
 
 void SilhouetteItem::setUser(shared_ptr<UserFrame> user)
 {
     m_user = user;
-
-    for (int i=0; i<480; ++i) {
-        for (int j=0; j<640; ++j) {
-            short userColor = m_user->getItem(i,j) % USER_COLORS;
-            m_textureMask[i*640+j] = staticUserColors[userColor];
-        }
-    }
 }
 
 void SilhouetteItem::initialise()
@@ -40,35 +24,84 @@ void SilhouetteItem::initialise()
     prepareVertexBuffer();
 
     // Create texture
-    glGenTextures(1, &m_frameTexture);
+    glGenTextures(1, &m_maskTextureId);
 }
 
-void SilhouetteItem::render()
+void SilhouetteItem::render(int pass)
 {
     if (m_user == nullptr)
         return;
 
-    glEnable(GL_BLEND);
+    if (pass == 1) {
+        renderFirstPass();
+    }
+    else if (pass == 2) {
+        renderSecondPass();
+    }
+}
 
+void SilhouetteItem::renderFirstPass()
+{
     // Load into GPU
-    loadVideoTexture((void *) m_textureMask, m_user->getWidth(), m_user->getHeight(), m_frameTexture);
+    loadMaskTexture(m_maskTextureId, m_user->getWidth(), m_user->getHeight(), (void *) m_user->getDataPtr());
 
     // Render
     m_shaderProgram->bind();
     m_vao.bind();
 
-    m_shaderProgram->setUniformValue(m_perspectiveMatrix, scene()->getMatrix());
+    Scene2DPainter* scene = (Scene2DPainter*) this->scene();
 
-    glActiveTexture(GL_TEXTURE0 + textureUnit);
-    glBindTexture(GL_TEXTURE_2D, m_frameTexture);
+    m_shaderProgram->setUniformValue(m_stageUniform, 1);
+    m_shaderProgram->setUniformValue(m_currentFilterUniform, scene->currentFilter());
+
+    // Enable FG
+    glActiveTexture(GL_TEXTURE0 + 0);
+    glBindTexture(GL_TEXTURE_2D, m_fgTextureId);
+
+    // Enable Mask (unit 0 is reserved for FG)
+    glActiveTexture(GL_TEXTURE0 + 1);
+    glBindTexture(GL_TEXTURE_2D, m_maskTextureId);
+
+    // Draw
     glDrawArrays(GL_TRIANGLE_FAN, m_posAttr, 4);
+
+    // Unbind Mask
     glBindTexture(GL_TEXTURE_2D, 0);
-    glDisable(GL_TEXTURE_2D);
+
+    // Unbind Foreground
+    glActiveTexture(GL_TEXTURE0 + 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
     m_vao.release();
     m_shaderProgram->release();
+}
 
-    glDisable(GL_BLEND);
+void SilhouetteItem::renderSecondPass()
+{
+    m_shaderProgram->bind();
+    m_shaderProgram->setUniformValue(m_stageUniform, 2);
+    m_vao.bind();
+
+    // Enable FG
+    glActiveTexture(GL_TEXTURE0 + 0);
+    glBindTexture(GL_TEXTURE_2D, m_fgTextureId);
+
+    // Enable Mask (unit 0 is reserved for FG)
+    glActiveTexture(GL_TEXTURE0 + 1);
+    glBindTexture(GL_TEXTURE_2D, m_maskTextureId);
+
+    // Draw
+    glDrawArrays(GL_TRIANGLE_FAN, m_posAttr, 4);
+
+    // Unbind Mask
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    // Unbind Foreground
+    glActiveTexture(GL_TEXTURE0 + 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    m_vao.release();
+    m_shaderProgram->release();
 }
 
 void SilhouetteItem::prepareShaderProgram()
@@ -83,22 +116,26 @@ void SilhouetteItem::prepareShaderProgram()
 
     m_posAttr = m_shaderProgram->attributeLocation("posAttr");
     m_texCoord = m_shaderProgram->attributeLocation("texCoord");
-    m_perspectiveMatrix = m_shaderProgram->uniformLocation("perspectiveMatrix");
-    m_texSampler = m_shaderProgram->uniformLocation("texSampler");
+    m_currentFilterUniform = m_shaderProgram->uniformLocation("currentFilter");
+    m_stageUniform = m_shaderProgram->uniformLocation("stage");
+    m_texFGSampler = m_shaderProgram->uniformLocation("texForeground");
+    m_texMaskSampler = m_shaderProgram->uniformLocation("texMask");
 
     m_shaderProgram->bind();
-    m_shaderProgram->setUniformValue(m_texSampler, 0);
-    m_shaderProgram->setUniformValue(m_perspectiveMatrix, scene()->getMatrix());
+    m_shaderProgram->setUniformValue(m_currentFilterUniform, 0); // No Filter
+    m_shaderProgram->setUniformValue(m_stageUniform, 1);
+    m_shaderProgram->setUniformValue(m_texFGSampler, 0);
+    m_shaderProgram->setUniformValue(m_texMaskSampler, 1);
     m_shaderProgram->release();
 }
 
 void SilhouetteItem::prepareVertexBuffer()
 {
     float vertexData[] = {
-        -1.0, 1.0, 0.0,
-        1.0, 1.0, 0.0,
+        -1.0, -1.0, 0.0,
         1.0, -1.0, 0.0,
-        -1.0, -1.0, 0.0
+        1.0, 1.0, 0.0,
+        -1.0, 1.0, 0.0
     };
 
     float texCoordsData[] = {
@@ -138,6 +175,16 @@ void SilhouetteItem::loadVideoTexture(void* texture, GLsizei width, GLsizei heig
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, texture);
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void SilhouetteItem::loadMaskTexture(GLuint glTextureId, GLsizei width, GLsizei height, void* texture)
+{
+    glBindTexture(GL_TEXTURE_2D, glTextureId);
+    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, texture);
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 

@@ -17,19 +17,19 @@ public:
     Scene2DPainter();
     ~Scene2DPainter();
     void setMask(shared_ptr<UserFrame> mask);
-    void setMask2(shared_ptr<UserFrame> mask);
     void enableFilter(QMLEnumsWrapper::ColorFilter type);
+    QMLEnumsWrapper::ColorFilter currentFilter() const;
 
 protected:
+    void renderItems();
     void initialise() override;
     void render() override;
 
 private:
     void createFrameBuffer();
     void enableBGRendering();
+    void extractBackground();
     void renderBackground();
-    void enableFilterRendering();
-    void renderFilter();
     void displayRenderedTexture();
     void prepareShaderProgram();
     void prepareVertexBuffer();
@@ -42,8 +42,8 @@ private:
     shared_ptr<UserFrame>   m_mask;
 
     // OpenGL Buffer
-    shared_ptr<QOpenGLFramebufferObject>  m_fbo;
-    shared_ptr<QOpenGLFramebufferObject>  m_fboFilter;
+    shared_ptr<QOpenGLFramebufferObject>  m_fboFirstPass; // render-to-texture (first-pass)
+    shared_ptr<QOpenGLFramebufferObject>  m_fboSecondPass; // render-to-texture (second-pass)
     QOpenGLVertexArrayObject              m_vao;
     QOpenGLBuffer                         m_positionsBuffer;
     QOpenGLBuffer                         m_texCoordBuffer;
@@ -52,18 +52,15 @@ private:
     GLuint                   m_bgTextureId;
     GLuint                   m_fgTextureId;
     GLuint                   m_maskTextureId;
-    GLuint                   m_mask2TextureId;
 
     // Shader identifiers
     GLuint                   m_perspectiveMatrixUniform;
     GLuint                   m_posAttr;
     GLuint                   m_textCoordAttr;
     GLuint                   m_stageUniform;
-    GLuint                   m_currentFilterUniform;
     GLuint                   m_texColorSampler;
     GLuint                   m_texMaskSampler;
     GLuint                   m_texBackgroundSampler;
-    GLuint                   m_texMask2Sampler;
 };
 
 } // End Namespace

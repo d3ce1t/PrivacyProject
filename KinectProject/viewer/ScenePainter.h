@@ -38,9 +38,9 @@ protected:
     shared_ptr<DataFrame>            m_bg;
     atomic<int>                      m_needLoading;
     QMatrix4x4                       m_matrix;
-
-private:
     QMultiMap<int, shared_ptr<SceneItem>> m_items;
+
+private: 
     bool                             m_initialised;
 };
 

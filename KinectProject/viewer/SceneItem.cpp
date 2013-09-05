@@ -6,6 +6,7 @@ SceneItem::SceneItem()
 {
     m_z_order = 0;
     m_initialised = false;
+    m_neededPasses = 1;
 }
 
 int SceneItem::getZOrder() const
@@ -18,16 +19,25 @@ ScenePainter* SceneItem::scene() const
     return m_scene;
 }
 
-void SceneItem::renderItem()
+void SceneItem::setBackgroundTex(GLuint id)
 {
-    if (!m_initialised)
-    {
+    m_fgTextureId = id;
+}
+
+int SceneItem::neededPasses() const
+{
+    return m_neededPasses;
+}
+
+void SceneItem::renderItem(int pass)
+{
+    if (!m_initialised) {
         initializeOpenGLFunctions();
         initialise();
         m_initialised = true;
     }
 
-    render();
+    render(pass);
 }
 
 } // End Namespace
