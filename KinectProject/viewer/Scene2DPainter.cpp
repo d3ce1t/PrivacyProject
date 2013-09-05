@@ -103,11 +103,11 @@ void Scene2DPainter::extractBackground()
         shared_ptr<ColorFrame> frame = static_pointer_cast<ColorFrame>(m_bg);
 
         // Load Foreground
-        loadVideoTexture(m_fgTextureId, frame->getWidth(), frame->getHeight(), (void *) frame->getDataPtr());
+        ScenePainter::loadVideoTexture(m_fgTextureId, frame->getWidth(), frame->getHeight(), (void *) frame->getDataPtr());
 
         // Load Mask
         if (m_mask) {
-            loadMaskTexture(m_maskTextureId, m_mask->getWidth(), m_mask->getHeight(), (void *) m_mask->getDataPtr());
+            ScenePainter::loadMaskTexture(m_maskTextureId, m_mask->getWidth(), m_mask->getHeight(), (void *) m_mask->getDataPtr());
         }
 
         m_needLoading.store(0);
@@ -331,28 +331,6 @@ void Scene2DPainter::prepareVertexBuffer()
     m_texCoordBuffer.release();
 
     m_vao.release();
-}
-
-// Create Texture (overwrite previous)
-void Scene2DPainter::loadVideoTexture(GLuint glTextureId, GLsizei width, GLsizei height, void* texture)
-{
-    glBindTexture(GL_TEXTURE_2D, glTextureId);
-    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, texture);
-    glBindTexture(GL_TEXTURE_2D, 0);
-}
-
-// Create Texture (overwrite previous)
-void Scene2DPainter::loadMaskTexture(GLuint glTextureId, GLsizei width, GLsizei height, void* texture)
-{
-    glBindTexture(GL_TEXTURE_2D, glTextureId);
-    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, texture);
-    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Scene2DPainter::enableFilter(QMLEnumsWrapper::ColorFilter type)

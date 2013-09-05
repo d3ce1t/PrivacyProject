@@ -5,6 +5,12 @@
 
 namespace dai {
 
+enum ItemType {
+    ITEM_SILHOUETTE,
+    ITEM_SKELETON,
+    ITEM_3DMODEL
+};
+
 class ScenePainter;
 
 class SceneItem : public QOpenGLFunctions
@@ -12,12 +18,13 @@ class SceneItem : public QOpenGLFunctions
     friend class ScenePainter;
 
 public:
-    SceneItem();
+    explicit SceneItem(ItemType type);
     int getZOrder() const;
     void renderItem(int pass = 1);
     ScenePainter *scene() const;
     void setBackgroundTex(GLuint id);
     int neededPasses() const;
+    ItemType type() const;
 
 protected:
     virtual void initialise() = 0;
@@ -30,6 +37,7 @@ protected:
 
 
 private:
+    ItemType m_type;
     int m_z_order; // 0 = first item to be drawn
     bool m_initialised;
     ScenePainter* m_scene;

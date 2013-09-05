@@ -57,13 +57,12 @@ void InstanceViewer::onNewFrame(QHashDataFrames dataFrames)
 {
     m_running = true;
     shared_ptr<UserFrame> userMask1;
-    shared_ptr<SilhouetteItem> silhouetteItem;
+    shared_ptr<SilhouetteItem> silhouetteItem = static_pointer_cast<SilhouetteItem>(m_scene->getFirstItem(ITEM_SILHOUETTE));
 
     // Get UserFrame in order to use as mask
     if (dataFrames.contains(DataFrame::User))
     {
         shared_ptr<DilateUserFilter> dilateFilter = static_pointer_cast<DilateUserFilter>(m_filters.value(DataFrame::User));
-
         dilateFilter->setDilationSize(18);
         userMask1 = static_pointer_cast<UserFrame>(applyFilter(dataFrames.value(DataFrame::User)));
         shared_ptr<UserFrame> userMask2 = static_pointer_cast<UserFrame>(dataFrames.value(DataFrame::User));
@@ -71,8 +70,10 @@ void InstanceViewer::onNewFrame(QHashDataFrames dataFrames)
         if (dataFrames.size() > 1) // I only show user mask if it's the only one frame
             dataFrames.remove(DataFrame::User);
 
-        silhouetteItem.reset(new SilhouetteItem);
-        silhouetteItem->setUser(userMask2);
+        if (silhouetteItem)
+            silhouetteItem->setUser(userMask2);
+        else
+            silhouetteItem.reset(new SilhouetteItem);
     }
 
     // Then apply filters to the rest of frames

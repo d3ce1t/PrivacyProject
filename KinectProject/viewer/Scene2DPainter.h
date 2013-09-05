@@ -33,9 +33,6 @@ private:
     void displayRenderedTexture();
     void prepareShaderProgram();
     void prepareVertexBuffer();
-    void loadVideoTexture(GLuint glTextureId, GLsizei width, GLsizei height, void *texture);
-    void loadMaskTexture(GLuint glTextureId, GLsizei width, GLsizei height, void *texture);
-
 
     QMLEnumsWrapper::ColorFilter m_currentFilter = QMLEnumsWrapper::FILTER_DISABLED;
     QOpenGLShaderProgram*   m_shaderProgram;

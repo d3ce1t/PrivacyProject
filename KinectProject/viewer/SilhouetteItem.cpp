@@ -5,6 +5,7 @@
 namespace dai {
 
 SilhouetteItem::SilhouetteItem()
+    : SceneItem(ITEM_SILHOUETTE)
 {
     m_user = nullptr;
     m_neededPasses = 2;
@@ -43,7 +44,7 @@ void SilhouetteItem::render(int pass)
 void SilhouetteItem::renderFirstPass()
 {
     // Load into GPU
-    loadMaskTexture(m_maskTextureId, m_user->getWidth(), m_user->getHeight(), (void *) m_user->getDataPtr());
+    ScenePainter::loadMaskTexture(m_maskTextureId, m_user->getWidth(), m_user->getHeight(), (void *) m_user->getDataPtr());
 
     // Render
     m_shaderProgram->bind();
@@ -165,27 +166,6 @@ void SilhouetteItem::prepareVertexBuffer()
     m_texCoordBuffer.release();
 
     m_vao.release();
-}
-
-// Create Texture (overwrite previous)
-void SilhouetteItem::loadVideoTexture(void* texture, GLsizei width, GLsizei height, GLuint glTextureId)
-{
-    glBindTexture(GL_TEXTURE_2D, glTextureId);
-    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, texture);
-    glBindTexture(GL_TEXTURE_2D, 0);
-}
-
-void SilhouetteItem::loadMaskTexture(GLuint glTextureId, GLsizei width, GLsizei height, void* texture)
-{
-    glBindTexture(GL_TEXTURE_2D, glTextureId);
-    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, texture);
-    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 } // End Namespace

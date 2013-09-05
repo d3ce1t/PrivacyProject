@@ -5,7 +5,7 @@
 #include "viewer/SceneItem.h"
 #include <memory>
 #include <atomic>
-#include <QMultiMap>
+#include <QList>
 #include <QMatrix4x4>
 #include <QOpenGLFunctions>
 
@@ -16,10 +16,14 @@ namespace dai {
 class ScenePainter : public QOpenGLFunctions
 {
 public:
+    static void loadVideoTexture(GLuint glTextureId, GLsizei width, GLsizei height, void *texture);
+    static void loadMaskTexture(GLuint glTextureId, GLsizei width, GLsizei height, void *texture);
+
     ScenePainter();
     virtual ~ScenePainter();
     void clearItems();
     void addItem(shared_ptr<SceneItem> item);
+    shared_ptr<SceneItem> getFirstItem(ItemType type) const;
     void setBackground(shared_ptr<DataFrame> background);
     void renderScene();
     void setMatrix(const QMatrix4x4& matrix);
@@ -38,7 +42,7 @@ protected:
     shared_ptr<DataFrame>            m_bg;
     atomic<int>                      m_needLoading;
     QMatrix4x4                       m_matrix;
-    QMultiMap<int, shared_ptr<SceneItem>> m_items;
+    QList<shared_ptr<SceneItem>>     m_items;
 
 private: 
     bool                             m_initialised;

@@ -27,8 +27,6 @@ private:
     void renderSecondPass();
     void prepareShaderProgram();
     void prepareVertexBuffer();
-    void loadVideoTexture(void *texture, GLsizei width, GLsizei height, GLuint glTextureId);
-    void loadMaskTexture(GLuint glTextureId, GLsizei width, GLsizei height, void* texture);
 
     QOpenGLShaderProgram*    m_shaderProgram;
     shared_ptr<UserFrame>    m_user;

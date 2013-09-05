@@ -2,8 +2,9 @@
 
 namespace dai {
 
-SceneItem::SceneItem()
+SceneItem::SceneItem(ItemType type)
 {
+    m_type = type;
     m_z_order = 0;
     m_initialised = false;
     m_neededPasses = 1;
@@ -27,6 +28,11 @@ void SceneItem::setBackgroundTex(GLuint id)
 int SceneItem::neededPasses() const
 {
     return m_neededPasses;
+}
+
+ItemType SceneItem::type() const
+{
+    return m_type;
 }
 
 void SceneItem::renderItem(int pass)

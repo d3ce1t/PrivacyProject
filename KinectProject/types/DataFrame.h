@@ -40,7 +40,7 @@ protected:
     FrameType m_type;
 };
 
-typedef QHash<DataFrame::FrameType,shared_ptr<DataFrame>> QHashDataFrames;
+typedef QHash<DataFrame::FrameType, shared_ptr<DataFrame>> QHashDataFrames;
 
 } // End Namespace
 

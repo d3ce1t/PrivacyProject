@@ -3,6 +3,7 @@
 namespace dai {
 
 SkeletonItem::SkeletonItem()
+    : SceneItem(ITEM_SKELETON)
 {
 }
 

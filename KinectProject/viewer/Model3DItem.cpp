@@ -3,6 +3,7 @@
 namespace dai {
 
 Model3DItem::Model3DItem()
+    : SceneItem(ITEM_3DMODEL)
 {
 }
 
