@@ -15,7 +15,8 @@ public:
         FILTER_BLUR,
         FILTER_PIXELATION,
         FILTER_EMBOSS,
-        FILTER_SILHOUETTE
+        FILTER_SILHOUETTE,
+        FILTER_SKELETON
     };
 };
 

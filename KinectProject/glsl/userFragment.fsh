@@ -1,7 +1,7 @@
 #version 130
 varying vec2 v_texCoord;
 // 0: no filter; 1: invisibility; 2: blur; 3: pixelation
-// 4: emboss, 5: silhouette
+// 4: emboss, 5: silhouette, 6: skeleton
 uniform int currentFilter;
 
 uniform int stage;

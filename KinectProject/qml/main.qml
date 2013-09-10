@@ -105,6 +105,18 @@ ApplicationWindow {
                     instanceViewer.enableFilter(ColorFilter.FILTER_SILHOUETTE) // GPU
                 }
             }
+            MenuItem {
+                text: "Skeleton"
+                checkable: true
+                exclusiveGroup: privacyFilter
+                shortcut: "Ctrl+6"
+                onTriggered: {
+                    overlayText.text = "Skeleton Filter Enabled"
+                    overlayText.opacity = 1
+                    overlayTextHide.start()
+                    instanceViewer.enableFilter(ColorFilter.FILTER_SKELETON) // GPU
+                }
+            }
         }
         Menu {
             title: "&Window"

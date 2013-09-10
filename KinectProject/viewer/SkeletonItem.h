@@ -31,6 +31,7 @@ private:
     GLuint                  m_colorAttr; // Texture coord in the shader
     GLuint                  m_perspectiveMatrix; // Matrix in the shader
     GLuint                  m_pointSize;
+    GLuint                  m_currentFilterUniform;
 };
 
 } // End Namespace
