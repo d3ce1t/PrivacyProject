@@ -91,8 +91,8 @@ void SkeletonItem::prepareShaderProgram()
 void SkeletonItem::drawLimb(const dai::SkeletonJoint& joint1, const dai::SkeletonJoint& joint2)
 {
     float coordinates[] = {
-        (float) joint1.getPosition().x(), (float) joint1.getPosition().y(), (float) -joint1.getPosition().z(),
-        (float) joint2.getPosition().x(), (float) joint2.getPosition().y(), (float) -joint2.getPosition().z()
+        (float) joint1.getPosition().x(), (float) -joint1.getPosition().y(), (float) -joint1.getPosition().z(),
+        (float) joint2.getPosition().x(), (float) -joint2.getPosition().y(), (float) -joint2.getPosition().z()
     };
 
     float coorColours[] = {
