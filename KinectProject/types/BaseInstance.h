@@ -18,8 +18,14 @@ class BaseInstance
 {
 public:
     BaseInstance();
+
+#if (!defined _MSC_VER)
     BaseInstance(const BaseInstance& other) = delete;
     virtual ~BaseInstance() = default;
+#else
+    virtual ~BaseInstance() {}
+#endif
+
     InstanceType getType() const;
     const QString& getTitle() const;
 
@@ -35,6 +41,12 @@ public:
 protected:
     InstanceType    m_type;
     QString         m_title;
+
+private:
+#if (defined _MSC_VER)
+     BaseInstance(const BaseInstance&) {}
+#endif
+
 };
 
 } // End Namespace

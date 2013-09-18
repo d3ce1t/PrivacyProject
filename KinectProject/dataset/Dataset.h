@@ -26,7 +26,11 @@ public:
     };
 
     explicit Dataset(QString path);
+
+#if (!defined _MSC_VER)
     virtual ~Dataset() = default;
+#endif
+
     const DatasetMetadata& getMetadata() const;
 
     shared_ptr<BaseInstance> getInstance(int activity, int actor, int sample, InstanceType type) const;

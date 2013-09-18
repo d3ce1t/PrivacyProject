@@ -4,9 +4,9 @@
 namespace dai {
 
 DummyPainter::DummyPainter(InstanceViewer* parent)
-    : Painter(parent)
+    : Painter(parent), m_textureWidth(128), m_textureHeight(128)
 {
-    m_textureData = new u_int8_t[m_textureWidth * m_textureHeight];
+    m_textureData = new uint8_t[m_textureWidth * m_textureHeight];
 }
 
 DummyPainter::~DummyPainter()
@@ -161,9 +161,9 @@ void DummyPainter::loadTexture(GLuint glTextureId, GLsizei width, GLsizei height
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void DummyPainter::createTexture(int width, int height, u_int8_t* data)
+void DummyPainter::createTexture(int width, int height, uint8_t *data)
 {    
-    int bytesNumber = width * height * sizeof(u_int8_t) / 2;
+    int bytesNumber = width * height * sizeof(uint8_t) / 2;
     memset(data, 255, bytesNumber); // First part of my texture is red, second part is black
 }
 

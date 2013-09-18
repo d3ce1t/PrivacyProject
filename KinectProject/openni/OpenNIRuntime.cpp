@@ -228,7 +228,7 @@ void OpenNIRuntime::loadUser(nite::UserTrackerFrameRef& oniUserTrackerFrame)
     // Read Depth Frame and Labels
     for (int y=0; y < userMap.getHeight(); ++y) {
         for (int x=0; x < userMap.getWidth(); ++x) {
-            u_int8_t label = *pLabel;
+            uint8_t label = *pLabel;
             m_userFrame.setItem(y, x, label);
             pLabel++;
         }

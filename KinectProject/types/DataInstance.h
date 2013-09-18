@@ -11,8 +11,14 @@ class DataInstance : public StreamInstance<T>
 {
 public:
     explicit DataInstance(const InstanceInfo& info);
+
+#if (!defined _MSC_VER)
     DataInstance(const DataInstance& other) = delete;
     virtual ~DataInstance() = default;
+#else
+    virtual ~DataInstance() {}
+#endif
+
     const InstanceInfo& getMetadata() const;
     unsigned int getTotalFrames() const;
     bool hasNext() const override;
@@ -20,6 +26,12 @@ public:
 protected:
     InstanceInfo m_info;
     unsigned int m_nFrames;
+
+private:
+
+#if (defined _MSC_VER)
+    DataInstance(const DataInstance&) {}
+#endif
 };
 
 template <class T>

@@ -34,7 +34,7 @@ private:
     void prepareShaderProgram();
     void prepareVertexBuffer();
 
-    QMLEnumsWrapper::ColorFilter m_currentFilter = QMLEnumsWrapper::FILTER_DISABLED;
+    QMLEnumsWrapper::ColorFilter m_currentFilter;
     QOpenGLShaderProgram*   m_shaderProgram;
     shared_ptr<UserFrame>   m_mask;
 

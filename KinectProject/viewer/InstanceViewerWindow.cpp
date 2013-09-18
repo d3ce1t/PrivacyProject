@@ -168,7 +168,15 @@ void InstanceViewerWindow::setupJointsModel(QStandardItemModel &model)
     int index = metaObject.indexOfEnumerator("JointType"); // watch out during refactorings
     QMetaEnum metaEnum = metaObject.enumerator(index);
 
+#if (!defined _MSC_VER)
     QStringList list = {"pos X", "pos Y", "pos Z"};
+#else
+    QStringList list;
+    list.append("pos X");
+    list.append("pos Y");
+    list.append("pos Z");
+
+#endif
     model.setHorizontalHeaderLabels(list);
     list.clear();
 
@@ -236,7 +244,17 @@ void InstanceViewerWindow::setupQuaternionModel(QStandardItemModel &model)
     int index = quaternionMetaObject.indexOfEnumerator("QuaternionType");
     QMetaEnum metaEnum = quaternionMetaObject.enumerator(index);
 
+#if (!defined _MSC_VER)
     QStringList list = {"Tensor", "pos X", "pos Y", "pos Z", "angle"};
+#else
+    QStringList list;
+    list.append("Tensor");
+    list.append("pos X");
+    list.append("pos Y");
+    list.append("pos Z");
+    list.append("angle");
+#endif
+
     model.setHorizontalHeaderLabels(list);
     list.clear();
 

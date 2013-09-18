@@ -24,7 +24,7 @@ void InvisibilityFilter::applyFilter(shared_ptr<DataFrame> frame)
     {
         for (int j=0; j<m_userMask->getWidth(); ++j)
         {
-            u_int8_t uLabel = m_userMask->getItem(i, j);
+            uint8_t uLabel = m_userMask->getItem(i, j);
 
             if (uLabel != 0) {
                 if (m_enabled) {

@@ -12,12 +12,12 @@ void DilateUserFilter::applyFilter(shared_ptr<DataFrame> frame)
     UserFrame* userFrame = (UserFrame*) frame.get();
 
     // User mask have to cover user in color frame completely
-    dilateUserMask(const_cast<u_int8_t*>(userFrame->getDataPtr()));
+    dilateUserMask(const_cast<uint8_t*>(userFrame->getDataPtr()));
 }
 
-void DilateUserFilter::dilateUserMask(u_int8_t *labels)
+void DilateUserFilter::dilateUserMask(uint8_t *labels)
 {
-    cv::Mat newImag(480, 640, cv::DataType<u_int8_t>::type, labels);
+    cv::Mat newImag(480, 640, cv::DataType<uint8_t>::type, labels);
     cv::Mat kernel = cv::getStructuringElement(cv::MORPH_CROSS,
                                                cv::Size(2*m_dilation_size + 1, 2*m_dilation_size+1),
                                                cv::Point( m_dilation_size, m_dilation_size ) );

@@ -1,7 +1,6 @@
 #include "Scene3DPainter.h"
 #include "types/DepthFrame.h"
 
-
 namespace dai {
 
 Scene3DPainter::Scene3DPainter()
@@ -92,14 +91,16 @@ void Scene3DPainter::prepareShaderProgram()
 
 void Scene3DPainter::prepareVertexBuffer()
 {
-    float indexData[640 * 480];
+    // float indexData[640 * 480]; // When built with msvc 11 it triggers a stack overflow at this line
+    float* indexData = new float[640 * 480];
     float* pData = indexData;
 
     for (int i=0; i<640*480; ++i) {
         *(pData++) = i;
     }
 
-    float distanceData[640 * 480];
+    // float distanceData[640 * 480]; // The same as before
+    float* distanceData = new float[640 * 480];
     pData = distanceData;
 
     for (int i=0; i<640*480; ++i) {
@@ -126,6 +127,9 @@ void Scene3DPainter::prepareVertexBuffer()
     m_distancesBuffer.release();
 
     m_vao.release();
+
+    delete[] indexData;
+    delete[] distanceData;
 }
 
 } // End Namespace

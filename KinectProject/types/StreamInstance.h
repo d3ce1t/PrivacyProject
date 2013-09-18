@@ -16,8 +16,14 @@ class StreamInstance : public BaseInstance
 {
 public:
     StreamInstance();
+
+#if (!defined _MSC_VER)
     StreamInstance(const StreamInstance& other) = delete;
     virtual ~StreamInstance() = default;
+#else
+    virtual ~StreamInstance() {}
+#endif
+
     void open() override;
     void close() override;
     void restart() override;
@@ -35,6 +41,12 @@ protected:
     void initFrameBuffer(shared_ptr<T> firstBuffer, shared_ptr<T> secondBuffer);
 
 private:
+
+#if (defined _MSC_VER)
+    StreamInstance(const StreamInstance&) {}
+#endif
+
+
     unsigned int    m_frameIndex;
     QReadWriteLock  m_locker;
     shared_ptr<T>   m_writeFrame;

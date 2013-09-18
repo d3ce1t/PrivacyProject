@@ -19,7 +19,10 @@ public:
     SkeletonFrame(const SkeletonFrame& other);
 
     // Destructor
+
+#if (!defined _MSC_VER)
     ~SkeletonFrame() = default;
+#endif
 
     // Methods
     shared_ptr<DataFrame> clone() const override;

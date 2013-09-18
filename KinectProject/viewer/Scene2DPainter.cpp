@@ -6,6 +6,7 @@ namespace dai {
 
 Scene2DPainter::Scene2DPainter()
 {
+    m_currentFilter = QMLEnumsWrapper::FILTER_DISABLED;
 }
 
 Scene2DPainter::~Scene2DPainter()

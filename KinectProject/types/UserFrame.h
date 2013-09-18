@@ -5,7 +5,7 @@
 
 namespace dai {
 
-class UserFrame : public GenericFrame<u_int8_t>
+class UserFrame : public GenericFrame<uint8_t>
 {
 public:
     // Constructors

@@ -329,5 +329,5 @@ void MainWindow::on_btnQuit_clicked()
         m_playback->stop();
     }
 
-    //QApplication::exit(0);
+    QApplication::exit(0);
 }

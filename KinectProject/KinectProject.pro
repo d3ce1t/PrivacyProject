@@ -10,7 +10,6 @@ QMAKE_LFLAGS = -std=c++11
 HEADERS += \
     dataset/MSRAction3D/MSR3Action3D.h \
     dataset/InstanceInfo.h \
-    HistogramScene.h \
     dataset/Dataset.h \
     dataset/NotSupportedDatasetException.h \
     MainWindow.h \
@@ -81,7 +80,6 @@ HEADERS += \
 SOURCES += \
     dataset/MSRAction3D/MSR3Action3D.cpp \
     dataset/InstanceInfo.cpp \
-    HistogramScene.cpp \
     Main.cpp \
     dataset/Dataset.cpp \
     MainWindow.cpp \
@@ -147,7 +145,6 @@ FORMS += \
     mainwindow.ui \
     DatasetBrowser.ui
 
-
 unix:!macx {
     # OpenNI2
     LIBS += -L/opt/OpenNI-Linux-x64-2.2/Tools/ -lOpenNI2
@@ -179,15 +176,27 @@ unix:!macx {
 }
 
 win32 {
+    INCLUDEPATH += $$PWD
+
+    # Boost
+    LIBS += -L"C:/boost_1_54_0/stage/lib"
+    INCLUDEPATH += "C:/boost_1_54_0"
+    DEPENDPATH += "C:/boost_1_54_0"
+
     # OpenNI2
-    LIBS += -L"C:/Program Files (x86)/OpenNI2/Lib" -lOpenNI2
-    INCLUDEPATH += "C:/Program Files (x86)/OpenNI2/Include"
-    DEPENDPATH += "C:/Program Files (x86)/OpenNI2/Include"
+    LIBS += -L"C:/Program Files/OpenNI2/Lib" -lOpenNI2
+    INCLUDEPATH += "C:/Program Files/OpenNI2/Include"
+    DEPENDPATH += "C:/Program Files/OpenNI2/Include"
 
     # NiTE2
-    LIBS += -L"C:/Program Files (x86)/PrimeSense/NiTE2/Lib" -lNiTE2
-    INCLUDEPATH += "C:/Program Files (x86)/PrimeSense/NiTE2/Include"
-    DEPENDPATH += "C:/Program Files (x86)/PrimeSense/NiTE2/Include"
+    LIBS += -L"C:/Program Files/PrimeSense/NiTE2/Lib" -lNiTE2
+    INCLUDEPATH += "C:/Program Files/PrimeSense/NiTE2/Include"
+    DEPENDPATH += "C:/Program Files/PrimeSense/NiTE2/Include"
+
+    # OpenCV2
+    LIBS += -L"C:\opencv\build\x64\vc11\lib" -lopencv_core246 -lopencv_imgproc246
+    INCLUDEPATH += "C:/opencv/build/include"
+    DEPENDPATH += "C:/opencv/build/include"
 }
 
 OTHER_FILES += \

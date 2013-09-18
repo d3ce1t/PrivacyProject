@@ -65,8 +65,8 @@ void DAIUserInstance::restartInstance()
 void DAIUserInstance::nextFrame(UserFrame &frame)
 {
     // Read Data from File
-    u_int8_t* ptrImg = (u_int8_t*) frame.getDataPtr();
-    m_file.read( (char *) ptrImg, frame.getWidth() * frame.getHeight() * sizeof(u_int8_t) );
+    uint8_t* ptrImg = (uint8_t*) frame.getDataPtr();
+    m_file.read( (char *) ptrImg, frame.getWidth() * frame.getHeight() * sizeof(uint8_t) );
 }
 
 } // End Namespace
