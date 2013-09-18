@@ -1,5 +1,4 @@
 #include "OpenNIDepthInstance.h"
-#include "types/DataInstance.h"
 #include <exception>
 #include <iostream>
 

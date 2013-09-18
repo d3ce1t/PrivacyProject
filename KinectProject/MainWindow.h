@@ -2,7 +2,6 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "DatasetBrowser.h"
 #include "playback/PlaybackControl.h"
 
 namespace Ui {
@@ -19,7 +18,6 @@ public:
     QString number(int value);
     
 private slots:
-    void on_btnOpenDataSets_clicked();
     void on_btnParseDataset_clicked();
     void on_btnTest_clicked();
     void on_btnStartKinect_clicked();
@@ -33,7 +31,6 @@ private:
 private:
     dai::PlaybackControl* m_playback;
     Ui::MainWindow *ui;
-    DatasetBrowser m_browser;
 };
 
 #endif // MAINWINDOW_H

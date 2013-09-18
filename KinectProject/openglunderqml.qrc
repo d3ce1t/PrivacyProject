@@ -1,7 +1,4 @@
 <RCC>
-    <qresource prefix="/qml">
-        <file>qml/main.qml</file>
-    </qresource>
     <qresource prefix="/glsl">
         <file>glsl/textureVertex.vsh</file>
         <file>glsl/textureFragment.fsh</file>
@@ -16,5 +13,8 @@
     </qresource>
     <qresource prefix="/icons">
         <file>kinect.png</file>
+    </qresource>
+    <qresource prefix="/qml">
+        <file>qml/main.qml</file>
     </qresource>
 </RCC>

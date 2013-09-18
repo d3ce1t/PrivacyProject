@@ -5,21 +5,17 @@
 #include <QtWidgets/QDesktopWidget>
 #include <fstream>
 #include <iostream>
-#include "dataset/Dataset.h"
-#include "dataset/MSRDaily/MSRDailyActivity3D.h"
-#include "dataset/MSRAction3D/MSR3Action3D.h"
-#include "dataset/DAI/DAIDataset.h"
 #include "openni/OpenNIDepthInstance.h"
 #include "openni/OpenNIColorInstance.h"
 #include "openni/OpenNIUserInstance.h"
 #include "openni/OpenNISkeletonInstance.h"
+#include "dataset/MSRAction3D/MSR3Action3D.h"
 #include "types/DepthFrame.h"
 #include "types/SkeletonFrame.h"
 #include "types/DataFrame.h"
 #include "types/BaseInstance.h"
 #include "viewer/InstanceViewerWindow.h"
 #include "viewer/InstanceRecorder.h"
-#include "viewer/TestListener.h"
 #include "KMeans.h"
 #include "DepthSeg.h"
 
@@ -85,7 +81,6 @@ void MainWindow::testSegmentation()
         qDebug() << "Cluster" << i << values[i];
     }*/
 
-
     int width = 12;
     int height = 12;
 
@@ -139,11 +134,6 @@ void MainWindow::testSegmentation()
         }
         cout << endl;
     }
-}
-
-void MainWindow::on_btnOpenDataSets_clicked()
-{
-    m_browser.show();
 }
 
 void MainWindow::on_btnParseDataset_clicked()

@@ -1,5 +1,4 @@
 #include "OpenNISkeletonInstance.h"
-#include "types/DataInstance.h"
 #include <exception>
 #include <iostream>
 

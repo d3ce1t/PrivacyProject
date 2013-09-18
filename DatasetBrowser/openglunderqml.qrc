@@ -1,0 +1,17 @@
+<RCC>
+    <qresource prefix="/qml">
+        <file>qml/main.qml</file>
+    </qresource>
+    <qresource prefix="/glsl">
+        <file>glsl/depthFragment.fsh</file>
+        <file>glsl/depthVertex.vsh</file>
+        <file>glsl/dummyFragment.fsh</file>
+        <file>glsl/dummyVertex.vsh</file>
+        <file>glsl/simpleFragment.fsh</file>
+        <file>glsl/simpleVertex.vsh</file>
+        <file>glsl/textureFragment.fsh</file>
+        <file>glsl/textureVertex.vsh</file>
+        <file>glsl/userFragment.fsh</file>
+        <file>glsl/userVertex.vsh</file>
+    </qresource>
+</RCC>
