@@ -5,7 +5,6 @@
 #-------------------------------------------------
 
 QT       += core gui quick
-
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = DatasetBrowser
@@ -69,7 +68,9 @@ win32 {
     DEPENDPATH += $$PWD/../CoreLib
 
     # OpenCV2
+    #PRE_TARGETDEPS +=  "C:/opencv/build/x64/vc11/staticlib/opencv_core246.lib"
+    #PRE_TARGETDEPS +=  "C:/opencv/build/x64/vc11/staticlib/opencv_imgproc246.lib"
     LIBS += -L"C:/opencv/build/x64/vc11/lib" -lopencv_core246 -lopencv_imgproc246
-    INCLUDEPATH += "C:/opencv/build/include"
-    DEPENDPATH += "C:/opencv/build/include"
+    #INCLUDEPATH += "C:/opencv/build/include"
+    #DEPENDPATH += "C:/opencv/build/include"
 }

@@ -116,6 +116,6 @@ win32 {
 
     # OpenCV2
     LIBS += -L"C:/opencv/build/x64/vc11/lib" -lopencv_core246 -lopencv_imgproc246
-    INCLUDEPATH += "C:/opencv/build/include"
-    DEPENDPATH += "C:/opencv/build/include"
+    #INCLUDEPATH += "C:/opencv/build/include"
+    #DEPENDPATH += "C:/opencv/build/include"
 }

@@ -11,6 +11,12 @@ TARGET = CoreLib
 TEMPLATE = lib
 CONFIG += staticlib
 
+# Static Release
+#win32 {
+#    QMAKE_CFLAGS_RELEASE += /MT
+#    QMAKE_CXXFLAGS_RELEASE += /MT
+#}
+
 # Use C++11
 QMAKE_CXXFLAGS += -std=c++11
 QMAKE_LFLAGS = -std=c++11
@@ -137,7 +143,6 @@ win32 {
     INCLUDEPATH += $$PWD
 
     # OpenCV2
-    LIBS += -L"C:\opencv\build\x64\vc11\lib" -lopencv_core246 -lopencv_imgproc246
     INCLUDEPATH += "C:/opencv/build/include"
     DEPENDPATH += "C:/opencv/build/include"
 }
