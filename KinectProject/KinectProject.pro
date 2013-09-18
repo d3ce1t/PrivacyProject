@@ -8,7 +8,6 @@ QMAKE_CXXFLAGS += -std=c++11
 QMAKE_LFLAGS = -std=c++11
 
 HEADERS += \
-    dataset/NotSupportedDatasetException.h \
     MainWindow.h \
     openni/OpenNIDepthInstance.h \
     KMeans.h \
@@ -86,20 +85,19 @@ unix:!macx {
 }
 
 # CoreLib Dynamic
-win32:CONFIG(release, debug|release): LIBS += -L/home/jose/qt-workspace/build-CoreLib-Desktop_Qt_5_1_1_GCC_64bit-Release/ -lCoreLib
-else:win32:CONFIG(debug, debug|release): LIBS += -L/home/jose/qt-workspace/build-CoreLib-Desktop_Qt_5_1_1_GCC_64bit-Debug/ -lCoreLib
+win32:CONFIG(release, debug|release): LIBS += -L"C:/Users/Jose Padilla/Desktop/build-CoreLib-Desktop_Qt_5_1_1_MSVC2012_OpenGL_64bit-Release/release" -lCoreLib
+else:win32:CONFIG(debug, debug|release): LIBS += -L"C:/Users/Jose Padilla/Desktop/build-CoreLib-Desktop_Qt_5_1_1_MSVC2012_OpenGL_64bit-Debug/debug" -lCoreLib
 
 # CoreLib Static
-win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../../../home/jose/qt-workspace/build-CoreLib-Desktop_Qt_5_1_1_GCC_64bit-Release/release/CoreLib.lib
-else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../../../home/jose/qt-workspace/build-CoreLib-Desktop_Qt_5_1_1_GCC_64bit-Release/debug/CoreLib.lib
-
-win32 {
-    INCLUDEPATH += $$PWD/../CoreLib
-    DEPENDPATH += $$PWD/../CoreLib
-}
+win32:CONFIG(release, debug|release): PRE_TARGETDEPS += "C:/Users/Jose Padilla/Desktop/build-CoreLib-Desktop_Qt_5_1_1_MSVC2012_OpenGL_64bit-Release/release/CoreLib.lib"
+else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += "C:/Users/Jose Padilla/Desktop/build-CoreLib-Desktop_Qt_5_1_1_MSVC2012_OpenGL_64bit-Debug/debug/CoreLib.lib"
 
 win32 {
     INCLUDEPATH += $$PWD
+
+    # CoreLib
+    INCLUDEPATH += $$PWD/../CoreLib
+    DEPENDPATH += $$PWD/../CoreLib
 
     # Boost
     LIBS += -L"C:/boost_1_54_0/stage/lib"
@@ -117,7 +115,7 @@ win32 {
     DEPENDPATH += "C:/Program Files/PrimeSense/NiTE2/Include"
 
     # OpenCV2
-    LIBS += -L"C:\opencv\build\x64\vc11\lib" -lopencv_core246 -lopencv_imgproc246
+    LIBS += -L"C:/opencv/build/x64/vc11/lib" -lopencv_core246 -lopencv_imgproc246
     INCLUDEPATH += "C:/opencv/build/include"
     DEPENDPATH += "C:/opencv/build/include"
 }
