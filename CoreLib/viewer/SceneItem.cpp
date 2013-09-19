@@ -8,6 +8,7 @@ SceneItem::SceneItem(ItemType type)
     m_z_order = 0;
     m_initialised = false;
     m_neededPasses = 1;
+    m_visible = true;
 }
 
 int SceneItem::getZOrder() const
@@ -35,6 +36,16 @@ ItemType SceneItem::type() const
     return m_type;
 }
 
+bool SceneItem::isVisible() const
+{
+    return m_visible;
+}
+
+void SceneItem::setVisible(bool value)
+{
+    m_visible = value;
+}
+
 void SceneItem::renderItem(int pass)
 {
     if (!m_initialised) {
@@ -43,7 +54,8 @@ void SceneItem::renderItem(int pass)
         m_initialised = true;
     }
 
-    render(pass);
+    if (m_visible)
+        render(pass);
 }
 
 } // End Namespace

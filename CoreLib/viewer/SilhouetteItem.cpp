@@ -1,6 +1,5 @@
 #include "SilhouetteItem.h"
 #include "viewer/ScenePainter.h"
-#include "viewer/Scene2DPainter.h"
 
 namespace dai {
 
@@ -14,6 +13,11 @@ SilhouetteItem::SilhouetteItem()
 void SilhouetteItem::setUser(shared_ptr<UserFrame> user)
 {
     m_user = user;
+}
+
+void SilhouetteItem::setDrawingEffect(SilhouetteEffect effect)
+{
+    m_drawingEffect = effect;
 }
 
 void SilhouetteItem::initialise()
@@ -50,10 +54,8 @@ void SilhouetteItem::renderFirstPass()
     m_shaderProgram->bind();
     m_vao.bind();
 
-    Scene2DPainter* scene = (Scene2DPainter*) this->scene();
-
     m_shaderProgram->setUniformValue(m_stageUniform, 1);
-    m_shaderProgram->setUniformValue(m_currentFilterUniform, scene->currentFilter());
+    m_shaderProgram->setUniformValue(m_silhouetteEffectUniform, m_drawingEffect);
 
     // Enable FG
     glActiveTexture(GL_TEXTURE0 + 0);
@@ -117,13 +119,13 @@ void SilhouetteItem::prepareShaderProgram()
 
     m_posAttr = m_shaderProgram->attributeLocation("posAttr");
     m_texCoord = m_shaderProgram->attributeLocation("texCoord");
-    m_currentFilterUniform = m_shaderProgram->uniformLocation("currentFilter");
+    m_silhouetteEffectUniform = m_shaderProgram->uniformLocation("silhouetteEffect");
     m_stageUniform = m_shaderProgram->uniformLocation("stage");
     m_texFGSampler = m_shaderProgram->uniformLocation("texForeground");
     m_texMaskSampler = m_shaderProgram->uniformLocation("texMask");
 
     m_shaderProgram->bind();
-    m_shaderProgram->setUniformValue(m_currentFilterUniform, 0); // No Filter
+    m_shaderProgram->setUniformValue(m_silhouetteEffectUniform, EFFECT_NORMAL); // No Filter
     m_shaderProgram->setUniformValue(m_stageUniform, 1);
     m_shaderProgram->setUniformValue(m_texFGSampler, 0);
     m_shaderProgram->setUniformValue(m_texMaskSampler, 1);

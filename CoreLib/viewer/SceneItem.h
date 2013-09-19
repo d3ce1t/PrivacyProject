@@ -25,6 +25,8 @@ public:
     void setBackgroundTex(GLuint id);
     int neededPasses() const;
     ItemType type() const;
+    bool isVisible() const;
+        void setVisible(bool value);
 
 protected:
     virtual void initialise() = 0;
@@ -40,6 +42,7 @@ private:
     ItemType m_type;
     int m_z_order; // 0 = first item to be drawn
     bool m_initialised;
+    bool m_visible;
     ScenePainter* m_scene;
 };
 

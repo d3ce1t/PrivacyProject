@@ -22,16 +22,14 @@ SOURCES += main.cpp\
 
 OTHER_FILES += \
     qml/main.qml \
-    glsl/userVertex.vsh \
-    glsl/userFragment.fsh \
-    glsl/textureVertex.vsh \
-    glsl/textureFragment.fsh \
-    glsl/simpleVertex.vsh \
-    glsl/simpleFragment.fsh \
-    glsl/dummyVertex.vsh \
-    glsl/dummyFragment.fsh \
-    glsl/depthVertex.vsh \
-    glsl/depthFragment.fsh
+    glsl/scene3d.fsh \
+    glsl/scene3d.vsh \
+    glsl/scene2d.fsh \
+    glsl/scene2d.vsh \
+    glsl/skeleton.fsh \
+    glsl/skeleton.vsh \
+    glsl/silhouette.fsh \
+    glsl/silhouette.vsh
 
 RESOURCES += \
     openglunderqml.qrc
@@ -41,8 +39,8 @@ FORMS    += \
 
 unix:!macx {
     # CoreLib
-    PRE_TARGETDEPS += /home/jose/qt-workspace/build-CoreLib-Desktop_Qt_5_1_1_GCC_64bit-Release/libCoreLib.a
-    LIBS += -L/home/jose/qt-workspace/build-CoreLib-Desktop_Qt_5_1_1_GCC_64bit-Release/ -lCoreLib
+    PRE_TARGETDEPS += /home/jose/qt-workspace/build-CoreLib-Desktop_Qt_5_1_1_GCC_64bit-Debug/libCoreLib.a
+    LIBS += -L/home/jose/qt-workspace/build-CoreLib-Desktop_Qt_5_1_1_GCC_64bit-Debug/ -lCoreLib
     INCLUDEPATH += $$PWD/../CoreLib
     DEPENDPATH += $$PWD/../CoreLib
 

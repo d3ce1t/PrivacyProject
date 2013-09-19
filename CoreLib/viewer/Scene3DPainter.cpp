@@ -18,7 +18,7 @@ void Scene3DPainter::initialise()
 
 void Scene3DPainter::render()
 {
-    Q_ASSERT(m_bg->getType() == DataFrame::Depth);
+     Q_ASSERT( (m_bg != nullptr && m_bg->getType() == DataFrame::Depth) || m_bg == nullptr);
 
     // Init Each Frame (because QtQuick could change it)
     glDepthRange(0.0f, 1.0f);
@@ -36,28 +36,30 @@ void Scene3DPainter::render()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     // Draw Background
-    if (m_bg == nullptr)
-        return;
+    if (m_bg)
+    {
+        shared_ptr<DepthFrame> bgFrame = static_pointer_cast<DepthFrame>(m_bg);
 
-    shared_ptr<DepthFrame> bgFrame = static_pointer_cast<DepthFrame>(m_bg);
+        m_shaderProgram->bind();
+        m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
+        m_shaderProgram->setUniformValue(m_widthUniform, (float) bgFrame->getWidth());
+        m_shaderProgram->setUniformValue(m_heightUniform, (float) bgFrame->getHeight());
 
-    m_shaderProgram->bind();
-    m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
-    m_shaderProgram->setUniformValue(m_widthUniform, (float) bgFrame->getWidth());
-    m_shaderProgram->setUniformValue(m_heightUniform, (float) bgFrame->getHeight());
+        m_vao.bind();
+        int count = bgFrame->getWidth() * bgFrame->getHeight();
 
-    m_vao.bind();
-    int count = bgFrame->getWidth() * bgFrame->getHeight();
+        m_distancesBuffer.bind();
+        m_distancesBuffer.write(0, bgFrame->getDataPtr(), count * sizeof(float));
+        m_distancesBuffer.release();
 
-    m_distancesBuffer.bind();
-    m_distancesBuffer.write(0, bgFrame->getDataPtr(), count * sizeof(float));
-    m_distancesBuffer.release();
+        glDrawArrays(GL_POINTS, m_indexAttr, count);
 
-    glDrawArrays(GL_POINTS, m_indexAttr, count);
+        // Release
+        m_vao.release();
+        m_shaderProgram->release();
+    }
 
-    // Release
-    m_vao.release();
-    m_shaderProgram->release();
+    renderItems();
 
     // Restore
     glDisable(GL_BLEND);

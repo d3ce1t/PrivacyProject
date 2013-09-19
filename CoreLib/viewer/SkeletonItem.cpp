@@ -1,6 +1,5 @@
 #include "SkeletonItem.h"
 #include "viewer/ScenePainter.h"
-#include "viewer/Scene2DPainter.h"
 
 namespace dai {
 
@@ -57,11 +56,7 @@ void SkeletonItem::render(int pass)
     if (m_frame == nullptr)
         return;
 
-    // Bind Shader
-    Scene2DPainter* scene = (Scene2DPainter*) this->scene();
-
     m_shaderProgram->bind();
-    m_shaderProgram->setUniformValue(m_currentFilterUniform, scene->currentFilter());
 
     foreach (int userId, m_frame->getAllUsersId())
     {
@@ -88,12 +83,10 @@ void SkeletonItem::prepareShaderProgram()
 
     m_posAttr = m_shaderProgram->attributeLocation("posAttr");
     m_colorAttr = m_shaderProgram->attributeLocation("colAttr");
-    m_currentFilterUniform = m_shaderProgram->uniformLocation("currentFilter");
     m_pointSize = m_shaderProgram->uniformLocation("sizeAttr");
     m_perspectiveMatrix = m_shaderProgram->uniformLocation("perspectiveMatrix");
 
     m_shaderProgram->bind();
-    m_shaderProgram->setUniformValue(m_currentFilterUniform, 0); // No Filter
     m_shaderProgram->setUniformValue(m_perspectiveMatrix, scene()->getMatrix() );
     m_shaderProgram->setUniformValue(m_pointSize, 2.0f);
     m_shaderProgram->release();

@@ -1,8 +1,7 @@
 #version 130
 varying vec2 v_texCoord;
-// 0: no filter; 1: invisibility; 2: blur; 3: pixelation
-// 4: emboss, 5: silhouette, 6: skeleton
-uniform int currentFilter;
+// 0: normal, 1: blur, 2: pixelation, 3_ emboss
+uniform int silhouetteEffect;
 
 uniform int stage;
 uniform sampler2D texForeground;
@@ -27,21 +26,21 @@ void main()
 
     if (stage == 1)
     {
+        // Silhouette
+        if (silhouetteEffect == 0) {
+            gl_FragColor = vec4(0.8, 0.5, 0.0, 1.0);
+        }
         // BlurH filter (first-pass) second-pass in textureFragment
-        if (currentFilter == 2) {
+        else if (silhouetteEffect == 1) {
             gl_FragColor = blurEffectH();
         }
         // Pixelation
-        else if (currentFilter == 3) {
+        else if (silhouetteEffect == 2) {
             gl_FragColor = pixelation();
         }
         // Emboss
-        else if (currentFilter == 4) {
+        else if (silhouetteEffect == 3) {
             gl_FragColor = embossEffect();
-        }
-        // Silhouette
-        else if (currentFilter == 5) {
-            gl_FragColor = vec4(0.8, 0.5, 0.0, 1.0);
         }
         // Nothing
         else {
@@ -50,7 +49,7 @@ void main()
     }
     else if (stage == 2)
     {
-        if (currentFilter == 2) {
+        if (silhouetteEffect == 1) {
             gl_FragColor = blurEffectV();
         }
         else {

@@ -1,5 +1,6 @@
 #include "Scene2DPainter.h"
 #include "types/ColorFrame.h"
+#include "viewer/SilhouetteItem.h"
 #include <QDebug>
 
 namespace dai {
@@ -176,10 +177,39 @@ void Scene2DPainter::renderItems()
 {
     GLuint bg;
 
+    // Take filters in account
     if (m_currentFilter == QMLEnumsWrapper::FILTER_INVISIBILITY) {
         bg = m_bgTextureId;
     } else {
         bg = m_fgTextureId;
+    }
+
+    shared_ptr<SceneItem> skeletonItem = this->getFirstItem(ITEM_SKELETON);
+    if (skeletonItem) skeletonItem->setVisible( m_currentFilter == QMLEnumsWrapper::FILTER_SKELETON ? true : false );
+
+    shared_ptr<SilhouetteItem> silhouetteItem = static_pointer_cast<SilhouetteItem>( this->getFirstItem(ITEM_SILHOUETTE) );
+
+    if (silhouetteItem) {
+        switch (m_currentFilter) {
+        case QMLEnumsWrapper::FILTER_BLUR:
+            silhouetteItem->setDrawingEffect(SilhouetteItem::EFFECT_BLUR);
+            silhouetteItem->setVisible( true );
+            break;
+        case QMLEnumsWrapper::FILTER_EMBOSS:
+            silhouetteItem->setDrawingEffect(SilhouetteItem::EFFECT_EMBOSS);
+            silhouetteItem->setVisible( true );
+            break;
+        case QMLEnumsWrapper::FILTER_PIXELATION:
+            silhouetteItem->setDrawingEffect(SilhouetteItem::EFFECT_PIXELATION);
+            silhouetteItem->setVisible( true );
+            break;
+        case QMLEnumsWrapper::FILTER_SILHOUETTE:
+            silhouetteItem->setDrawingEffect(SilhouetteItem::EFFECT_NORMAL);
+            silhouetteItem->setVisible( true );
+            break;
+        default:
+            silhouetteItem->setVisible( false );
+        }
     }
 
     m_shaderProgram->release();

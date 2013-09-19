@@ -15,8 +15,16 @@ namespace dai {
 class SilhouetteItem : public SceneItem
 {
 public:
+    enum SilhouetteEffect {
+        EFFECT_NORMAL = 0,
+        EFFECT_BLUR,
+        EFFECT_PIXELATION,
+        EFFECT_EMBOSS
+    };
+
     SilhouetteItem();
     void setUser(shared_ptr<UserFrame> user);
+    void setDrawingEffect(SilhouetteEffect effect);
 
 protected:
     void initialise() override;
@@ -28,6 +36,8 @@ private:
     void prepareShaderProgram();
     void prepareVertexBuffer();
 
+    SilhouetteEffect         m_drawingEffect;
+
     QOpenGLShaderProgram*    m_shaderProgram;
     shared_ptr<UserFrame>    m_user;
     QOpenGLVertexArrayObject m_vao;
@@ -38,7 +48,7 @@ private:
     GLuint                   m_posAttr; // Pos attr in the shader
     GLuint                   m_texCoord; // Texture coord in the shader
     GLuint                   m_stageUniform;
-    GLuint                   m_currentFilterUniform;
+    GLuint                   m_silhouetteEffectUniform;
     GLuint                   m_maskTextureId;
     GLuint                   m_texFGSampler;
     GLuint                   m_texMaskSampler; // Texture Sampler in the shader
