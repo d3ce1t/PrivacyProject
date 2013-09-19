@@ -43,8 +43,6 @@ void InstanceViewer::setMode(ViewerMode mode)
         m_scene.reset(new Scene2DPainter);
     }
 
-    resetPerspective();
-
     m_mode = mode;
 }
 
@@ -163,35 +161,29 @@ void InstanceViewer::resetPerspective()
 void InstanceViewer::rotateAxisX(float angle)
 {
     m_scene->getMatrix().rotate(angle, QVector3D(1, 0, 0));
-    m_scene->updateItemsMatrix();
 }
 
 void InstanceViewer::rotateAxisY(float angle)
 {
     m_scene->getMatrix().rotate(angle, QVector3D(0, 1, 0));
-    m_scene->updateItemsMatrix();
 }
 
 void InstanceViewer::rotateAxisZ(float angle)
 {
     m_scene->getMatrix().rotate(angle, QVector3D(0, 0, 1));
-    m_scene->updateItemsMatrix();
 }
 
 void InstanceViewer::translateAxisX(float value)
 {
     m_scene->getMatrix().translate(value, 0, 0);
-    m_scene->updateItemsMatrix();
 }
 
 void InstanceViewer::translateAxisY(float value)
 {
     m_scene->getMatrix().translate(0, value, 0);
-    m_scene->updateItemsMatrix();
 }
 
 void InstanceViewer::translateAxisZ(float value)
 {
     m_scene->getMatrix().translate(0, 0, value);
-    m_scene->updateItemsMatrix();
 }

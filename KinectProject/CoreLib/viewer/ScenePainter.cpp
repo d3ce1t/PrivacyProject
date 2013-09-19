@@ -47,7 +47,7 @@ void ScenePainter::setBackground(shared_ptr<DataFrame> background)
     m_needLoading.store(1);
 }
 
-void ScenePainter::setSize(qreal width, qreal height)
+void ScenePainter::setSize(int width, int height)
 {
     m_width = width;
     m_height = height;
@@ -56,7 +56,6 @@ void ScenePainter::setSize(qreal width, qreal height)
 void ScenePainter::setMatrix(const QMatrix4x4 &matrix)
 {
     m_matrix = matrix;
-    updateItemsMatrix();
 }
 
 QMatrix4x4& ScenePainter::getMatrix()
@@ -64,23 +63,10 @@ QMatrix4x4& ScenePainter::getMatrix()
     return m_matrix;
 }
 
-void ScenePainter::updateItemsMatrix()
-{
-    /*m_mutex.lock();
-    foreach (dai::Painter* painter, m_painters) {
-        painter->setMatrix(m_matrix);
-    }
-    m_mutex.unlock();
-
-    if (m_window != nullptr)
-        m_window->update();*/
-}
-
 void ScenePainter::resetPerspective()
 {
     m_matrix.setToIdentity();
     m_matrix.perspective(45, 4/3, 0.1, 100.0);
-    updateItemsMatrix();
 }
 
 void ScenePainter::renderScene()
@@ -89,6 +75,7 @@ void ScenePainter::renderScene()
     {
         initializeOpenGLFunctions();
         initialise();
+        resetPerspective();
         m_initialised = true;
     }
 

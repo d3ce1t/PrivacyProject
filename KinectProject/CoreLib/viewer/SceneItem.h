@@ -26,7 +26,7 @@ public:
     int neededPasses() const;
     ItemType type() const;
     bool isVisible() const;
-        void setVisible(bool value);
+    void setVisible(bool value);
 
 protected:
     virtual void initialise() = 0;

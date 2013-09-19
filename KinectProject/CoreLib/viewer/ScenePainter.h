@@ -28,17 +28,16 @@ public:
     void renderScene();
     void setMatrix(const QMatrix4x4& matrix);
     QMatrix4x4& getMatrix();
-    void updateItemsMatrix();
-    void resetPerspective();
-    void setSize(qreal width, qreal height);
+    virtual void resetPerspective();
+    void setSize(int width, int height);
 
 protected:
     void renderItems();
     virtual void initialise() = 0;
     virtual void render() = 0;
 
-    qreal                            m_width;
-    qreal                            m_height;
+    int                              m_width;
+    int                              m_height;
     shared_ptr<DataFrame>            m_bg;
     atomic<int>                      m_needLoading;
     QMatrix4x4                       m_matrix;
