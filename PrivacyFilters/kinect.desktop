@@ -1,0 +1,7 @@
+[Desktop Entry]
+Version=1.0
+Name=Privacy Filters
+Exec=/home/jose/qt-workspace/build-KinectProject-Desktop_Qt_5_1_1_GCC_64bit-Debug/PrivacyFilters
+Terminal=false
+Icon=/files/git/dai/jpadilla/PrivacyFilters/kinect.png
+Type=Application
