@@ -48,8 +48,8 @@ FORMS += \
 
 unix:!macx {
     # CoreLib
-    PRE_TARGETDEPS += /home/jose/qt-workspace/build-CoreLib-Desktop_Qt_5_1_1_GCC_64bit-Debug/libCoreLib.a
-    LIBS += -L/home/jose/qt-workspace/build-CoreLib-Desktop_Qt_5_1_1_GCC_64bit-Debug/ -lCoreLib
+    LIBS += -L$$OUT_PWD/../CoreLib/ -lCoreLib
+    PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/libCoreLib.a
     INCLUDEPATH += $$PWD/../CoreLib
     DEPENDPATH += $$PWD/../CoreLib
 
@@ -83,12 +83,12 @@ unix:!macx {
 }
 
 # CoreLib Dynamic
-win32:CONFIG(release, debug|release): LIBS += -L"C:/Users/Jose Padilla/Desktop/build-CoreLib-Desktop_Qt_5_1_1_MSVC2012_OpenGL_64bit-Release/release" -lCoreLib
-else:win32:CONFIG(debug, debug|release): LIBS += -L"C:/Users/Jose Padilla/Desktop/build-CoreLib-Desktop_Qt_5_1_1_MSVC2012_OpenGL_64bit-Debug/debug" -lCoreLib
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../CoreLib/release/ -lCoreLib
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../CoreLib/debug/ -lCoreLib
 
 # CoreLib Static
-win32:CONFIG(release, debug|release): PRE_TARGETDEPS += "C:/Users/Jose Padilla/Desktop/build-CoreLib-Desktop_Qt_5_1_1_MSVC2012_OpenGL_64bit-Release/release/CoreLib.lib"
-else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += "C:/Users/Jose Padilla/Desktop/build-CoreLib-Desktop_Qt_5_1_1_MSVC2012_OpenGL_64bit-Debug/debug/CoreLib.lib"
+win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/release/CoreLib.lib
+else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/debug/CoreLib.lib
 
 win32 {
     INCLUDEPATH += $$PWD
