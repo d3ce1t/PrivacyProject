@@ -253,6 +253,7 @@ void MainWindow::on_btnStartKinect_clicked()
 
     // Create Playback
     m_playback = new dai::PlaybackControl;
+    m_playback->setFPS(25);
     connect(m_playback, &dai::PlaybackControl::onPlaybackFinished, m_playback, &dai::PlaybackControl::deleteLater);
 
     // Create viewers

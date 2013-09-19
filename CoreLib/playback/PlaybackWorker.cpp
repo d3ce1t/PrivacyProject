@@ -114,6 +114,11 @@ void PlaybackWorker::stop()
     std::cerr << "PlaybackWorker::stop()" << std::endl;
 }
 
+void PlaybackWorker::setFPS(float fps)
+{
+    m_sleepTime = 1000000 / fps;
+}
+
 float PlaybackWorker::getFPS() const
 {
     return m_fps;

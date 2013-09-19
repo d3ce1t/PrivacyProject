@@ -29,6 +29,7 @@ public:
     virtual ~PlaybackControl();
 
     // Playback Control
+    void setFPS(float fps);
     void play(bool restartAll = false);
     void stop();
     void enablePlayLoop(bool value);
@@ -69,6 +70,7 @@ private:
     // Playback Setting Options
     bool                                               m_playloop_enabled;
     bool                                               m_restartAfterStop;
+    float                                              m_fps;
 };
 
 } // End namespace

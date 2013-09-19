@@ -12,6 +12,7 @@ PlaybackControl::PlaybackControl()
     m_restartAfterStop = false;
     m_worker = nullptr;
     m_thread = nullptr;
+    m_fps = 25;
 }
 
 PlaybackControl::~PlaybackControl()
@@ -58,6 +59,7 @@ void PlaybackControl::play(bool restartAll)
         if (m_thread == nullptr) {
             m_thread = new QThread;
             m_worker = new PlaybackWorker(this);
+            m_worker->setFPS(m_fps);
             m_worker->moveToThread(m_thread);
             QObject::connect(m_thread, SIGNAL(started()), m_worker, SLOT(run()));
             QObject::connect(m_worker, SIGNAL(finished()), m_thread, SLOT(quit()));
@@ -276,9 +278,14 @@ void PlaybackControl::notifySuscribersOnStop()
     }
 }
 
+void PlaybackControl::setFPS(float fps)
+{
+    m_fps = fps;
+}
+
 float PlaybackControl::getFPS() const
 {
-    return m_worker->getFPS();
+    return m_worker ? m_worker->getFPS() : 0.0;
 }
 
 void PlaybackControl::addInstance(shared_ptr<BaseInstance> instance)

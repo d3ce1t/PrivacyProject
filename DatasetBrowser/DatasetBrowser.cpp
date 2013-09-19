@@ -19,6 +19,7 @@ DatasetBrowser::DatasetBrowser(QWidget *parent) :
     ui->setupUi(this);
 
     m_playback.enablePlayLoop(true);
+    m_playback.setFPS(10);
     m_dataset = nullptr;
     loadDataset( (Dataset::DatasetType) ui->comboDataset->currentIndex());
 

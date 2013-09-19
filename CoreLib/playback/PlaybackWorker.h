@@ -22,6 +22,7 @@ class PlaybackWorker : public QObject
 
 public:
     PlaybackWorker(PlaybackControl *parent);
+    void setFPS(float fps);
     float getFPS() const;
     void stop();
 
