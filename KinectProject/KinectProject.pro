@@ -31,17 +31,15 @@ SOURCES += \
     openni/OpenNIBaseInstance.cpp
 
 OTHER_FILES += \
-    glsl/textureVertex.vsh \
-    glsl/textureFragment.fsh \
-    glsl/simpleVertex.vsh \
-    glsl/simpleFragment.fsh \
-    glsl/userFragment.fsh \
-    glsl/userVertex.vsh \
-    glsl/dummyVertex.vsh \
-    glsl/dummyFragment.fsh \
-    glsl/depthVertex.vsh \
-    glsl/depthFragment.fsh \
-    qml/main.qml
+    qml/main.qml \
+    glsl/scene3d.fsh \
+    glsl/scene3d.vsh \
+    glsl/silhouette.fsh \
+    glsl/silhouette.vsh \
+    glsl/scene2d.fsh \
+    glsl/scene2d.vsh \
+    glsl/skeleton.fsh \
+    glsl/skeleton.vsh
 
 RESOURCES += openglunderqml.qrc
 
@@ -50,8 +48,8 @@ FORMS += \
 
 unix:!macx {
     # CoreLib
-    PRE_TARGETDEPS += /home/jose/qt-workspace/build-CoreLib-Desktop_Qt_5_1_1_GCC_64bit-Release/libCoreLib.a
-    LIBS += -L/home/jose/qt-workspace/build-CoreLib-Desktop_Qt_5_1_1_GCC_64bit-Release/ -lCoreLib
+    PRE_TARGETDEPS += /home/jose/qt-workspace/build-CoreLib-Desktop_Qt_5_1_1_GCC_64bit-Debug/libCoreLib.a
+    LIBS += -L/home/jose/qt-workspace/build-CoreLib-Desktop_Qt_5_1_1_GCC_64bit-Debug/ -lCoreLib
     INCLUDEPATH += $$PWD/../CoreLib
     DEPENDPATH += $$PWD/../CoreLib
 

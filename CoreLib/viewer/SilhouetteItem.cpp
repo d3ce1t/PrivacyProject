@@ -108,8 +108,8 @@ void SilhouetteItem::renderSecondPass()
 void SilhouetteItem::prepareShaderProgram()
 {
     m_shaderProgram = new QOpenGLShaderProgram();
-    m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/glsl/glsl/userVertex.vsh");
-    m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/glsl/glsl/userFragment.fsh");
+    m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/glsl/glsl/silhouette.vsh");
+    m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/glsl/glsl/silhouette.fsh");
     m_shaderProgram->bindAttributeLocation("posAttr", 0);
     m_shaderProgram->bindAttributeLocation("texCoord", 1);
 

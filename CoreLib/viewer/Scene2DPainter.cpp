@@ -273,8 +273,8 @@ void Scene2DPainter::createFrameBuffer()
 void Scene2DPainter::prepareShaderProgram()
 {
     m_shaderProgram = new QOpenGLShaderProgram();
-    m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/glsl/glsl/textureVertex.vsh");
-    m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/glsl/glsl/textureFragment.fsh");
+    m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/glsl/glsl/scene2d.vsh");
+    m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/glsl/glsl/scene2d.fsh");
     m_shaderProgram->bindAttributeLocation("posAttr", 0);
     m_shaderProgram->bindAttributeLocation("texCoord", 1);
 

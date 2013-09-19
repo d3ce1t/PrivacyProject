@@ -79,8 +79,8 @@ void SkeletonItem::render(int pass)
 void SkeletonItem::prepareShaderProgram()
 {
     m_shaderProgram = new QOpenGLShaderProgram();
-    m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/glsl/glsl/simpleVertex.vsh");
-    m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/glsl/glsl/simpleFragment.fsh");
+    m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/glsl/glsl/skeleton.vsh");
+    m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/glsl/glsl/skeleton.fsh");
     m_shaderProgram->bindAttributeLocation("posAttr", 0);
     m_shaderProgram->bindAttributeLocation("colAttr", 1);
 

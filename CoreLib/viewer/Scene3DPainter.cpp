@@ -68,8 +68,8 @@ void Scene3DPainter::render()
 void Scene3DPainter::prepareShaderProgram()
 {
     m_shaderProgram = new QOpenGLShaderProgram();
-    m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/glsl/glsl/depthVertex.vsh");
-    m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/glsl/glsl/depthFragment.fsh");
+    m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/glsl/glsl/scene3d.vsh");
+    m_shaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/glsl/glsl/scene3d.fsh");
     m_shaderProgram->bindAttributeLocation("posAttr", 0);
     m_shaderProgram->bindAttributeLocation("colAttr", 1);
     m_shaderProgram->bindAttributeLocation("distanceAttr", 2);

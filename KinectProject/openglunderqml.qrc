@@ -1,15 +1,13 @@
 <RCC>
     <qresource prefix="/glsl">
-        <file>glsl/textureVertex.vsh</file>
-        <file>glsl/textureFragment.fsh</file>
-        <file>glsl/simpleFragment.fsh</file>
-        <file>glsl/simpleVertex.vsh</file>
-        <file>glsl/userFragment.fsh</file>
-        <file>glsl/userVertex.vsh</file>
-        <file>glsl/dummyVertex.vsh</file>
-        <file>glsl/dummyFragment.fsh</file>
-        <file>glsl/depthVertex.vsh</file>
-        <file>glsl/depthFragment.fsh</file>
+        <file>glsl/scene2d.fsh</file>
+        <file>glsl/scene2d.vsh</file>
+        <file>glsl/scene3d.fsh</file>
+        <file>glsl/scene3d.vsh</file>
+        <file>glsl/silhouette.fsh</file>
+        <file>glsl/silhouette.vsh</file>
+        <file>glsl/skeleton.fsh</file>
+        <file>glsl/skeleton.vsh</file>
     </qresource>
     <qresource prefix="/icons">
         <file>kinect.png</file>
