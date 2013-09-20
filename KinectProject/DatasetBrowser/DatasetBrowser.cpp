@@ -111,6 +111,8 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
 
 void DatasetBrowser::loadDataset(Dataset::DatasetType type)
 {
+    ui->comboType->blockSignals(true);
+
     if (m_dataset != nullptr) {
         delete m_dataset;
         m_dataset = nullptr;
@@ -151,6 +153,15 @@ void DatasetBrowser::loadDataset(Dataset::DatasetType type)
         item->setCheckState(Qt::Checked); // AND initialize check state
     }
 
+    // Load Instance Tyepes
+    ui->comboType->clear();
+    const QMap<QString, InstanceType> availableInstances = info.availableInstanceTypes();
+    foreach (QString type, availableInstances.keys()) {
+        ui->comboType->addItem(type[0].toUpper() + type.mid(1), QVariant(availableInstances.value(type)));
+    }
+
+    ui->comboType->blockSignals(false);
+
     loadInstances();
 }
 
@@ -161,7 +172,7 @@ void DatasetBrowser::loadInstances()
     ui->listInstances->clear();
 
     // Prepare Filter
-    InstanceType showType = (InstanceType) ui->comboType->currentIndex();
+    InstanceType showType = (InstanceType) ui->comboType->itemData(ui->comboType->currentIndex()).toInt();
     QList<int> activities;
 
     for (int i=0; i<ui->listActivities->count(); ++i) {

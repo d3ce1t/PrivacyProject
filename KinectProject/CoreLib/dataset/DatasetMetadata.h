@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QHash>
+#include <QMap>
 #include <QList>
 #include "InstanceInfo.h"
 #include <memory>
@@ -34,6 +35,7 @@ public:
     const QString& getActorName(int key) const;
     const QString& getSampleName(int key) const;
     const Dataset& dataset() const;
+    const QMap<QString, InstanceType> availableInstanceTypes() const;
 
 private:
     void setDataset(Dataset* dataset);
@@ -42,16 +44,17 @@ private:
     explicit DatasetMetadata();
     void addInstanceInfo(InstanceInfo *instance);
 
-    QString m_name;
-    QString m_description;
-    QString m_path;
-    int m_numberOfActivities;
-    int m_numberOfActors;
-    int m_numberOfSampleTypes;
-    QHash<int, QString*> m_activities;
-    QHash<int, QString*> m_actors;
-    QHash<int, QString*> m_sampleTypes;
-    Dataset*             m_dataset;
+    QString                      m_name;
+    QString                      m_description;
+    QString                      m_path;
+    int                          m_numberOfActivities;
+    int                          m_numberOfActors;
+    int                          m_numberOfSampleTypes;
+    QHash<int, QString*>         m_activities;
+    QHash<int, QString*>         m_actors;
+    QHash<int, QString*>         m_sampleTypes;
+    Dataset*                     m_dataset;
+    QMap<QString, InstanceType>  m_availableInstanceTypes;
 
     /**
      * @brief m_instances

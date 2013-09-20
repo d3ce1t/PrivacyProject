@@ -296,6 +296,10 @@ shared_ptr<DatasetMetadata> DatasetMetadata::load(QString xmlPath)
                 else if (strType == "user")
                     type = INSTANCE_USER;
 
+                if (!result->m_availableInstanceTypes.contains(strType)) {
+                    result->m_availableInstanceTypes.insert(strType, type);
+                }
+
                 InstanceInfo* instanceInfo = new InstanceInfo(type, result);
                 instanceInfo->setActivity(activity);
                 instanceInfo->setActor(actor);
@@ -347,4 +351,9 @@ void DatasetMetadata::setDataset(Dataset* dataset)
 const Dataset &DatasetMetadata::dataset() const
 {
     return *m_dataset;
+}
+
+const QMap<QString, InstanceType> DatasetMetadata::availableInstanceTypes() const
+{
+    return m_availableInstanceTypes;
 }
