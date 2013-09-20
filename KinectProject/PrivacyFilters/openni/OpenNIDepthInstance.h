@@ -5,7 +5,6 @@
 #include "types/StreamInstance.h"
 #include "types/DepthFrame.h"
 #include "openni/OpenNIBaseInstance.h"
-#include <QFile>
 #include <QMutex>
 
 namespace dai {
@@ -18,7 +17,6 @@ public:
     OpenNIDepthInstance();
     virtual ~OpenNIDepthInstance();
     bool is_open() const override;
-    void setOutputFile(QString file);
     void onNewFrame(openni::VideoStream& stream);
 
 protected:
@@ -30,8 +28,6 @@ protected:
 private:
     OpenNIRuntime*          m_openni;
     shared_ptr<DepthFrame>  m_frameBuffer[2];
-    QFile                   m_of;
-    QString                 m_outputFile;
     openni::VideoFrameRef   m_oniDepthFrame;
     QMutex                  m_lockFrame;
 };

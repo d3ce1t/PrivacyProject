@@ -22,11 +22,6 @@ OpenNISkeletonInstance::~OpenNISkeletonInstance()
     m_openni = nullptr;
 }
 
-void OpenNISkeletonInstance::setOutputFile(QString file)
-{
-    m_outputFile = file;
-}
-
 bool OpenNISkeletonInstance::is_open() const
 {
     return m_openni != nullptr;
@@ -37,30 +32,6 @@ void OpenNISkeletonInstance::openInstance()
     if (!is_open())
     {
         m_openni = OpenNIRuntime::getInstance();
-
-        try {
-            if (!m_of.isOpen() && !m_outputFile.isEmpty())
-            {
-                m_of.setFileName(m_outputFile);
-                m_of.open(QIODevice::WriteOnly | QIODevice::Truncate);
-
-                if (!m_of.isOpen()) {
-                    cerr << "Error opening file" << endl;
-                    throw 8;
-                }
-
-                int numFrames = 0;
-
-                m_ts.setDevice(&m_of);
-                m_of.seek(0);
-                m_of.write( (char*) &numFrames, sizeof(numFrames) );
-            }
-        }
-        catch (int ex)
-        {
-            printf("OpenNI init error:\n%s\n", openni::OpenNI::getExtendedError());
-            throw ex;
-        }
     }
 }
 
@@ -70,19 +41,6 @@ void OpenNISkeletonInstance::closeInstance()
     {
         m_openni->releaseInstance();
         m_openni = nullptr;
-
-        try {
-            unsigned int frameIndex = getFrameIndex();
-            if (m_of.isOpen()) {
-                m_of.seek(0);
-                m_of.write( (char*) &frameIndex, sizeof(frameIndex) );
-                m_of.close();
-            }
-        }
-        catch (std::exception& ex)
-        {
-            printf("Error\n");
-        }
     }
 }
 
@@ -95,10 +53,6 @@ void OpenNISkeletonInstance::nextFrame(SkeletonFrame &frame)
 {
     // Read Data from OpenNI
     frame = m_openni->readSkeletonFrame(); // copy (block until there are a new frame)
-
-    if (m_of.isOpen()) {
-        frame.write(m_of);
-    }
 }
 
 } // End Namespace

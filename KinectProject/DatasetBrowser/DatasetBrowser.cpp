@@ -2,7 +2,6 @@
 #include "ui_DatasetBrowser.h"
 #include "dataset/MSRDaily/MSRDailyActivity3D.h"
 #include "dataset/MSRAction3D/MSR3Action3D.h"
-#include "dataset/DAI/DAIDataset.h"
 #include "playback/PlaybackControl.h"
 #include "viewer/InstanceViewerWindow.h"
 #include "InstanceWidgetItem.h"
@@ -122,8 +121,6 @@ void DatasetBrowser::loadDataset(Dataset::DatasetType type)
         m_dataset = new MSRDailyActivity3D();
     } else if (type == Dataset::Dataset_MSRAction3D) {
         m_dataset = new MSR3Action3D();
-    } else if (type == Dataset::Dataset_DAI) {
-        m_dataset = new DAIDataset();
     }
 
     // Load widgets with DataSet Info

@@ -36,11 +36,6 @@ SOURCES += \
     dataset/InstanceInfo.cpp \
     dataset/DatasetMetadata.cpp \
     dataset/Dataset.cpp \
-    dataset/DAI/DAIUserInstance.cpp \
-    dataset/DAI/DAISkeletonInstance.cpp \
-    dataset/DAI/DAIDepthInstance.cpp \
-    dataset/DAI/DAIDataset.cpp \
-    dataset/DAI/DAIColorInstance.cpp \
     dataset/MSRAction3D/MSRActionSkeletonInstance.cpp \
     dataset/MSRAction3D/MSRActionDepthInstance.cpp \
     dataset/MSRAction3D/MSR3Action3D.cpp \
@@ -89,11 +84,6 @@ HEADERS += \
     dataset/DatasetMetadata.h \
     dataset/Dataset.h \
     dataset/DataInstance.h \
-    dataset/DAI/DAIUserInstance.h \
-    dataset/DAI/DAISkeletonInstance.h \
-    dataset/DAI/DAIDepthInstance.h \
-    dataset/DAI/DAIDataset.h \
-    dataset/DAI/DAIColorInstance.h \
     dataset/MSRAction3D/MSRActionSkeletonInstance.h \
     dataset/MSRAction3D/MSRActionDepthInstance.h \
     dataset/MSRAction3D/MSR3Action3D.h \

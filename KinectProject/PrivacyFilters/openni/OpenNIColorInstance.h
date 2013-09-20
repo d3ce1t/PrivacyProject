@@ -5,7 +5,6 @@
 #include "types/StreamInstance.h"
 #include "types/ColorFrame.h"
 #include "openni/OpenNIBaseInstance.h"
-#include <QFile>
 #include <QMutex>
 
 namespace dai {
@@ -18,7 +17,6 @@ public:
     OpenNIColorInstance();
     virtual ~OpenNIColorInstance();
     bool is_open() const override;
-    void setOutputFile(QString file);
     void onNewFrame(openni::VideoStream& stream);
 
 protected:
@@ -30,8 +28,6 @@ protected:
 private:
     OpenNIRuntime*         m_openni;
     shared_ptr<ColorFrame> m_frameBuffer[2];
-    QFile                  m_of;
-    QString                m_outputFile;
     openni::VideoFrameRef  m_oniColorFrame;
     QMutex                 m_lockFrame;
 };

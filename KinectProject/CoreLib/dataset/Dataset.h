@@ -21,8 +21,7 @@ public:
 
     enum DatasetType {
         Dataset_MSRDailyActivity3D = 0,
-        Dataset_MSRAction3D,
-        Dataset_DAI
+        Dataset_MSRAction3D
     };
 
     explicit Dataset(QString path);

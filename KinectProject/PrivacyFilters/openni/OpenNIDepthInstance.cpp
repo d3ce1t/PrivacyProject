@@ -22,11 +22,6 @@ OpenNIDepthInstance::~OpenNIDepthInstance()
     m_openni = nullptr;
 }
 
-void OpenNIDepthInstance::setOutputFile(QString file)
-{
-    m_outputFile = file;
-}
-
 bool OpenNIDepthInstance::is_open() const
 {
     return m_openni != nullptr;
@@ -38,33 +33,6 @@ void OpenNIDepthInstance::openInstance()
     {
         m_openni = OpenNIRuntime::getInstance();
         m_openni->addNewDepthListener(this);
-
-        try {
-            if (!m_of.isOpen() && !m_outputFile.isEmpty())
-            {
-                m_of.setFileName(m_outputFile);
-                m_of.open(QIODevice::WriteOnly | QIODevice::Truncate);
-
-                if (!m_of.isOpen()) {
-                    cerr << "Error opening file" << endl;
-                    throw 8;
-                }
-
-                int width = 640;
-                int height = 480;
-                int numFrames = 0;
-
-                m_of.seek(0);
-                m_of.write( (char*) &numFrames, sizeof(numFrames) );
-                m_of.write( (char*) &width, sizeof(width) );
-                m_of.write( (char*) &height, sizeof(height) );
-            }
-        }
-        catch (int ex)
-        {
-            printf("OpenNI init error:\n%s\n", openni::OpenNI::getExtendedError());
-            throw ex;
-        }
     }
 }
 
@@ -75,19 +43,6 @@ void OpenNIDepthInstance::closeInstance()
         m_openni->removeDepthListener(this);
         m_openni->releaseInstance();
         m_openni = nullptr;
-
-        try {
-            unsigned int frameIndex = getFrameIndex();
-            if (m_of.isOpen()) {
-                m_of.seek(0);
-                m_of.write( (char*) &frameIndex, sizeof(frameIndex) );
-                m_of.close();
-            }
-        }
-        catch (std::exception& ex)
-        {
-            printf("Error\n");
-        }
     }
 }
 
@@ -117,10 +72,6 @@ void OpenNIDepthInstance::nextFrame(DepthFrame &frame)
 
     // Stats
     computeStats(frame.getIndex());
-
-    if (m_of.isOpen()) {
-        frame.write(m_of);
-    }
 }
 
 void OpenNIDepthInstance::onNewFrame(openni::VideoStream& stream)

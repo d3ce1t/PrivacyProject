@@ -55,11 +55,6 @@
           <string>MSRAction3D</string>
          </property>
         </item>
-        <item>
-         <property name="text">
-          <string>DAI</string>
-         </property>
-        </item>
        </widget>
       </item>
      </layout>
