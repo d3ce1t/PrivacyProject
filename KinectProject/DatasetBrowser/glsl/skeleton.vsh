@@ -3,8 +3,8 @@ attribute highp vec4 posAttr;
 attribute highp vec4 colAttr;
 uniform highp float pointSize;
 uniform highp bool  mode3d = true;
-uniform highp float width;
-uniform highp float height;
+uniform highp float width = 320;
+uniform highp float height = 240;
 uniform highp mat4 perspectiveMatrix;
 varying highp vec4 theColor;
 
@@ -19,6 +19,8 @@ vec2 convertRealWorldToDepth(vec3 coordinates)
 void main()
 {
     vec3 position = mode3d ? posAttr.xyz : vec3(convertRealWorldToDepth(posAttr.xyz), 0);
+    position.x = position.x / 2;
+    position.y = position.y / 2;
     theColor = colAttr;
     gl_Position = perspectiveMatrix * vec4(position, 1.0);
     gl_PointSize = pointSize;

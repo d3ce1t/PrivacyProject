@@ -52,7 +52,7 @@ void Scene2DPainter::render()
     glEnable(GL_BLEND);
 
     // Configure ViewPort and Clear Screen
-    glViewport(0, 0, m_width, m_height);
+    glViewport(0, 0, m_window_width, m_window_height);
 
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClearDepth(1.0f);
@@ -262,7 +262,7 @@ void Scene2DPainter::displayRenderedTexture()
     m_shaderProgram->setUniformValue(m_stageUniform, 3);
 
     // Configure Viewport
-    glViewport(0, 0, m_width, m_height);
+    glViewport(0, 0, m_window_width, m_window_height);
     m_vao.bind();
 
     // Enabe FG
@@ -332,9 +332,9 @@ void Scene2DPainter::prepareShaderProgram()
 void Scene2DPainter::prepareVertexBuffer()
 {
     float vertexData[] = {
-        0.0, (float) m_height,
-        (float) m_width, (float) m_height,
-        (float) m_width, 0,
+        0.0, (float) m_window_height,
+        (float) m_window_width, (float) m_window_height,
+        (float) m_window_width, 0,
         0.0, 0.0
     };
 
@@ -380,7 +380,7 @@ QMLEnumsWrapper::ColorFilter Scene2DPainter::currentFilter() const
 void Scene2DPainter::resetPerspective()
 {
     m_matrix.setToIdentity();
-    m_matrix.ortho(0, m_width, m_height, 0, -1.0, 1.0);
+    m_matrix.ortho(0, m_window_width, m_window_height, 0, -1.0, 1.0);
 }
 
 } // End Namespace

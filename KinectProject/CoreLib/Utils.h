@@ -61,7 +61,7 @@ T min_element(const T* a, T min_threshold, int n)
 }
 
 template <class T>
-T avg(const T* a, int n)
+float avg(const T* a, int n)
 {
     T sum = 0;
 
@@ -72,7 +72,7 @@ T avg(const T* a, int n)
 }
 
 template <class T>
-T avg(const QList<T>& a)
+float avg(const QList<T>& a)
 {
     T sum = 0;
     int n = a.size();
@@ -86,9 +86,9 @@ T avg(const QList<T>& a)
 }
 
 template <class T>
-T normalise(T value, T minValue, T maxValue, T newMin, T newMax)
+float normalise(T value, T minValue, T maxValue, float newMin, float newMax)
 {
-    return ( (value - minValue) * (newMax - newMin) ) / (maxValue - minValue) + newMin;
+    return (float) ( (value - minValue) * (newMax - newMin) ) / (float) (maxValue - minValue) + newMin;
 }
 
 } // End Namespace

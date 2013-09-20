@@ -1,8 +1,8 @@
 #version 130
 attribute highp float indexAttr;
 attribute highp float distanceAttr;
-uniform highp float width;
-uniform highp float height;
+uniform highp float width = 320;
+uniform highp float height = 240;
 uniform highp mat4 perspectiveMatrix;
 varying highp float v_distance;
 

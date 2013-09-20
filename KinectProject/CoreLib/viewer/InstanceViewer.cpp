@@ -136,7 +136,7 @@ void InstanceViewer::renderOpenGLScene()
     // Draw
     if (m_running)
     {
-        m_scene->setSize(width(), height());
+        m_scene->setWindowSize(width(), height());
         m_scene->renderScene();
         emit frameRendered();
     }

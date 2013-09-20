@@ -47,20 +47,20 @@ void ScenePainter::setBackground(shared_ptr<DataFrame> background)
     m_needLoading.store(1);
 }
 
-void ScenePainter::setSize(int width, int height)
+void ScenePainter::setWindowSize(int width, int height)
 {
-    m_width = width;
-    m_height = height;
+    m_window_width = width;
+    m_window_height = height;
 }
 
-int ScenePainter::width() const
+int ScenePainter::windowWidth() const
 {
-    return m_width;
+    return m_window_width;
 }
 
-int ScenePainter::height() const
+int ScenePainter::windowHeight() const
 {
-    return m_height;
+    return m_window_height;
 }
 
 void ScenePainter::setMatrix(const QMatrix4x4 &matrix)

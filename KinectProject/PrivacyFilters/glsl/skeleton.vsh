@@ -3,8 +3,8 @@ attribute highp vec4 posAttr;
 attribute highp vec4 colAttr;
 uniform highp float pointSize;
 uniform highp bool  mode3d = true;
-uniform highp float width;
-uniform highp float height;
+uniform highp float width = 640;
+uniform highp float height = 480;
 uniform highp mat4 perspectiveMatrix;
 varying highp vec4 theColor;
 

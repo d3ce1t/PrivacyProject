@@ -101,8 +101,8 @@ void SkeletonItem::prepareShaderProgram()
     m_shaderProgram->bind();
     m_shaderProgram->setUniformValue(m_perspectiveMatrix, scene()->getMatrix() );
     m_shaderProgram->setUniformValue(m_pointSizeUniform, 2.0f);
-    m_shaderProgram->setUniformValue(m_widthUniform, (float) scene()->width());
-    m_shaderProgram->setUniformValue(m_heightUniform, (float) scene()->height());
+    //m_shaderProgram->setUniformValue(m_widthUniform, 320.0f); //scene()->windowWidth());
+    //m_shaderProgram->setUniformValue(m_heightUniform, 240.0f); //(float) scene()->windowHeight());
     m_shaderProgram->setUniformValue(m_mode3dUniform, m_mode3d);
     m_shaderProgram->release();
 }

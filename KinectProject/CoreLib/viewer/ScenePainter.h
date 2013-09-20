@@ -16,8 +16,8 @@ namespace dai {
 class ScenePainter : public QOpenGLFunctions
 {
 public:
-    static void loadVideoTexture(GLuint glTextureId, GLsizei width, GLsizei height, void *texture);
-    static void loadMaskTexture(GLuint glTextureId, GLsizei width, GLsizei height, void *texture);
+    static void loadVideoTexture(GLuint glTextureId, GLsizei windowWidth, GLsizei windowHeight, void *texture);
+    static void loadMaskTexture(GLuint glTextureId, GLsizei windowWidth, GLsizei windowHeight, void *texture);
 
     ScenePainter();
     virtual ~ScenePainter();
@@ -29,17 +29,17 @@ public:
     void setMatrix(const QMatrix4x4& matrix);
     QMatrix4x4& getMatrix();
     virtual void resetPerspective();
-    void setSize(int width, int height);
-    int width() const;
-    int height() const;
+    void setWindowSize(int windowWidth, int windowHeight);
+    int windowWidth() const;
+    int windowHeight() const;
 
 protected:
     void renderItems();
     virtual void initialise() = 0;
     virtual void render() = 0;
 
-    int                              m_width;
-    int                              m_height;
+    int                              m_window_width;
+    int                              m_window_height;
     shared_ptr<DataFrame>            m_bg;
     atomic<int>                      m_needLoading;
     QMatrix4x4                       m_matrix;

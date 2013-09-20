@@ -1,5 +1,6 @@
 #include "MSRDailyDepthInstance.h"
 #include "types/DepthFrame.h"
+#include "Utils.h"
 #include <cstddef>
 #include <math.h>
 #include <QDebug>
@@ -78,7 +79,7 @@ void MSRDailyDepthInstance::nextFrame(DepthFrame &frame)
         {
             // Kinect SDK provide depth values between 0 and 4000 in mm.
             float value = m_readBuffer[y].depthRow[x] / 1000.0f; // I want meters
-            //float value = DataInstance::normalise(m_readBuffer[y].depthRow[x], 0, 4000, 0, 1);
+            //value = normalise<int32_t>(m_readBuffer[y].depthRow[x], 0, 4000, 0, 1);
             frame.setItem(y, x, value);
         }
     }

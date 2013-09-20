@@ -29,7 +29,7 @@ void Scene3DPainter::render()
     glEnable(GL_BLEND);
 
     // Configure ViewPort and Clear Screen
-    glViewport(0, 0, m_width, m_height);
+    glViewport(0, 0, m_window_width, m_window_height);
 
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClearDepth(1.0f);
