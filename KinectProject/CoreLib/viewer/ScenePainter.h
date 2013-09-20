@@ -30,6 +30,8 @@ public:
     QMatrix4x4& getMatrix();
     virtual void resetPerspective();
     void setSize(int width, int height);
+    int width() const;
+    int height() const;
 
 protected:
     void renderItems();

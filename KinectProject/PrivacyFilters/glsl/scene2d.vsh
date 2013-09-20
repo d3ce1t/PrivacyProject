@@ -8,17 +8,9 @@ varying vec2 v_texCoord;
 
 void main()
 {
-    vec4 position = posAttr;
+    vec4 position = perspectiveMatrix * posAttr;
 
-    if (stage == 1) {
-        //position = posAttr;
-    }
-    else if (stage == 2) {
-        //position = posAttr;
-    }
-    else {
-        position.z -= 2.5;
-        position = perspectiveMatrix * position;
+    if (stage == 3) {
         position.y = -position.y;
     }
 

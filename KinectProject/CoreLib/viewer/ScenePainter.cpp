@@ -53,6 +53,16 @@ void ScenePainter::setSize(int width, int height)
     m_height = height;
 }
 
+int ScenePainter::width() const
+{
+    return m_width;
+}
+
+int ScenePainter::height() const
+{
+    return m_height;
+}
+
 void ScenePainter::setMatrix(const QMatrix4x4 &matrix)
 {
     m_matrix = matrix;

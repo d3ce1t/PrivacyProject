@@ -1,6 +1,7 @@
 #include "Scene2DPainter.h"
 #include "types/ColorFrame.h"
 #include "viewer/SilhouetteItem.h"
+#include "viewer/SkeletonItem.h"
 #include <QDebug>
 
 namespace dai {
@@ -76,7 +77,6 @@ void Scene2DPainter::render()
     displayRenderedTexture(); // here framebuffer (display) and second-pass rendering
 
     m_shaderProgram->release();
-    glDisable(GL_TEXTURE_2D);
 
     // Restore
     glDisable(GL_BLEND);
@@ -92,12 +92,11 @@ void Scene2DPainter::enableBGRendering()
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClearDepth(1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    m_shaderProgram->setUniformValue(m_stageUniform, 1);
 }
 
 void Scene2DPainter::extractBackground()
 {
+    m_shaderProgram->setUniformValue(m_stageUniform, 1);
     m_vao.bind();
 
     if (m_needLoading.load())
@@ -184,8 +183,11 @@ void Scene2DPainter::renderItems()
         bg = m_fgTextureId;
     }
 
-    shared_ptr<SceneItem> skeletonItem = this->getFirstItem(ITEM_SKELETON);
-    if (skeletonItem) skeletonItem->setVisible( m_currentFilter == QMLEnumsWrapper::FILTER_SKELETON ? true : false );
+    shared_ptr<SkeletonItem> skeletonItem = static_pointer_cast<SkeletonItem>( this->getFirstItem(ITEM_SKELETON) );
+    if (skeletonItem) {
+        skeletonItem->setVisible( m_currentFilter == QMLEnumsWrapper::FILTER_SKELETON ? true : false );
+        skeletonItem->setMode3D(false);
+    }
 
     shared_ptr<SilhouetteItem> silhouetteItem = static_pointer_cast<SilhouetteItem>( this->getFirstItem(ITEM_SILHOUETTE) );
 
@@ -330,10 +332,10 @@ void Scene2DPainter::prepareShaderProgram()
 void Scene2DPainter::prepareVertexBuffer()
 {
     float vertexData[] = {
-        -1.0, -1.0, 0.0,
-        1.0, -1.0, 0.0,
-        1.0, 1.0, 0.0,
-        -1.0, 1.0, 0.0
+        0.0, (float) m_height,
+        (float) m_width, (float) m_height,
+        (float) m_width, 0,
+        0.0, 0.0
     };
 
     float texCoordsData[] = {
@@ -349,9 +351,9 @@ void Scene2DPainter::prepareVertexBuffer()
     m_positionsBuffer.create(); // Create a vertex buffer
     m_positionsBuffer.setUsagePattern(QOpenGLBuffer::StreamDraw);
     m_positionsBuffer.bind();
-    m_positionsBuffer.allocate(vertexData, 4*3*sizeof(float));
+    m_positionsBuffer.allocate(vertexData, 4*2*sizeof(float));
     m_shaderProgram->enableAttributeArray(m_posAttr);
-    m_shaderProgram->setAttributeBuffer(m_posAttr, GL_FLOAT, 0, 3 );
+    m_shaderProgram->setAttributeBuffer(m_posAttr, GL_FLOAT, 0, 2 );
     m_positionsBuffer.release();
 
     m_texCoordBuffer.create();
@@ -373,6 +375,12 @@ void Scene2DPainter::enableFilter(QMLEnumsWrapper::ColorFilter type)
 QMLEnumsWrapper::ColorFilter Scene2DPainter::currentFilter() const
 {
     return m_currentFilter;
+}
+
+void Scene2DPainter::resetPerspective()
+{
+    m_matrix.setToIdentity();
+    m_matrix.ortho(0, m_width, m_height, 0, -1.0, 1.0);
 }
 
 } // End Namespace

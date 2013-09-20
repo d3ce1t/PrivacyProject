@@ -19,6 +19,7 @@ public:
     void setMask(shared_ptr<UserFrame> mask);
     void enableFilter(QMLEnumsWrapper::ColorFilter type);
     QMLEnumsWrapper::ColorFilter currentFilter() const;
+    void resetPerspective() override;
 
 protected:
     void renderItems();

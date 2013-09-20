@@ -114,10 +114,10 @@ void OpenNIRuntime::initOpenNI()
         if (openni::OpenNI::initialize() != openni::STATUS_OK)
             throw 1;
 
-        if (nite::NiTE::initialize() != nite::STATUS_OK)
+        if (m_device.open(deviceURI) != openni::STATUS_OK)
             throw 2;
 
-        if (m_device.open(deviceURI) != openni::STATUS_OK)
+        if (nite::NiTE::initialize() != nite::STATUS_OK)
             throw 3;
 
         // Enable Depth to Color image registration
@@ -273,8 +273,12 @@ void OpenNIRuntime::loadSkeleton(nite::UserTracker& oniUserTracker, nite::UserTr
                     const nite::SkeletonJoint& niteJoint = oniSkeleton.getJoint((nite::JointType) j);
                     nite::Point3f nitePos = niteJoint.getPosition();
 
-                    // Copy nite joint pos to my own Joint
+                    // Copy nite joint pos to my own Joint converting from nite milimeters to meters
                     SkeletonJoint joint(Point3f(nitePos.x / 1000, nitePos.y / 1000, nitePos.z / 1000), staticMap[j]);
+
+                    //float coordinates[2] = {0};
+                    //oniUserTracker.convertJointCoordinatesToDepth(niteJoint.getPosition().x, niteJoint.getPosition().y, niteJoint.getPosition().z, &coordinates[0], &coordinates[1]);
+                    //joint.setScreenCoordinates(Point3f(coordinates[0], coordinates[1], 0.0));
                     daiSkeleton->setJoint(staticMap[j], joint);
                 }
 
@@ -287,9 +291,14 @@ void OpenNIRuntime::loadSkeleton(nite::UserTracker& oniUserTracker, nite::UserTr
     } // End for
 }
 
-void OpenNIRuntime::convertDepthToRealWorld(int x, int y, float distance, float &outX, float &outY)
+void OpenNIRuntime::convertDepthToRealWorld(int x, int y, float distance, float &outX, float &outY) const
 {
     m_oniUserTracker.convertDepthCoordinatesToJoint(x, y, distance * 1000, &outX, &outY);
+}
+
+void OpenNIRuntime::convertRealWorldCoordinatesToDepth(float x, float y, float z, float* pOutX, float* pOutY) const
+{
+    m_oniUserTracker.convertJointCoordinatesToDepth(x, y, z * 1000, pOutX, pOutY);
 }
 
 void OpenNIRuntime::notifyNewUserFrame()

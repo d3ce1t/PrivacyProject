@@ -49,12 +49,15 @@ public:
     SkeletonJoint(const SkeletonJoint& other);
     void setType(JointType type);
     void setPosition(const Point3f point);
+    //void setScreenCoordinates(const Point3f point);
     const Point3f& getPosition() const;
+    //const Point3f& getScreenPosition() const;
     SkeletonJoint& operator=(const SkeletonJoint& other);
     JointType getType() const;
 
 private:
     Point3f     m_realworld_point;    // Real World Point in meters
+    //Point3f     m_screenCoordinates;
     JointType   m_type;               // Joint Type
 };
 
