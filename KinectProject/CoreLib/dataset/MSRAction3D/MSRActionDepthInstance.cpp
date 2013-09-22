@@ -1,6 +1,7 @@
 #include "MSRActionDepthInstance.h"
 #include "types/DepthFrame.h"
 #include "Utils.h"
+#include "dataset/DatasetMetadata.h"
 
 namespace dai {
 
@@ -28,7 +29,8 @@ bool MSRActionDepthInstance::is_open() const
 
 void MSRActionDepthInstance::openInstance()
 {
-    QString instancePath = m_info.getDatasetPath() + "/" + m_info.getFileName();
+    QString datasetPath = m_info.parent().getPath();
+    QString instancePath = datasetPath + "/" + m_info.getFileName();
 
     if (!m_file.is_open())
     {

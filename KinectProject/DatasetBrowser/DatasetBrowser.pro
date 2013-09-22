@@ -15,10 +15,12 @@ QMAKE_CXXFLAGS += -std=c++11
 QMAKE_LFLAGS = -std=c++11
 
 HEADERS  += \
-    DatasetBrowser.h
+    DatasetBrowser.h \
+    SettingsDialog.h
 
 SOURCES += main.cpp\
-    DatasetBrowser.cpp
+    DatasetBrowser.cpp \
+    SettingsDialog.cpp
 
 OTHER_FILES += \
     qml/main.qml \
@@ -29,13 +31,16 @@ OTHER_FILES += \
     glsl/skeleton.fsh \
     glsl/skeleton.vsh \
     glsl/silhouette.fsh \
-    glsl/silhouette.vsh
+    glsl/silhouette.vsh \
+    data/MSRDailyActivity3D.xml \
+    data/MSRAction3D.xml
 
 RESOURCES += \
     openglunderqml.qrc
 
 FORMS    += \
-    DatasetBrowser.ui
+    DatasetBrowser.ui \
+    SettingsDialog.ui
 
 unix:!macx {
     # CoreLib

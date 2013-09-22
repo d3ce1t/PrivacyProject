@@ -5,7 +5,7 @@
 namespace dai {
 
 MSRDailyActivity3D::MSRDailyActivity3D()
-    : Dataset("/home/jose/Dropbox/DataSet_Descriptor/MSRDailyActivity3D.xml")
+    : Dataset(":/data/MSRDailyActivity3D.xml")
 {
 }
 

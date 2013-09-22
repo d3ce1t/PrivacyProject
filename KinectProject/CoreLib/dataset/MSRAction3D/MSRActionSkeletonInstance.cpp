@@ -1,6 +1,7 @@
 #include "MSRActionSkeletonInstance.h"
 #include <QDebug>
 #include <iostream>
+#include "dataset/DatasetMetadata.h"
 
 using namespace std;
 
@@ -50,7 +51,8 @@ bool MSRActionSkeletonInstance::is_open() const
 
 void MSRActionSkeletonInstance::openInstance()
 {
-    QString instancePath = m_info.getDatasetPath() + "/" + m_info.getFileName();
+    QString datasetPath = m_info.parent().getPath();
+    QString instancePath = datasetPath + "/" + m_info.getFileName();
 
     if (!m_file.is_open())
     {
@@ -65,7 +67,7 @@ void MSRActionSkeletonInstance::openInstance()
 
         // Read Number of Frames from Depth File
         QString fileName = m_info.getFileName().replace("skeleton3D.txt", "sdepth.bin");
-        QString depthPath = m_info.getDatasetPath() + "/" + fileName;
+        QString depthPath = datasetPath + "/" + fileName;
         ifstream depthFile;
         depthFile.open(depthPath.toStdString().c_str(), ios::in|ios::binary);
 

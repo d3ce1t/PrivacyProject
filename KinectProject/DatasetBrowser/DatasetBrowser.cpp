@@ -8,21 +8,29 @@
 #include <QGuiApplication>
 #include <QDebug>
 #include <QtWidgets/QDesktopWidget>
+#include <QTimer>
 
 using namespace dai;
 
 DatasetBrowser::DatasetBrowser(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::DatasetBrowser)
+    QMainWindow(parent), ui(new Ui::DatasetBrowser), m_settings(this)
 {
     ui->setupUi(this);
 
     m_playback.enablePlayLoop(true);
     m_playback.setFPS(10);
     m_dataset = nullptr;
-    loadDataset( (Dataset::DatasetType) ui->comboDataset->currentIndex());
+
+    if (m_settings.getMSRAction3D().isEmpty() || m_settings.getMSRDailyActivity3D().isEmpty()) {
+        QTimer::singleShot(1, &m_settings, SLOT(show()));
+        connect(&m_settings, SIGNAL(accepted()), this, SLOT(loadDataset()));
+    }
+    else {
+        loadDataset();
+    }
 
     // Connect Signals
+    connect(ui->actionSettings, SIGNAL(triggered()), this, SLOT(openSettings()));
     connect(ui->listActivities, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(listItemChange(QListWidgetItem*)));
     connect(ui->listActors, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(listItemChange(QListWidgetItem*)));
     connect(ui->listSamples, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(listItemChange(QListWidgetItem*)));
@@ -71,6 +79,11 @@ DatasetBrowser::~DatasetBrowser()
     delete ui;
 }
 
+void DatasetBrowser::openSettings()
+{
+    m_settings.show();
+}
+
 void DatasetBrowser::listItemChange(QListWidgetItem * item)
 {
     Q_UNUSED(item);
@@ -108,8 +121,9 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
     }
 }
 
-void DatasetBrowser::loadDataset(Dataset::DatasetType type)
+void DatasetBrowser::loadDataset()
 {
+    Dataset::DatasetType type = (Dataset::DatasetType) ui->comboDataset->currentIndex();
     ui->comboType->blockSignals(true);
 
     if (m_dataset != nullptr) {
@@ -119,8 +133,10 @@ void DatasetBrowser::loadDataset(Dataset::DatasetType type)
 
     if (type == Dataset::Dataset_MSRDailyActivity3D) {
         m_dataset = new MSRDailyActivity3D();
+        m_dataset->setPath(m_settings.getMSRDailyActivity3D());
     } else if (type == Dataset::Dataset_MSRAction3D) {
         m_dataset = new MSR3Action3D();
+        m_dataset->setPath(m_settings.getMSRAction3D());
     }
 
     // Load widgets with DataSet Info
@@ -256,5 +272,6 @@ void DatasetBrowser::on_btnUnselectAllSamples_clicked()
 
 void DatasetBrowser::on_comboDataset_activated(int index)
 {
-    loadDataset((Dataset::DatasetType) index);
+    Q_UNUSED(index)
+    loadDataset();
 }

@@ -26,7 +26,6 @@ InstanceInfo::InstanceInfo(const InstanceInfo& other)
     m_actor = other.m_actor;
     m_sample = other.m_sample;
     m_file = other.m_file;
-    m_path = other.m_path;
     m_parent = other.m_parent;
 }
 
@@ -37,7 +36,6 @@ InstanceInfo& InstanceInfo::operator=(const InstanceInfo& other)
     m_actor = other.m_actor;
     m_sample = other.m_sample;
     m_file = other.m_file;
-    m_path = other.m_path;
     m_parent = other.m_parent;
     return *this;
 }
@@ -65,11 +63,6 @@ int InstanceInfo::getSample() const
 QString InstanceInfo::getFileName() const
 {
     return m_file;
-}
-
-QString InstanceInfo::getDatasetPath() const
-{
-    return m_path;
 }
 
 const DatasetMetadata &InstanceInfo::parent() const
@@ -100,9 +93,4 @@ void InstanceInfo::setSample(int sample)
 void InstanceInfo::setFileName(QString file)
 {
     m_file = file;
-}
-
-void InstanceInfo::setDatasetPath(QString path)
-{
-    m_path = path;
 }

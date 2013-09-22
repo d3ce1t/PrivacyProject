@@ -5,7 +5,7 @@
 namespace dai {
 
 MSR3Action3D::MSR3Action3D()
-    : Dataset("/home/jose/Dropbox/DataSet_Descriptor/MSRAction3D.xml")
+    : Dataset(":/data/MSRAction3D.xml")
 {
 }
 

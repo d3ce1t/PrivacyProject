@@ -24,7 +24,9 @@ public:
         Dataset_MSRAction3D
     };
 
-    explicit Dataset(QString path);
+    explicit Dataset(const QString& xmlDescriptor);
+    void open(const QString& xmlDescriptor);
+    void setPath(const QString& path);
 
 #if (!defined _MSC_VER)
     virtual ~Dataset() = default;

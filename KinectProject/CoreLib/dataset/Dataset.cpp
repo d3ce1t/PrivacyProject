@@ -2,10 +2,20 @@
 
 namespace dai {
 
-Dataset::Dataset(QString path)
+Dataset::Dataset(const QString& xmlDescriptor)
 {
-    m_metadata = DatasetMetadata::load(path);
+    open(xmlDescriptor);
+}
+
+void Dataset::open(const QString& xmlDescriptor)
+{
+    m_metadata = DatasetMetadata::load(xmlDescriptor);
     m_metadata->setDataset(this);
+}
+
+void Dataset::setPath(const QString& path)
+{
+    m_metadata->m_path = path;
 }
 
 const DatasetMetadata& Dataset::getMetadata() const

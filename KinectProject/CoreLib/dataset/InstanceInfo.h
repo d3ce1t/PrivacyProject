@@ -20,14 +20,12 @@ public:
     int getActor() const;
     int getSample() const;
     QString getFileName() const;
-    QString getDatasetPath() const;
     const DatasetMetadata& parent() const;
     void setType(InstanceType type);
     void setActivity(int activity);
     void setActor(int actor);
     void setSample(int sample);
     void setFileName(QString file);
-    void setDatasetPath(QString path);
 
     InstanceInfo& operator=(const InstanceInfo& other);
 
@@ -37,7 +35,6 @@ private:
     int m_actor;
     int m_sample;
     QString m_file;
-    QString m_path;
     shared_ptr<DatasetMetadata> m_parent;
 };
 

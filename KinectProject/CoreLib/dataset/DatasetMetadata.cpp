@@ -213,7 +213,6 @@ shared_ptr<DatasetMetadata> DatasetMetadata::load(QString xmlPath)
     bool insideActors = false;
     bool insideInstances = false;
 
-
     while (!reader.atEnd())
     {
         QXmlStreamReader::TokenType type = reader.readNext();
@@ -305,7 +304,6 @@ shared_ptr<DatasetMetadata> DatasetMetadata::load(QString xmlPath)
                 instanceInfo->setActor(actor);
                 instanceInfo->setSample(sample);
                 instanceInfo->setFileName(file);
-                instanceInfo->setDatasetPath(result->m_path);
 
                 // Insert
                 result->addInstanceInfo(instanceInfo);

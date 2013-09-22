@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <math.h>
 #include <QDebug>
+#include "dataset/DatasetMetadata.h"
 
 using namespace std;
 
@@ -33,7 +34,7 @@ bool MSRDailyDepthInstance::is_open() const
 
 void MSRDailyDepthInstance::openInstance()
 {
-    QString instancePath = m_info.getDatasetPath() + "/" + m_info.getFileName();
+    QString instancePath = m_info.parent().getPath() + "/" + m_info.getFileName();
 
     if (!m_file.is_open())
     {

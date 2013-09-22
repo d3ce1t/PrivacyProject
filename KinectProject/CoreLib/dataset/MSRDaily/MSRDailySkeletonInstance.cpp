@@ -1,6 +1,7 @@
 #include "MSRDailySkeletonInstance.h"
 #include <QDebug>
 #include <iostream>
+#include "dataset/DatasetMetadata.h"
 
 using namespace std;
 
@@ -50,7 +51,7 @@ bool MSRDailySkeletonInstance::is_open() const
 
 void MSRDailySkeletonInstance::openInstance()
 {
-    QString instancePath = m_info.getDatasetPath() + "/" + m_info.getFileName();
+    QString instancePath = m_info.parent().getPath() + "/" + m_info.getFileName();
 
     if (!m_file.is_open())
     {

@@ -2,8 +2,6 @@
 
 	<description>20 action types, 10 subjects, each subject performs each action 2 or 3 times. There are 567 depth map sequences in total. The resolution is 320x240. The data was recorded with a depth sensor similar to the Kinect device.</description>
 
-	<path>/files/DataSets/MSR-Action3D</path>
-
 	<activities size="20">
 		<activity key="01">High arm wave</activity>
 		<activity key="02">Horizontal arm wave</activity>
@@ -27,7 +25,18 @@
 		<activity key="20">Pickup and throw</activity>
 	</activities>
 
-	<actors size="10" />
+	<actors size="10">
+		<actor key="01">01</actor>
+		<actor key="02">02</actor>
+		<actor key="03">03</actor>
+		<actor key="04">04</actor>
+		<actor key="05">05</actor>
+		<actor key="06">06</actor>
+		<actor key="07">07</actor>
+		<actor key="08">08</actor>
+		<actor key="09">09</actor>
+		<actor key="10">10</actor>
+	</actors>
 
 	<samples size="3">
 		<sample key="01">First repetition</sample>
