@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui quick
+QT       += core gui quick multimedia
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = DatasetBrowser

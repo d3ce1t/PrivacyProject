@@ -1,6 +1,7 @@
 #include "MSRDailyActivity3D.h"
 #include "MSRDailyDepthInstance.h"
 #include "MSRDailySkeletonInstance.h"
+#include "MSRDailyColorInstance.h"
 
 namespace dai {
 
@@ -19,6 +20,9 @@ shared_ptr<BaseInstance> MSRDailyActivity3D::instance(int activity, int actor, i
         break;
     case INSTANCE_SKELETON:
         return shared_ptr<BaseInstance>(new MSRDailySkeletonInstance(instanceInfo));
+        break;
+    case INSTANCE_COLOR:
+        return shared_ptr<BaseInstance>(new MSRDailyColorInstance(instanceInfo));
         break;
     default:
         return nullptr;
