@@ -16,11 +16,13 @@ QMAKE_LFLAGS = -std=c++11
 
 HEADERS  += \
     DatasetBrowser.h \
-    SettingsDialog.h
+    SettingsDialog.h \
+    DatasetSelector.h
 
 SOURCES += main.cpp\
     DatasetBrowser.cpp \
-    SettingsDialog.cpp
+    SettingsDialog.cpp \
+    DatasetSelector.cpp
 
 OTHER_FILES += \
     qml/main.qml \
@@ -40,7 +42,8 @@ RESOURCES += \
 
 FORMS    += \
     DatasetBrowser.ui \
-    SettingsDialog.ui
+    SettingsDialog.ui \
+    DatasetSelector.ui
 
 unix:!macx {
     # CoreLib

@@ -27,12 +27,17 @@ bool OpenNISkeletonInstance::is_open() const
     return m_openni != nullptr;
 }
 
-void OpenNISkeletonInstance::openInstance()
+bool OpenNISkeletonInstance::openInstance()
 {
+    bool result = false;
+
     if (!is_open())
     {
         m_openni = OpenNIRuntime::getInstance();
+        result = true;
     }
+
+    return result;
 }
 
 void OpenNISkeletonInstance::closeInstance()

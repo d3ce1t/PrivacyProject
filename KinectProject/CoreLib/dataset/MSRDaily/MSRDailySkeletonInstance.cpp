@@ -49,24 +49,25 @@ bool MSRDailySkeletonInstance::is_open() const
     return m_file.is_open();
 }
 
-void MSRDailySkeletonInstance::openInstance()
+bool MSRDailySkeletonInstance::openInstance()
 {
+    bool result = false;
     QString instancePath = m_info.parent().getPath() + "/" + m_info.getFileName();
 
     if (!m_file.is_open())
     {
         m_file.open(instancePath.toStdString().c_str(), ios::in);
 
-        if (!m_file.is_open()) {
-            cerr << "Error opening file" << endl;
-            return;
+        if (m_file.is_open())
+        {
+            m_file.seekg(0, ios_base::beg);
+            m_file >> m_nFrames;
+            m_file >> m_nJoints;
+            result = true;
         }
-
-        m_file.seekg(0, ios_base::beg);
-
-        m_file >> m_nFrames;
-        m_file >> m_nJoints;
     }
+
+    return result;
 }
 
 void MSRDailySkeletonInstance::closeInstance()

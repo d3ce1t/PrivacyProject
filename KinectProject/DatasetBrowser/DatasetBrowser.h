@@ -22,19 +22,20 @@ public:
 
 public slots:
     void openSettings();
+    void openDatasetSelector();
+    void closeDataset();
 
 private slots:
     void listItemChange(QListWidgetItem * item);
     void instanceItemActivated(QListWidgetItem * item);
     void comboBoxChange(int index);
-    void loadDataset();
+    void loadDataset(dai::Dataset::DatasetType type);
     void on_btnSelectAllActivities_clicked();
     void on_btnUnselectAllActivities_clicked();
     void on_btnSelectAllActors_clicked();
     void on_btnUnselectAllActors_clicked();
     void on_btnSelectAllSamples_clicked();
     void on_btnUnselectAllSamples_clicked();
-    void on_comboDataset_activated(int index);
 
 private:
     void loadInstances();

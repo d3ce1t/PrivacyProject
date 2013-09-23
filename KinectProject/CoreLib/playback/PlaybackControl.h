@@ -34,6 +34,7 @@ public:
     void stop();
     void enablePlayLoop(bool value);
     void addInstance(shared_ptr<BaseInstance> instance);
+    void removeInstance(shared_ptr<BaseInstance> instance);
 
     // Listeners
     void addListener(PlaybackListener* listener, shared_ptr<BaseInstance> instance);

@@ -27,13 +27,18 @@ bool OpenNIColorInstance::is_open() const
     return m_openni != nullptr;
 }
 
-void OpenNIColorInstance::openInstance()
+bool OpenNIColorInstance::openInstance()
 {
+    bool result = false;
+
     if (!is_open())
     {
         m_openni = OpenNIRuntime::getInstance();
         m_openni->addNewColorListener(this);
+        result = true;
     }
+
+    return result;
 }
 
 void OpenNIColorInstance::closeInstance()

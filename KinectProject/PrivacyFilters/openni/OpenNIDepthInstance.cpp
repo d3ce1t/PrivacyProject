@@ -27,13 +27,18 @@ bool OpenNIDepthInstance::is_open() const
     return m_openni != nullptr;
 }
 
-void OpenNIDepthInstance::openInstance()
+bool OpenNIDepthInstance::openInstance()
 {
+    bool result = false;
+
     if (!is_open())
     {
         m_openni = OpenNIRuntime::getInstance();
         m_openni->addNewDepthListener(this);
+        result = true;
     }
+
+    return result;
 }
 
 void OpenNIDepthInstance::closeInstance()

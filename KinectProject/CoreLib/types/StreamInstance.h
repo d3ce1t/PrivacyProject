@@ -7,6 +7,7 @@
 #include <QReadWriteLock>
 #include "exceptions/NotImplementedException.h"
 #include "exceptions/NotOpenedInstanceException.h"
+#include "exceptions/CannotOpenInstanceException.h"
 #include <QDebug>
 
 namespace dai {
@@ -34,7 +35,7 @@ public:
     unsigned int getFrameIndex() const;
 
 protected:
-    virtual void openInstance() = 0;
+    virtual bool openInstance() = 0;
     virtual void closeInstance() = 0;
     virtual void restartInstance() = 0;
     virtual void nextFrame(T& frame) = 0;
@@ -74,7 +75,9 @@ void StreamInstance<T>::open()
 {
     if (!is_open()) {
         m_frameIndex = 0;
-        openInstance();
+        if (!openInstance()) {
+            throw CannotOpenInstanceException();
+        }
     }
 }
 

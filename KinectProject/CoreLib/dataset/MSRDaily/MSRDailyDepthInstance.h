@@ -24,7 +24,7 @@ public:
     bool is_open() const override;
 
 protected:
-    void openInstance() override;
+    bool openInstance() override;
     void closeInstance() override;
     void restartInstance() override;
     void nextFrame(DepthFrame& frame) override;

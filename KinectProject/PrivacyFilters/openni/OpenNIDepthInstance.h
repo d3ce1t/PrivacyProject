@@ -20,7 +20,7 @@ public:
     void onNewFrame(openni::VideoStream& stream);
 
 protected:
-    void openInstance() override;
+    bool openInstance() override;
     void closeInstance() override;
     void restartInstance() override;
     void nextFrame(DepthFrame& frame) override;

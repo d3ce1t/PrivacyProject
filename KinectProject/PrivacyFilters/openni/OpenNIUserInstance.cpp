@@ -22,49 +22,22 @@ OpenNIUserInstance::~OpenNIUserInstance()
     m_openni = nullptr;
 }
 
-void OpenNIUserInstance::setOutputFile(QString file)
-{
-    m_outputFile = file;
-}
-
 bool OpenNIUserInstance::is_open() const
 {
     return m_openni != nullptr;
 }
 
-void OpenNIUserInstance::openInstance()
+bool OpenNIUserInstance::openInstance()
 {
+    bool result = false;
+
     if (!is_open())
     {
         m_openni = OpenNIRuntime::getInstance();
-
-        try {
-            if (!m_of.isOpen() && !m_outputFile.isEmpty())
-            {
-                m_of.setFileName(m_outputFile);
-                m_of.open(QIODevice::WriteOnly | QIODevice::Truncate);
-
-                if (!m_of.isOpen()) {
-                    cerr << "Error opening file" << endl;
-                    throw 7;
-                }
-
-                int width = 640;
-                int height = 480;
-                int numFrames = 0;
-
-                m_of.seek(0);
-                m_of.write( (char*) &numFrames, sizeof(numFrames) );
-                m_of.write( (char*) &width, sizeof(width) );
-                m_of.write( (char*) &height, sizeof(height) );
-            }
-        }
-        catch (int ex)
-        {
-            printf("OpenNI init error:\n%s\n", openni::OpenNI::getExtendedError());
-            throw ex;
-        }
+        result = true;
     }
+
+    return result;
 }
 
 void OpenNIUserInstance::closeInstance()
@@ -73,19 +46,6 @@ void OpenNIUserInstance::closeInstance()
     {
         m_openni->releaseInstance();
         m_openni = nullptr;
-
-        try {
-            unsigned int frameIndex = getFrameIndex();
-            if (m_of.isOpen()) {
-                m_of.seek(0);
-                m_of.write( (char*) &frameIndex, sizeof(frameIndex) );
-                m_of.close();
-            }
-        }
-        catch (std::exception& ex)
-        {
-            printf("Error\n");
-        }
     }
 }
 
@@ -97,11 +57,6 @@ void OpenNIUserInstance::restartInstance()
 void OpenNIUserInstance::nextFrame(UserFrame &frame)
 {
     frame = m_openni->readUserFrame(); // copy (block until there are a new frame)
-
-    // Write if enabled
-    if (m_of.isOpen()) {
-        frame.write(m_of);
-    }
 }
 
 } // End namespace

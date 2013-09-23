@@ -49,8 +49,9 @@ bool MSRActionSkeletonInstance::is_open() const
     return m_file.is_open();
 }
 
-void MSRActionSkeletonInstance::openInstance()
+bool MSRActionSkeletonInstance::openInstance()
 {
+    bool result = false;
     QString datasetPath = m_info.parent().getPath();
     QString instancePath = datasetPath + "/" + m_info.getFileName();
 
@@ -58,29 +59,27 @@ void MSRActionSkeletonInstance::openInstance()
     {
         m_file.open(instancePath.toStdString().c_str(), ios::in);
 
-        if (!m_file.is_open()) {
-            cerr << "Error opening file" << endl;
-            return;
+        if (m_file.is_open())
+        {
+            m_file.seekg(0, ios_base::beg);
+
+            // Read Number of Frames from Depth File
+            QString fileName = m_info.getFileName().replace("skeleton3D.txt", "sdepth.bin");
+            QString depthPath = datasetPath + "/" + fileName;
+            ifstream depthFile;
+            depthFile.open(depthPath.toStdString().c_str(), ios::in|ios::binary);
+
+            if (depthFile.is_open()) {
+                depthFile.read((char *) &m_nFrames, 4);
+                depthFile.close();
+                result = true;
+            }
         }
-
-        m_file.seekg(0, ios_base::beg);
-
-        // Read Number of Frames from Depth File
-        QString fileName = m_info.getFileName().replace("skeleton3D.txt", "sdepth.bin");
-        QString depthPath = datasetPath + "/" + fileName;
-        ifstream depthFile;
-        depthFile.open(depthPath.toStdString().c_str(), ios::in|ios::binary);
-
-        if (!depthFile.is_open()) {
-            cerr << "Error opening file" << endl;
-            return;
-        }
-
-        depthFile.read((char *) &m_nFrames, 4);
-        depthFile.close();
 
         m_nJoints = 20;
     }
+
+    return result;
 }
 
 void MSRActionSkeletonInstance::closeInstance()

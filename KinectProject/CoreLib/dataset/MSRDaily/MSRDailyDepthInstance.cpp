@@ -32,28 +32,30 @@ bool MSRDailyDepthInstance::is_open() const
     return m_file.is_open();
 }
 
-void MSRDailyDepthInstance::openInstance()
+bool MSRDailyDepthInstance::openInstance()
 {
+    bool result = false;
     QString instancePath = m_info.parent().getPath() + "/" + m_info.getFileName();
 
     if (!m_file.is_open())
     {
         m_file.open(instancePath.toStdString().c_str(), ios::in|ios::binary);
 
-        if (!m_file.is_open()) {
-            cerr << "Error opening file" << endl;
-            return;
+        if (m_file.is_open())
+        {
+            m_file.seekg(0, ios_base::beg);
+            m_file.read((char *) &m_nFrames, 4);
+            m_file.read((char *) &m_width, 4);
+            m_file.read((char *) &m_height, 4);
+
+            if (m_width != 320 || m_height != 240)
+                exit(1);
+
+            result = true;
         }
-
-        m_file.seekg(0, ios_base::beg);
-
-        m_file.read((char *) &m_nFrames, 4);
-        m_file.read((char *) &m_width, 4);
-        m_file.read((char *) &m_height, 4);
-
-        if (m_width != 320 || m_height != 240)
-            exit(1);
     }
+
+    return result;
 }
 
 void MSRDailyDepthInstance::closeInstance()

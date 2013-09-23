@@ -5,10 +5,12 @@
 #include "playback/PlaybackControl.h"
 #include "viewer/InstanceViewerWindow.h"
 #include "InstanceWidgetItem.h"
+#include "DatasetSelector.h"
 #include <QGuiApplication>
 #include <QDebug>
 #include <QtWidgets/QDesktopWidget>
 #include <QTimer>
+#include <QMessageBox>
 
 using namespace dai;
 
@@ -21,15 +23,14 @@ DatasetBrowser::DatasetBrowser(QWidget *parent) :
     m_playback.setFPS(10);
     m_dataset = nullptr;
 
+    // First Setup
     if (m_settings.getMSRAction3D().isEmpty() || m_settings.getMSRDailyActivity3D().isEmpty()) {
         QTimer::singleShot(1, &m_settings, SLOT(show()));
-        connect(&m_settings, SIGNAL(accepted()), this, SLOT(loadDataset()));
-    }
-    else {
-        loadDataset();
     }
 
     // Connect Signals
+    connect(ui->actionClose_dataset, SIGNAL(triggered()), this, SLOT(closeDataset()));
+    connect(ui->actionOpen_dataset, SIGNAL(triggered()), this, SLOT(openDatasetSelector()));
     connect(ui->actionSettings, SIGNAL(triggered()), this, SLOT(openSettings()));
     connect(ui->listActivities, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(listItemChange(QListWidgetItem*)));
     connect(ui->listActors, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(listItemChange(QListWidgetItem*)));
@@ -65,6 +66,30 @@ DatasetBrowser::~DatasetBrowser()
     ui->listInstances->disconnect();
     ui->comboType->disconnect();
 
+    closeDataset();
+    delete ui;
+}
+
+void DatasetBrowser::openSettings()
+{
+    if (m_settings.exec() == QDialog::Accepted) {
+        closeDataset();
+    }
+}
+
+void DatasetBrowser::openDatasetSelector()
+{
+    DatasetSelector* window = new DatasetSelector(this);
+
+    if (window->exec() != QDialog::Rejected) {
+        loadDataset( (Dataset::DatasetType) (window->result()-1) );
+    }
+}
+
+void DatasetBrowser::closeDataset()
+{
+    ui->comboType->blockSignals(true);
+
     if (m_dataset != nullptr) {
         delete m_dataset;
         m_dataset = nullptr;
@@ -74,14 +99,9 @@ DatasetBrowser::~DatasetBrowser()
     ui->listActors->clear();
     ui->listSamples->clear();
     ui->listInstances->clear();
-    ui->comboDataset->clear();
     ui->comboType->clear();
-    delete ui;
-}
 
-void DatasetBrowser::openSettings()
-{
-    m_settings.show();
+    ui->comboType->blockSignals(false);
 }
 
 void DatasetBrowser::listItemChange(QListWidgetItem * item)
@@ -115,21 +135,26 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
 
         m_playback.addInstance(instance);
         m_playback.addListener(windowViewer, instance);
-        m_playback.play(ui->checkSync->isChecked());
-        windowViewer->setTitle("Instance Viewer (" + instance->getTitle() + ")");
-        windowViewer->show();
+
+        try {
+            m_playback.play(ui->checkSync->isChecked());
+            windowViewer->setTitle("Instance Viewer (" + instance->getTitle() + ")");
+            windowViewer->show();
+        }
+        catch (CannotOpenInstanceException ex)
+        {
+            QMessageBox::warning(this, tr("Error reading the instance"),
+                                           tr("The selected instance cannot be opened maybe\n"
+                                              "due to file permissions or wrong dataset path"));
+        }
     }
 }
 
-void DatasetBrowser::loadDataset()
+void DatasetBrowser::loadDataset(Dataset::DatasetType type)
 {
-    Dataset::DatasetType type = (Dataset::DatasetType) ui->comboDataset->currentIndex();
-    ui->comboType->blockSignals(true);
+    closeDataset();
 
-    if (m_dataset != nullptr) {
-        delete m_dataset;
-        m_dataset = nullptr;
-    }
+    ui->comboType->blockSignals(true);
 
     if (type == Dataset::Dataset_MSRDailyActivity3D) {
         m_dataset = new MSRDailyActivity3D();
@@ -143,7 +168,6 @@ void DatasetBrowser::loadDataset()
     const DatasetMetadata& info = m_dataset->getMetadata();
 
     // Load Activities
-    ui->listActivities->clear();
     for (int i=1; i<=info.getNumberOfActivities(); ++i) {
         QListWidgetItem* item = new QListWidgetItem(info.getActivityName(i), ui->listActivities);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable); // set checkable flag
@@ -151,7 +175,6 @@ void DatasetBrowser::loadDataset()
     }
 
     // Load Actors
-    ui->listActors->clear();
     for (int i=1; i<=info.getNumberOfActors(); ++i) {
         QListWidgetItem* item = new QListWidgetItem(info.getActorName(i), ui->listActors);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable); // set checkable flag
@@ -159,7 +182,6 @@ void DatasetBrowser::loadDataset()
     }
 
     // Load Samples
-    ui->listSamples->clear();
     for (int i=1; i<=info.getNumberOfSampleTypes(); ++i) {
         QListWidgetItem* item = new QListWidgetItem(info.getSampleName(i), ui->listSamples);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable); // set checkable flag
@@ -167,7 +189,6 @@ void DatasetBrowser::loadDataset()
     }
 
     // Load Instance Tyepes
-    ui->comboType->clear();
     const QMap<QString, InstanceType> availableInstances = info.availableInstanceTypes();
     foreach (QString type, availableInstances.keys()) {
         ui->comboType->addItem(type[0].toUpper() + type.mid(1), QVariant(availableInstances.value(type)));
@@ -268,10 +289,4 @@ void DatasetBrowser::on_btnUnselectAllSamples_clicked()
         QListWidgetItem* item = ui->listSamples->item(i);
         item->setCheckState(Qt::Unchecked);
     }
-}
-
-void DatasetBrowser::on_comboDataset_activated(int index)
-{
-    Q_UNUSED(index)
-    loadDataset();
 }

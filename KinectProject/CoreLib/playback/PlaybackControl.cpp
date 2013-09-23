@@ -50,8 +50,14 @@ void PlaybackControl::play(bool restartAll)
         while (it.hasNext()) {
             shared_ptr<BaseInstance> instance = it.next();
             if (!instance->is_open()) {
-                instance->open();
-                std::cerr << "Open" << std::endl;
+                try {
+                    instance->open();
+                    std::cerr << "Open" << std::endl;
+                }
+                catch (CannotOpenInstanceException ex) {
+                    removeInstance(instance);
+                    throw ex;
+                }
             }
         }
 
@@ -292,6 +298,18 @@ void PlaybackControl::addInstance(shared_ptr<BaseInstance> instance)
 {
     if (!m_instances.contains(instance))
         m_instances << instance;
+}
+
+void PlaybackControl::removeInstance(shared_ptr<BaseInstance> instance)
+{
+    QList<PlaybackListener*> listeners = m_instanceToListenerMap.values(instance.get());
+
+    foreach (PlaybackListener* listener, listeners) {
+        removeListener(listener, instance);
+    }
+
+    if (m_instances.contains(instance))
+        m_instances.removeAll(instance);
 }
 
 void PlaybackControl::enablePlayLoop(bool value)
