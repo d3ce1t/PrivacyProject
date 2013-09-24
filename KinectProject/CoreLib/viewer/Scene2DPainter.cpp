@@ -2,6 +2,7 @@
 #include "types/ColorFrame.h"
 #include "viewer/SilhouetteItem.h"
 #include "viewer/SkeletonItem.h"
+#include "Config.h"
 #include <QDebug>
 
 namespace dai {
@@ -185,7 +186,9 @@ void Scene2DPainter::renderItems()
 
     shared_ptr<SkeletonItem> skeletonItem = static_pointer_cast<SkeletonItem>( this->getFirstItem(ITEM_SKELETON) );
     if (skeletonItem) {
-        skeletonItem->setVisible( m_currentFilter == QMLEnumsWrapper::FILTER_SKELETON ? true : false );
+        if (Config::getInstance()->isFiltersEnabled()) {
+            skeletonItem->setVisible( m_currentFilter == QMLEnumsWrapper::FILTER_SKELETON ? true : false );
+        }
         skeletonItem->setMode3D(false);
     }
 

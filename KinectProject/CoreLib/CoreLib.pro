@@ -62,7 +62,8 @@ SOURCES += \
     filters/InvisibilityFilter.cpp \
     filters/DilateUserFilter.cpp \
     filters/BlurFilter.cpp \
-    dataset/MSRDaily/MSRDailyColorInstance.cpp
+    dataset/MSRDaily/MSRDailyColorInstance.cpp \
+    Config.cpp
 
 HEADERS += \
     types/Vector3D.h \
@@ -114,7 +115,8 @@ HEADERS += \
     filters/DilateUserFilter.h \
     filters/BlurFilter.h \
     exceptions/CannotOpenInstanceException.h \
-    dataset/MSRDaily/MSRDailyColorInstance.h
+    dataset/MSRDaily/MSRDailyColorInstance.h \
+    Config.h
 
 unix:!symbian {
     maemo5 {

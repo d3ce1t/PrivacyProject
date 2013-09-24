@@ -121,8 +121,6 @@ QList<shared_ptr<BaseInstance> > PlaybackControl::readAllInstances()
     QList<shared_ptr<BaseInstance>> instances = m_instances; // implicit sharing
     QList<shared_ptr<BaseInstance>> changedInstances;
 
-    // qDebug() << "Worker" << QThread::currentThreadId();
-
     foreach (shared_ptr<BaseInstance> instance, instances)
     {
         if (instance->is_open())

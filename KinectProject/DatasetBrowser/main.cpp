@@ -2,6 +2,7 @@
 #include "DatasetBrowser.h"
 #include "viewer/InstanceViewer.h"
 #include "viewer/QMLEnumsWrapper.h"
+#include "Config.h"
 
 int main(int argc, char *argv[])
 {
@@ -11,6 +12,8 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName("DAI");
     QCoreApplication::setOrganizationDomain("web.ua.es/dai");
     QCoreApplication::setApplicationName("Dataset Browser");
+
+    Config::getInstance()->disableFilters();
 
     DatasetBrowser w;
     qmlRegisterType<InstanceViewer>("OpenGLUnderQML", 1, 0, "InstanceViewer");

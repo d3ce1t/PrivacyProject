@@ -18,6 +18,7 @@ public:
     explicit MSRDailyColorInstance(const InstanceInfo& info);
     virtual ~MSRDailyColorInstance();
     bool is_open() const override;
+    bool hasNext() const override;
     QList<QVideoFrame::PixelFormat> supportedPixelFormats(
             QAbstractVideoBuffer::HandleType handleType = QAbstractVideoBuffer::NoHandle) const override;
     bool present(const QVideoFrame &frame) override;

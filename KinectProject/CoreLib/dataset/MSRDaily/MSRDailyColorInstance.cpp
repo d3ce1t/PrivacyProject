@@ -1,5 +1,6 @@
 #include "MSRDailyColorInstance.h"
 #include "dataset/DatasetMetadata.h"
+#include <QThread>
 
 namespace dai {
 
@@ -23,30 +24,34 @@ MSRDailyColorInstance::~MSRDailyColorInstance()
 
 bool MSRDailyColorInstance::is_open() const
 {
-    qDebug() << (m_player.state() == QMediaPlayer::PlayingState);
+    return m_player.mediaStatus() != QMediaPlayer::NoMedia && m_player.mediaStatus() != QMediaPlayer::InvalidMedia;
+}
+
+bool MSRDailyColorInstance::hasNext() const
+{
     return m_player.state() == QMediaPlayer::PlayingState;
 }
 
 bool MSRDailyColorInstance::openInstance()
 {
-    bool result = false;
     QString instancePath = m_info.parent().getPath() + "/" + m_info.getFileName();
     m_player.setMedia(QUrl::fromLocalFile(instancePath));
+    //m_player.setPlaybackRate(0.33);
     m_player.setVideoOutput(this);
     m_player.play();
-    result = true;
-
-    return result;
+    return true;
 }
 
 void MSRDailyColorInstance::closeInstance()
 {
-
+    m_player.stop();
 }
 
 void MSRDailyColorInstance::restartInstance()
 {
-
+    m_player.stop();
+    m_player.play();
+    QThread::msleep(200);
 }
 
 void MSRDailyColorInstance::nextFrame(ColorFrame &frame)
@@ -56,11 +61,7 @@ void MSRDailyColorInstance::nextFrame(ColorFrame &frame)
 
     // Read this frame
     QMutexLocker locker(&m_lockFrame);
-
-    qDebug() << "Reading Frame" << frame.getIndex();
-
-    //frame.setIndex(m_oniColorFrame.getFrameIndex());
-    //frame = m_readBuffer;
+    frame = m_readBuffer;
 }
 
 bool MSRDailyColorInstance::present(const QVideoFrame &frame)
@@ -68,18 +69,6 @@ bool MSRDailyColorInstance::present(const QVideoFrame &frame)
     m_lockFrame.lock();
 
     QVideoFrame* readFrame = const_cast<QVideoFrame*>(&frame);
-
-    qDebug() << frame.availableMetaData();
-    qDebug() << m_player.availableMetaData();
-
-
-
-
-    /*foreach(QMediaResource resource, m_player.currentMedia().resources())
-    {
-        qDebug() << resource.
-    }*/
-
 
     if (readFrame->isValid())
     {
