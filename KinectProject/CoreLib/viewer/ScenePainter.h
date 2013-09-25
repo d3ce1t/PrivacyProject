@@ -4,7 +4,15 @@
 #include "types/DataFrame.h"
 #include "viewer/SceneItem.h"
 #include <memory>
-#include <atomic>
+
+// Use C++11 atomic if compiler is superior to MSVC 10.0
+#if (!defined _MSC_VER || _MSC_VER > 1600)
+    #include <atomic>
+#else
+    #include <QAtomicInt>
+#endif
+
+
 #include <QList>
 #include <QMatrix4x4>
 #include <QOpenGLFunctions>
@@ -41,7 +49,13 @@ protected:
     int                              m_window_width;
     int                              m_window_height;
     shared_ptr<DataFrame>            m_bg;
+
+#if (!defined _MSC_VER || _MSC_VER > 1600)
     atomic<int>                      m_needLoading;
+#else
+    QAtomicInt                       m_needLoading;
+#endif
+
     QMatrix4x4                       m_matrix;
     QList<shared_ptr<SceneItem>>     m_items;
 

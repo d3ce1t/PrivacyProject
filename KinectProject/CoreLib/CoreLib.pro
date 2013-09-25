@@ -129,7 +129,7 @@ unix:!symbian {
 
 unix:!macx {
     # OpenCV2
-    LIBS += -lopencv_core -lopencv_imgproc
+    # LIBS += -lopencv_core -lopencv_imgproc
     INCLUDEPATH += /usr/include/opencv/
     DEPENDPATH += /usr/include/opencv/
 }

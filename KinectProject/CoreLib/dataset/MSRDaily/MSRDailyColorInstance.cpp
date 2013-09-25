@@ -34,12 +34,19 @@ bool MSRDailyColorInstance::hasNext() const
 
 bool MSRDailyColorInstance::openInstance()
 {
+    bool result = false;
     QString instancePath = m_info.parent().getPath() + "/" + m_info.getFileName();
-    m_player.setMedia(QUrl::fromLocalFile(instancePath));
-    //m_player.setPlaybackRate(0.33);
-    m_player.setVideoOutput(this);
-    m_player.play();
-    return true;
+    QFile file(instancePath);
+
+    if (file.exists()) {
+        m_player.setMedia(QUrl::fromLocalFile(instancePath));
+        //m_player.setPlaybackRate(0.33);
+        m_player.setVideoOutput(this);
+        m_player.play();
+        result = true;
+    }
+
+    return result;
 }
 
 void MSRDailyColorInstance::closeInstance()

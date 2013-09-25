@@ -103,17 +103,30 @@ win32 {
     DEPENDPATH += "C:/boost_1_54_0"
 
     # OpenNI2
-    LIBS += -L"C:/Program Files/OpenNI2/Lib" -lOpenNI2
-    INCLUDEPATH += "C:/Program Files/OpenNI2/Include"
-    DEPENDPATH += "C:/Program Files/OpenNI2/Include"
+    contains(QMAKE_TARGET.arch, x86_64) {
+        LIBS += -L"C:/Program Files/OpenNI2/Lib" -lOpenNI2
+        INCLUDEPATH += "C:/Program Files/OpenNI2/Include"
+        DEPENDPATH += "C:/Program Files/OpenNI2/Include"
+    }
+    contains(QMAKE_TARGET.arch, x86) {
+        LIBS += -L"C:/Program Files (x86)/OpenNI2/Lib" -lOpenNI2
+        INCLUDEPATH += "C:/Program Files (x86)/OpenNI2/Include"
+        DEPENDPATH += "C:/Program Files (x86)/OpenNI2/Include"
+    }
 
     # NiTE2
-    LIBS += -L"C:/Program Files/PrimeSense/NiTE2/Lib" -lNiTE2
-    INCLUDEPATH += "C:/Program Files/PrimeSense/NiTE2/Include"
-    DEPENDPATH += "C:/Program Files/PrimeSense/NiTE2/Include"
+    contains(QMAKE_TARGET.arch, x86_64) {
+        LIBS += -L"C:/Program Files/PrimeSense/NiTE2/Lib" -lNiTE2
+        INCLUDEPATH += "C:/Program Files/PrimeSense/NiTE2/Include"
+        DEPENDPATH += "C:/Program Files/PrimeSense/NiTE2/Include"
+    }
+    contains(QMAKE_TARGET.arch, x86) {
+        LIBS += -L"C:/Program Files (x86)/PrimeSense/NiTE2/Lib" -lNiTE2
+        INCLUDEPATH += "C:/Program Files (x86)/PrimeSense/NiTE2/Include"
+        DEPENDPATH += "C:/Program Files (x86)/PrimeSense/NiTE2/Include"
+    }
 
     # OpenCV2
-    LIBS += -L"C:/opencv/build/x64/vc11/lib" -lopencv_core246 -lopencv_imgproc246
-    #INCLUDEPATH += "C:/opencv/build/include"
-    #DEPENDPATH += "C:/opencv/build/include"
+    contains(QMAKE_TARGET.arch, x86_64):LIBS += -L"C:/opencv/build/x64/vc11/lib" -lopencv_core246 -lopencv_imgproc246
+    contains(QMAKE_TARGET.arch, x86):LIBS += -L"C:/opencv/build/x86/vc10/lib" -lopencv_core246 -lopencv_imgproc246
 }

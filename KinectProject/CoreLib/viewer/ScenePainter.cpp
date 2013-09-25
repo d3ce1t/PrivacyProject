@@ -76,7 +76,7 @@ QMatrix4x4& ScenePainter::getMatrix()
 void ScenePainter::resetPerspective()
 {
     m_matrix.setToIdentity();
-    m_matrix.perspective(45, 4/3, 0.1, 100.0);
+    m_matrix.perspective(45, 4/3, 0.1f, 100.0f);
 }
 
 void ScenePainter::renderScene()

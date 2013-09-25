@@ -45,6 +45,7 @@ FORMS    += \
     SettingsDialog.ui \
     DatasetSelector.ui
 
+# Linux
 unix:!macx {
     # CoreLib
     LIBS += -L$$OUT_PWD/../CoreLib/ -lCoreLib
@@ -74,9 +75,6 @@ win32 {
     DEPENDPATH += $$PWD/../CoreLib
 
     # OpenCV2
-    #PRE_TARGETDEPS +=  "C:/opencv/build/x64/vc11/staticlib/opencv_core246.lib"
-    #PRE_TARGETDEPS +=  "C:/opencv/build/x64/vc11/staticlib/opencv_imgproc246.lib"
-    LIBS += -L"C:/opencv/build/x64/vc11/lib" -lopencv_core246 -lopencv_imgproc246
-    #INCLUDEPATH += "C:/opencv/build/include"
-    #DEPENDPATH += "C:/opencv/build/include"
+    contains(QMAKE_TARGET.arch, x86_64):LIBS += -L"C:/opencv/build/x64/vc11/lib" -lopencv_core246 -lopencv_imgproc246
+    contains(QMAKE_TARGET.arch, x86):LIBS += -L"C:/opencv/build/x86/vc10/lib" -lopencv_core246 -lopencv_imgproc246
 }
