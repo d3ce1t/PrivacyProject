@@ -246,10 +246,6 @@ void MainWindow::on_btnStartKinect_clicked()
     shared_ptr<dai::OpenNIDepthInstance> depthInstance(new dai::OpenNIDepthInstance);
     shared_ptr<dai::OpenNISkeletonInstance> skeletonInstance(new dai::OpenNISkeletonInstance);
     shared_ptr<dai::OpenNIUserInstance> userInstance(new dai::OpenNIUserInstance);
-    /*colorInstance->setOutputFile("/files/capture/capture.rgb");
-    depthInstance->setOutputFile("/files/capture/capture.bin");
-    skeletonInstance->setOutputFile("/files/capture/capture.bskel");
-    userInstance->setOutputFile("/files/capture/capture.user");*/
 
     // Create Playback
     m_playback = new dai::PlaybackControl;

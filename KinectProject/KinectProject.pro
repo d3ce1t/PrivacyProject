@@ -3,4 +3,6 @@ TEMPLATE = subdirs
 SUBDIRS += \
     CoreLib \
     DatasetBrowser \
-    PrivacyFilters
+    PrivacyFilters \
+    OgreTux \
+    SampleCharacter

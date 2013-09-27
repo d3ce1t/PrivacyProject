@@ -20,6 +20,7 @@ public:
     double length() const;
     double lengthSquared() const;
     void normalize();
+    Vector3D operator-(const Vector3D &right);
 
 private:
     double m_x;

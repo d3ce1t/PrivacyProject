@@ -79,4 +79,13 @@ Vector3D Vector3D::crossProduct(const Vector3D& v1, const Vector3D& v2)
     return result;
 }
 
+Vector3D Vector3D::operator-(const Vector3D &right)
+{
+    Vector3D result;
+    result.m_x = m_x - right.m_x;
+    result.m_y = m_y - right.m_y;
+    result.m_z = m_z - right.m_z;
+    return result;
+}
+
 } // End namespace
