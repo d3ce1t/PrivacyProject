@@ -20,30 +20,16 @@ SOURCES += \
     openni/OpenNIRuntime.cpp
 
 HEADERS += \
-    character/SkeletonPoseDetector.h \
     character/SinbadCharacterController.h \
     character/CharacterSample.h \
     common/SdkTrays.h \
     common/SdkSample.h \
     common/SdkCameraMan.h \
     common/SamplePlugin.h \
-    common/SampleContext.h \
     common/Sample.h \
-    common/OgreStaticPluginLoader.h \
-    common/FileSystemLayer.h \
-    common/ExampleLoadingBar.h \
-    common/ExampleFrameListener.h \
-    common/ExampleApplication.h \
     openni/OpenNIRuntime.h
 
-OTHER_FILES += \
-    common/misc/Info.plist \
-    common/misc/Icon@2x.png \
-    common/misc/Icon.png \
-    common/misc/Icon-72.png \
-    common/misc/Default@2x.png \
-    common/misc/Default.png \
-    common/misc/Default-Landscape.png
+OTHER_FILES +=
 
 # OpenNI2
 LIBS += -L/opt/OpenNI-Linux-x64-2.2/Tools/ -lOpenNI2

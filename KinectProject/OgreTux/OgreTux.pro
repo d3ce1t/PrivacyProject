@@ -31,11 +31,7 @@ HEADERS += \
     common/SamplePlugin.h \
     common/SampleContext.h \
     common/Sample.h \
-    common/OgreStaticPluginLoader.h \
-    common/FileSystemLayer.h \
-    common/ExampleLoadingBar.h \
-    common/ExampleFrameListener.h \
-    common/ExampleApplication.h
+    common/FileSystemLayer.h
 
 # OpenNI2
 LIBS += -L/opt/OpenNI-Linux-x64-2.2/Tools/ -lOpenNI2

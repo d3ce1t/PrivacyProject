@@ -45,8 +45,6 @@ public:
 	
 	bool keyReleased(const OIS::KeyEvent& evt)
 	{
-		// relay input events to character controller
-		if (!mTrayMgr->isDialogVisible()) mChara->injectKeyUp(evt);
 		return SdkSample::keyReleased(evt);
 	}
 

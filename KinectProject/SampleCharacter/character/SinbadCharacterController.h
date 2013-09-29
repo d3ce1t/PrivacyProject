@@ -25,22 +25,15 @@
 #ifndef __Sinbad_H__
 #define __Sinbad_H__
 
-//typedef unsigned int uint
-
 #include <QDebug>
 #include "Ogre.h"
 #include "OIS.h"
 #include "openni/OpenNIRuntime.h"
-
-//#include <MyUserControl.h>
-
 #include <OgreStringConverter.h>
 #include <OgreErrorDialog.h>
 
 class Sample_Character;
 #include "CharacterSample.h"
-
-#include "SkeletonPoseDetector.h"
 
 using namespace Ogre;
 
@@ -77,7 +70,7 @@ static unsigned int g_UsersColors[] = {/*0x70707080*/0 ,0x80FF0000,0x80FF4500,0x
 	return rc;													\
 }
 
-class SinbadCharacterController //: public nite::UserTracker::NewFrameListener
+class SinbadCharacterController
 {
 private:
 
@@ -106,7 +99,6 @@ private:
 public:
 	double m_SmoothingFactor;
 	int m_SmoothingDelta;
-
 	bool m_front;	
 
 	OgreBites::ParamsPanel* m_help;
@@ -121,8 +113,6 @@ public:
     nite::UserId m_candidateID;
     nite::UserTrackerFrameRef m_oniUserTrackerFrame;
     Vector3 m_origTorsoPos;
-
-	EndPoseDetector * m_pEndPoseDetector;
 
 	SinbadCharacterController(Camera* cam)
 	{
@@ -193,11 +183,9 @@ public:
 
                     if( j > m_Height*(1 - m_detectionPercent) ) {
                         color |= 0xFF070707; //highlight user
-                    }
-
-                    if( j < m_Height*(m_pEndPoseDetector->GetDetectionPercent())) {
+                    }/* else {
                         color &= 0x20F0F0F0; //hide user
-                    }
+                    }*/
                 }
                 else if (m_candidateID != 0 && m_candidateID == pUsersLBLs[j*m_Width + fixed_i])
                 {
@@ -227,8 +215,6 @@ public:
         m_openni->getUserTracker().setSkeletonSmoothingFactor(m_SmoothingFactor);
 
 		m_candidateID = 0;
-        m_pEndPoseDetector = new EndPoseDetector(&m_oniUserTrackerFrame, 2.0);
-		m_pEndPoseDetector->SetUserId(m_candidateID);
 	}
 
 	void addTime(Real deltaTime)
@@ -277,9 +263,7 @@ public:
                     {
                         m_poseCandidateID = user.getId();
                         m_poseTime = m_oniUserTrackerFrame.getTimestamp();
-                        m_pEndPoseDetector->SetUserId(m_poseCandidateID);
                         qDebug() << "Pose Entered";
-
                     }
                     // PoseLost in OpenNI 1.5
                     else if (user.getId() == m_poseCandidateID && pose.isExited())
@@ -333,7 +317,6 @@ public:
                 }
             }
         } // End for
-
     }
 
 	void injectKeyDown(const OIS::KeyEvent& evt)
@@ -364,12 +347,6 @@ public:
 			}
 		}
 
-		// keep track of the player's intended direction
-		else if (evt.key == OIS::KC_W) mKeyDirection.z = -1;
-		else if (evt.key == OIS::KC_A) mKeyDirection.x = -1;
-		else if (evt.key == OIS::KC_S) mKeyDirection.z = 1;
-		else if (evt.key == OIS::KC_D) mKeyDirection.x = 1;
-
 		//Smoothing Factor.
 		if(evt.key == OIS::KC_H)
 		{
@@ -393,35 +370,6 @@ public:
 			// start running if not already moving and the player wants to move
 			setBaseAnimation(ANIM_RUN_BASE, true);
 			if (mTopAnimID == ANIM_IDLE_TOP) setTopAnimation(ANIM_RUN_TOP, true);
-		}
-	}
-
-	void injectKeyUp(const OIS::KeyEvent& evt)
-	{
-		// keep track of the player's intended direction
-		if (evt.key == OIS::KC_W && mKeyDirection.z == -1) mKeyDirection.z = 0;
-		else if (evt.key == OIS::KC_A && mKeyDirection.x == -1) mKeyDirection.x = 0;
-		else if (evt.key == OIS::KC_S && mKeyDirection.z == 1) mKeyDirection.z = 0;
-		else if (evt.key == OIS::KC_D && mKeyDirection.x == 1) mKeyDirection.x = 0;
-
-		//Mirror.
-		if(evt.key == OIS::KC_M)
-		{
-			mBodyNode->yaw(mCameraNode->getOrientation().getYaw() + Degree(180));
-			m_front = !m_front;
-            m_openni->getDepthStream().setMirroringEnabled(m_front);
-		}
-
-		if(evt.key == OIS::KC_H || evt.key == OIS::KC_N)
-		{
-			m_SmoothingDelta = 0;
-		}
-
-		if (mKeyDirection.isZeroLength() && mBaseAnimID == ANIM_RUN_BASE)
-		{
-			// stop running if already moving and the player doesn't want to move
-			setBaseAnimation(ANIM_IDLE_BASE);
-			if (mTopAnimID == ANIM_RUN_TOP) setTopAnimation(ANIM_IDLE_TOP);
 		}
 	}
 
