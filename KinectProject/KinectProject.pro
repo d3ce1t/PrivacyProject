@@ -5,4 +5,5 @@ SUBDIRS += \
     DatasetBrowser \
     PrivacyFilters \
     OgreTux \
-    SampleCharacter
+    SampleCharacter \
+    OgreTest

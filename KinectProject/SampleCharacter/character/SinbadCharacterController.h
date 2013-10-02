@@ -123,7 +123,7 @@ public:
 
 		setupBody(cam->getSceneManager());
 		setupCamera(cam);
-		setupAnimations();
+        setupAnimations();
 
         // Init depth cam related stuff
         try {
@@ -583,7 +583,7 @@ private:
 		cam->setFarClipDistance(100);
 		mCameraNode->attachObject(cam);
 
-		m_front=false;
+        m_front=false;
 
 		mPivotPitch = 0;
     }
