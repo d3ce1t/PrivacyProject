@@ -18,7 +18,8 @@ SOURCES += \
     BaseApplication.cpp \
     openni/OpenNIRuntime.cpp \
     character/CharacterSample.cpp \
-    main.cpp
+    main.cpp \
+    character/SinbadCharacterController.cpp
 
 HEADERS += \
     BaseApplication.h \

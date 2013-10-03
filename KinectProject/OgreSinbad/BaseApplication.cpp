@@ -36,7 +36,6 @@ BaseApplication::BaseApplication(void)
 {
 }
 
-//-------------------------------------------------------------------------------------
 BaseApplication::~BaseApplication(void)
 {
     if (mTrayMgr) delete mTrayMgr;
@@ -48,7 +47,6 @@ BaseApplication::~BaseApplication(void)
     delete mRoot;
 }
 
-//-------------------------------------------------------------------------------------
 bool BaseApplication::configure(void)
 {
     bool result = false;
@@ -66,13 +64,13 @@ bool BaseApplication::configure(void)
 
     return result;
 }
-//-------------------------------------------------------------------------------------
+
 void BaseApplication::chooseSceneManager(void)
 {
     // Get the SceneManager, in this case a generic one
     mSceneMgr = mRoot->createSceneManager(Ogre::ST_GENERIC);
 }
-//-------------------------------------------------------------------------------------
+
 void BaseApplication::createCamera(void)
 {
     // Create the camera
@@ -86,7 +84,7 @@ void BaseApplication::createCamera(void)
 
     mCameraMan = new OgreBites::SdkCameraMan(mCamera);   // create a default camera controller
 }
-//-------------------------------------------------------------------------------------
+
 void BaseApplication::createFrameListener(void)
 {
     Ogre::LogManager::getSingletonPtr()->logMessage("*** Initializing OIS ***");
@@ -138,11 +136,11 @@ void BaseApplication::createFrameListener(void)
 
     mRoot->addFrameListener(this);
 }
-//-------------------------------------------------------------------------------------
+
 void BaseApplication::destroyScene(void)
 {
 }
-//-------------------------------------------------------------------------------------
+
 void BaseApplication::createViewports(void)
 {
     // Create one viewport, entire window
@@ -153,7 +151,7 @@ void BaseApplication::createViewports(void)
     mCamera->setAspectRatio(
         Ogre::Real(mViewport->getActualWidth()) / Ogre::Real(mViewport->getActualHeight()));
 }
-//-------------------------------------------------------------------------------------
+
 void BaseApplication::setupResources(void)
 {
     // Load resource paths from config file
@@ -179,17 +177,17 @@ void BaseApplication::setupResources(void)
         }
     }
 }
-//-------------------------------------------------------------------------------------
+
 void BaseApplication::createResourceListener(void)
 {
 
 }
-//-------------------------------------------------------------------------------------
+
 void BaseApplication::loadResources(void)
 {
     Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
 }
-//-------------------------------------------------------------------------------------
+
 void BaseApplication::go(void)
 {
 
@@ -204,7 +202,7 @@ void BaseApplication::go(void)
     // clean up
     destroyScene();
 }
-//-------------------------------------------------------------------------------------
+
 bool BaseApplication::setup(void)
 {
     mRoot = new Ogre::Root(mPluginsCfg);

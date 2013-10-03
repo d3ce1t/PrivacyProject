@@ -34,11 +34,8 @@ This source file is part of the
 #include "common/SdkTrays.h"
 #include "common/SdkCameraMan.h"
 
-#ifdef OGRE_IS_IOS
-class BaseApplication : public Ogre::FrameListener, public Ogre::WindowEventListener, OIS::KeyListener, OIS::MultiTouchListener, OgreBites::SdkTrayListener
-#else
+
 class BaseApplication : public Ogre::FrameListener, public Ogre::WindowEventListener, public OIS::KeyListener, public OIS::MouseListener, OgreBites::SdkTrayListener
-#endif
 {
 public:
     BaseApplication(void);

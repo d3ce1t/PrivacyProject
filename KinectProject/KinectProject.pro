@@ -4,4 +4,4 @@ SUBDIRS += \
     CoreLib \
     DatasetBrowser \
     PrivacyFilters \
-    OgreTest
+    OgreSinbad

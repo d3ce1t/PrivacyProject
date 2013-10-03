@@ -1,4 +1,5 @@
 #include "CharacterSample.h"
+#include "character/SinbadCharacterController.h"
 #include "common/SdkTrays.h"
 
 Sample_Character::Sample_Character()

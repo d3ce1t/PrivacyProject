@@ -1,4 +1,5 @@
 #include "character/CharacterSample.h"
+#include <QtGlobal>
 
 int main(int argc, char *argv[])
 {
@@ -10,7 +11,8 @@ int main(int argc, char *argv[])
 
     try {
         app.go();
-    } catch( Ogre::Exception& e) {
+    }
+    catch(Ogre::Exception&) {
 
     }
 
