@@ -68,18 +68,11 @@ unix:!macx {
     INCLUDEPATH += /usr/include/opencv/
     DEPENDPATH += /usr/include/opencv/
 
-    # VTK
-    # INCLUDEPATH += /usr/include/vtk-5.8
-    # DEPENDPATH += /usr/include/vtk-5.8
+    NiTE.path = $$OUT_PWD
+    NiTE.files = config/NiTE.ini
 
-    # Eigen
-    # INCLUDEPATH += /usr/include/eigen3/
-    # DEPENDPATH += /usr/include/eigen3/
-
-    # PCL
-    # LIBS += -lpcl_common -lpcl_visualization -lboost_system -lpcl_io -lvtkCommon -lvtkFiltering
-    # INCLUDEPATH += /usr/local/include/pcl-1.7/
-    # DEPENDPATH += /usr/local/include/pcl-1.7/
+    # make install
+    INSTALLS += NiTE
 }
 
 # CoreLib Dynamic

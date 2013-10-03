@@ -84,8 +84,8 @@ void OpenNIRuntime::removeUserTrackerListener(nite::UserTracker::NewFrameListene
 void OpenNIRuntime::initOpenNI()
 {
     qDebug() << "OpenNIRuntime::initOpenNI()";
-    const char* deviceURI = openni::ANY_DEVICE;
-    //const char* deviceURI = "/files/capture/PSSR - Ogre.oni";
+    //const char* deviceURI = openni::ANY_DEVICE;
+    const char* deviceURI = "/files/capture/PSSR - Ogre.oni";
 
     try {
         if (openni::OpenNI::initialize() != openni::STATUS_OK)
