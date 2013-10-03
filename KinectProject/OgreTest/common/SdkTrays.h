@@ -2067,7 +2067,8 @@ namespace OgreBites
             if(states.size() > 0)
                 mCursor->setPosition(states[0].X.abs, states[0].Y.abs);
 #else
-			mCursor->setPosition(mMouse->getMouseState().X.abs, mMouse->getMouseState().Y.abs);
+            if (mMouse)
+                mCursor->setPosition(mMouse->getMouseState().X.abs, mMouse->getMouseState().Y.abs);
 #endif
 		}
 

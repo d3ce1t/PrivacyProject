@@ -20,6 +20,7 @@ This source file is part of the
 BaseApplication::BaseApplication(void)
     : mRoot(0),
     mCamera(0),
+    mViewport(0),
     mSceneMgr(0),
     mWindow(0),
     mResourcesCfg(Ogre::StringUtil::BLANK),
@@ -145,12 +146,12 @@ void BaseApplication::destroyScene(void)
 void BaseApplication::createViewports(void)
 {
     // Create one viewport, entire window
-    Ogre::Viewport* vp = mWindow->addViewport(mCamera);
-    vp->setBackgroundColour(Ogre::ColourValue(0,0,0));
+    mViewport = mWindow->addViewport(mCamera);
+    mViewport->setBackgroundColour(Ogre::ColourValue(0,0,0));
 
     // Alter the camera aspect ratio to match the viewport
     mCamera->setAspectRatio(
-        Ogre::Real(vp->getActualWidth()) / Ogre::Real(vp->getActualHeight()));
+        Ogre::Real(mViewport->getActualWidth()) / Ogre::Real(mViewport->getActualHeight()));
 }
 //-------------------------------------------------------------------------------------
 void BaseApplication::setupResources(void)
@@ -226,10 +227,10 @@ bool BaseApplication::setup(void)
     // Load resources
     loadResources();
 
+    createFrameListener();
+
     // Create the scene
     createScene();
-
-    createFrameListener();
 
     return true;
 };
@@ -243,8 +244,11 @@ bool BaseApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
         return false;
 
     //Need to capture/update each device
-    mKeyboard->capture();
-    mMouse->capture();
+    if (mKeyboard)
+        mKeyboard->capture();
+
+    if (mMouse)
+        mMouse->capture();
 
     mTrayMgr->frameRenderingQueued(evt);
 
@@ -394,9 +398,14 @@ void BaseApplication::windowResized(Ogre::RenderWindow* rw)
     int left, top;
     rw->getMetrics(width, height, depth, left, top);
 
-    const OIS::MouseState &ms = mMouse->getMouseState();
-    ms.width = width;
-    ms.height = height;
+    if (mMouse) {
+        const OIS::MouseState &ms = mMouse->getMouseState();
+        ms.width = width;
+        ms.height = height;
+    }
+
+    if (mCamera)
+        mCamera->setAspectRatio((Ogre::Real)mViewport->getActualWidth() / (Ogre::Real)mViewport->getActualHeight());
 }
 
 //Unattach OIS before window shutdown (very important under Linux)
