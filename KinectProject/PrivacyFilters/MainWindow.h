@@ -18,6 +18,9 @@ public:
     QString number(int value);
     
 private slots:
+    void onPlusKeyPressed();
+    void onMinusKeyPressed();
+    void onSpaceKeyPressed();
     void on_btnParseDataset_clicked();
     void on_btnTest_clicked();
     void on_btnStartKinect_clicked();

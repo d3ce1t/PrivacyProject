@@ -254,9 +254,13 @@ void MainWindow::on_btnStartKinect_clicked()
 
     // Create viewers
     dai::InstanceViewerWindow* colorViewer = new dai::InstanceViewerWindow;
+    connect(colorViewer->viewer(), &InstanceViewer::plusKeyPressed, this, &MainWindow::onPlusKeyPressed);
+    connect(colorViewer->viewer(), &InstanceViewer::minusKeyPressed, this, &MainWindow::onMinusKeyPressed);
+    connect(colorViewer->viewer(), &InstanceViewer::spaceKeyPressed, this, &MainWindow::onSpaceKeyPressed);
     colorViewer->setMode(MODE_2D);
-    dai::InstanceViewerWindow* depthViewer = new dai::InstanceViewerWindow;
-    depthViewer->setMode(MODE_3D);
+
+    //dai::InstanceViewerWindow* depthViewer = new dai::InstanceViewerWindow;
+    //depthViewer->setMode(MODE_3D);
 
     // Connect all together
     m_playback->addInstance(colorInstance);
@@ -267,13 +271,43 @@ void MainWindow::on_btnStartKinect_clicked()
     m_playback->addListener(colorViewer, colorInstance);
     m_playback->addListener(colorViewer, userInstance);
     m_playback->addListener(colorViewer, skeletonInstance);
-    m_playback->addListener(depthViewer, depthInstance);
-    m_playback->addListener(depthViewer, skeletonInstance);
+    //m_playback->addListener(depthViewer, depthInstance);
+    //m_playback->addListener(depthViewer, skeletonInstance);
 
     // Run
     m_playback->play();
     colorViewer->show();
-    depthViewer->show();
+    //depthViewer->show();
+}
+
+void MainWindow::onPlusKeyPressed()
+{
+    OpenNIRuntime* openniInstance = OpenNIRuntime::getInstance();
+    openni::PlaybackControl* control = openniInstance->playbackControl();
+    float speed = control->getSpeed();
+    control->setSpeed(speed + 0.05);
+    qDebug() << "Current speed" << control->getSpeed();
+}
+
+void MainWindow::onMinusKeyPressed()
+{
+    OpenNIRuntime* openniInstance = OpenNIRuntime::getInstance();
+    openni::PlaybackControl* control = openniInstance->playbackControl();
+    float speed = control->getSpeed();
+    control->setSpeed(speed - 0.05);
+    qDebug() << "Current speed" << control->getSpeed();
+}
+
+void MainWindow::onSpaceKeyPressed()
+{
+    OpenNIRuntime* openniInstance = OpenNIRuntime::getInstance();
+    openni::PlaybackControl* control = openniInstance->playbackControl();
+    if (control->getSpeed() > 0)
+        control->setSpeed(-1);
+    else
+        control->setSpeed(1);
+
+    qDebug() << "Current speed" << control->getSpeed();
 }
 
 void MainWindow::searchMinAndMaxDepth()

@@ -75,6 +75,11 @@ UserFrame OpenNIRuntime::readUserFrame()
     return m_userFrame;
 }
 
+openni::PlaybackControl* OpenNIRuntime::playbackControl()
+{
+    return m_device.getPlaybackControl();
+}
+
 void OpenNIRuntime::addNewColorListener(openni::VideoStream::NewFrameListener* listener)
 {
     m_oniColorStream.addNewFrameListener(listener);

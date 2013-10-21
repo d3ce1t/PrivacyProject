@@ -258,6 +258,15 @@ ApplicationWindow {
 
             event.accepted = true;
 
+            if (event.key === Qt.Key_Plus) {
+                instanceViewer.onPlusKeyPressed();
+            }
+            else if (event.key === Qt.Key_Minus) {
+                instanceViewer.onMinusKeyPressed();
+            }
+            else if (event.key === Qt.Key_Space) {
+                instanceViewer.onSpaceKeyPressed();
+            }
             if (event.key === Qt.Key_M) {
                 settings.visible = !settings.visible;
             }

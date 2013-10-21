@@ -51,6 +51,21 @@ ViewerMode InstanceViewer::getMode() const
     return m_mode;
 }
 
+void InstanceViewer::onPlusKeyPressed()
+{
+    emit plusKeyPressed();
+}
+
+void InstanceViewer::onMinusKeyPressed()
+{
+    emit minusKeyPressed();
+}
+
+void InstanceViewer::onSpaceKeyPressed()
+{
+    emit spaceKeyPressed();
+}
+
 void InstanceViewer::onNewFrame(QHashDataFrames dataFrames)
 {
     m_running = true;

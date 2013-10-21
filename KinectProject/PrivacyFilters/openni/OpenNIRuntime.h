@@ -22,6 +22,7 @@ public:
     void releaseInstance();
     SkeletonFrame readSkeletonFrame();
     UserFrame readUserFrame();
+    openni::PlaybackControl* playbackControl();
     void addNewColorListener(openni::VideoStream::NewFrameListener* listener);
     void addNewDepthListener(openni::VideoStream::NewFrameListener* listener);
     //void addNewUserTrackerListener(nite::UserTracker::NewFrameListener* listener);

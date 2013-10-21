@@ -34,7 +34,15 @@ public:
     void setMode(ViewerMode mode);
     ViewerMode getMode() const;
 
+signals:
+    void plusKeyPressed();
+    void minusKeyPressed();
+    void spaceKeyPressed();
+
 public slots:
+    void onPlusKeyPressed();
+    void onMinusKeyPressed();
+    void onSpaceKeyPressed();
     void onNewFrame(QHashDataFrames dataFrames);
     void enableFilter(int filter);
     void resetPerspective();

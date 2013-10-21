@@ -27,6 +27,7 @@ public:
     void setTitle(const QString& title);
     void show();
     void setMode(ViewerMode mode);
+    const InstanceViewer* viewer();
 
 signals:
     void changeOfStatus();

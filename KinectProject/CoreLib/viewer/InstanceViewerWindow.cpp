@@ -125,6 +125,11 @@ void InstanceViewerWindow::setMode(ViewerMode mode)
     m_viewer->setMode(mode);
 }
 
+const InstanceViewer* InstanceViewerWindow::viewer()
+{
+    return m_viewer;
+}
+
 void InstanceViewerWindow::showJointsWindow()
 {
     // Setup
