@@ -30,27 +30,30 @@ OgreEngine::~OgreEngine()
 Ogre::Root* OgreEngine::startEngine()
 {
     m_resources_cfg = "resources.cfg";
+    m_plugins_cfg = "plugins.cfg";
 
     activateOgreContext();
 
-    Ogre::Root *ogreRoot = new Ogre::Root;
-    Ogre::RenderSystem *renderSystem = ogreRoot->getRenderSystemByName("OpenGL Rendering Subsystem");
-    ogreRoot->setRenderSystem(renderSystem);
-    ogreRoot->initialise(false);
+    m_root = new Ogre::Root(m_plugins_cfg);
+
+    Ogre::RenderSystem *renderSystem = m_root->getRenderSystemByName("OpenGL Rendering Subsystem");
+    m_root->setRenderSystem(renderSystem);
+    m_root->initialise(false);
 
     Ogre::NameValuePairList params;
-
     params["externalGLControl"] = "true";
     params["currentGLContext"] = "true";
 
     //Finally create our window.
-    m_ogreWindow = ogreRoot->createRenderWindow("OgreWindow", 1, 1, false, &params);
+    m_ogreWindow = m_root->createRenderWindow("OgreWindow", 1, 1, false, &params);
     m_ogreWindow->setVisible(false);
     m_ogreWindow->update(false);
 
     doneOgreContext();
 
-    return ogreRoot;
+    setupResources();
+
+    return m_root;
 }
 
 void OgreEngine::stopEngine(Ogre::Root *ogreRoot)
@@ -62,6 +65,11 @@ void OgreEngine::stopEngine(Ogre::Root *ogreRoot)
     }
 
     delete ogreRoot;
+}
+
+Ogre::RenderWindow* OgreEngine::renderWindow()
+{
+    return m_ogreWindow;
 }
 
 void OgreEngine::setQuickWindow(QQuickWindow *window)

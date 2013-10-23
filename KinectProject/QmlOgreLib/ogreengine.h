@@ -35,19 +35,18 @@ public:
     ~OgreEngine();
     Ogre::Root *startEngine();
     void stopEngine(Ogre::Root *ogreRoot);
-
+    Ogre::RenderWindow* renderWindow();
     void activateOgreContext();
     void doneOgreContext();
-
     QOpenGLContext* ogreContext() const;
-
     QSGTexture* createTextureFromId(uint id, const QSize &size, QQuickWindow::CreateTextureOptions options = QQuickWindow::CreateTextureOption(0)) const;
-
     void setupResources(void);
 
 private:
     Ogre::String m_resources_cfg;
+    Ogre::String m_plugins_cfg;
     Ogre::RenderWindow *m_ogreWindow;
+    Ogre::Root* m_root;
 
     QQuickWindow *m_quickWindow;
 
