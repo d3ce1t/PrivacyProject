@@ -28,19 +28,12 @@ class CameraNodeObject :  public OgreCameraWrapper
 public:
     explicit CameraNodeObject(Ogre::Camera *cam, QObject *parent = 0);
 
-    Ogre::SceneNode *sceneNode() const
-    { return m_node; }
-
-    qreal yaw() const
-    { return m_yaw; }
-    qreal pitch() const
-    { return m_pitch; }
-    qreal zoom() const
-    { return m_zoom; }
-    void setYaw(qreal y)
-    { m_yaw = y; updateRotation(); }
-    void setPitch(qreal p)
-    { m_pitch = p; updateRotation(); }
+    Ogre::SceneNode *sceneNode() const;
+    qreal yaw() const;
+    qreal pitch() const;
+    qreal zoom() const;
+    void setYaw(qreal y);
+    void setPitch(qreal p);
     void setZoom(qreal z);
 
 private:

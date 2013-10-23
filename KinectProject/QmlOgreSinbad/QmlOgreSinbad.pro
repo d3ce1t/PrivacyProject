@@ -7,12 +7,20 @@ UI_DIR = ./.ui
 OBJECTS_DIR = ./.obj
 MOC_DIR = ./.moc
 
+# Use C++11
+QMAKE_CXXFLAGS += -std=c++11
+QMAKE_LFLAGS = -std=c++11
+
 SOURCES += main.cpp \
     cameranodeobject.cpp \
-    exampleapp.cpp
+    exampleapp.cpp \
+    openni/OpenNIRuntime.cpp \
+    character/SinbadCharacterController.cpp
 
 HEADERS += cameranodeobject.h \
-    exampleapp.h
+    exampleapp.h \
+    openni/OpenNIRuntime.h \
+    character/SinbadCharacterController.h
 
 OTHER_FILES += \
     resources/example.qml
@@ -35,6 +43,16 @@ macx {
         }
     }
 } else:unix {
+    # OpenNI2
+    LIBS += -L/opt/OpenNI-Linux-x64-2.2/Tools/ -lOpenNI2
+    INCLUDEPATH += /opt/OpenNI-Linux-x64-2.2/Include
+    DEPENDPATH += /opt/OpenNI-Linux-x64-2.2/Include
+
+    # NiTE2
+    LIBS += -L/opt/NiTE-Linux-x64-2.2/Redist/ -lNiTE2
+    INCLUDEPATH += /opt/NiTE-Linux-x64-2.2/Include
+    DEPENDPATH += /opt/NiTE-Linux-x64-2.2/Include
+
     # QmlOgreLib
     LIBS += -L$$OUT_PWD/../QmlOgreLib/ -lQmlOgre
     PRE_TARGETDEPS += $$OUT_PWD/../QmlOgreLib/libQmlOgre.a
@@ -44,6 +62,15 @@ macx {
     # Ogre
     CONFIG += link_pkgconfig
     PKGCONFIG += OGRE
+
+    # Boost
+    LIBS += -lboost_system
+
+    # CoreLib
+    unix:!macx: LIBS += -L$$OUT_PWD/../CoreLib/ -lCoreLib
+    INCLUDEPATH += $$PWD/../CoreLib
+    DEPENDPATH += $$PWD/../CoreLib
+    unix:!macx: PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/libCoreLib.a
 } else:win32 {
     # Ogre
     OGREDIR = $$(OGRE_HOME)
@@ -83,7 +110,7 @@ RESOURCES += resources/resources.qrc
 
 # Copy all resources to build folder
 Resources.path = $$OUT_PWD/resources
-Resources.files = resources/*.zip
+Resources.files = resources/*
 
 # Copy all config files to build folder
 Config.path = $$OUT_PWD

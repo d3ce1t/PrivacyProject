@@ -29,11 +29,36 @@ CameraNodeObject::CameraNodeObject(Ogre::Camera *cam, QObject *parent) :
     cam->move(initialPosition);
 }
 
-void CameraNodeObject::updateRotation()
+Ogre::SceneNode* CameraNodeObject::sceneNode() const
 {
-    m_node->resetOrientation();
-    m_node->yaw(Ogre::Radian(Ogre::Degree(m_yaw)));
-    m_node->pitch(Ogre::Radian(Ogre::Degree(m_pitch)));
+    return m_node;
+}
+
+qreal CameraNodeObject::yaw() const
+{
+    return m_yaw;
+}
+
+qreal CameraNodeObject::pitch() const
+{
+    return m_pitch;
+}
+
+qreal CameraNodeObject::zoom() const
+{
+    return m_zoom;
+}
+
+void CameraNodeObject::setYaw(qreal y)
+{
+    m_yaw = y;
+    updateRotation();
+}
+
+void CameraNodeObject::setPitch(qreal p)
+{
+    m_pitch = p;
+    updateRotation();
 }
 
 void CameraNodeObject::setZoom(qreal z)
@@ -42,4 +67,11 @@ void CameraNodeObject::setZoom(qreal z)
     m_node->resetOrientation();
     m_camera->setPosition(initialPosition * (1 / m_zoom));
     updateRotation();
+}
+
+void CameraNodeObject::updateRotation()
+{
+    m_node->resetOrientation();
+    m_node->yaw(Ogre::Radian(Ogre::Degree(m_yaw)));
+    m_node->pitch(Ogre::Radian(Ogre::Degree(m_pitch)));
 }
