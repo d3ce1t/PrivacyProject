@@ -110,7 +110,7 @@ RESOURCES += resources/resources.qrc
 
 # Copy all resources to build folder
 Resources.path = $$OUT_PWD/resources
-Resources.files = resources/*
+Resources.files = ../OgreData/*
 
 # Copy all config files to build folder
 Config.path = $$OUT_PWD
