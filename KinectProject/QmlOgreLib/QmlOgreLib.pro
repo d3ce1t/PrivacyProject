@@ -4,6 +4,10 @@ TEMPLATE = lib
 TARGET = QmlOgre
 CONFIG += staticlib
 
+# Use C++11
+QMAKE_CXXFLAGS += -std=c++11
+QMAKE_LFLAGS = -std=c++11
+
 macx {
     OGREDIR = $$(OGRE_HOME)
     isEmpty(OGREDIR) {

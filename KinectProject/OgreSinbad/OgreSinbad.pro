@@ -42,14 +42,17 @@ DEPENDPATH += /opt/NiTE-Linux-x64-2.2/Include
 # OGRE
 CONFIG += link_pkgconfig
 PKGCONFIG += \
-    OGRE \
-    OGRE-RTShaderSystem \
-    OGRE-Property \
-    OGRE-Terrain \
-    OGRE-Paging
+    OGRE
+#    OGRE-RTShaderSystem \
+#    OGRE-Property \
+#    OGRE-Terrain \
+#    OGRE-Paging
 
 # OIS
 PKGCONFIG += OIS
+
+# Boost
+LIBS += -lboost_system
 
 # CoreLib
 unix:!macx: LIBS += -L$$OUT_PWD/../CoreLib/ -lCoreLib
