@@ -38,9 +38,6 @@ public:
     QSize size() const { return m_size; }
 
     void update();
-    void updateFBO();
-
-    GLuint getOgreFboId();
 
     void setOgreEngineItem(OgreEngine *ogreRootItem);
     void doneOgreContext();
@@ -50,7 +47,10 @@ public:
 
     void setCamera(Ogre::Camera *camera) { m_camera = camera; }
 
-private:
+private:    
+    void updateFBO();
+    GLuint getOgreFboId();
+
     QSGTextureMaterial m_material;
     QSGOpaqueTextureMaterial m_materialO;
     QSGGeometry m_geometry;

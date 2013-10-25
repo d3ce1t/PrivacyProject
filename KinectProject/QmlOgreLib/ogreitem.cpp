@@ -30,6 +30,7 @@ QSGNode *OgreItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
     }
 
     OgreNode *node = static_cast<OgreNode *>(oldNode);
+
     if (!node)
     {
         node = new OgreNode();
@@ -45,7 +46,7 @@ QSGNode *OgreItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
     return node;
 }
 
-void OgreItem::timerEvent(QTimerEvent *)
+void OgreItem::timerEvent(QTimerEvent *evt)
 {
     update();
 }

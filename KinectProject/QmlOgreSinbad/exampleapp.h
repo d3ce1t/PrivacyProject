@@ -16,16 +16,20 @@
 
 #include <QtQuick/QQuickView>
 
-class ExampleApp : public QQuickView, public Ogre::FrameListener, public Ogre::WindowEventListener
+class ExampleApp : public QQuickView
 {
     Q_OBJECT
+    Q_PROPERTY(qreal time READ time WRITE addTime NOTIFY tChanged)
+
 public:
     explicit ExampleApp(QWindow *parent = 0);
     ~ExampleApp();
-    virtual bool frameRenderingQueued(const Ogre::FrameEvent& evt);
+    qreal time() const { return m_time; }
+    bool addTime(qreal time);
     
 signals:
     void ogreInitialized();
+    void tChanged();
 
 public slots:
     void initializeOgre();
@@ -34,7 +38,6 @@ public slots:
 protected:
     void createCamera(void);
     void createViewports(void);
-    void createFrameListener(void);
     void createScene(void);
     void destroyScene(void);
     
@@ -48,6 +51,7 @@ private:
     Ogre::SceneManager *m_sceneManager;
 
     SinbadCharacterController* mChara;
+    qreal m_time;
 };
 
 #endif // EXAMPLEAPP_H

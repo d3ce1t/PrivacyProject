@@ -35,7 +35,7 @@ public:
 protected:
     virtual QSGNode *updatePaintNode(QSGNode *, UpdatePaintNodeData *);
 
-    void timerEvent(QTimerEvent *);
+    void timerEvent(QTimerEvent *evt);
 
 private:
     int m_timerID;

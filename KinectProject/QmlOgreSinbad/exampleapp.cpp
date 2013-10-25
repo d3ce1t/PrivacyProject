@@ -43,7 +43,7 @@ void ExampleApp::initializeOgre()
     // we only want to initialize once
     disconnect(this, &ExampleApp::beforeRendering, this, &ExampleApp::initializeOgre);
 
-    // start up Ogre
+    // start up Ogrez
     m_ogreEngine = new OgreEngine(this);
     m_root = m_ogreEngine->startEngine();
 
@@ -59,7 +59,6 @@ void ExampleApp::initializeOgre()
     // Set default mipmap level (NB some APIs ignore this)
     Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
 
-    createFrameListener();
     createScene();
 
     emit(ogreInitialized());
@@ -85,13 +84,6 @@ void ExampleApp::createViewports(void)
     //m_camera->setAspectRatio(Ogre::Real(m_viewPort->getActualWidth()) / Ogre::Real(m_viewPort->getActualHeight()));
 }
 
-void ExampleApp::createFrameListener()
-{
-    //Ogre::RenderWindow* mWindow = m_ogreEngine->renderWindow();
-    //Register as a Window listener
-    //Ogre::WindowEventUtilities::addWindowEventListener(mWindow, this);
-    m_root->addFrameListener(this);
-}
 
 /*void ExampleApp::createScene(void)
 {
@@ -175,13 +167,19 @@ void ExampleApp::addContent()
     // load the QML scene
     setResizeMode(QQuickView::SizeRootObjectToView);
     setSource(QUrl("qrc:/qml/example.qml"));
-
-    //m_root->startRendering();
 }
 
-bool ExampleApp::frameRenderingQueued(const Ogre::FrameEvent& evt)
+bool ExampleApp::addTime(qreal time)
 {
-    Q_UNUSED(evt);
+    if (time == m_time)
+        return true;
+
+    m_time = time;
+    emit tChanged();
+
+    /*if (window())
+        window()->update();*/
+
     static int count = 0;
     qDebug() << "Llamaaaa" << count++;
     return true;

@@ -13,8 +13,9 @@
 #include <QOpenGLFunctions>
 
 OgreEngine::OgreEngine(QQuickWindow *window)
-    : QObject(),
-      m_resources_cfg(Ogre::StringUtil::BLANK)
+    : QObject()
+    , m_resources_cfg(Ogre::StringUtil::BLANK)
+    , m_plugins_cfg(Ogre::StringUtil::BLANK)
 {
     qmlRegisterType<OgreItem>("Ogre", 1, 0, "OgreItem");
     qmlRegisterType<OgreEngine>("OgreEngine", 1, 0, "OgreEngine");
