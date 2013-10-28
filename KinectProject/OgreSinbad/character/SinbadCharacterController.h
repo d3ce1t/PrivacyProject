@@ -55,8 +55,6 @@ public:
 	int m_SmoothingDelta;
 	bool m_front;	
 
-	OgreBites::SdkTrayManager *m_pTrayMgr;
-
     // time to hold in pose to exit program. In milliseconds.
     float m_detectionPercent = 0;
     const uint m_poseDuration = 3000;

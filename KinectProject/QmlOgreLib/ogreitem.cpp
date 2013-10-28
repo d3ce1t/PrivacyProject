@@ -19,7 +19,7 @@ OgreItem::OgreItem(QQuickItem *parent)
     setFlag(ItemHasContents);
     setSmooth(false);
 
-    startTimer(16);
+    m_timerID = startTimer(16);
 }
 
 QSGNode *OgreItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
@@ -48,6 +48,8 @@ QSGNode *OgreItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
 
 void OgreItem::timerEvent(QTimerEvent *evt)
 {
+    Q_UNUSED(evt);
+    m_ogreEngineItem->queueRenderingCommand();
     update();
 }
 

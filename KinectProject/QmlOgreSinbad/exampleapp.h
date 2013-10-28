@@ -19,17 +19,17 @@
 class ExampleApp : public QQuickView
 {
     Q_OBJECT
-    Q_PROPERTY(qreal time READ time WRITE addTime NOTIFY tChanged)
 
 public:
+
+    Ogre::OverlayElement* mDepthPanel;
+
     explicit ExampleApp(QWindow *parent = 0);
     ~ExampleApp();
-    qreal time() const { return m_time; }
-    bool addTime(qreal time);
+    void addTime(qint64 time_ms);
     
 signals:
     void ogreInitialized();
-    void tChanged();
 
 public slots:
     void initializeOgre();
@@ -40,6 +40,7 @@ protected:
     void createViewports(void);
     void createScene(void);
     void destroyScene(void);
+    void setupDepthMaterial();
     
 private:
     CameraNodeObject *m_cameraObject;
@@ -51,7 +52,7 @@ private:
     Ogre::SceneManager *m_sceneManager;
 
     SinbadCharacterController* mChara;
-    qreal m_time;
+    qint64 m_lastTime;
 };
 
 #endif // EXAMPLEAPP_H

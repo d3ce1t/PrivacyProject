@@ -54,7 +54,11 @@ void SinbadCharacterController::UpdateDepthTexture()
         return;
 
     TexturePtr texture = TextureManager::getSingleton().getByName("MyDepthTexture");
+
     // Get the pixel buffer
+    if (texture.isNull())
+        return;
+
     HardwarePixelBufferSharedPtr pixelBuffer = texture->getBuffer();
 
     // Lock the pixel buffer and get a pixel box

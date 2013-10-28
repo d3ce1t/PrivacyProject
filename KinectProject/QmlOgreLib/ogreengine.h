@@ -14,6 +14,7 @@
 #include <QQuickWindow>
 #include <QOpenGLContext>
 #include <Ogre.h>
+#include <QElapsedTimer>
 
 namespace Ogre {
 class Root;
@@ -42,6 +43,12 @@ public:
     QSGTexture* createTextureFromId(uint id, const QSize &size, QQuickWindow::CreateTextureOptions options = QQuickWindow::CreateTextureOption(0)) const;
     void setupResources(void);
 
+public slots:
+    void queueRenderingCommand();
+
+signals:
+    void beforeRendering(qint64 time_ms);
+
 private:
     Ogre::String m_resources_cfg;
     Ogre::String m_plugins_cfg;
@@ -54,6 +61,8 @@ private:
     QOpenGLContext* m_ogreContext;
     /** Pointer to QOpenGLContext to be restored after Ogre context. */
     QOpenGLContext* m_qtContext;
+
+    QElapsedTimer   m_timer;
 
 protected:
     void setQuickWindow(QQuickWindow *window);

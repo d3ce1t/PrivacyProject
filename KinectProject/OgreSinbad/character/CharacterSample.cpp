@@ -53,10 +53,6 @@ void Sample_Character::createScene(void)
     // create our character controller
     mChara = new SinbadCharacterController(mCamera);
 
-    //mTrayMgr->toggleAdvancedFrameStats();
-
-    mChara->m_pTrayMgr = mTrayMgr;
-
     SetupDepthMaterial();
     mDepthPanel = Ogre::OverlayManager::getSingleton().createOverlayElement("Panel","DepthPanel");
     mDepthPanel->setMaterialName("DepthTextureMaterial");

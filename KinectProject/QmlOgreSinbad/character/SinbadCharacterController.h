@@ -50,7 +50,7 @@ public:
 
 	double m_SmoothingFactor;
 	int m_SmoothingDelta;
-	bool m_front;	
+    bool m_front;
 
     // time to hold in pose to exit program. In milliseconds.
     float m_detectionPercent = 0;

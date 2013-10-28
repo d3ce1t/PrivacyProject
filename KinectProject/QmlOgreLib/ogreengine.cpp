@@ -21,6 +21,8 @@ OgreEngine::OgreEngine(QQuickWindow *window)
     qmlRegisterType<OgreEngine>("OgreEngine", 1, 0, "OgreEngine");
 
     setQuickWindow(window);
+
+    m_timer.start();
 }
 
 OgreEngine::~OgreEngine()
@@ -163,4 +165,9 @@ void OgreEngine::setupResources(void)
     }
 
     Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
+}
+
+void OgreEngine::queueRenderingCommand()
+{
+   emit beforeRendering(m_timer.elapsed());
 }

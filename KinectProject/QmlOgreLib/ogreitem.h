@@ -39,7 +39,6 @@ protected:
 
 private:
     int m_timerID;
-
     OgreCameraWrapper *m_camera;
     OgreEngine *m_ogreEngineItem;
 };
