@@ -195,6 +195,16 @@ void OpenNIRuntime::shutdownOpenNI()
     openni::OpenNI::shutdown();
 }
 
+nite::UserTracker& OpenNIRuntime::getUserTracker()
+{
+    return m_oniUserTracker;
+}
+
+openni::VideoStream& OpenNIRuntime::getDepthStream()
+{
+    return m_oniDepthStream;
+}
+
 void OpenNIRuntime::onNewFrame(nite::UserTracker& oniUserTracker)
 {
     nite::UserTrackerFrameRef oniUserTrackerFrame;

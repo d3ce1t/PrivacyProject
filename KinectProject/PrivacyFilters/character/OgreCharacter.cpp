@@ -7,7 +7,7 @@
  * with this source code in the file LICENSE.}
  */
 
-#include "exampleapp.h"
+#include "OgreCharacter.h"
 
 #include "ogreitem.h"
 #include "ogreengine.h"
@@ -16,7 +16,7 @@
 #include <QtQml/QQmlContext>
 #include <QDir>
 
-ExampleApp::ExampleApp(QWindow *parent) :
+OgreCharacter::OgreCharacter(QWindow *parent) :
     QQuickView(parent)
   , m_cameraObject(0)
   , m_ogreEngine(0)
@@ -28,11 +28,11 @@ ExampleApp::ExampleApp(QWindow *parent) :
   , m_lastTime(0)
 {
     // start Ogre once we are in the rendering thread (Ogre must live in the rendering thread)
-    connect(this, &ExampleApp::beforeRendering, this, &ExampleApp::initializeOgre, Qt::DirectConnection);
-    connect(this, &ExampleApp::ogreInitialized, this, &ExampleApp::addContent);
+    connect(this, &OgreCharacter::beforeRendering, this, &OgreCharacter::initializeOgre, Qt::DirectConnection);
+    connect(this, &OgreCharacter::ogreInitialized, this, &OgreCharacter::addContent);
 }
 
-ExampleApp::~ExampleApp()
+OgreCharacter::~OgreCharacter()
 {
     destroyScene();
 
@@ -41,10 +41,10 @@ ExampleApp::~ExampleApp()
     }
 }
 
-void ExampleApp::initializeOgre()
+void OgreCharacter::initializeOgre()
 {
     // we only want to initialize once
-    disconnect(this, &ExampleApp::beforeRendering, this, &ExampleApp::initializeOgre);
+    disconnect(this, &OgreCharacter::beforeRendering, this, &OgreCharacter::initializeOgre);
 
     // start up Ogrez
     m_ogreEngine = new OgreEngine(this);
@@ -67,7 +67,7 @@ void ExampleApp::initializeOgre()
     emit(ogreInitialized());
 }
 
-void ExampleApp::createCamera(void)
+void OgreCharacter::createCamera(void)
 {
     m_camera = m_sceneManager->createCamera("PlayerCam");
     m_camera->setNearClipDistance(5);
@@ -77,14 +77,14 @@ void ExampleApp::createCamera(void)
     m_cameraObject = new CameraNodeObject(m_camera);
 }
 
-void ExampleApp::createViewports(void)
+void OgreCharacter::createViewports(void)
 {
     // Create one viewport, entire window
     m_viewPort = m_ogreEngine->renderWindow()->addViewport(m_camera);
     m_viewPort->setBackgroundColour(Ogre::ColourValue(1.0,1.0,1.0));
 }
 
-void ExampleApp::createScene(void)
+void OgreCharacter::createScene(void)
 {
     // Resources with textures must be loaded within Ogre's GL context
     m_ogreEngine->activateOgreContext();
@@ -137,30 +137,28 @@ void ExampleApp::createScene(void)
     mDepthPanel->show();*/
 }
 
-void ExampleApp::destroyScene(void)
+void OgreCharacter::destroyScene(void)
 {
     // clean up character controller and the floor mesh
     if (mChara) delete mChara;
     MeshManager::getSingleton().remove("floor");
 }
 
-void ExampleApp::addContent()
+void OgreCharacter::addContent()
 {
     // expose objects as QML globals
     rootContext()->setContextProperty("Window", this);
     rootContext()->setContextProperty("Camera", m_cameraObject);
     rootContext()->setContextProperty("OgreEngine", m_ogreEngine);
 
-
-
     // load the QML scene
     setResizeMode(QQuickView::SizeRootObjectToView);
     setSource(QUrl("qrc:/qml/example.qml"));
 
-   connect(m_ogreEngine, &OgreEngine::beforeRendering, this, &ExampleApp::addTime, Qt::DirectConnection);
+   connect(m_ogreEngine, &OgreEngine::beforeRendering, this, &OgreCharacter::addTime, Qt::DirectConnection);
 }
 
-void ExampleApp::addTime(qint64 time_ms)
+void OgreCharacter::addTime(qint64 time_ms)
 {        
     if (time_ms == m_lastTime)
         return;
@@ -170,7 +168,7 @@ void ExampleApp::addTime(qint64 time_ms)
     m_lastTime = time_ms;
 }
 
-void ExampleApp::setupDepthMaterial()
+void OgreCharacter::setupDepthMaterial()
 {
     // Create the texture
     TextureManager::getSingleton().createManual(

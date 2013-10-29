@@ -15,6 +15,12 @@ InstanceViewerWindow::InstanceViewerWindow()
     m_fps = 0;
 
     // QML Setup
+    qmlRegisterType<InstanceViewer>("InstanceViewer", 1, 0, "InstanceViewer");
+    qmlRegisterUncreatableType<QMLEnumsWrapper>("edu.dai.kinect", 1, 0, "ColorFilter", "This exports SomeState enums to QML");
+    qRegisterMetaType<QHashDataFrames>("QHashDataFrames");
+    qRegisterMetaType<QList<shared_ptr<BaseInstance>>>("QList<shared_ptr<BaseInstance>>");
+    qRegisterMetaType<shared_ptr<SkeletonFrame>>("shared_ptr<SkeletonFrame>");
+
     m_engine.rootContext()->setContextProperty("viewerWindow", (QObject *) this);
     m_engine.load(QUrl("qrc:///qml/qml/main.qml"));
     QObject *topLevel = m_engine.rootObjects().value(0);

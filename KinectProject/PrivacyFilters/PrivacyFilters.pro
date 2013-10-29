@@ -16,7 +16,10 @@ HEADERS += \
     openni/OpenNIRuntime.h \
     openni/OpenNIUserInstance.h \
     openni/OpenNISkeletonInstance.h \
-    openni/OpenNIBaseInstance.h
+    openni/OpenNIBaseInstance.h \
+    character/SinbadCharacterController.h \
+    cameranodeobject.h \
+    character/OgreCharacter.h
 
 SOURCES += \
     Main.cpp \
@@ -28,7 +31,10 @@ SOURCES += \
     openni/OpenNIRuntime.cpp \
     openni/OpenNIUserInstance.cpp \
     openni/OpenNISkeletonInstance.cpp \
-    openni/OpenNIBaseInstance.cpp
+    openni/OpenNIBaseInstance.cpp \
+    character/SinbadCharacterController.cpp \
+    cameranodeobject.cpp \
+    character/OgreCharacter.cpp
 
 OTHER_FILES += \
     qml/main.qml \
@@ -52,6 +58,19 @@ unix:!macx {
     PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/libCoreLib.a
     INCLUDEPATH += $$PWD/../CoreLib
     DEPENDPATH += $$PWD/../CoreLib
+
+    # QmlOgreLib
+    LIBS += -L$$OUT_PWD/../QmlOgreLib/ -lQmlOgre
+    PRE_TARGETDEPS += $$OUT_PWD/../QmlOgreLib/libQmlOgre.a
+    INCLUDEPATH += $$PWD/../QmlOgreLib
+    DEPENDPATH += $$PWD/../QmlOgreLib
+
+    # Ogre
+    CONFIG += link_pkgconfig
+    PKGCONFIG += OGRE
+
+    # Boost
+    LIBS += -lboost_system
 
     # OpenNI2
     LIBS += -L/opt/OpenNI-Linux-x64-2.2/Tools/ -lOpenNI2

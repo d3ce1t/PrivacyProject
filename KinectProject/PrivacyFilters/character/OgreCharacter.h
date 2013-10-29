@@ -7,8 +7,8 @@
  * with this source code in the file LICENSE.}
  */
 
-#ifndef EXAMPLEAPP_H
-#define EXAMPLEAPP_H
+#ifndef OGRE_CHARACTER_H
+#define OGRE_CHARACTER_H
 
 #include "ogreengine.h"
 #include "cameranodeobject.h"
@@ -16,7 +16,7 @@
 
 #include <QtQuick/QQuickView>
 
-class ExampleApp : public QQuickView
+class OgreCharacter : public QQuickView
 {
     Q_OBJECT
 
@@ -24,8 +24,8 @@ public:
 
     Ogre::OverlayElement* mDepthPanel;
 
-    explicit ExampleApp(QWindow *parent = 0);
-    ~ExampleApp();
+    explicit OgreCharacter(QWindow *parent = 0);
+    ~OgreCharacter();
     void addTime(qint64 time_ms);
     
 signals:
@@ -55,4 +55,4 @@ private:
     qint64 m_lastTime;
 };
 
-#endif // EXAMPLEAPP_H
+#endif // OGRE_CHARACTER_H

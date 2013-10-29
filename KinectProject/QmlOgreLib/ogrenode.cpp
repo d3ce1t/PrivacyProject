@@ -114,6 +114,7 @@ void OgreNode::updateFBO()
         Ogre::TextureManager::getSingleton().remove("RttTex");
 
     int samples = m_ogreEngineItem->ogreContext()->format().samples();
+
     m_rttTexture = Ogre::TextureManager::getSingleton().createManual("RttTex",
                                                                     Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
                                                                     Ogre::TEX_TYPE_2D,
@@ -126,10 +127,11 @@ void OgreNode::updateFBO()
 
     m_renderTarget = m_rttTexture->getBuffer()->getRenderTarget();
 
-    m_renderTarget->addViewport(m_camera);
-    m_renderTarget->getViewport(0)->setClearEveryFrame(true);
-    m_renderTarget->getViewport(0)->setBackgroundColour(Ogre::ColourValue::Black);
-    m_renderTarget->getViewport(0)->setOverlaysEnabled(false);
+    Ogre::Viewport* viewport = m_renderTarget->addViewport(m_camera);
+    viewport->setClearEveryFrame(true);
+    viewport->setBackgroundColour(Ogre::ColourValue(1.0,1.0,1.0));
+    //viewport->setBackgroundColour(Ogre::ColourValue::White);
+    viewport->setOverlaysEnabled(false);
 
     Ogre::Real aspectRatio = Ogre::Real(m_size.width()) / Ogre::Real(m_size.height());
     m_camera->setAspectRatio(aspectRatio);

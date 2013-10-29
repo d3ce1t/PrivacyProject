@@ -1,6 +1,6 @@
 import QtQuick 2.0
 import QtQuick.Controls 1.0
-import OpenGLUnderQML 1.0
+import InstanceViewer 1.0
 import edu.dai.kinect 1.0
 
 ApplicationWindow {
