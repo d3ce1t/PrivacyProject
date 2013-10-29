@@ -12,15 +12,7 @@
 #include "types/FrameFilter.h"
 #include "viewer/ScenePainter.h"
 #include "viewer/QMLEnumsWrapper.h"
-
-using namespace dai;
-
-namespace dai {
-    enum ViewerMode {
-        MODE_2D,
-        MODE_3D
-    };
-}
+#include "viewer/ViewerEngine.h"
 
 class QListWidget;
 
@@ -28,50 +20,23 @@ class InstanceViewer : public QQuickItem
 {
     Q_OBJECT
 
+    Q_PROPERTY(ViewerEngine *viewerEngine READ viewerEngine WRITE setViewerEngine)
+
 public:
     explicit InstanceViewer();
-    virtual ~InstanceViewer();
-    void setMode(ViewerMode mode);
-    ViewerMode getMode() const;
-
-signals:
-    void plusKeyPressed();
-    void minusKeyPressed();
-    void spaceKeyPressed();
+    virtual ~InstanceViewer();    
+    ViewerEngine* viewerEngine() const { return m_viewerEngine; }
+    void setViewerEngine(ViewerEngine *viewerEngine);
 
 public slots:
-    void onPlusKeyPressed();
-    void onMinusKeyPressed();
-    void onSpaceKeyPressed();
-    void onNewFrame(QHashDataFrames dataFrames);
-    void enableFilter(int filter);
-    void resetPerspective();
-    void rotateAxisX(float angle);
-    void rotateAxisY(float angle);
-    void rotateAxisZ(float angle);
-    void translateAxisX(float value);
-    void translateAxisY(float value);
-    void translateAxisZ(float value);
     void renderOpenGLScene();
-
-signals:
-    void frameRendered();
 
 private slots:
     void handleWindowChanged(QQuickWindow *win);
 
 private:
-    // Private Functions
-    shared_ptr<DataFrame> applyFilter(shared_ptr<DataFrame> inputFrame, shared_ptr<UserFrame> userMask = nullptr) const;
-    void testOutput();
-    void updatePaintersMatrix();
-
-    // Private member attributes
-    QQuickWindow*                                     m_window;
-    shared_ptr<ScenePainter>                          m_scene;
-    ViewerMode                                        m_mode;
-    bool                                              m_running;
-    QMultiHash<DataFrame::FrameType, shared_ptr<FrameFilter>> m_filters;
+    ViewerEngine*  m_viewerEngine;
+    QQuickWindow*  m_quickWindow;
 };
 
 #endif // INSTANCE_VIEWER_H

@@ -6,49 +6,48 @@
 #include "types/UserFrame.h"
 #include <QQmlContext>
 #include "CustomItem.h"
+#include <QMetaEnum>
 
 namespace dai {
 
-InstanceViewerWindow::InstanceViewerWindow()
+InstanceViewerWindow::InstanceViewerWindow(ViewerMode mode)
+    : m_fps(0)
+    , m_viewerEngine(nullptr)
+    , m_viewerMode(mode)
+    , m_quickWindow(nullptr)
+    , m_frameCounter(0)
 { 
-    // Viewer setup
-    m_fps = 0;
+    m_viewerEngine = new ViewerEngine;
+    m_viewerEngine->setMode(mode);
 
-    // QML Setup
-    qmlRegisterType<InstanceViewer>("InstanceViewer", 1, 0, "InstanceViewer");
-    qmlRegisterUncreatableType<QMLEnumsWrapper>("edu.dai.kinect", 1, 0, "ColorFilter", "This exports SomeState enums to QML");
-    qRegisterMetaType<QHashDataFrames>("QHashDataFrames");
-    qRegisterMetaType<QList<shared_ptr<BaseInstance>>>("QList<shared_ptr<BaseInstance>>");
-    qRegisterMetaType<shared_ptr<SkeletonFrame>>("shared_ptr<SkeletonFrame>");
+    // exposte objects as QML globals
+    m_qmlEngine.rootContext()->setContextProperty("viewerWindow", this);
+    m_qmlEngine.rootContext()->setContextProperty("ViewerEngine", m_viewerEngine);
 
-    m_engine.rootContext()->setContextProperty("viewerWindow", (QObject *) this);
-    m_engine.load(QUrl("qrc:///qml/qml/main.qml"));
-    QObject *topLevel = m_engine.rootObjects().value(0);
-    m_window = qobject_cast<QQuickWindow *>(topLevel);
+    // Load QML app
+    m_qmlEngine.load(QUrl("qrc:///qml/qml/main.qml"));
 
-    if ( !m_window ) {
+    // Get Window
+    QObject *topLevel = m_qmlEngine.rootObjects().value(0);
+    m_quickWindow = qobject_cast<QQuickWindow *>(topLevel);
+
+    if ( !m_quickWindow ) {
         qWarning("Error: Your root item has to be a Window.");
         return;
     }
 
-    m_viewer = m_window->findChild<InstanceViewer*>("viewer");
-
-    if (!m_viewer) {
-        qWarning("Error: Viewer not found.");
-        return;
-    }
+    m_quickWindow->setTitle("Instance Viewer");
+    m_viewerEngine->startEngine(m_quickWindow);
 
     // Windows setup
-    connect(m_window, SIGNAL(closing(QQuickCloseEvent*)), this, SLOT(deleteLater()));
-    connect(m_viewer, SIGNAL(frameRendered()), this, SLOT(completeAsyncTask()));
-    setTitle("Instance Viewer");
+    connect(m_quickWindow, SIGNAL(closing(QQuickCloseEvent*)), this, SLOT(deleteLater()));
+    connect(m_viewerEngine, &ViewerEngine::frameRendered, this, &InstanceViewerWindow::completeAsyncTask);
 }
 
 InstanceViewerWindow::~InstanceViewerWindow()
 {
     qDebug() << "InstanceViewerWindow::~InstanceViewerWindow()";
-    m_viewer = nullptr;
-    m_window = nullptr;
+    m_viewerEngine = nullptr;
 
     // Close windows and clear models
     m_joints_table_view.close();
@@ -59,6 +58,18 @@ InstanceViewerWindow::~InstanceViewerWindow()
 
     m_quaternions_table_view.close();
     m_quaternions_model.clear();
+}
+
+void InstanceViewerWindow::setTitle(const QString& title)
+{
+    if (m_quickWindow)
+        m_quickWindow->setTitle(title);
+}
+
+void InstanceViewerWindow::show()
+{
+    if (m_quickWindow)
+        m_quickWindow->show();
 }
 
 void InstanceViewerWindow::processListItem(QListWidget* widget)
@@ -84,7 +95,7 @@ void InstanceViewerWindow::processListItem(QListWidget* widget)
 void InstanceViewerWindow::onNewFrame(const QHash<DataFrame::FrameType, shared_ptr<DataFrame>>& dataFrames)
 {
     // Sent to viewer (execute the method in the thread it belongs to)
-    QMetaObject::invokeMethod(m_viewer, "onNewFrame",
+    QMetaObject::invokeMethod(m_viewerEngine, "onNewFrame",
                                   Qt::AutoConnection,
                                   Q_ARG(QHashDataFrames, dataFrames));
 
@@ -114,26 +125,9 @@ float InstanceViewerWindow::getFPS() const
     return m_fps;
 }
 
-void InstanceViewerWindow::setTitle(const QString& title)
+const ViewerEngine* InstanceViewerWindow::viewerEngine() const
 {
-    if (m_window)
-        m_window->setTitle(title);
-}
-
-void InstanceViewerWindow::show()
-{
-    if (m_window)
-        m_window->show();
-}
-
-void InstanceViewerWindow::setMode(ViewerMode mode)
-{
-    m_viewer->setMode(mode);
-}
-
-const InstanceViewer* InstanceViewerWindow::viewer()
-{
-    return m_viewer;
+    return m_viewerEngine;
 }
 
 void InstanceViewerWindow::showJointsWindow()
@@ -400,5 +394,7 @@ float InstanceViewerWindow::colorIntensity(float x)
     // b =  2.99573227355399
     return (log(100*(x+0.1)) - b)/max;
 }
+
+
 
 } // End Namespace

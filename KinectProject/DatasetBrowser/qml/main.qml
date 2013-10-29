@@ -1,7 +1,6 @@
 import QtQuick 2.0
 import QtQuick.Controls 1.0
 import InstanceViewer 1.0
-import edu.dai.kinect 1.0
 
 ApplicationWindow {
     id: mainWindow
@@ -9,10 +8,6 @@ ApplicationWindow {
     minimumHeight: 505
     width: minimumWidth
     height:  minimumHeight
-
-    ExclusiveGroup {
-        id: privacyFilter
-    }
 
     SequentialAnimation {
         id: overlayTextHide
@@ -49,9 +44,7 @@ ApplicationWindow {
 
     InstanceViewer {
         id: instanceViewer
-        objectName: "viewer"
-        //width: 640
-        //height: 480
+        viewerEngine: ViewerEngine
         implicitWidth: 640
         implicitHeight: 480
         focus: true
@@ -178,52 +171,52 @@ ApplicationWindow {
             }
             else if (event.key === Qt.Key_Up) {
                 if (checkBoxXYRot.checked === true) {
-                    instanceViewer.rotateAxisX(2)
+                    ViewerEngine.rotateAxisX(2)
                 } else if (checkBoxZRot.checked === true) {
-                    instanceViewer.rotateAxisX(-2)
+                    ViewerEngine.rotateAxisX(-2)
                 }
             }
             else if (event.key === Qt.Key_Down) {
                 if (checkBoxXYRot.checked === true) {
-                    instanceViewer.rotateAxisX(-2)
+                    ViewerEngine.rotateAxisX(-2)
                 } else if (checkBoxZRot.checked === true) {
-                    instanceViewer.rotateAxisX(+2)
+                    ViewerEngine.rotateAxisX(+2)
                 }
             }
             else if (event.key === Qt.Key_Right) {
                 if (checkBoxXYRot.checked === true) {
-                    instanceViewer.rotateAxisY(-2)
+                    ViewerEngine.rotateAxisY(-2)
                 } else if (checkBoxZRot.checked === true) {
-                    instanceViewer.rotateAxisZ(-2)
+                    ViewerEngine.rotateAxisZ(-2)
                 }
             }
             else if (event.key === Qt.Key_Left) {
                 if (checkBoxXYRot.checked === true) {
-                    instanceViewer.rotateAxisY(2)
+                    ViewerEngine.rotateAxisY(2)
                 } else if (checkBoxZRot.checked === true) {
-                    instanceViewer.rotateAxisZ(2)
+                    ViewerEngine.rotateAxisZ(2)
                 }
             }
             else if (event.key === Qt.Key_W) {
                 if (checkBoxYTrans.checked === false)
-                    instanceViewer.translateAxisZ(-0.1)
+                    ViewerEngine.translateAxisZ(-0.1)
                 else
-                    instanceViewer.translateAxisY(0.1)
+                    ViewerEngine.translateAxisY(0.1)
             }
             else if (event.key === Qt.Key_S) {
                 if (checkBoxYTrans.checked === false)
-                    instanceViewer.translateAxisZ(0.1)
+                    ViewerEngine.translateAxisZ(0.1)
                 else
-                    instanceViewer.translateAxisY(-0.1)
+                    ViewerEngine.translateAxisY(-0.1)
             }
             else if (event.key === Qt.Key_A) {
-                instanceViewer.translateAxisX(-0.1)
+                ViewerEngine.translateAxisX(-0.1)
             }
             else if (event.key === Qt.Key_D) {
-                instanceViewer.translateAxisX(0.1)
+                ViewerEngine.translateAxisX(0.1)
             }
             else if (event.key === Qt.Key_R) {
-                instanceViewer.resetPerspective()
+                ViewerEngine.resetPerspective()
             } else {
                 event.accepted = false;
             }

@@ -2,15 +2,15 @@
 #define INSTANCEVIEWERWINDOW_H
 
 #include <QQuickWindow>
+#include <QQmlApplicationEngine>
 #include "playback/PlaybackListener.h"
 #include "types/SkeletonFrame.h"
-#include <QQmlApplicationEngine>
 #include <QMultiHash>
 #include <QObject>
 #include <QTableView>
 #include <QStandardItemModel>
 #include <QListWidget>
-#include "viewer/InstanceViewer.h"
+#include "viewer/ViewerEngine.h"
 
 
 namespace dai {
@@ -22,12 +22,11 @@ class InstanceViewerWindow : public QObject, public PlaybackListener
     Q_PROPERTY(float fps READ getFPS NOTIFY changeOfStatus)
 
 public:
-    InstanceViewerWindow();
+    InstanceViewerWindow(ViewerMode mode);
     virtual ~InstanceViewerWindow();
+    const ViewerEngine* viewerEngine() const;
     void setTitle(const QString& title);
     void show();
-    void setMode(ViewerMode mode);
-    const InstanceViewer* viewer();
 
 signals:
     void changeOfStatus();
@@ -58,9 +57,10 @@ private:
     float colorIntensity(float value);
 
     float                      m_fps;
-    QQmlApplicationEngine      m_engine;
-    InstanceViewer*            m_viewer;
-    QQuickWindow*              m_window;
+    ViewerEngine*              m_viewerEngine;
+    ViewerMode                 m_viewerMode;
+    QQmlApplicationEngine      m_qmlEngine;
+    QQuickWindow*              m_quickWindow;
 
     // Windows and models for Skeleton data
     QTableView                 m_joints_table_view;

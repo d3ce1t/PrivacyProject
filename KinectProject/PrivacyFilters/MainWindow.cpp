@@ -214,7 +214,7 @@ void MainWindow::on_btnTest_clicked()
     //dai::InstanceViewerWindow* colorViewer = new dai::InstanceViewerWindow;
     //dai::InstanceViewerWindow* depthViewer = new dai::InstanceViewerWindow;
     //dai::InstanceViewerWindow* userViewer = new dai::InstanceViewerWindow;
-    dai::InstanceViewerWindow* skeletonViewer = new dai::InstanceViewerWindow;
+    dai::InstanceViewerWindow* skeletonViewer = new dai::InstanceViewerWindow(MODE_3D);
     //dai::TestListener* skeletonViewer = new dai::TestListener;
 
     // Connect all together
@@ -253,11 +253,10 @@ void MainWindow::on_btnStartKinect_clicked()
     connect(m_playback, &dai::PlaybackControl::onPlaybackFinished, m_playback, &dai::PlaybackControl::deleteLater);
 
     // Create viewers
-    dai::InstanceViewerWindow* colorViewer = new dai::InstanceViewerWindow;
-    connect(colorViewer->viewer(), &InstanceViewer::plusKeyPressed, this, &MainWindow::onPlusKeyPressed);
-    connect(colorViewer->viewer(), &InstanceViewer::minusKeyPressed, this, &MainWindow::onMinusKeyPressed);
-    connect(colorViewer->viewer(), &InstanceViewer::spaceKeyPressed, this, &MainWindow::onSpaceKeyPressed);
-    colorViewer->setMode(MODE_2D);
+    dai::InstanceViewerWindow* colorViewer = new dai::InstanceViewerWindow(dai::MODE_2D);
+    connect(colorViewer->viewerEngine(), &ViewerEngine::plusKeyPressed, this, &MainWindow::onPlusKeyPressed);
+    connect(colorViewer->viewerEngine(), &ViewerEngine::minusKeyPressed, this, &MainWindow::onMinusKeyPressed);
+    connect(colorViewer->viewerEngine(), &ViewerEngine::spaceKeyPressed, this, &MainWindow::onSpaceKeyPressed);
 
     //dai::InstanceViewerWindow* depthViewer = new dai::InstanceViewerWindow;
     //depthViewer->setMode(MODE_3D);
@@ -282,7 +281,7 @@ void MainWindow::on_btnStartKinect_clicked()
 
 void MainWindow::onPlusKeyPressed()
 {
-    OpenNIRuntime* openniInstance = OpenNIRuntime::getInstance();
+    dai::OpenNIRuntime* openniInstance = dai::OpenNIRuntime::getInstance();
     openni::PlaybackControl* control = openniInstance->playbackControl();
     float speed = control->getSpeed();
     control->setSpeed(speed + 0.05);
@@ -291,7 +290,7 @@ void MainWindow::onPlusKeyPressed()
 
 void MainWindow::onMinusKeyPressed()
 {
-    OpenNIRuntime* openniInstance = OpenNIRuntime::getInstance();
+    dai::OpenNIRuntime* openniInstance = dai::OpenNIRuntime::getInstance();
     openni::PlaybackControl* control = openniInstance->playbackControl();
     float speed = control->getSpeed();
     control->setSpeed(speed - 0.05);
@@ -300,7 +299,7 @@ void MainWindow::onMinusKeyPressed()
 
 void MainWindow::onSpaceKeyPressed()
 {
-    OpenNIRuntime* openniInstance = OpenNIRuntime::getInstance();
+    dai::OpenNIRuntime* openniInstance = dai::OpenNIRuntime::getInstance();
     openni::PlaybackControl* control = openniInstance->playbackControl();
     if (control->getSpeed() > 0)
         control->setSpeed(-1);

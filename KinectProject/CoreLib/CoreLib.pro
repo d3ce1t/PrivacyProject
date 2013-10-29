@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core quick gui multimedia
+QT       += core qml quick gui multimedia
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = CoreLib
@@ -63,7 +63,8 @@ SOURCES += \
     filters/DilateUserFilter.cpp \
     filters/BlurFilter.cpp \
     dataset/MSRDaily/MSRDailyColorInstance.cpp \
-    Config.cpp
+    Config.cpp \
+    viewer/ViewerEngine.cpp
 
 HEADERS += \
     types/Vector3D.h \
@@ -116,7 +117,8 @@ HEADERS += \
     filters/BlurFilter.h \
     exceptions/CannotOpenInstanceException.h \
     dataset/MSRDaily/MSRDailyColorInstance.h \
-    Config.h
+    Config.h \
+    viewer/ViewerEngine.h
 
 unix:!symbian {
     maemo5 {

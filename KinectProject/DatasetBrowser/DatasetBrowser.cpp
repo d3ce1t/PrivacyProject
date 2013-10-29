@@ -124,15 +124,16 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
 
     if (instance)
     {
-        InstanceViewerWindow* windowViewer = new InstanceViewerWindow;
+        ViewerMode mode;
 
         if (instance->getType() == INSTANCE_COLOR || instance->getType() == INSTANCE_USER) {
-            windowViewer->setMode(MODE_2D);
+            mode = MODE_2D;
         }
         else if (instance->getType() == INSTANCE_DEPTH || instance->getType() == INSTANCE_SKELETON) {
-            windowViewer->setMode(MODE_3D);
+            mode = MODE_3D;
         }
 
+        InstanceViewerWindow* windowViewer = new InstanceViewerWindow(mode);
         m_playback.addInstance(instance);
         m_playback.addListener(windowViewer, instance);
 

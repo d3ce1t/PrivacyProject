@@ -42,7 +42,7 @@ ApplicationWindow {
                     overlayText.text = "No Filter Enabled"
                     overlayText.opacity = 1
                     overlayTextHide.start()
-                    instanceViewer.enableFilter(ColorFilter.FILTER_DISABLED) // GPU - No Filter
+                    ViewerEngine.enableFilter(ColorFilter.FILTER_DISABLED) // GPU - No Filter
                 }
             }
 
@@ -55,7 +55,7 @@ ApplicationWindow {
                     overlayText.text = "Invisibility Filter Enabled"
                     overlayText.opacity = 1
                     overlayTextHide.start()
-                    instanceViewer.enableFilter(ColorFilter.FILTER_INVISIBILITY) // GPU
+                    ViewerEngine.enableFilter(ColorFilter.FILTER_INVISIBILITY) // GPU
                 }
             }
             MenuItem {
@@ -67,7 +67,7 @@ ApplicationWindow {
                     overlayText.text = "Blur Filter Enabled"
                     overlayText.opacity = 1
                     overlayTextHide.start()
-                    instanceViewer.enableFilter(ColorFilter.FILTER_BLUR) // GPU
+                    ViewerEngine.enableFilter(ColorFilter.FILTER_BLUR) // GPU
                 }
             }
             MenuItem {
@@ -79,7 +79,7 @@ ApplicationWindow {
                     overlayText.text = "Pixelation Filter Enabled"
                     overlayText.opacity = 1
                     overlayTextHide.start()
-                    instanceViewer.enableFilter(ColorFilter.FILTER_PIXELATION) // GPU
+                    ViewerEngine.enableFilter(ColorFilter.FILTER_PIXELATION) // GPU
                 }
             }
             MenuItem {
@@ -91,7 +91,7 @@ ApplicationWindow {
                     overlayText.text = "Emboss Filter Enabled"
                     overlayText.opacity = 1
                     overlayTextHide.start()
-                    instanceViewer.enableFilter(ColorFilter.FILTER_EMBOSS) // GPU
+                    ViewerEngine.enableFilter(ColorFilter.FILTER_EMBOSS) // GPU
                 }
             }
             MenuItem {
@@ -103,7 +103,7 @@ ApplicationWindow {
                     overlayText.text = "Silhouette Filter Enabled"
                     overlayText.opacity = 1
                     overlayTextHide.start()
-                    instanceViewer.enableFilter(ColorFilter.FILTER_SILHOUETTE) // GPU
+                    ViewerEngine.enableFilter(ColorFilter.FILTER_SILHOUETTE) // GPU
                 }
             }
             MenuItem {
@@ -115,7 +115,7 @@ ApplicationWindow {
                     overlayText.text = "Skeleton Filter Enabled"
                     overlayText.opacity = 1
                     overlayTextHide.start()
-                    instanceViewer.enableFilter(ColorFilter.FILTER_SKELETON) // GPU
+                    ViewerEngine.enableFilter(ColorFilter.FILTER_SKELETON) // GPU
                 }
             }
         }
@@ -170,9 +170,7 @@ ApplicationWindow {
 
     InstanceViewer {
         id: instanceViewer
-        objectName: "viewer"
-        //width: 640
-        //height: 480
+        viewerEngine: ViewerEngine
         implicitWidth: 640
         implicitHeight: 480
         focus: true
@@ -292,13 +290,13 @@ ApplicationWindow {
             event.accepted = true;
 
             if (event.key === Qt.Key_Plus) {
-                instanceViewer.onPlusKeyPressed();
+                ViewerEngine.onPlusKeyPressed();
             }
             else if (event.key === Qt.Key_Minus) {
-                instanceViewer.onMinusKeyPressed();
+                ViewerEngine.onMinusKeyPressed();
             }
             else if (event.key === Qt.Key_Space) {
-                instanceViewer.onSpaceKeyPressed();
+                ViewerEngine.onSpaceKeyPressed();
             }
             if (event.key === Qt.Key_M) {
                 settings.visible = !settings.visible;
@@ -308,52 +306,52 @@ ApplicationWindow {
             }
             else if (event.key === Qt.Key_Up) {
                 if (checkBoxXYRot.checked === true) {
-                    instanceViewer.rotateAxisX(2)
+                    ViewerEngine.rotateAxisX(2)
                 } else if (checkBoxZRot.checked === true) {
-                    instanceViewer.rotateAxisX(-2)
+                    ViewerEngine.rotateAxisX(-2)
                 }
             }
             else if (event.key === Qt.Key_Down) {
                 if (checkBoxXYRot.checked === true) {
-                    instanceViewer.rotateAxisX(-2)
+                    ViewerEngine.rotateAxisX(-2)
                 } else if (checkBoxZRot.checked === true) {
-                    instanceViewer.rotateAxisX(+2)
+                    ViewerEngine.rotateAxisX(+2)
                 }
             }
             else if (event.key === Qt.Key_Right) {
                 if (checkBoxXYRot.checked === true) {
-                    instanceViewer.rotateAxisY(-2)
+                    ViewerEngine.rotateAxisY(-2)
                 } else if (checkBoxZRot.checked === true) {
-                    instanceViewer.rotateAxisZ(-2)
+                    ViewerEngine.rotateAxisZ(-2)
                 }
             }
             else if (event.key === Qt.Key_Left) {
                 if (checkBoxXYRot.checked === true) {
-                    instanceViewer.rotateAxisY(2)
+                    ViewerEngine.rotateAxisY(2)
                 } else if (checkBoxZRot.checked === true) {
-                    instanceViewer.rotateAxisZ(2)
+                    ViewerEngine.rotateAxisZ(2)
                 }
             }
             else if (event.key === Qt.Key_W) {
                 if (checkBoxYTrans.checked === false)
-                    instanceViewer.translateAxisZ(-0.1)
+                    ViewerEngine.translateAxisZ(-0.1)
                 else
-                    instanceViewer.translateAxisY(0.1)
+                    ViewerEngine.translateAxisY(0.1)
             }
             else if (event.key === Qt.Key_S) {
                 if (checkBoxYTrans.checked === false)
-                    instanceViewer.translateAxisZ(0.1)
+                    ViewerEngine.translateAxisZ(0.1)
                 else
-                    instanceViewer.translateAxisY(-0.1)
+                    ViewerEngine.translateAxisY(-0.1)
             }
             else if (event.key === Qt.Key_A) {
-                instanceViewer.translateAxisX(-0.1)
+                ViewerEngine.translateAxisX(-0.1)
             }
             else if (event.key === Qt.Key_D) {
-                instanceViewer.translateAxisX(0.1)
+                ViewerEngine.translateAxisX(0.1)
             }
             else if (event.key === Qt.Key_R) {
-                instanceViewer.resetPerspective()
+                ViewerEngine.resetPerspective()
             } else {
                 event.accepted = false;
             }

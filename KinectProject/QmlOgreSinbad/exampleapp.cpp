@@ -151,8 +151,6 @@ void ExampleApp::addContent()
     rootContext()->setContextProperty("Camera", m_cameraObject);
     rootContext()->setContextProperty("OgreEngine", m_ogreEngine);
 
-
-
     // load the QML scene
     setResizeMode(QQuickView::SizeRootObjectToView);
     setSource(QUrl("qrc:/qml/example.qml"));
