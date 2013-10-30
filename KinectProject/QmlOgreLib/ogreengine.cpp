@@ -12,18 +12,20 @@
 
 #include <QOpenGLFunctions>
 
-OgreEngine::OgreEngine(QQuickWindow *window)
+OgreEngine::OgreEngine()
     : QObject()
-    , m_resources_cfg(Ogre::StringUtil::BLANK)
-    , m_plugins_cfg(Ogre::StringUtil::BLANK)
+    , m_resources_cfg("resources.cfg")
+    , m_plugins_cfg("plugins.cfg")
 {
     qmlRegisterType<OgreItem>("Ogre", 1, 0, "OgreItem");
     qmlRegisterType<OgreEngine>("OgreEngine", 1, 0, "OgreEngine");
 
+    m_root = new Ogre::Root(m_plugins_cfg);
 
-    setQuickWindow(window);
-
-    m_timer.start();
+    // Set OpenGL render subsystem
+    Ogre::RenderSystem *renderSystem = m_root->getRenderSystemByName("OpenGL Rendering Subsystem");
+    m_root->setRenderSystem(renderSystem);
+    m_root->initialise(false);
 }
 
 OgreEngine::~OgreEngine()
@@ -31,19 +33,18 @@ OgreEngine::~OgreEngine()
     delete m_ogreContext;
 }
 
-Ogre::Root* OgreEngine::startEngine()
+Ogre::Root* OgreEngine::root()
 {
-    m_resources_cfg = "resources.cfg";
-    m_plugins_cfg = "plugins.cfg";
+    return m_root;
+}
+
+void OgreEngine::startEngine(QQuickWindow *window)
+{
+    createOpenGLContext(window);
 
     activateOgreContext();
 
-    m_root = new Ogre::Root(m_plugins_cfg);
-
-    Ogre::RenderSystem *renderSystem = m_root->getRenderSystemByName("OpenGL Rendering Subsystem");
-    m_root->setRenderSystem(renderSystem);
-    m_root->initialise(false);
-
+    // Setup window params
     Ogre::NameValuePairList params;
     params["externalGLControl"] = "true";
     params["currentGLContext"] = "true";
@@ -55,17 +56,14 @@ Ogre::Root* OgreEngine::startEngine()
 
     doneOgreContext();
 
-    setupResources();
-
-    return m_root;
+    m_timer.start();
 }
 
 void OgreEngine::stopEngine(Ogre::Root *ogreRoot)
 {
     if (ogreRoot) {
-//        m_root->detachRenderTarget(m_renderTexture);
+        //m_root->detachRenderTarget(m_renderTexture);
         // TODO tell node(s) to detach
-
     }
 
     delete ogreRoot;
@@ -76,7 +74,7 @@ Ogre::RenderWindow* OgreEngine::renderWindow()
     return m_ogreWindow;
 }
 
-void OgreEngine::setQuickWindow(QQuickWindow *window)
+void OgreEngine::createOpenGLContext(QQuickWindow *window)
 {
     Q_ASSERT(window);
 

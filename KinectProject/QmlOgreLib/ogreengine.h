@@ -32,9 +32,10 @@ class OgreEngine : public QObject
     Q_OBJECT
 
 public:
-    OgreEngine(QQuickWindow *window = 0);
+    OgreEngine();
     ~OgreEngine();
-    Ogre::Root *startEngine();
+    void startEngine(QQuickWindow *window);
+    Ogre::Root* root();
     void stopEngine(Ogre::Root *ogreRoot);
     Ogre::RenderWindow* renderWindow();
     void activateOgreContext();
@@ -65,7 +66,7 @@ private:
     QElapsedTimer   m_timer;
 
 protected:
-    void setQuickWindow(QQuickWindow *window);
+    void createOpenGLContext(QQuickWindow *window);
 };
 
 #endif // OGREENGINEITEM_H

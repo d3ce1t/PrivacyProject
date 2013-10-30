@@ -19,14 +19,18 @@
 ExampleApp::ExampleApp(QWindow *parent) :
     QQuickView(parent)
   , m_cameraObject(0)
-  , m_ogreEngine(0)
-  , m_root(0)
   , m_camera(0)
-  //, m_viewPort(0)
-  , m_sceneManager(0)
+  , m_viewPort(0)
   , mChara(0)
   , m_lastTime(0)
 {
+    m_ogreEngine = new OgreEngine;
+    m_root = m_ogreEngine->root();
+
+    // set up Ogre scene
+    m_sceneManager = m_root->createSceneManager(Ogre::ST_GENERIC, "mySceneManager");
+    m_cameraObject = new CameraNodeObject;
+
     // start Ogre once we are in the rendering thread (Ogre must live in the rendering thread)
     connect(this, &ExampleApp::beforeRendering, this, &ExampleApp::initializeOgre, Qt::DirectConnection);
     connect(this, &ExampleApp::ogreInitialized, this, &ExampleApp::addContent);
@@ -39,6 +43,8 @@ ExampleApp::~ExampleApp()
     if (m_sceneManager) {
         m_root->destroySceneManager(m_sceneManager);
     }
+
+    delete m_ogreEngine;
 }
 
 void ExampleApp::initializeOgre()
@@ -47,11 +53,8 @@ void ExampleApp::initializeOgre()
     disconnect(this, &ExampleApp::beforeRendering, this, &ExampleApp::initializeOgre);
 
     // start up Ogrez
-    m_ogreEngine = new OgreEngine(this);
-    m_root = m_ogreEngine->startEngine();
-
-    // set up Ogre scene
-    m_sceneManager = m_root->createSceneManager(Ogre::ST_GENERIC, "mySceneManager");
+    m_ogreEngine->startEngine(this);
+    m_ogreEngine->setupResources();
 
     //
     // Setup
@@ -74,7 +77,7 @@ void ExampleApp::createCamera(void)
     //m_camera->setFarClipDistance(99999);
     m_camera->setAspectRatio(Ogre::Real(width()) / Ogre::Real(height()));
     m_camera->setAutoTracking(true, m_sceneManager->getRootSceneNode());
-    m_cameraObject = new CameraNodeObject(m_camera);
+    m_cameraObject->setCamera(m_camera);
 }
 
 void ExampleApp::createViewports(void)
@@ -122,19 +125,6 @@ void ExampleApp::createScene(void)
 
     // create our character controller
     mChara = new SinbadCharacterController(m_camera);
-
-    setupDepthMaterial();
-    /*mDepthPanel = Ogre::OverlayManager::getSingleton().createOverlayElement("Panel","DepthPanel");
-    mDepthPanel->setMaterialName("DepthTextureMaterial");
-    mDepthPanel->setMetricsMode(Ogre::GMM_RELATIVE);
-    mDepthPanel->setWidth(0.25);
-    mDepthPanel->setHeight(0.25*480/640);
-    mDepthPanel->setHorizontalAlignment(GHA_RIGHT);
-    mDepthPanel->setVerticalAlignment(GVA_BOTTOM);
-    mDepthPanel->setLeft(-mDepthPanel->getWidth());
-    mDepthPanel->setTop(-mDepthPanel->getHeight());
-
-    mDepthPanel->show();*/
 }
 
 void ExampleApp::destroyScene(void)
@@ -166,26 +156,4 @@ void ExampleApp::addTime(qint64 time_ms)
     Real deltaTime = (time_ms - m_lastTime) / 1000.0f;
     mChara->addTime(deltaTime);
     m_lastTime = time_ms;
-}
-
-void ExampleApp::setupDepthMaterial()
-{
-    // Create the texture
-    TextureManager::getSingleton().createManual(
-            "MyDepthTexture", // name
-            ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-            TEX_TYPE_2D,      // type
-            640, 480,         // width & height
-            0,                // number of mipmaps
-            PF_BYTE_BGRA,     // pixel format
-            TU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
-
-
-    // Create a material using the texture
-    MaterialPtr material = MaterialManager::getSingleton().create(
-            "DepthTextureMaterial", // name
-            ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-
-    material->getTechnique(0)->getPass(0)->createTextureUnitState("MyDepthTexture");
-    material->getTechnique(0)->getPass(0)->setSceneBlending(SBT_TRANSPARENT_ALPHA);
 }

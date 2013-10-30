@@ -48,71 +48,6 @@ SinbadCharacterController::~SinbadCharacterController()
     m_openni->releaseInstance();
 }
 
-void SinbadCharacterController::UpdateDepthTexture()
-{
-    if (!m_oniUserTrackerFrame.isValid())
-        return;
-
-    TexturePtr texture = TextureManager::getSingleton().getByName("MyDepthTexture");
-
-    // Get the pixel buffer
-    if (texture.isNull())
-        return;
-
-    HardwarePixelBufferSharedPtr pixelBuffer = texture->getBuffer();
-
-    // Lock the pixel buffer and get a pixel box
-    pixelBuffer->lock(HardwareBuffer::HBL_DISCARD);
-    const PixelBox& pixelBox = pixelBuffer->getCurrentLock();
-
-    unsigned char* pDest = static_cast<unsigned char*>(pixelBox.data);
-
-    // Get label map
-    const nite::UserMap& userMap = m_oniUserTrackerFrame.getUserMap();
-    const nite::UserId* pUsersLBLs = userMap.getPixels();
-
-    for (size_t j = 0; j < m_Height; j++)
-    {
-        pDest = static_cast<unsigned char*>(pixelBox.data) + j*pixelBox.rowPitch*4;
-
-        for (size_t i = 0; i < m_Width; i++)
-        {
-            // fix i if we are mirrored
-            unsigned int fixed_i = i;
-
-            if(!m_front) {
-                fixed_i = m_Width - i;
-            }
-
-            // determine color
-            unsigned int color = GetColorForUser(pUsersLBLs[j*m_Width + fixed_i]);
-
-            // if we have a candidate, filter out the rest
-            if (m_poseCandidateID != 0 && m_poseCandidateID == pUsersLBLs[j*m_Width + fixed_i])
-            {
-                color = GetColorForUser(1);
-
-                if( j > m_Height*(1 - m_detectionPercent) ) {
-                    color |= 0xFF070707; //highlight user
-                }/* else {
-                        color &= 0x20F0F0F0; //hide user
-                    }*/
-            }
-            else if (m_candidateID != 0 && m_candidateID == pUsersLBLs[j*m_Width + fixed_i])
-            {
-                color = GetColorForUser(1);
-            }
-
-            // write to output buffer
-            *((unsigned int*)pDest) = color;
-            pDest+=4;
-        }
-    }
-
-    // Unlock the pixel buffer
-    pixelBuffer->unlock();
-}
-
 void SinbadCharacterController::initPrimeSensor()
 {
     qDebug() << "SinbadCharacterController::initPrimeSensor()";
@@ -131,7 +66,6 @@ void SinbadCharacterController::initPrimeSensor()
 void SinbadCharacterController::addTime(Real deltaTime)
 {
     openniReadFrame();
-    UpdateDepthTexture();
     updateBody(deltaTime);
     updateAnimations(deltaTime);
     PSupdateBody(deltaTime);
@@ -229,79 +163,6 @@ void SinbadCharacterController::openniReadFrame()
         }
     } // End for
 }
-
-/*void SinbadCharacterController::injectKeyDown(const OIS::KeyEvent& evt)
-{
-    if (evt.key == OIS::KC_Q && (mTopAnimID == ANIM_IDLE_TOP || mTopAnimID == ANIM_RUN_TOP))
-    {
-        // take swords out (or put them back, since it's the same animation but reversed)
-        setTopAnimation(ANIM_DRAW_SWORDS, true);
-        mTimer = 0;
-    }
-    else if (evt.key == OIS::KC_E && !mSwordsDrawn)
-    {
-        if (mTopAnimID == ANIM_IDLE_TOP || mTopAnimID == ANIM_RUN_TOP)
-        {
-            // start dancing
-            setBaseAnimation(ANIM_DANCE, true);
-            setTopAnimation(ANIM_NONE);
-            // disable hand animation because the dance controls hands
-            mAnims[ANIM_HANDS_RELAXED]->setEnabled(false);
-        }
-        else if (mBaseAnimID == ANIM_DANCE)
-        {
-            // stop dancing
-            setBaseAnimation(ANIM_IDLE_BASE);
-            setTopAnimation(ANIM_IDLE_TOP);
-            // re-enable hand animation
-            mAnims[ANIM_HANDS_RELAXED]->setEnabled(true);
-        }
-    }
-
-    //Smoothing Factor.
-    if(evt.key == OIS::KC_H)
-    {
-        m_SmoothingDelta = 1;
-    }
-    else if(evt.key == OIS::KC_N)
-    {
-        m_SmoothingDelta = -1;
-    }
-
-    else if (evt.key == OIS::KC_SPACE && (mTopAnimID == ANIM_IDLE_TOP || mTopAnimID == ANIM_RUN_TOP))
-    {
-        // jump if on ground
-        setBaseAnimation(ANIM_JUMP_START, true);
-        setTopAnimation(ANIM_NONE);
-        mTimer = 0;
-    }
-
-    if (!mKeyDirection.isZeroLength() && mBaseAnimID == ANIM_IDLE_BASE)
-    {
-        // start running if not already moving and the player wants to move
-        setBaseAnimation(ANIM_RUN_BASE, true);
-        if (mTopAnimID == ANIM_IDLE_TOP) setTopAnimation(ANIM_RUN_TOP, true);
-    }
-}
-
-void SinbadCharacterController::injectMouseMove(const OIS::MouseEvent& evt)
-{
-    // update camera goal based on mouse movement
-    updateCameraGoal(-0.05f * evt.state.X.rel, -0.05f * evt.state.Y.rel, -0.0005f * evt.state.Z.rel);
-}
-
-void SinbadCharacterController::injectMouseDown(const OIS::MouseEvent& evt, OIS::MouseButtonID id)
-{
-    Q_UNUSED(evt)
-
-    if (mSwordsDrawn && (mTopAnimID == ANIM_IDLE_TOP || mTopAnimID == ANIM_RUN_TOP))
-    {
-        // if swords are out, and character's not doing something weird, then SLICE!
-        if (id == OIS::MB_Left) setTopAnimation(ANIM_SLICE_VERTICAL, true);
-        else if (id == OIS::MB_Right) setTopAnimation(ANIM_SLICE_HORIZONTAL, true);
-        mTimer = 0;
-    }
-}*/
 
 void SinbadCharacterController::setupBody(SceneManager* sceneMgr)
 {

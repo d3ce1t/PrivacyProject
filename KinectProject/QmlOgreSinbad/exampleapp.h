@@ -21,9 +21,6 @@ class ExampleApp : public QQuickView
     Q_OBJECT
 
 public:
-
-    Ogre::OverlayElement* mDepthPanel;
-
     explicit ExampleApp(QWindow *parent = 0);
     ~ExampleApp();
     void addTime(qint64 time_ms);
@@ -40,7 +37,6 @@ protected:
     void createViewports(void);
     void createScene(void);
     void destroyScene(void);
-    void setupDepthMaterial();
     
 private:
     CameraNodeObject *m_cameraObject;
