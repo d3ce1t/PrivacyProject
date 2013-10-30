@@ -87,11 +87,19 @@ unix:!macx {
     INCLUDEPATH += /usr/include/opencv/
     DEPENDPATH += /usr/include/opencv/
 
+    # Copy all resources to build folder
+    Resources.path = $$OUT_PWD/resources
+    Resources.files = ../OgreData/*
+
+    # Copy all config files to build folder
+    Config.path = $$OUT_PWD
+    Config.files = config/*
+
     NiTE.path = $$OUT_PWD
     NiTE.files = config/NiTE.ini
 
     # make install
-    INSTALLS += NiTE
+    INSTALLS += NiTE Resources Config
 }
 
 # CoreLib Dynamic

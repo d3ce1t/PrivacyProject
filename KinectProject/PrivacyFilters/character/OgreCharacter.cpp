@@ -47,8 +47,9 @@ void OgreCharacter::initializeOgre()
     disconnect(this, &OgreCharacter::beforeRendering, this, &OgreCharacter::initializeOgre);
 
     // start up Ogrez
-    m_ogreEngine = new OgreEngine(this);
-    m_root = m_ogreEngine->startEngine();
+    m_ogreEngine = new OgreEngine;
+    m_ogreEngine->startEngine(this);
+    m_root = m_ogreEngine->root();
 
     // set up Ogre scene
     m_sceneManager = m_root->createSceneManager(Ogre::ST_GENERIC, "mySceneManager");
@@ -74,7 +75,8 @@ void OgreCharacter::createCamera(void)
     //m_camera->setFarClipDistance(99999);
     m_camera->setAspectRatio(Ogre::Real(width()) / Ogre::Real(height()));
     m_camera->setAutoTracking(true, m_sceneManager->getRootSceneNode());
-    m_cameraObject = new CameraNodeObject(m_camera);
+    m_cameraObject = new CameraNodeObject;
+    m_cameraObject->setCamera(m_camera);
 }
 
 void OgreCharacter::createViewports(void)

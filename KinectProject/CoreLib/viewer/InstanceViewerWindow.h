@@ -11,7 +11,10 @@
 #include <QStandardItemModel>
 #include <QListWidget>
 #include "viewer/ViewerEngine.h"
-
+#include "ogreitem.h"
+#include "ogreengine.h"
+#include "cameranodeobject.h"
+//#include "character/SinbadCharacterController.h"
 
 namespace dai {
 
@@ -32,6 +35,7 @@ signals:
     void changeOfStatus();
 
 public slots:
+    void initialiseOgre();
     void processListItem(QListWidget* widget);
     void showJointsWindow();
     void showDistancesWindow();
@@ -43,6 +47,10 @@ private slots:
     void feedDataModels(shared_ptr<SkeletonFrame> skeletonFrame);
 
 protected:
+    void createCamera(void);
+    void createViewports(void);
+    void createScene(void);
+    void destroyScene(void);
     void onNewFrame(const QHash<DataFrame::FrameType, shared_ptr<DataFrame>>& dataFrames);
     void onPlaybackStart() {}
     void onPlaybackStop() {}
@@ -56,21 +64,29 @@ private:
     void feedQuaternionsModel(const Skeleton &skeleton, QStandardItemModel& model);
     float colorIntensity(float value);
 
-    float                      m_fps;
-    ViewerEngine*              m_viewerEngine;
-    ViewerMode                 m_viewerMode;
-    QQmlApplicationEngine      m_qmlEngine;
-    QQuickWindow*              m_quickWindow;
+    float                   m_fps;
+
+    CameraNodeObject*       m_cameraObject;
+    OgreEngine*             m_ogreEngine;
+    Ogre::Root*             m_root;
+    Ogre::Camera*           m_camera;
+    Ogre::Viewport*         m_viewPort;
+    Ogre::SceneManager*     m_sceneManager;
+
+    ViewerEngine*           m_viewerEngine;
+    ViewerMode              m_viewerMode;
+    QQmlApplicationEngine   m_qmlEngine;
+    QQuickWindow*           m_quickWindow;
 
     // Windows and models for Skeleton data
-    QTableView                 m_joints_table_view;
-    QTableView                 m_distances_table_view;
-    QTableView                 m_quaternions_table_view;
-    QStandardItemModel         m_joints_model;
-    QStandardItemModel         m_distances_model;
-    QStandardItemModel         m_quaternions_model;
-    Quaternion                 m_lastQuaternions[20];
-    long                       m_frameCounter;
+    QTableView              m_joints_table_view;
+    QTableView              m_distances_table_view;
+    QTableView              m_quaternions_table_view;
+    QStandardItemModel      m_joints_model;
+    QStandardItemModel      m_distances_model;
+    QStandardItemModel      m_quaternions_model;
+    Quaternion              m_lastQuaternions[20];
+    long                    m_frameCounter;
 };
 
 } // End Namespace

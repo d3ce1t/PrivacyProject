@@ -64,7 +64,8 @@ SOURCES += \
     filters/BlurFilter.cpp \
     dataset/MSRDaily/MSRDailyColorInstance.cpp \
     Config.cpp \
-    viewer/ViewerEngine.cpp
+    viewer/ViewerEngine.cpp \
+    cameranodeobject.cpp
 
 HEADERS += \
     types/Vector3D.h \
@@ -118,7 +119,8 @@ HEADERS += \
     exceptions/CannotOpenInstanceException.h \
     dataset/MSRDaily/MSRDailyColorInstance.h \
     Config.h \
-    viewer/ViewerEngine.h
+    viewer/ViewerEngine.h \
+    cameranodeobject.h
 
 unix:!symbian {
     maemo5 {
@@ -134,6 +136,19 @@ unix:!macx {
     # LIBS += -lopencv_core -lopencv_imgproc
     INCLUDEPATH += /usr/include/opencv/
     DEPENDPATH += /usr/include/opencv/
+
+    # QmlOgreLib
+    LIBS += -L$$OUT_PWD/../QmlOgreLib/ -lQmlOgre
+    PRE_TARGETDEPS += $$OUT_PWD/../QmlOgreLib/libQmlOgre.a
+    INCLUDEPATH += $$PWD/../QmlOgreLib
+    DEPENDPATH += $$PWD/../QmlOgreLib
+
+    # Ogre
+    CONFIG += link_pkgconfig
+    PKGCONFIG += OGRE
+
+    # Boost
+    LIBS += -lboost_system
 }
 
 win32 {

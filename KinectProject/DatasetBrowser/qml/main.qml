@@ -29,15 +29,15 @@ ApplicationWindow {
             title: "&Window"
             MenuItem {
                 text: "Show Joints Positions"
-                onTriggered: viewerWindow.showJointsWindow()
+                onTriggered: Window.showJointsWindow()
             }
             MenuItem {
                 text: "Show Joints Distances"
-                onTriggered: viewerWindow.showDistancesWindow()
+                onTriggered: Window.showDistancesWindow()
             }
             MenuItem {
                 text: "Show Quaternions"
-                onTriggered: viewerWindow.showQuaternionsWindow()
+                onTriggered: Window.showQuaternionsWindow()
             }
         }
     }
@@ -60,7 +60,7 @@ ApplicationWindow {
 
         Text {
             id: textFrameId
-            text: Math.round(viewerWindow.fps) + " fps"
+            text: Math.round(Window.fps) + " fps"
             color: "black"
             font.pixelSize: 11
             wrapMode: Text.WordWrap
@@ -92,7 +92,7 @@ ApplicationWindow {
             anchors.fill: instanceViewer
 
             onDropped: {
-                viewerWindow.processListItem(drop.source)
+                Window.processListItem(drop.source)
             }
 
             Rectangle {

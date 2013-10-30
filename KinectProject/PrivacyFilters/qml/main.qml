@@ -2,7 +2,7 @@ import QtQuick 2.0
 import QtQuick.Controls 1.0
 import InstanceViewer 1.0
 import edu.dai.kinect 1.0
-//import Ogre 1.0
+import Ogre 1.0
 
 ApplicationWindow {
     id: mainWindow
@@ -123,58 +123,27 @@ ApplicationWindow {
             title: "&Window"
             MenuItem {
                 text: "Show Joints Positions"
-                onTriggered: viewerWindow.showJointsWindow()
+                onTriggered: Window.showJointsWindow()
             }
             MenuItem {
                 text: "Show Joints Distances"
-                onTriggered: viewerWindow.showDistancesWindow()
+                onTriggered: Window.showDistancesWindow()
             }
             MenuItem {
                 text: "Show Quaternions"
-                onTriggered: viewerWindow.showQuaternionsWindow()
+                onTriggered: Window.showQuaternionsWindow()
             }
         }
     }
-
-    /*OgreItem {
-        id: ogreitem
-        anchors.fill: parent
-        camera: Camera
-        ogreEngine: OgreEngine
-
-        MouseArea {
-            anchors.fill: parent
-            acceptedButtons: Qt.LeftButton | Qt.RightButton
-
-            property int prevX: -1
-            property int prevY: -1
-
-            onPositionChanged: {
-                if (pressedButtons & Qt.LeftButton) {
-                    if (prevX > -1)
-                        ogreitem.camera.yaw -= (mouse.x - prevX) / 2
-                    if (prevY > -1)
-                        ogreitem.camera.pitch -= (mouse.y - prevY) / 2
-                    prevX = mouse.x
-                    prevY = mouse.y
-                }
-                if (pressedButtons & Qt.RightButton) {
-                    if (prevY > -1)
-                        ogreitem.camera.zoom = Math.min(12, Math.max(0.1, ogreitem.camera.zoom - (mouse.y - prevY) / 100));
-                    prevY = mouse.y
-                }
-            }
-            onReleased: { prevX = -1; prevY = -1 }
-        }
-    }*/
 
     InstanceViewer {
         id: instanceViewer
         viewerEngine: ViewerEngine
         implicitWidth: 640
         implicitHeight: 480
-        focus: true
+        //focus: true
         anchors.fill: parent
+        z: 0
 
         // Draw FPS
         Rectangle {
@@ -186,7 +155,7 @@ ApplicationWindow {
 
         Text {
             id: textFrameId
-            text: Math.round(viewerWindow.fps) + " fps"
+            text: Math.round(Window.fps) + " fps"
             color: "black"
             font.pixelSize: 11
             wrapMode: Text.WordWrap
@@ -218,7 +187,7 @@ ApplicationWindow {
             anchors.fill: instanceViewer
 
             onDropped: {
-                viewerWindow.processListItem(drop.source)
+                Window.processListItem(drop.source)
             }
 
             Rectangle {
@@ -357,4 +326,41 @@ ApplicationWindow {
             }
         }
     } // Instance Viewer
+
+    OgreItem {
+        id: ogreitem
+        anchors.fill: parent
+        camera: Camera
+        ogreEngine: OgreEngine
+        focus: true
+        z: 1
+        visible: false
+
+        MouseArea {
+            anchors.fill: parent
+            acceptedButtons: Qt.LeftButton | Qt.RightButton
+
+            property int prevX: -1
+            property int prevY: -1
+
+            onPositionChanged: {
+                if (pressedButtons & Qt.LeftButton) {
+                    if (prevX > -1)
+                        ogreitem.camera.yaw -= (mouse.x - prevX) / 2
+                    if (prevY > -1)
+                        ogreitem.camera.pitch -= (mouse.y - prevY) / 2
+                    prevX = mouse.x
+                    prevY = mouse.y
+                }
+                if (pressedButtons & Qt.RightButton) {
+                    if (prevY > -1)
+                        ogreitem.camera.zoom = Math.min(12, Math.max(0.1, ogreitem.camera.zoom - (mouse.y - prevY) / 100));
+                    prevY = mouse.y
+                }
+            }
+            onReleased: { prevX = -1; prevY = -1 }
+        }
+    }
+
+
 } // Application Window
