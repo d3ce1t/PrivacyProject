@@ -15,7 +15,7 @@ void OpenNIBaseInstance::computeStats(unsigned int frameIndex)
 
     if (frameIndex > m_lastFrameId + 1) {
         skippedFrames += frameIndex - (m_lastFrameId + 1);
-        qDebug() << "Skip frames" << skippedFrames;
+        //qDebug() << "Skip frames" << skippedFrames;
     }
 
     m_lastFrameId = frameIndex;

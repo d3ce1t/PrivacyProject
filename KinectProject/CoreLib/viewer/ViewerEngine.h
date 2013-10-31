@@ -22,14 +22,13 @@ class ViewerEngine : public QObject
     Q_OBJECT
 
 public:
-    ViewerEngine();
+    ViewerEngine(dai::ViewerMode mode = MODE_2D);
     ~ViewerEngine();
     void startEngine(QQuickWindow *window);
-    void setMode(dai::ViewerMode mode);
-    dai::ViewerMode getMode() const;
     bool running() const;
     shared_ptr<dai::ScenePainter> scene();
-    void renderOpenGLScene();
+    void renderOpenGLScene(QOpenGLFramebufferObject *fbo);
+    void setSize(const QSize& size);
 
 signals:
     void frameRendered();
@@ -41,7 +40,7 @@ public slots:
     void onPlusKeyPressed();
     void onMinusKeyPressed();
     void onSpaceKeyPressed();
-    void onNewFrame(QHashDataFrames dataFrames);
+    void prepareScene(QHashDataFrames dataFrames);
     void enableFilter(int filter);
     void resetPerspective();
     void rotateAxisX(float angle);
@@ -66,6 +65,7 @@ private:
     ViewerMode                                                m_mode;
     bool                                                      m_running;
     QMultiHash<DataFrame::FrameType, shared_ptr<FrameFilter>> m_filters;
+    QSize                                                     m_size;
 };
 
 #endif // VIEWERENGINE_H

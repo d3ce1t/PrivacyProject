@@ -65,7 +65,9 @@ SOURCES += \
     dataset/MSRDaily/MSRDailyColorInstance.cpp \
     Config.cpp \
     viewer/ViewerEngine.cpp \
-    cameranodeobject.cpp
+    cameranodeobject.cpp \
+    viewer/ViewerRenderer.cpp \
+    viewer/OgreScene.cpp
 
 HEADERS += \
     types/Vector3D.h \
@@ -120,7 +122,9 @@ HEADERS += \
     dataset/MSRDaily/MSRDailyColorInstance.h \
     Config.h \
     viewer/ViewerEngine.h \
-    cameranodeobject.h
+    cameranodeobject.h \
+    viewer/ViewerRenderer.h \
+    viewer/OgreScene.h
 
 unix:!symbian {
     maemo5 {

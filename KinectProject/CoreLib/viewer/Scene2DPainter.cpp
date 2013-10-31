@@ -3,6 +3,7 @@
 #include "viewer/SilhouetteItem.h"
 #include "viewer/SkeletonItem.h"
 #include "Config.h"
+#include <QtGlobal>
 #include <QDebug>
 
 namespace dai {
@@ -16,6 +17,8 @@ Scene2DPainter::~Scene2DPainter()
 {
     m_fboFirstPass->release();
     m_fboSecondPass->release();
+    delete m_fboFirstPass;
+    delete m_fboSecondPass;
     m_shaderProgram->removeAllShaders();
 }
 
@@ -26,6 +29,8 @@ void Scene2DPainter::setMask(shared_ptr<UserFrame> mask)
 
 void Scene2DPainter::initialise()
 {
+    m_defaultContext = QOpenGLContext::currentContext();
+
     // Load, compile and link the shader program
     prepareShaderProgram();
 
@@ -38,11 +43,21 @@ void Scene2DPainter::initialise()
     // Create texture
     glGenTextures(1, &m_fgTextureId);
     glGenTextures(1, &m_maskTextureId);
+
+    // Configure ViewPort and Clear Screen
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClearDepth(1.0f);
+    //glViewport(0, 0, 640, 480);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
-void Scene2DPainter::render()
+void Scene2DPainter::render(QOpenGLFramebufferObject *fboDisplay)
 {
-    Q_ASSERT(m_bg->getType() == DataFrame::Color);
+    Q_ASSERT(m_bg == nullptr || m_bg->getType() == DataFrame::Color);
+
+    if (!isDirty()) {
+        return;
+    }
 
     // Init Each Frame (because QtQuick could change it)
     glDepthRange(0.0f, 1.0f);
@@ -52,19 +67,14 @@ void Scene2DPainter::render()
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
 
-    // Configure ViewPort and Clear Screen
-    glViewport(0, 0, m_window_width, m_window_height);
-
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-    glClearDepth(1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
     // Draw Background
     if (m_bg == nullptr)
         return;
 
     m_shaderProgram->bind();
     m_shaderProgram->setUniformValue(m_perspectiveMatrixUniform, m_matrix);
+
+    setupTextures();
 
     // Stage 1
     enableBGRendering();
@@ -74,7 +84,10 @@ void Scene2DPainter::render()
     // Stage 2
     renderItems(); // items first-pass rendering (fboFirstPass)
 
+    //qSwap(m_fboFirstPass, fboDisplay);
+
     // Stage 4
+    fboDisplay->bind();
     displayRenderedTexture(); // here framebuffer (display) and second-pass rendering
 
     m_shaderProgram->release();
@@ -83,6 +96,24 @@ void Scene2DPainter::render()
     glDisable(GL_BLEND);
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_DEPTH_TEST);
+}
+
+void Scene2DPainter::setupTextures()
+{
+    if (m_needLoading.load())
+    {
+        shared_ptr<ColorFrame> frame = static_pointer_cast<ColorFrame>(m_bg);
+
+        // Load Foreground
+        ScenePainter::loadVideoTexture(m_fgTextureId, frame->getWidth(), frame->getHeight(), (void *) frame->getDataPtr());
+
+        // Load Mask
+        if (m_mask) {
+            ScenePainter::loadMaskTexture(m_maskTextureId, m_mask->getWidth(), m_mask->getHeight(), (void *) m_mask->getDataPtr());
+        }
+
+        m_needLoading.store(0);
+    }
 }
 
 void Scene2DPainter::enableBGRendering()
@@ -99,21 +130,6 @@ void Scene2DPainter::extractBackground()
 {
     m_shaderProgram->setUniformValue(m_stageUniform, 1);
     m_vao.bind();
-
-    if (m_needLoading.load())
-    {
-        shared_ptr<ColorFrame> frame = static_pointer_cast<ColorFrame>(m_bg);
-
-        // Load Foreground
-        ScenePainter::loadVideoTexture(m_fgTextureId, frame->getWidth(), frame->getHeight(), (void *) frame->getDataPtr());
-
-        // Load Mask
-        if (m_mask) {
-            ScenePainter::loadMaskTexture(m_maskTextureId, m_mask->getWidth(), m_mask->getHeight(), (void *) m_mask->getDataPtr());
-        }
-
-        m_needLoading.store(0);
-    }
 
     // Enabe FG
     glActiveTexture(GL_TEXTURE0 + 0);
@@ -226,11 +242,11 @@ void Scene2DPainter::renderItems()
         item->renderItem(1);
     }
 
+    glFlush();
     m_fboFirstPass->release();
 
     // Second-pass (write to fboSecondPass, read from fboFirstPass)
     m_fboSecondPass->bind();
-
     glViewport(0, 0, 640, 480);
 
     m_shaderProgram->bind();
@@ -256,6 +272,7 @@ void Scene2DPainter::renderItems()
         }
     }
 
+    glFlush();
     m_fboSecondPass->release();
 }
 
@@ -265,7 +282,7 @@ void Scene2DPainter::displayRenderedTexture()
     m_shaderProgram->setUniformValue(m_stageUniform, 3);
 
     // Configure Viewport
-    glViewport(0, 0, m_window_width, m_window_height);
+    glViewport(0, 0, m_scene_width, m_scene_height);
     m_vao.bind();
 
     // Enabe FG
@@ -283,13 +300,13 @@ void Scene2DPainter::displayRenderedTexture()
 
 void Scene2DPainter::createFrameBuffer()
 {
-    m_fboFirstPass.reset(new QOpenGLFramebufferObject(640, 480));
+    m_fboFirstPass = new QOpenGLFramebufferObject(640, 480);
 
     if (!m_fboFirstPass->isValid()) {
         qDebug() << "FBO Error";
     }
 
-    m_fboSecondPass.reset(new QOpenGLFramebufferObject(640, 480));
+    m_fboSecondPass = new QOpenGLFramebufferObject(640, 480);
 
     if (!m_fboSecondPass->isValid()) {
         qDebug() << "FBO Error";
@@ -335,9 +352,9 @@ void Scene2DPainter::prepareShaderProgram()
 void Scene2DPainter::prepareVertexBuffer()
 {
     float vertexData[] = {
-        0.0, (float) m_window_height,
-        (float) m_window_width, (float) m_window_height,
-        (float) m_window_width, 0,
+        0.0, (float) 480,
+        (float) 640, (float) 480,
+        (float) 640, 0,
         0.0, 0.0
     };
 
@@ -383,7 +400,7 @@ QMLEnumsWrapper::ColorFilter Scene2DPainter::currentFilter() const
 void Scene2DPainter::resetPerspective()
 {
     m_matrix.setToIdentity();
-    m_matrix.ortho(0, m_window_width, m_window_height, 0, -1.0, 1.0);
+    m_matrix.ortho(0, 640, 480, 0, -1.0, 1.0);
 }
 
 } // End Namespace

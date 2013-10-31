@@ -12,26 +12,18 @@ namespace dai {
 
 InstanceViewerWindow::InstanceViewerWindow(ViewerMode mode)
     : m_fps(0)
-    , m_cameraObject(nullptr)
-    , m_ogreEngine(nullptr)
-    , m_root(nullptr)
-    , m_camera(nullptr)
-    , m_viewPort(nullptr)
-    , m_sceneManager(nullptr)
     , m_viewerEngine(nullptr)
     , m_viewerMode(mode)
     , m_quickWindow(nullptr)
     , m_frameCounter(0)
 {
-    m_ogreEngine = new OgreEngine;
-    m_cameraObject = new CameraNodeObject;
-    m_viewerEngine = new ViewerEngine;
-    m_viewerEngine->setMode(mode);
+    m_ogreScene = new OgreScene;
+    m_viewerEngine = new ViewerEngine(mode);
 
     // exposte objects as QML globals
     m_qmlEngine.rootContext()->setContextProperty("Window", this);
-    m_qmlEngine.rootContext()->setContextProperty("Camera", m_cameraObject);
-    m_qmlEngine.rootContext()->setContextProperty("OgreEngine", m_ogreEngine);
+    m_qmlEngine.rootContext()->setContextProperty("Camera", m_ogreScene->cameraNode());
+    m_qmlEngine.rootContext()->setContextProperty("OgreEngine", m_ogreScene->engine());
     m_qmlEngine.rootContext()->setContextProperty("ViewerEngine", m_viewerEngine);
 
     // Load QML app
@@ -49,8 +41,7 @@ InstanceViewerWindow::InstanceViewerWindow(ViewerMode mode)
     m_quickWindow->setTitle("Instance Viewer");
 
     // start Ogre once we are in the rendering thread (Ogre must live in the rendering thread)
-    connect(m_quickWindow, &QQuickWindow::beforeSynchronizing, this, &InstanceViewerWindow::initialiseOgre, Qt::DirectConnection);
-    //connect(this, &ExampleApp::ogreInitialized, this, &ExampleApp::addContent);
+    connect(m_quickWindow, &QQuickWindow::beforeSynchronizing, this, &InstanceViewerWindow::initialise, Qt::DirectConnection);
 
     // Windows setup
     connect(m_quickWindow, SIGNAL(closing(QQuickCloseEvent*)), this, SLOT(deleteLater()));
@@ -85,93 +76,12 @@ void InstanceViewerWindow::show()
         m_quickWindow->show();
 }
 
-void InstanceViewerWindow::initialiseOgre()
+void InstanceViewerWindow::initialise()
 {
     // we only want to initialize once
-    disconnect(m_quickWindow, &QQuickWindow::beforeSynchronizing, this, &InstanceViewerWindow::initialiseOgre);
-
+    disconnect(m_quickWindow, &QQuickWindow::beforeSynchronizing, this, &InstanceViewerWindow::initialise);
+    m_ogreScene->initialiseOgre(m_quickWindow);
     m_viewerEngine->startEngine(m_quickWindow);
-
-    // Setup and Start up Ogre
-    m_root = m_ogreEngine->root();
-    m_sceneManager = m_root->createSceneManager(Ogre::ST_GENERIC, "mySceneManager");
-    m_ogreEngine->startEngine(m_quickWindow);
-    m_ogreEngine->setupResources();
-
-    //
-    // Setup
-    //
-    createCamera();
-    createViewports();
-
-    // Set default mipmap level (NB some APIs ignore this)
-    Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
-
-    createScene();
-}
-
-void InstanceViewerWindow::createCamera(void)
-{
-    m_camera = m_sceneManager->createCamera("PlayerCam");
-    m_camera->setNearClipDistance(5);
-    //m_camera->setFarClipDistance(99999);
-    m_camera->setAspectRatio(Ogre::Real(m_quickWindow->width()) / Ogre::Real(m_quickWindow->height()));
-    m_camera->setAutoTracking(true, m_sceneManager->getRootSceneNode());
-    m_cameraObject->setCamera(m_camera);
-}
-
-void InstanceViewerWindow::createViewports(void)
-{
-    // Create one viewport, entire window
-    m_viewPort = m_ogreEngine->renderWindow()->addViewport(m_camera);
-    m_viewPort->setBackgroundColour(Ogre::ColourValue(1.0,1.0,1.0));
-}
-
-void InstanceViewerWindow::createScene(void)
-{
-    // Resources with textures must be loaded within Ogre's GL context
-    m_ogreEngine->activateOgreContext();
-
-    // set background and some fog
-    m_viewPort->setBackgroundColour(Ogre::ColourValue(1.0f, 1.0f, 0.8f));
-    m_sceneManager->setFog(Ogre::FOG_LINEAR, Ogre::ColourValue(1.0f, 1.0f, 0.8f), 0,15, 100);
-
-    // set shadow properties
-    m_sceneManager->setShadowTechnique(Ogre::SHADOWTYPE_TEXTURE_MODULATIVE);
-    m_sceneManager->setShadowColour(Ogre::ColourValue(0.5, 0.5, 0.5));
-    m_sceneManager->setShadowTextureSize(1024);
-    m_sceneManager->setShadowTextureCount(1);
-
-    // use a small amount of ambient lighting
-    m_sceneManager->setAmbientLight(Ogre::ColourValue(0.3, 0.3, 0.3));
-
-    // add a bright light above the scene
-    Ogre::Light* light = m_sceneManager->createLight();
-    light->setType(Ogre::Light::LT_POINT);
-    light->setPosition(-10, 40, 20);
-    light->setSpecularColour(Ogre::ColourValue::White);
-
-    // create a floor mesh resource
-    Ogre::MeshManager::getSingleton().createPlane("floor", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-        Ogre::Plane(Ogre::Vector3::UNIT_Y, 0),100, 100, 10, 10, true, 1, 10, 10, Ogre::Vector3::UNIT_Z);
-
-    // create a floor entity, give it a material, and place it at the origin
-    Ogre::Entity* floor = m_sceneManager->createEntity("Floor", "floor");
-    floor->setMaterialName("Examples/Rockwall");
-    floor->setCastShadows(false);
-    m_sceneManager->getRootSceneNode()->attachObject(floor);
-
-    m_ogreEngine->doneOgreContext();
-
-    // create our character controller
-    //mChara = new SinbadCharacterController(m_camera);
-}
-
-void InstanceViewerWindow::destroyScene(void)
-{
-    // clean up character controller and the floor mesh
-    //if (mChara) delete mChara;
-    Ogre::MeshManager::getSingleton().remove("floor");
 }
 
 void InstanceViewerWindow::processListItem(QListWidget* widget)
@@ -193,11 +103,11 @@ void InstanceViewerWindow::processListItem(QListWidget* widget)
     }
 }
 
-// called from Notifier thread
+// Called from Notifier thread
 void InstanceViewerWindow::onNewFrame(const QHash<DataFrame::FrameType, shared_ptr<DataFrame>>& dataFrames)
 {
     // Sent to viewer (execute the method in the thread it belongs to)
-    QMetaObject::invokeMethod(m_viewerEngine, "onNewFrame",
+    QMetaObject::invokeMethod(m_viewerEngine, "prepareScene",
                                   Qt::AutoConnection,
                                   Q_ARG(QHashDataFrames, dataFrames));
 
@@ -496,7 +406,5 @@ float InstanceViewerWindow::colorIntensity(float x)
     // b =  2.99573227355399
     return (log(100*(x+0.1)) - b)/max;
 }
-
-
 
 } // End Namespace

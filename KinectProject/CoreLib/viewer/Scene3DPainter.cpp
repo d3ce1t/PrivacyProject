@@ -16,7 +16,7 @@ void Scene3DPainter::initialise()
     prepareVertexBuffer();
 }
 
-void Scene3DPainter::render()
+void Scene3DPainter::render(QOpenGLFramebufferObject *fbo)
 {
      Q_ASSERT( (m_bg != nullptr && m_bg->getType() == DataFrame::Depth) || m_bg == nullptr);
 
@@ -29,7 +29,7 @@ void Scene3DPainter::render()
     glEnable(GL_BLEND);
 
     // Configure ViewPort and Clear Screen
-    glViewport(0, 0, m_window_width, m_window_height);
+    glViewport(0, 0, m_scene_width, m_scene_height);
 
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClearDepth(1.0f);

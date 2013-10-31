@@ -18,7 +18,6 @@ OgreItem::OgreItem(QQuickItem *parent)
 {
     setFlag(ItemHasContents);
     setSmooth(false);
-
     m_timerID = startTimer(16);
 }
 

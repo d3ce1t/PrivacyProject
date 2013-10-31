@@ -249,17 +249,16 @@ void MainWindow::on_btnStartKinect_clicked()
 
     // Create Playback
     m_playback = new dai::PlaybackControl;
-    m_playback->setFPS(25);
+    m_playback->setFPS(15);
     connect(m_playback, &dai::PlaybackControl::onPlaybackFinished, m_playback, &dai::PlaybackControl::deleteLater);
 
     // Create viewers
     dai::InstanceViewerWindow* colorViewer = new dai::InstanceViewerWindow(dai::MODE_2D);
-    connect(colorViewer->viewerEngine(), &ViewerEngine::plusKeyPressed, this, &MainWindow::onPlusKeyPressed);
+    /*connect(colorViewer->viewerEngine(), &ViewerEngine::plusKeyPressed, this, &MainWindow::onPlusKeyPressed);
     connect(colorViewer->viewerEngine(), &ViewerEngine::minusKeyPressed, this, &MainWindow::onMinusKeyPressed);
-    connect(colorViewer->viewerEngine(), &ViewerEngine::spaceKeyPressed, this, &MainWindow::onSpaceKeyPressed);
+    connect(colorViewer->viewerEngine(), &ViewerEngine::spaceKeyPressed, this, &MainWindow::onSpaceKeyPressed);*/
 
-    //dai::InstanceViewerWindow* depthViewer = new dai::InstanceViewerWindow;
-    //depthViewer->setMode(MODE_3D);
+    //dai::InstanceViewerWindow* depthViewer = new dai::InstanceViewerWindow(dai::MODE_3D);
 
     // Connect all together
     m_playback->addInstance(colorInstance);

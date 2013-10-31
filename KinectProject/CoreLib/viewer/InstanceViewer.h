@@ -1,22 +1,12 @@
 #ifndef INSTANCE_VIEWER_H
 #define INSTANCE_VIEWER_H
 
-#include <QQuickItem>
-#include <QMatrix4x4>
-#include <QMutex>
-#include <QHash>
-#include <QList>
-#include <QListWidget>
-#include "types/DataFrame.h"
-#include "types/UserFrame.h"
-#include "types/FrameFilter.h"
-#include "viewer/ScenePainter.h"
-#include "viewer/QMLEnumsWrapper.h"
+#include <QQuickFramebufferObject>
 #include "viewer/ViewerEngine.h"
 
 class QListWidget;
 
-class InstanceViewer : public QQuickItem
+class InstanceViewer : public QQuickFramebufferObject
 {
     Q_OBJECT
 
@@ -24,19 +14,13 @@ class InstanceViewer : public QQuickItem
 
 public:
     explicit InstanceViewer();
-    virtual ~InstanceViewer();    
+    virtual ~InstanceViewer();
+    Renderer *createRenderer() const;
     ViewerEngine* viewerEngine() const { return m_viewerEngine; }
     void setViewerEngine(ViewerEngine *viewerEngine);
 
-public slots:
-    void renderOpenGLScene();
-
-private slots:
-    void handleWindowChanged(QQuickWindow *win);
-
 private:
     ViewerEngine*  m_viewerEngine;
-    QQuickWindow*  m_quickWindow;
 };
 
 #endif // INSTANCE_VIEWER_H

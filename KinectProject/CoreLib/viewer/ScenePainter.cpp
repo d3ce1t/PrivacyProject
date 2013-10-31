@@ -6,6 +6,7 @@ ScenePainter::ScenePainter()
 {
     m_initialised = false;
     m_needLoading.store(0);
+    m_dirty.store(0);
 }
 
 ScenePainter::~ScenePainter()
@@ -16,6 +17,21 @@ ScenePainter::~ScenePainter()
 void ScenePainter::clearItems()
 {
     m_items.clear();
+}
+
+void ScenePainter::markAsDirty()
+{
+    m_dirty.store(1);
+}
+
+bool ScenePainter::isDirty() const
+{
+    return m_dirty.load() > 0;
+}
+
+bool ScenePainter::clearDirty()
+{
+    m_dirty.store(0);
 }
 
 void ScenePainter::addItem(shared_ptr<SceneItem> item)
@@ -47,20 +63,20 @@ void ScenePainter::setBackground(shared_ptr<DataFrame> background)
     m_needLoading.store(1);
 }
 
-void ScenePainter::setWindowSize(int width, int height)
+void ScenePainter::setSize(int width, int height)
 {
-    m_window_width = width;
-    m_window_height = height;
+    m_scene_width = width;
+    m_scene_height = height;
 }
 
-int ScenePainter::windowWidth() const
+int ScenePainter::width() const
 {
-    return m_window_width;
+    return m_scene_width;
 }
 
-int ScenePainter::windowHeight() const
+int ScenePainter::height() const
 {
-    return m_window_height;
+    return m_scene_height;
 }
 
 void ScenePainter::setMatrix(const QMatrix4x4 &matrix)
@@ -79,7 +95,7 @@ void ScenePainter::resetPerspective()
     m_matrix.perspective(45, 4/3, 0.1f, 100.0f);
 }
 
-void ScenePainter::renderScene()
+void ScenePainter::renderScene(QOpenGLFramebufferObject *fbo)
 {
     if (!m_initialised)
     {
@@ -89,7 +105,8 @@ void ScenePainter::renderScene()
         m_initialised = true;
     }
 
-    render();
+    render(fbo);
+    clearDirty();
 }
 
 void ScenePainter::renderItems()

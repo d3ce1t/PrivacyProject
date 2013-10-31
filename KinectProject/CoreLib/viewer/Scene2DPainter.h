@@ -22,9 +22,10 @@ public:
     void resetPerspective() override;
 
 protected:
+    void setupTextures();
     void renderItems();
     void initialise() override;
-    void render() override;
+    void render(QOpenGLFramebufferObject* fboDisplay) override;
 
 private:
     void createFrameBuffer();
@@ -36,15 +37,16 @@ private:
     void prepareVertexBuffer();
 
     QMLEnumsWrapper::ColorFilter m_currentFilter;
-    QOpenGLShaderProgram*   m_shaderProgram;
-    shared_ptr<UserFrame>   m_mask;
+    QOpenGLShaderProgram*     m_shaderProgram;
+    shared_ptr<UserFrame>     m_mask;
 
     // OpenGL Buffer
-    shared_ptr<QOpenGLFramebufferObject>  m_fboFirstPass; // render-to-texture (first-pass)
-    shared_ptr<QOpenGLFramebufferObject>  m_fboSecondPass; // render-to-texture (second-pass)
-    QOpenGLVertexArrayObject              m_vao;
-    QOpenGLBuffer                         m_positionsBuffer;
-    QOpenGLBuffer                         m_texCoordBuffer;
+    QOpenGLContext*           m_defaultContext;
+    QOpenGLFramebufferObject* m_fboFirstPass; // render-to-texture (first-pass)
+    QOpenGLFramebufferObject* m_fboSecondPass; // render-to-texture (second-pass)
+    QOpenGLVertexArrayObject  m_vao;
+    QOpenGLBuffer             m_positionsBuffer;
+    QOpenGLBuffer             m_texCoordBuffer;
 
     // OpenGL identifiers
     GLuint                   m_bgTextureId;

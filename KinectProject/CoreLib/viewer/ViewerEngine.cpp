@@ -8,8 +8,10 @@
 #include "viewer/SkeletonItem.h"
 #include "types/BaseInstance.h"
 
-ViewerEngine::ViewerEngine()
+ViewerEngine::ViewerEngine(ViewerMode mode)
     : QObject()
+    , m_quickWindow(nullptr)
+    , m_running(false)
 {
     qmlRegisterType<ViewerEngine>("ViewerEngine", 1, 0, "ViewerEngine");
     qmlRegisterType<InstanceViewer>("InstanceViewer", 1, 0, "InstanceViewer");
@@ -17,7 +19,24 @@ ViewerEngine::ViewerEngine()
 
     qRegisterMetaType<QHashDataFrames>("QHashDataFrames");
     qRegisterMetaType<QList<shared_ptr<BaseInstance>>>("QList<shared_ptr<BaseInstance>>");
-    qRegisterMetaType<shared_ptr<SkeletonFrame>>("shared_ptr<SkeletonFrame>");   
+    qRegisterMetaType<shared_ptr<SkeletonFrame>>("shared_ptr<SkeletonFrame>");
+
+    // Create Scene
+    if (mode == MODE_3D) {
+        m_scene.reset(new Scene3DPainter);
+    }
+    else {
+        m_scene.reset(new Scene2DPainter);
+    }
+
+    m_mode = mode;
+
+    // Filters setup
+    shared_ptr<DilateUserFilter> dilateFilter(new DilateUserFilter);
+    dilateFilter->enableFilter(true);
+
+    // Filters are later retrieved from more recently to less recently inserted
+    m_filters.insert(DataFrame::User, dilateFilter);
 }
 
 ViewerEngine::~ViewerEngine()
@@ -30,40 +49,14 @@ ViewerEngine::~ViewerEngine()
 
 void ViewerEngine::startEngine(QQuickWindow* window)
 {
-    m_running = false;
-    m_quickWindow = nullptr;
-
-    // Filters setup
-    shared_ptr<DilateUserFilter> dilateFilter(new DilateUserFilter);
-    dilateFilter->enableFilter(true);
-
-    // Filters are later retrieved from more recently to less recently inserted
-    m_filters.insert(DataFrame::User, dilateFilter);
-
     setQuickWindow(window);
+    m_running = true;
 }
 
 void ViewerEngine::setQuickWindow(QQuickWindow *window)
 {
     Q_ASSERT(window);
     m_quickWindow = window;
-}
-
-void ViewerEngine::setMode(ViewerMode mode)
-{
-    if (mode == MODE_3D) {
-        m_scene.reset(new Scene3DPainter);
-    }
-    else {
-        m_scene.reset(new Scene2DPainter);
-    }
-
-    m_mode = mode;
-}
-
-dai::ViewerMode ViewerEngine::getMode() const
-{
-    return m_mode;
 }
 
 bool ViewerEngine::running() const
@@ -91,9 +84,10 @@ void ViewerEngine::onSpaceKeyPressed()
     emit spaceKeyPressed();
 }
 
-void ViewerEngine::onNewFrame(dai::QHashDataFrames dataFrames)
+void ViewerEngine::prepareScene(dai::QHashDataFrames dataFrames)
 {
-    m_running = true;
+    if (!m_running)
+        return;
 
     shared_ptr<SilhouetteItem> silhouetteItem = static_pointer_cast<SilhouetteItem>(m_scene->getFirstItem(ITEM_SILHOUETTE));
     shared_ptr<SkeletonItem> skeletonItem = static_pointer_cast<SkeletonItem>(m_scene->getFirstItem(ITEM_SKELETON));
@@ -102,9 +96,11 @@ void ViewerEngine::onNewFrame(dai::QHashDataFrames dataFrames)
     m_scene->clearItems();
 
     // Background of Scene
-    if (dataFrames.contains(DataFrame::Color)) {
+    if (dataFrames.contains(DataFrame::Color))
+    {
         // Compute dilate user mask to separate background from foreground
-        if (dataFrames.contains(DataFrame::User)) {
+        if (dataFrames.contains(DataFrame::User))
+        {
              shared_ptr<DilateUserFilter> dilateFilter = static_pointer_cast<DilateUserFilter>(m_filters.value(DataFrame::User));
              dilateFilter->setDilationSize(18);
              shared_ptr<UserFrame> userMask = static_pointer_cast<UserFrame>(applyFilter(dataFrames.value(DataFrame::User)));
@@ -117,6 +113,10 @@ void ViewerEngine::onNewFrame(dai::QHashDataFrames dataFrames)
 
              silhouetteItem->setUser( static_pointer_cast<UserFrame>(dataFrames.value(DataFrame::User)) );
              m_scene->addItem(silhouetteItem);
+        }
+        else {
+            static int count = 0;
+            qDebug() << "Viewer Engine No Silhouette" << count++;
         }
 
         m_scene->setBackground( dataFrames.value(DataFrame::Color) );
@@ -139,19 +139,23 @@ void ViewerEngine::onNewFrame(dai::QHashDataFrames dataFrames)
         m_scene->addItem(skeletonItem);
     }
 
-    if (m_quickWindow != nullptr)
-        m_quickWindow->update();
+    m_scene->markAsDirty();
 }
 
-void ViewerEngine::renderOpenGLScene()
+void ViewerEngine::renderOpenGLScene(QOpenGLFramebufferObject* fbo)
 {
     // Draw
     if (m_running)
     {
-        m_scene->setWindowSize(m_quickWindow->width(), m_quickWindow->height());
-        m_scene->renderScene();
+        m_scene->setSize(m_size.width(), m_size.height());
+        m_scene->renderScene(fbo);
         emit frameRendered();
     }
+}
+
+void ViewerEngine::setSize(const QSize& size)
+{
+    m_size = size;
 }
 
 shared_ptr<DataFrame> ViewerEngine::applyFilter(shared_ptr<DataFrame> inputFrame, shared_ptr<UserFrame> userMask) const

@@ -16,6 +16,7 @@
 #include <QList>
 #include <QMatrix4x4>
 #include <QOpenGLFunctions>
+#include <QOpenGLFramebufferObject>
 
 using namespace std;
 
@@ -24,8 +25,8 @@ namespace dai {
 class ScenePainter : public QOpenGLFunctions
 {
 public:
-    static void loadVideoTexture(GLuint glTextureId, GLsizei windowWidth, GLsizei windowHeight, void *texture);
-    static void loadMaskTexture(GLuint glTextureId, GLsizei windowWidth, GLsizei windowHeight, void *texture);
+    static void loadVideoTexture(GLuint glTextureId, GLsizei width, GLsizei height, void *texture);
+    static void loadMaskTexture(GLuint glTextureId, GLsizei width, GLsizei height, void *texture);
 
     ScenePainter();
     virtual ~ScenePainter();
@@ -33,21 +34,24 @@ public:
     void addItem(shared_ptr<SceneItem> item);
     shared_ptr<SceneItem> getFirstItem(ItemType type) const;
     void setBackground(shared_ptr<DataFrame> background);
-    void renderScene();
+    void renderScene(QOpenGLFramebufferObject* fbo);
     void setMatrix(const QMatrix4x4& matrix);
+    void markAsDirty();
+    bool isDirty() const;
+    bool clearDirty();
     QMatrix4x4& getMatrix();
     virtual void resetPerspective();
-    void setWindowSize(int windowWidth, int windowHeight);
-    int windowWidth() const;
-    int windowHeight() const;
+    void setSize(int width, int height);
+    int width() const;
+    int height() const;
 
 protected:
     void renderItems();
     virtual void initialise() = 0;
-    virtual void render() = 0;
+    virtual void render(QOpenGLFramebufferObject* fboDisplay) = 0;
 
-    int                              m_window_width;
-    int                              m_window_height;
+    int                              m_scene_width;
+    int                              m_scene_height;
     shared_ptr<DataFrame>            m_bg;
 
 #if (!defined _MSC_VER || _MSC_VER > 1600)
@@ -61,6 +65,11 @@ protected:
 
 private: 
     bool                             m_initialised;
+#if (!defined _MSC_VER || _MSC_VER > 1600)
+    atomic<int>                      m_dirty;
+#else
+    QAtomicInt                       m_dirty;
+#endif
 };
 
 } // End Namespace
