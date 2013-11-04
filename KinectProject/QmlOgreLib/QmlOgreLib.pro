@@ -28,6 +28,10 @@ macx {
 } else:unix {
     CONFIG += link_pkgconfig
     PKGCONFIG += OGRE
+
+    # Boost
+    LIBS += -lboost_system
+
 } else:win32 {
     OGREDIR = $$(OGRE_HOME)
     isEmpty(OGREDIR) {
@@ -60,17 +64,20 @@ MOC_DIR = ./.moc
 
 
 SOURCES += ogreitem.cpp \
-    ogrenode.cpp \
     ogrecamerawrapper.cpp \
-    ogreengine.cpp
+    ogreengine.cpp \
+    ogrerenderer.cpp
 
 HEADERS += \
     ogreitem.h \
-    ogrenode.h \
     ogrecamerawrapper.h \
-    ogreengine.h
+    ogreengine.h \
+    ogrerenderer.h
 
 # Copy all headers to build folder
 Headers.path = $$OUT_PWD/include
 Headers.files = $$files(*.h)
 INSTALLS += Headers
+
+RESOURCES += \
+    resources/ogrelib.qrc

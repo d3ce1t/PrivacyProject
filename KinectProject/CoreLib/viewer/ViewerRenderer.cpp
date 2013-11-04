@@ -1,4 +1,5 @@
 #include "ViewerRenderer.h"
+#include <QOpenGLFramebufferObject>
 
 ViewerRenderer::ViewerRenderer(const InstanceViewer *viewer)
     : m_viewerEngine(nullptr)

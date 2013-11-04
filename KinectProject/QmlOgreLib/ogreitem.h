@@ -13,10 +13,10 @@
 #include "ogreengine.h"
 #include "ogrecamerawrapper.h"
 
-#include <QtQuick/QQuickItem>
+#include <QQuickFramebufferObject>
 #include <QtCore/QPropertyAnimation>
 
-class OgreItem : public QQuickItem
+class OgreItem : public QQuickFramebufferObject
 {
     Q_OBJECT
 
@@ -32,8 +32,9 @@ public:
     OgreEngine *ogreEngine() const { return m_ogreEngineItem; }
     void setOgreEngine(OgreEngine *ogreEngine);
 
+    Renderer *createRenderer() const;
+
 protected:
-    virtual QSGNode *updatePaintNode(QSGNode *, UpdatePaintNodeData *);
     void timerEvent(QTimerEvent *evt);
 
 private:

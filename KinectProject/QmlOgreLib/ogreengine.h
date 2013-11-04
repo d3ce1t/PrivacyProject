@@ -32,17 +32,15 @@ class OgreEngine : public QObject
     Q_OBJECT
 
 public:
+    inline static void initResources() { Q_INIT_RESOURCE(ogrelib); }
+
     OgreEngine();
     ~OgreEngine();
     void startEngine(QQuickWindow *window);
     Ogre::Root* root();
     void stopEngine(Ogre::Root *ogreRoot);
-    Ogre::RenderWindow* renderWindow();
-    void activateOgreContext();
-    void doneOgreContext();
-    QOpenGLContext* ogreContext() const;
+    Ogre::RenderTarget *renderTarget();
     QSGTexture* createTextureFromId(uint id, const QSize &size, QQuickWindow::CreateTextureOptions options = QQuickWindow::CreateTextureOption(0)) const;
-    void setupResources(void);
 
 public slots:
     void queueRenderingCommand();
@@ -51,6 +49,8 @@ signals:
     void beforeRendering(qint64 time_ms);
 
 private:
+    void setupResources(void);
+
     Ogre::String m_resources_cfg;
     Ogre::String m_plugins_cfg;
     Ogre::RenderWindow *m_ogreWindow;
@@ -64,9 +64,6 @@ private:
     QOpenGLContext* m_qtContext;
 
     QElapsedTimer   m_timer;
-
-protected:
-    void createOpenGLContext(QQuickWindow *window);
 };
 
 #endif // OGREENGINEITEM_H

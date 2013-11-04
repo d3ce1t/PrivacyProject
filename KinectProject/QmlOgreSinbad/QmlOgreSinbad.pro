@@ -23,7 +23,8 @@ HEADERS += cameranodeobject.h \
     character/SinbadCharacterController.h
 
 OTHER_FILES += \
-    resources/example.qml
+    resources/example.qml \
+    resources/scene2d.vsh
 
 macx {
     OGREDIR = $$(OGRE_HOME)

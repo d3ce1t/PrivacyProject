@@ -3,7 +3,6 @@
 OgreScene::OgreScene()
     : m_root(nullptr)
     , m_camera(nullptr)
-    , m_viewPort(nullptr)
     , m_sceneManager(nullptr)
 {
     m_ogreEngine = new OgreEngine;
@@ -24,16 +23,12 @@ void OgreScene::initialiseOgre(QQuickWindow* quickWindow)
 {
     // Setup and Start up Ogre
     m_quickWindow = quickWindow;
+    m_ogreEngine->startEngine(quickWindow);
+
     m_root = m_ogreEngine->root();
     m_sceneManager = m_root->createSceneManager(Ogre::ST_GENERIC, "mySceneManager");
-    m_ogreEngine->startEngine(quickWindow);
-    m_ogreEngine->setupResources();
 
-    //
-    // Setup
-    //
     createCamera();
-    createViewports();
 
     // Set default mipmap level (NB some APIs ignore this)
     Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
@@ -45,26 +40,14 @@ void OgreScene::createCamera(void)
 {
     m_camera = m_sceneManager->createCamera("PlayerCam");
     m_camera->setNearClipDistance(5);
-    //m_camera->setFarClipDistance(99999);
     m_camera->setAspectRatio(Ogre::Real(m_quickWindow->width()) / Ogre::Real(m_quickWindow->height()));
     m_camera->setAutoTracking(true, m_sceneManager->getRootSceneNode());
     m_cameraObject->setCamera(m_camera);
 }
 
-void OgreScene::createViewports(void)
-{
-    // Create one viewport, entire window
-    m_viewPort = m_ogreEngine->renderWindow()->addViewport(m_camera);
-    m_viewPort->setBackgroundColour(Ogre::ColourValue(1.0,1.0,1.0));
-}
-
 void OgreScene::createScene(void)
 {
-    // Resources with textures must be loaded within Ogre's GL context
-    m_ogreEngine->activateOgreContext();
-
     // set background and some fog
-    m_viewPort->setBackgroundColour(Ogre::ColourValue(1.0f, 1.0f, 0.8f));
     m_sceneManager->setFog(Ogre::FOG_LINEAR, Ogre::ColourValue(1.0f, 1.0f, 0.8f), 0,15, 100);
 
     // set shadow properties
@@ -91,8 +74,6 @@ void OgreScene::createScene(void)
     floor->setMaterialName("Examples/Rockwall");
     floor->setCastShadows(false);
     m_sceneManager->getRootSceneNode()->attachObject(floor);
-
-    m_ogreEngine->doneOgreContext();
 
     // create our character controller
     //mChara = new SinbadCharacterController(m_camera);

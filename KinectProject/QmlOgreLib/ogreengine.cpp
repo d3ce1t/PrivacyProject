@@ -19,13 +19,6 @@ OgreEngine::OgreEngine()
 {
     qmlRegisterType<OgreItem>("Ogre", 1, 0, "OgreItem");
     qmlRegisterType<OgreEngine>("OgreEngine", 1, 0, "OgreEngine");
-
-    m_root = new Ogre::Root(m_plugins_cfg);
-
-    // Set OpenGL render subsystem
-    Ogre::RenderSystem *renderSystem = m_root->getRenderSystemByName("OpenGL Rendering Subsystem");
-    m_root->setRenderSystem(renderSystem);
-    m_root->initialise(false);
 }
 
 OgreEngine::~OgreEngine()
@@ -40,9 +33,13 @@ Ogre::Root* OgreEngine::root()
 
 void OgreEngine::startEngine(QQuickWindow *window)
 {
-    createOpenGLContext(window);
+    m_quickWindow = window;
+    m_root = new Ogre::Root(m_plugins_cfg);
 
-    activateOgreContext();
+    // Set OpenGL render subsystem
+    Ogre::RenderSystem *renderSystem = m_root->getRenderSystemByName("OpenGL Rendering Subsystem");
+    m_root->setRenderSystem(renderSystem);
+    m_root->initialise(false);
 
     // Setup window params
     Ogre::NameValuePairList params;
@@ -54,9 +51,14 @@ void OgreEngine::startEngine(QQuickWindow *window)
     m_ogreWindow->setVisible(false);
     m_ogreWindow->update(false);
 
-    doneOgreContext();
+    setupResources();
 
     m_timer.start();
+}
+
+Ogre::RenderTarget* OgreEngine::renderTarget()
+{
+    return m_ogreWindow;
 }
 
 void OgreEngine::stopEngine(Ogre::Root *ogreRoot)
@@ -67,70 +69,6 @@ void OgreEngine::stopEngine(Ogre::Root *ogreRoot)
     }
 
     delete ogreRoot;
-}
-
-Ogre::RenderWindow* OgreEngine::renderWindow()
-{
-    return m_ogreWindow;
-}
-
-void OgreEngine::createOpenGLContext(QQuickWindow *window)
-{
-    Q_ASSERT(window);
-
-    m_quickWindow = window;
-    m_qtContext = QOpenGLContext::currentContext();
-
-    // create a new shared OpenGL context to be used exclusively by Ogre
-    m_ogreContext = new QOpenGLContext();
-    m_ogreContext->setFormat(m_quickWindow->requestedFormat());
-    m_ogreContext->setShareContext(m_qtContext);
-    m_ogreContext->create();
-}
-
-void OgreEngine::activateOgreContext()
-{
-    glPopAttrib();
-    glPopClientAttrib();
-
-    m_qtContext->functions()->glUseProgram(0);
-    m_qtContext->doneCurrent();
-
-    m_ogreContext->makeCurrent(m_quickWindow);
-}
-
-void OgreEngine::doneOgreContext()
-{
-    m_ogreContext->functions()->glBindBuffer(GL_ARRAY_BUFFER, 0);
-    m_ogreContext->functions()->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    m_ogreContext->functions()->glBindRenderbuffer(GL_RENDERBUFFER, 0);
-    m_ogreContext->functions()->glBindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
-
-    // unbind all possible remaining buffers; just to be on safe side
-    m_ogreContext->functions()->glBindBuffer(GL_ARRAY_BUFFER, 0);
-    m_ogreContext->functions()->glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
-    m_ogreContext->functions()->glBindBuffer(GL_COPY_READ_BUFFER, 0);
-    m_ogreContext->functions()->glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
-    m_ogreContext->functions()->glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
-//    m_ogreContext->functions()->glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, 0);
-    m_ogreContext->functions()->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    m_ogreContext->functions()->glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
-    m_ogreContext->functions()->glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
-//    m_ogreContext->functions()->glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-    m_ogreContext->functions()->glBindBuffer(GL_TEXTURE_BUFFER, 0);
-    m_ogreContext->functions()->glBindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, 0);
-    m_ogreContext->functions()->glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-    m_ogreContext->doneCurrent();
-
-    m_qtContext->makeCurrent(m_quickWindow);
-    glPushAttrib(GL_ALL_ATTRIB_BITS);
-    glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
-}
-
-QOpenGLContext* OgreEngine::ogreContext() const
-{
-    return m_ogreContext;
 }
 
 QSGTexture* OgreEngine::createTextureFromId(uint id, const QSize &size, QQuickWindow::CreateTextureOptions options) const

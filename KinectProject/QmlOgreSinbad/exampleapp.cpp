@@ -20,21 +20,12 @@ ExampleApp::ExampleApp(QWindow *parent) :
     QQuickView(parent)
   , m_cameraObject(0)
   , m_camera(0)
-  , m_viewPort(0)
   , mChara(0)
   , m_lastTime(0)
 {
-    m_ogreEngine = new OgreEngine;
-    m_root = m_ogreEngine->root();
-
-    // set up Ogre scene
-    m_sceneManager = m_root->createSceneManager(Ogre::ST_GENERIC, "mySceneManager");
-    m_cameraObject = new CameraNodeObject;
-
     // start Ogre once we are in the rendering thread (Ogre must live in the rendering thread)
     connect(this, &ExampleApp::beforeRendering, this, &ExampleApp::initializeOgre, Qt::DirectConnection);
-    connect(this, &ExampleApp::ogreInitialized, this, &ExampleApp::addContent);
-}
+    connect(this, &ExampleApp::ogreInitialized, this, &ExampleApp::addContent);}
 
 ExampleApp::~ExampleApp()
 {
@@ -52,15 +43,19 @@ void ExampleApp::initializeOgre()
     // we only want to initialize once
     disconnect(this, &ExampleApp::beforeRendering, this, &ExampleApp::initializeOgre);
 
-    // start up Ogrez
+    // start up Ogre
+    m_ogreEngine = new OgreEngine;
     m_ogreEngine->startEngine(this);
-    m_ogreEngine->setupResources();
+    m_root = m_ogreEngine->root();
+
+    // set up Ogre scene
+    m_sceneManager = m_root->createSceneManager(Ogre::ST_GENERIC, "mySceneManager");
+    m_cameraObject = new CameraNodeObject;
 
     //
     // Setup
     //
     createCamera();
-    createViewports();
 
     // Set default mipmap level (NB some APIs ignore this)
     Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
@@ -74,26 +69,14 @@ void ExampleApp::createCamera(void)
 {
     m_camera = m_sceneManager->createCamera("PlayerCam");
     m_camera->setNearClipDistance(5);
-    //m_camera->setFarClipDistance(99999);
     m_camera->setAspectRatio(Ogre::Real(width()) / Ogre::Real(height()));
     m_camera->setAutoTracking(true, m_sceneManager->getRootSceneNode());
     m_cameraObject->setCamera(m_camera);
 }
 
-void ExampleApp::createViewports(void)
-{
-    // Create one viewport, entire window
-    m_viewPort = m_ogreEngine->renderWindow()->addViewport(m_camera);
-    m_viewPort->setBackgroundColour(Ogre::ColourValue(1.0,1.0,1.0));
-}
-
 void ExampleApp::createScene(void)
 {
-    // Resources with textures must be loaded within Ogre's GL context
-    m_ogreEngine->activateOgreContext();
-
     // set background and some fog
-    m_viewPort->setBackgroundColour(Ogre::ColourValue(1.0f, 1.0f, 0.8f));
     m_sceneManager->setFog(Ogre::FOG_LINEAR, Ogre::ColourValue(1.0f, 1.0f, 0.8f), 0,15, 100);
 
     // set shadow properties
@@ -120,8 +103,6 @@ void ExampleApp::createScene(void)
     floor->setMaterialName("Examples/Rockwall");
     floor->setCastShadows(false);
     m_sceneManager->getRootSceneNode()->attachObject(floor);
-
-    m_ogreEngine->doneOgreContext();
 
     // create our character controller
     mChara = new SinbadCharacterController(m_camera);

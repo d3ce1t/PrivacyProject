@@ -5,7 +5,8 @@
 #include <QThread>
 
 InstanceViewer::InstanceViewer()
-    : m_viewerEngine(nullptr)
+    : QQuickFramebufferObject()
+    , m_viewerEngine(nullptr)
 {
     setSmooth(false);
 }

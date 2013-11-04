@@ -2,7 +2,6 @@
 #define VIEWERRENDERER_H
 
 #include <QtQuick/QQuickFramebufferObject>
-#include <QOpenGLFramebufferObject>
 #include "viewer/ViewerEngine.h"
 #include "viewer/InstanceViewer.h"
 

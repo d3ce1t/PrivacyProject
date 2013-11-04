@@ -22,7 +22,6 @@ OgreCharacter::OgreCharacter(QWindow *parent) :
   , m_ogreEngine(0)
   , m_root(0)
   , m_camera(0)
-  //, m_viewPort(0)
   , m_sceneManager(0)
   , mChara(0)
   , m_lastTime(0)
@@ -58,7 +57,6 @@ void OgreCharacter::initializeOgre()
     // Setup
     //
     createCamera();
-    createViewports();
 
     // Set default mipmap level (NB some APIs ignore this)
     Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
@@ -79,20 +77,12 @@ void OgreCharacter::createCamera(void)
     m_cameraObject->setCamera(m_camera);
 }
 
-void OgreCharacter::createViewports(void)
-{
-    // Create one viewport, entire window
-    m_viewPort = m_ogreEngine->renderWindow()->addViewport(m_camera);
-    m_viewPort->setBackgroundColour(Ogre::ColourValue(1.0,1.0,1.0));
-}
-
 void OgreCharacter::createScene(void)
 {
     // Resources with textures must be loaded within Ogre's GL context
-    m_ogreEngine->activateOgreContext();
+    //m_ogreEngine->activateOgreContext();
 
     // set background and some fog
-    m_viewPort->setBackgroundColour(Ogre::ColourValue(1.0f, 1.0f, 0.8f));
     m_sceneManager->setFog(Ogre::FOG_LINEAR, Ogre::ColourValue(1.0f, 1.0f, 0.8f), 0,15, 100);
 
     // set shadow properties
@@ -120,7 +110,7 @@ void OgreCharacter::createScene(void)
     floor->setCastShadows(false);
     m_sceneManager->getRootSceneNode()->attachObject(floor);
 
-    m_ogreEngine->doneOgreContext();
+    //m_ogreEngine->doneOgreContext();
 
     // create our character controller
     mChara = new SinbadCharacterController(m_camera);

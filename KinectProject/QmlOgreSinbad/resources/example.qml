@@ -5,13 +5,14 @@ Rectangle {
     id: ogre
     width: 1024
     height: 768
-    color: "black"
+    color: "blue"
 
     OgreItem {
         id: ogreitem
         anchors.fill: parent
         camera: Camera
         ogreEngine: OgreEngine
+        z: 1
 
         MouseArea {
             anchors.fill: parent

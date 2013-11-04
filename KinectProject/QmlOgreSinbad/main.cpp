@@ -13,6 +13,7 @@
 
 int main(int argc, char **argv)
 {
+    OgreEngine::initResources();
     QGuiApplication app(argc, argv);
 
     ExampleApp eApp;

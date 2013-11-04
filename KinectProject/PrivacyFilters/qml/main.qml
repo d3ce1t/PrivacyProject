@@ -136,13 +136,34 @@ ApplicationWindow {
         }
     }
 
+    // Draw FPS
+    Rectangle {
+        color: Qt.rgba(0, 0.7, 1, 0.5)
+        radius: 10
+        anchors.fill: textFrameId
+        anchors.margins: -10
+        z: 2
+    }
+
+    Text {
+        id: textFrameId
+        text: Math.round(Window.fps) + " fps"
+        color: "black"
+        font.pixelSize: 11
+        wrapMode: Text.WordWrap
+        anchors.left: parent.left
+        anchors.top: parent.top
+        anchors.margins: 20
+        z: 2
+    }
+
     OgreItem {
         id: ogreitem
         anchors.fill: parent
         camera: Camera
         ogreEngine: OgreEngine
         focus: true
-        z: 0
+        z: 1
 
         MouseArea {
             anchors.fill: parent
@@ -173,32 +194,9 @@ ApplicationWindow {
     InstanceViewer {
         id: instanceViewer
         viewerEngine: ViewerEngine
-        //implicitWidth: 320 //640
-        //implicitHeight: 240 // 480
         //focus: true
-        x: 0
-        y: 0
         anchors.fill: parent
-        z: 1
-
-        // Draw FPS
-        Rectangle {
-            color: Qt.rgba(0, 0.7, 1, 0.5)
-            radius: 10
-            anchors.fill: textFrameId
-            anchors.margins: -10
-        }
-
-        Text {
-            id: textFrameId
-            text: Math.round(Window.fps) + " fps"
-            color: "black"
-            font.pixelSize: 11
-            wrapMode: Text.WordWrap
-            anchors.left: instanceViewer.left
-            anchors.top: instanceViewer.top
-            anchors.margins: 20
-        }
+        z: 0
 
         // Overlay Text
         Text {

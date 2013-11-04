@@ -34,7 +34,6 @@ public slots:
 
 protected:
     void createCamera(void);
-    void createViewports(void);
     void createScene(void);
     void destroyScene(void);
     
@@ -44,7 +43,6 @@ private:
 
     Ogre::Root *m_root;
     Ogre::Camera* m_camera;
-    Ogre::Viewport* m_viewPort;
     Ogre::SceneManager *m_sceneManager;
 
     SinbadCharacterController* mChara;

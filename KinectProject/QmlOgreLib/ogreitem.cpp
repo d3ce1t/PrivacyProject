@@ -8,41 +8,17 @@
  */
 
 #include "ogreitem.h"
-#include "ogrenode.h"
+#include "ogrerenderer.h"
 
 OgreItem::OgreItem(QQuickItem *parent)
-    : QQuickItem(parent)
+    : QQuickFramebufferObject(parent)
     , m_timerID(0)
     , m_camera(0)
     , m_ogreEngineItem(0)
 {
-    setFlag(ItemHasContents);
+    setTextureFollowsItemSize(true);
     setSmooth(false);
-    m_timerID = startTimer(16);
-}
-
-QSGNode *OgreItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
-{
-    if (width() <= 0 || height() <= 0 || !m_camera || !m_ogreEngineItem) {
-        delete oldNode;
-        return 0;
-    }
-
-    OgreNode *node = static_cast<OgreNode *>(oldNode);
-
-    if (!node)
-    {
-        node = new OgreNode();
-        node->setOgreEngineItem(m_ogreEngineItem);
-        node->setCamera(m_camera->camera());
-    }
-
-    node->setSize(QSize(width(), height()));
-    node->update();
-    // mark texture dirty, otherwise Qt will not trigger a redraw (preprocess())
-    node->markDirty(QSGNode::DirtyMaterial);
-
-    return node;
+    m_timerID = startTimer(17);
 }
 
 void OgreItem::timerEvent(QTimerEvent *evt)
@@ -60,4 +36,12 @@ void OgreItem::setCamera(QObject *camera)
 void OgreItem::setOgreEngine(OgreEngine *ogreEngine)
 {
     m_ogreEngineItem = ogreEngine;
+}
+
+QQuickFramebufferObject::Renderer* OgreItem::createRenderer() const
+{
+    OgreRenderer* renderer = new OgreRenderer(this);
+    renderer->setOgreEngine(m_ogreEngineItem);
+    renderer->setCamera(m_camera->camera());
+    return renderer;
 }
