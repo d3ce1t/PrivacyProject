@@ -76,18 +76,21 @@ void OgreRenderer::render()
     m_shaderProgram->release();
 
     // Update Ogre Scene
-    if (m_renderTarget)
+    if (m_renderTarget) {
+        m_engine->activateOgreContext();
         m_renderTarget->update(true);
+        m_engine->doneOgreContext();
+    }
 
     // Restore
     glDisable(GL_TEXTURE_2D);
-
-    //update();
 }
 
 QOpenGLFramebufferObject* OgreRenderer::createFramebufferObject(const QSize &size)
 {
     m_size = size;
+
+    m_engine->activateOgreContext();
 
     if (m_renderTarget)
         Ogre::TextureManager::getSingleton().remove("RttTex");
@@ -118,7 +121,9 @@ QOpenGLFramebufferObject* OgreRenderer::createFramebufferObject(const QSize &siz
     Ogre::GLTexture* nativeTexture = static_cast<Ogre::GLTexture *>(m_rttTexture.get());
     m_texture = m_engine->createTextureFromId(nativeTexture->getGLID(), size);
 
-    // Compute matrix
+    m_engine->doneOgreContext();
+
+    // Create my Qt Quick FBO
     QMatrix4x4 matrix;
     matrix.setToIdentity();
     matrix.ortho(0, m_size.width(), m_size.height(), 0, -1.0, 1.0);

@@ -40,6 +40,9 @@ public:
     Ogre::Root* root();
     void stopEngine(Ogre::Root *ogreRoot);
     Ogre::RenderTarget *renderTarget();
+    void activateOgreContext();
+    void doneOgreContext();
+    QOpenGLContext* ogreContext() const;
     QSGTexture* createTextureFromId(uint id, const QSize &size, QQuickWindow::CreateTextureOptions options = QQuickWindow::CreateTextureOption(0)) const;
 
 public slots:
@@ -47,6 +50,9 @@ public slots:
 
 signals:
     void beforeRendering(qint64 time_ms);
+
+protected:
+    void createOgreOpengGLContext(QQuickWindow *window);
 
 private:
     void setupResources(void);

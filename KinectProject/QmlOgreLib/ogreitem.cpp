@@ -18,7 +18,7 @@ OgreItem::OgreItem(QQuickItem *parent)
 {
     setTextureFollowsItemSize(true);
     setSmooth(false);
-    m_timerID = startTimer(17);
+    m_timerID = startTimer(16);
 }
 
 void OgreItem::timerEvent(QTimerEvent *evt)

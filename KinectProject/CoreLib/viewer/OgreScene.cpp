@@ -25,6 +25,8 @@ void OgreScene::initialiseOgre(QQuickWindow* quickWindow)
     m_quickWindow = quickWindow;
     m_ogreEngine->startEngine(quickWindow);
 
+    m_ogreEngine->activateOgreContext();
+
     m_root = m_ogreEngine->root();
     m_sceneManager = m_root->createSceneManager(Ogre::ST_GENERIC, "mySceneManager");
 
@@ -34,6 +36,8 @@ void OgreScene::initialiseOgre(QQuickWindow* quickWindow)
     Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
 
     createScene();
+
+    m_ogreEngine->doneOgreContext();
 }
 
 void OgreScene::createCamera(void)
