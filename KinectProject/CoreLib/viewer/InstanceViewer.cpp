@@ -8,7 +8,9 @@ InstanceViewer::InstanceViewer()
     : QQuickFramebufferObject()
     , m_viewerEngine(nullptr)
 {
+    setTextureFollowsItemSize(false);
     setSmooth(false);
+    startTimer(60);
 }
 
 InstanceViewer::~InstanceViewer()
@@ -29,4 +31,10 @@ QQuickFramebufferObject::Renderer* InstanceViewer::createRenderer() const
     ViewerRenderer* renderer = new ViewerRenderer(this);
     renderer->setViewerEngine(m_viewerEngine);
     return renderer;
+}
+
+void InstanceViewer::timerEvent(QTimerEvent *evt)
+{
+    Q_UNUSED(evt);
+    update();
 }

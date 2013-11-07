@@ -147,15 +147,11 @@ void ViewerEngine::renderOpenGLScene(QOpenGLFramebufferObject* fbo)
     // Draw
     if (m_running)
     {
+        m_size = fbo->size();
         m_scene->setSize(m_size.width(), m_size.height());
         m_scene->renderScene(fbo);
         emit frameRendered();
     }
-}
-
-void ViewerEngine::setSize(const QSize& size)
-{
-    m_size = size;
 }
 
 shared_ptr<DataFrame> ViewerEngine::applyFilter(shared_ptr<DataFrame> inputFrame, shared_ptr<UserFrame> userMask) const

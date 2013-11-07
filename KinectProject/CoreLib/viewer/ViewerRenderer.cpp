@@ -18,8 +18,6 @@ void ViewerRenderer::render()
     if (m_viewerEngine) {
         m_viewerEngine->renderOpenGLScene(this->framebufferObject());
     }
-
-    update();
 }
 
 QOpenGLFramebufferObject* ViewerRenderer::createFramebufferObject(const QSize &size)
@@ -28,10 +26,4 @@ QOpenGLFramebufferObject* ViewerRenderer::createFramebufferObject(const QSize &s
     format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
     format.setSamples(4);
     return new QOpenGLFramebufferObject(size, format);
-}
-
-void ViewerRenderer::synchronize(QQuickFramebufferObject *quickFbo)
-{
-    if (m_viewerEngine)
-        m_viewerEngine->setSize(QSize(quickFbo->width(), quickFbo->height()));
 }

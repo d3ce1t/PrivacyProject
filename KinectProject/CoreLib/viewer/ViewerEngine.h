@@ -28,7 +28,6 @@ public:
     bool running() const;
     shared_ptr<dai::ScenePainter> scene();
     void renderOpenGLScene(QOpenGLFramebufferObject *fbo);
-    void setSize(const QSize& size);
 
 signals:
     void frameRendered();

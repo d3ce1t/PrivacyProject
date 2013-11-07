@@ -13,9 +13,6 @@ public:
     QOpenGLFramebufferObject *createFramebufferObject(const QSize &size);
     void setViewerEngine(ViewerEngine* engine);
 
-protected:
-    void synchronize(QQuickFramebufferObject *quickFbo);
-
 private:
     ViewerEngine* m_viewerEngine;
     InstanceViewer* m_viewer;

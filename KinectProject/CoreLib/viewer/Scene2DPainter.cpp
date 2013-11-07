@@ -62,10 +62,10 @@ void Scene2DPainter::render(QOpenGLFramebufferObject *fboDisplay)
     glEnable(GL_BLEND);
 
     // Configure ViewPort and Clear Screen
-    glClearColor(0.0f, 1.0f, 0.0f, 0.2f);
+    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
     glClearDepth(1.0f);
     //glViewport(0, 0, 640, 480);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Draw Background
     if (m_bg == nullptr)
@@ -74,21 +74,19 @@ void Scene2DPainter::render(QOpenGLFramebufferObject *fboDisplay)
     m_shaderProgram->bind();
     m_shaderProgram->setUniformValue(m_perspectiveMatrixUniform, m_matrix);
 
-    //setupTextures();
+    setupTextures();
 
     // Stage 1
-    //enableBGRendering();
-    //extractBackground();// background is in bgTexture, foreground is in fgTexture
-    //renderBackground(); // it renders bg or fg into fboFirstPass
+    enableBGRendering();
+    extractBackground();// background is in bgTexture, foreground is in fgTexture
+    renderBackground(); // it renders bg or fg into fboFirstPass
 
     // Stage 2
-    //renderItems(); // items first-pass rendering (fboFirstPass)
-
-    //qSwap(m_fboFirstPass, fboDisplay);
+    renderItems(); // items first-pass rendering (fboFirstPass)
 
     // Stage 4
-    //fboDisplay->bind();
-    //displayRenderedTexture(); // here framebuffer (display) and second-pass rendering
+    fboDisplay->bind();
+    displayRenderedTexture(); // here framebuffer (display) and second-pass rendering
 
     m_shaderProgram->release();
 

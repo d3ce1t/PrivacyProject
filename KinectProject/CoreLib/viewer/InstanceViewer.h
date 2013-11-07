@@ -19,6 +19,9 @@ public:
     ViewerEngine* viewerEngine() const { return m_viewerEngine; }
     void setViewerEngine(ViewerEngine *viewerEngine);
 
+protected:
+    void timerEvent(QTimerEvent *evt);
+
 private:
     ViewerEngine*  m_viewerEngine;
 };
