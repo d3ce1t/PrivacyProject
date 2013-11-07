@@ -49,14 +49,8 @@ ViewerEngine::~ViewerEngine()
 
 void ViewerEngine::startEngine(QQuickWindow* window)
 {
-    setQuickWindow(window);
-    m_running = true;
-}
-
-void ViewerEngine::setQuickWindow(QQuickWindow *window)
-{
-    Q_ASSERT(window);
     m_quickWindow = window;
+    m_running = true;
 }
 
 bool ViewerEngine::running() const

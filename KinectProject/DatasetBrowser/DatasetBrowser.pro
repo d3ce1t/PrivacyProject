@@ -53,19 +53,6 @@ unix:!macx {
     INCLUDEPATH += $$PWD/../CoreLib
     DEPENDPATH += $$PWD/../CoreLib
 
-    # QmlOgreLib
-    LIBS += -L$$OUT_PWD/../QmlOgreLib/ -lQmlOgre
-    PRE_TARGETDEPS += $$OUT_PWD/../QmlOgreLib/libQmlOgre.a
-    INCLUDEPATH += $$PWD/../QmlOgreLib
-    DEPENDPATH += $$PWD/../QmlOgreLib
-
-    # Ogre
-    CONFIG += link_pkgconfig
-    PKGCONFIG += OGRE
-
-    # Boost
-    LIBS += -lboost_system
-
     # OpenCV2
     LIBS += -lopencv_core -lopencv_imgproc
     INCLUDEPATH += /usr/include/opencv/

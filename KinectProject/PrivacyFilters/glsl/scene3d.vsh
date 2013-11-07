@@ -14,7 +14,6 @@ vec3 convertDepthToRealWorld(vec2 coordinates, float distance)
     vec3 result;
     result.xy = (coordinates - cd) * distance * fd;
     result.z = -distance;
-    result.y = -result.y;
     return result;
 }
 

@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 #include "playback/PlaybackControl.h"
+#include "ogre/OgreScene.h"
+#include "viewer/InstanceViewerWindow.h"
 
 namespace Ui {
 class MainWindow;
@@ -17,12 +19,13 @@ public:
     virtual ~MainWindow();
     QString number(int value);
     
+public slots:
+    void initialiseOgre();
+
 private slots:
     void onPlusKeyPressed();
     void onMinusKeyPressed();
     void onSpaceKeyPressed();
-    void on_btnParseDataset_clicked();
-    void on_btnTest_clicked();
     void on_btnStartKinect_clicked();
 
     void on_btnQuit_clicked();
@@ -32,6 +35,8 @@ private:
     static void testSegmentation();
 
 private:
+    dai::InstanceViewerWindow* m_colorViewer;
+    OgreScene*            m_ogreScene;
     dai::PlaybackControl* m_playback;
     Ui::MainWindow *ui;
 };

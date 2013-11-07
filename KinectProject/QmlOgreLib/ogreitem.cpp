@@ -24,7 +24,6 @@ OgreItem::OgreItem(QQuickItem *parent)
 void OgreItem::timerEvent(QTimerEvent *evt)
 {
     Q_UNUSED(evt);
-    m_ogreEngineItem->queueRenderingCommand();
     update();
 }
 

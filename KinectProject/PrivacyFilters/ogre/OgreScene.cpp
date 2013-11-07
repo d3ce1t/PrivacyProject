@@ -1,11 +1,15 @@
 #include "OgreScene.h"
 
 OgreScene::OgreScene()
-    : m_root(nullptr)
+    : QObject()
+    , m_root(nullptr)
     , m_camera(nullptr)
     , m_sceneManager(nullptr)
+    , m_chara(nullptr)
+    //, m_lastTime(0)
 {
     m_ogreEngine = new OgreEngine;
+    connect(m_ogreEngine, &OgreEngine::beforeRendering, this, &OgreScene::addTime, Qt::DirectConnection);
     m_cameraObject = new CameraNodeObject;
 }
 
@@ -80,12 +84,22 @@ void OgreScene::createScene(void)
     m_sceneManager->getRootSceneNode()->attachObject(floor);
 
     // create our character controller
-    //mChara = new SinbadCharacterController(m_camera);
+    m_chara = new SinbadCharacterController(m_camera);
 }
 
 void OgreScene::destroyScene(void)
 {
     // clean up character controller and the floor mesh
-    //if (mChara) delete mChara;
+    if (m_chara) delete m_chara;
     Ogre::MeshManager::getSingleton().remove("floor");
+}
+
+void OgreScene::addTime(qint64 time_ms)
+{
+    if (time_ms == m_lastTime)
+        return;
+
+    Real deltaTime = (time_ms - m_lastTime) / 1000.0f;
+    m_chara->addTime(deltaTime);
+    m_lastTime = time_ms;
 }

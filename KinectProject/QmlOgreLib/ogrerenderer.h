@@ -12,12 +12,13 @@ class OgreRenderer : public QQuickFramebufferObject::Renderer, public QOpenGLFun
 {
 public:
     OgreRenderer(const OgreItem* viewer);
-    void render();
-    QOpenGLFramebufferObject *createFramebufferObject(const QSize &size);
     void setOgreEngine(OgreEngine* engine);
     void setCamera(Ogre::Camera* camera);
 
 protected:
+    QOpenGLFramebufferObject *createFramebufferObject(const QSize &size);
+    void render();
+    void synchronize(QQuickFramebufferObject * item);
     void prepareShaderProgram();
 
 private:

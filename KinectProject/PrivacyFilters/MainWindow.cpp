@@ -14,7 +14,6 @@
 #include "types/SkeletonFrame.h"
 #include "types/DataFrame.h"
 #include "types/BaseInstance.h"
-#include "viewer/InstanceViewerWindow.h"
 #include "viewer/InstanceRecorder.h"
 #include "KMeans.h"
 #include "DepthSeg.h"
@@ -136,7 +135,7 @@ void MainWindow::testSegmentation()
     }
 }
 
-void MainWindow::on_btnParseDataset_clicked()
+/*void MainWindow::on_btnParseDataset_clicked()
 {
     dai::MSR3Action3D dataset;
     const dai::DatasetMetadata& dsMetadata = dataset.getMetadata();
@@ -190,60 +189,13 @@ void MainWindow::on_btnParseDataset_clicked()
         dataInstance->close();
         of.close();
     }
-}
-
-void MainWindow::on_btnTest_clicked()
-{
-    //searchMinAndMaxDepth();
-
-    //dai::DAIDataset dataset;
-    dai::MSR3Action3D dataset;
-
-    // Create instances
-    //shared_ptr<dai::DataInstance> colorInstance = dataset.getColorInstance(1, 1, 1);
-    auto depthInstance = dataset.getInstance(17, 1, 2, dai::INSTANCE_DEPTH);
-    //shared_ptr<dai::DataInstance> userInstance = dataset.getUserInstance(1, 1, 1);
-    auto skeletonInstance = dataset.getInstance(17, 1, 2, dai::INSTANCE_SKELETON);
-
-    // Create playback to control instances reading
-    dai::PlaybackControl* playback = new dai::PlaybackControl;
-    playback->enablePlayLoop(true);
-    connect(playback, &dai::PlaybackControl::onPlaybackFinished, playback, &dai::PlaybackControl::deleteLater);
-
-    // Create Viewers
-    //dai::InstanceViewerWindow* colorViewer = new dai::InstanceViewerWindow;
-    //dai::InstanceViewerWindow* depthViewer = new dai::InstanceViewerWindow;
-    //dai::InstanceViewerWindow* userViewer = new dai::InstanceViewerWindow;
-    dai::InstanceViewerWindow* skeletonViewer = new dai::InstanceViewerWindow(MODE_3D);
-    //dai::TestListener* skeletonViewer = new dai::TestListener;
-
-    // Connect all together
-    //playback->addInstance(colorInstance);
-    //playback->addInstance(depthInstance);
-    //playback->addInstance(userInstance);
-    playback->addInstance(skeletonInstance);
-    playback->addInstance(depthInstance);
-
-    //playback->addListener(colorViewer, colorInstance);
-    //playback->addListener(colorViewer, userInstance);
-    //playback->addNewFrameListener(depthViewer, depthInstance);
-    //playback->addNewFrameListener(userViewer, userInstance);
-    //playback->addNewFrameListener(recorder, userInstance);
-    playback->addListener(skeletonViewer, skeletonInstance);
-    playback->addListener(skeletonViewer, depthInstance);
-
-    playback->play();
-    skeletonViewer->show();
-    //colorViewer->show();
-    //depthViewer->show();
-    //userViewer->show();
-}
+}*/
 
 void MainWindow::on_btnStartKinect_clicked()
 {
     // Create instance
     shared_ptr<dai::OpenNIColorInstance> colorInstance(new dai::OpenNIColorInstance);
-    shared_ptr<dai::OpenNIDepthInstance> depthInstance(new dai::OpenNIDepthInstance);
+    //shared_ptr<dai::OpenNIDepthInstance> depthInstance(new dai::OpenNIDepthInstance);
     shared_ptr<dai::OpenNISkeletonInstance> skeletonInstance(new dai::OpenNISkeletonInstance);
     shared_ptr<dai::OpenNIUserInstance> userInstance(new dai::OpenNIUserInstance);
 
@@ -253,28 +205,36 @@ void MainWindow::on_btnStartKinect_clicked()
     connect(m_playback, &dai::PlaybackControl::onPlaybackFinished, m_playback, &dai::PlaybackControl::deleteLater);
 
     // Create viewers
-    dai::InstanceViewerWindow* colorViewer = new dai::InstanceViewerWindow(dai::MODE_2D);
+    m_colorViewer = new dai::InstanceViewerWindow(dai::MODE_2D);
+    m_ogreScene = new OgreScene;
+    m_colorViewer->qmlEngine().rootContext()->setContextProperty("Camera", m_ogreScene->cameraNode());
+    m_colorViewer->qmlEngine().rootContext()->setContextProperty("OgreEngine", m_ogreScene->engine());
+    m_colorViewer->initialise();
+
+    // start Ogre once we are in the rendering thread (Ogre must live in the rendering thread)
+    connect(m_colorViewer->quickWindow(), &QQuickWindow::beforeSynchronizing, this, &MainWindow::initialiseOgre, Qt::DirectConnection);
     /*connect(colorViewer->viewerEngine(), &ViewerEngine::plusKeyPressed, this, &MainWindow::onPlusKeyPressed);
     connect(colorViewer->viewerEngine(), &ViewerEngine::minusKeyPressed, this, &MainWindow::onMinusKeyPressed);
     connect(colorViewer->viewerEngine(), &ViewerEngine::spaceKeyPressed, this, &MainWindow::onSpaceKeyPressed);*/
 
     //dai::InstanceViewerWindow* depthViewer = new dai::InstanceViewerWindow(dai::MODE_3D);
+    //depthViewer->initialise();
 
     // Connect all together
     m_playback->addInstance(colorInstance);
-    m_playback->addInstance(depthInstance);
+    //m_playback->addInstance(depthInstance);
     m_playback->addInstance(userInstance);
     m_playback->addInstance(skeletonInstance);
 
-    m_playback->addListener(colorViewer, colorInstance);
-    m_playback->addListener(colorViewer, userInstance);
-    m_playback->addListener(colorViewer, skeletonInstance);
-    //m_playback->addListener(depthViewer, depthInstance);
-    //m_playback->addListener(depthViewer, skeletonInstance);
+    m_playback->addListener(m_colorViewer, colorInstance);
+    m_playback->addListener(m_colorViewer, userInstance);
+    m_playback->addListener(m_colorViewer, skeletonInstance);
+    //m_playback->addListener(m_colorViewer, depthInstance);
+    //m_playback->addListener(m_colorViewer, skeletonInstance);
 
     // Run
     m_playback->play();
-    colorViewer->show();
+    m_colorViewer->show();
     //depthViewer->show();
 }
 
@@ -349,4 +309,11 @@ void MainWindow::on_btnQuit_clicked()
     }
 
     QApplication::exit(0);
+}
+
+void MainWindow::initialiseOgre()
+{
+    // we only want to initialize once
+    disconnect(m_colorViewer->quickWindow(), &QQuickWindow::beforeSynchronizing, this, &MainWindow::initialiseOgre);
+    m_ogreScene->initialiseOgre(m_colorViewer->quickWindow());
 }

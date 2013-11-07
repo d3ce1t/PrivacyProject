@@ -1,4 +1,4 @@
-QT += qml quick gui
+QT += core qml quick gui
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = PrivacyFilters
@@ -17,9 +17,9 @@ HEADERS += \
     openni/OpenNIUserInstance.h \
     openni/OpenNISkeletonInstance.h \
     openni/OpenNIBaseInstance.h \
-    character/SinbadCharacterController.h \
-    cameranodeobject.h \
-    character/OgreCharacter.h
+    ogre/SinbadCharacterController.h \
+    ogre/cameranodeobject.h \
+    ogre/OgreScene.h
 
 SOURCES += \
     Main.cpp \
@@ -32,9 +32,9 @@ SOURCES += \
     openni/OpenNIUserInstance.cpp \
     openni/OpenNISkeletonInstance.cpp \
     openni/OpenNIBaseInstance.cpp \
-    character/SinbadCharacterController.cpp \
-    cameranodeobject.cpp \
-    character/OgreCharacter.cpp
+    ogre/SinbadCharacterController.cpp \
+    ogre/cameranodeobject.cpp \
+    ogre/OgreScene.cpp
 
 OTHER_FILES += \
     qml/main.qml \

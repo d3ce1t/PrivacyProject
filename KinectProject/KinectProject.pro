@@ -4,6 +4,6 @@ SUBDIRS += \
     CoreLib \
     QmlOgreLib \
     DatasetBrowser \
-    PrivacyFilters \
-    OgreSinbad \
-    QmlOgreSinbad 
+    PrivacyFilters
+    #OgreSinbad \
+    #QmlOgreSinbad 

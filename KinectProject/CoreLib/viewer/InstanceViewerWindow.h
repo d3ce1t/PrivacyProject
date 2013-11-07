@@ -3,6 +3,7 @@
 
 #include <QQuickWindow>
 #include <QQmlApplicationEngine>
+#include <QQmlContext>
 #include "playback/PlaybackListener.h"
 #include "types/SkeletonFrame.h"
 #include <QMultiHash>
@@ -11,7 +12,6 @@
 #include <QStandardItemModel>
 #include <QListWidget>
 #include "viewer/ViewerEngine.h"
-#include "viewer/OgreScene.h"
 
 namespace dai {
 
@@ -23,16 +23,18 @@ class InstanceViewerWindow : public QObject, public PlaybackListener
 
 public:
     InstanceViewerWindow(ViewerMode mode);
+    void initialise();
     virtual ~InstanceViewerWindow();
     const ViewerEngine* viewerEngine() const;
     void setTitle(const QString& title);
     void show();
+    QQmlApplicationEngine& qmlEngine();
+    QQuickWindow* quickWindow();
 
 signals:
     void changeOfStatus();
 
 public slots:
-    void initialise();
     void processListItem(QListWidget* widget);
     void showJointsWindow();
     void showDistancesWindow();
@@ -57,8 +59,9 @@ private:
     void feedQuaternionsModel(const Skeleton &skeleton, QStandardItemModel& model);
     float colorIntensity(float value);
 
+    bool                    m_initialised;
     float                   m_fps;
-    OgreScene*              m_ogreScene;
+
     ViewerEngine*           m_viewerEngine;
     ViewerMode              m_viewerMode;
     QQmlApplicationEngine   m_qmlEngine;

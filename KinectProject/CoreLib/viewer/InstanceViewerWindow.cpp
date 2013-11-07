@@ -11,41 +11,18 @@
 namespace dai {
 
 InstanceViewerWindow::InstanceViewerWindow(ViewerMode mode)
-    : m_fps(0)
+    : m_initialised(false)
+    , m_fps(0)
     , m_viewerEngine(nullptr)
     , m_viewerMode(mode)
     , m_quickWindow(nullptr)
     , m_frameCounter(0)
 {
-    m_ogreScene = new OgreScene;
     m_viewerEngine = new ViewerEngine(mode);
 
-    // exposte objects as QML globals
+    // expose objects as QML globals
     m_qmlEngine.rootContext()->setContextProperty("Window", this);
-    m_qmlEngine.rootContext()->setContextProperty("Camera", m_ogreScene->cameraNode());
-    m_qmlEngine.rootContext()->setContextProperty("OgreEngine", m_ogreScene->engine());
     m_qmlEngine.rootContext()->setContextProperty("ViewerEngine", m_viewerEngine);
-
-    // Load QML app
-    m_qmlEngine.load(QUrl("qrc:///qml/qml/main.qml"));
-
-    // Get Window
-    QObject *topLevel = m_qmlEngine.rootObjects().value(0);
-    m_quickWindow = qobject_cast<QQuickWindow *>(topLevel);
-
-    if ( !m_quickWindow ) {
-        qWarning("Error: Your root item has to be a Window.");
-        return;
-    }
-
-    m_quickWindow->setTitle("Instance Viewer");
-
-    // start Ogre once we are in the rendering thread (Ogre must live in the rendering thread)
-    connect(m_quickWindow, &QQuickWindow::beforeSynchronizing, this, &InstanceViewerWindow::initialise, Qt::DirectConnection);
-
-    // Windows setup
-    connect(m_quickWindow, SIGNAL(closing(QQuickCloseEvent*)), this, SLOT(deleteLater()));
-    connect(m_viewerEngine, &ViewerEngine::frameRendered, this, &InstanceViewerWindow::completeAsyncTask);
 }
 
 InstanceViewerWindow::~InstanceViewerWindow()
@@ -64,24 +41,53 @@ InstanceViewerWindow::~InstanceViewerWindow()
     m_quaternions_model.clear();
 }
 
+QQmlApplicationEngine& InstanceViewerWindow::qmlEngine()
+{
+    return m_qmlEngine;
+}
+
+QQuickWindow* InstanceViewerWindow::quickWindow()
+{
+    return m_quickWindow;
+}
+
 void InstanceViewerWindow::setTitle(const QString& title)
 {
     if (m_quickWindow)
         m_quickWindow->setTitle(title);
 }
 
+void InstanceViewerWindow::initialise()
+{
+    if (m_initialised)
+        return;
+
+    // Load QML app
+    m_qmlEngine.load(QUrl("qrc:///qml/qml/main.qml"));
+
+    // Get Window
+    QObject *topLevel = m_qmlEngine.rootObjects().value(0);
+    m_quickWindow = qobject_cast<QQuickWindow *>(topLevel);
+
+    if ( !m_quickWindow ) {
+        qWarning("Error: Your root item has to be a Window.");
+        return;
+    }
+
+    m_quickWindow->setTitle("Instance Viewer");
+    m_viewerEngine->startEngine(m_quickWindow);
+
+    // Windows setup
+    connect(m_quickWindow, SIGNAL(closing(QQuickCloseEvent*)), this, SLOT(deleteLater()));
+    connect(m_viewerEngine, &ViewerEngine::frameRendered, this, &InstanceViewerWindow::completeAsyncTask);
+
+    m_initialised = true;
+}
+
 void InstanceViewerWindow::show()
 {
     if (m_quickWindow)
         m_quickWindow->show();
-}
-
-void InstanceViewerWindow::initialise()
-{
-    // we only want to initialize once
-    disconnect(m_quickWindow, &QQuickWindow::beforeSynchronizing, this, &InstanceViewerWindow::initialise);
-    m_ogreScene->initialiseOgre(m_quickWindow);
-    m_viewerEngine->startEngine(m_quickWindow);
 }
 
 void InstanceViewerWindow::processListItem(QListWidget* widget)

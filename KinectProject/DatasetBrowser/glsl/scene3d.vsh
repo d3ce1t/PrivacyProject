@@ -15,7 +15,6 @@ vec3 convertDepthToRealWorld(vec2 coordinates, float distance)
     result.xy = (coordinates - cd) * distance * fd;
     result.xy = 2 * result.xy; // becaise I want to scale XY to 640x480
     result.z = -distance;
-    result.y = -result.y;
     return result;
 }
 

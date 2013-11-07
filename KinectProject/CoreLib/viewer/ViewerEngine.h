@@ -49,9 +49,6 @@ public slots:
     void translateAxisY(float value);
     void translateAxisZ(float value);
 
-protected:
-    void setQuickWindow(QQuickWindow *window);
-
 private:
     // Private Functions
     shared_ptr<DataFrame> applyFilter(shared_ptr<DataFrame> inputFrame, shared_ptr<UserFrame> userMask = nullptr) const;

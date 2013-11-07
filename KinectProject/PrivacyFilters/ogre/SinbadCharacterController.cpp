@@ -1,4 +1,4 @@
-#include "character/SinbadCharacterController.h"
+#include "ogre/SinbadCharacterController.h"
 
 // Note: wont work as expected for > 5 users in scene
 static unsigned int g_UsersColors[] = {/*0x70707080*/0 ,0x80FF0000,0x80FF4500,0x80FF1493,0x8000ff00, 0x8000ced1,0x80ffd700};
@@ -130,8 +130,8 @@ void SinbadCharacterController::initPrimeSensor()
 
 void SinbadCharacterController::addTime(Real deltaTime)
 {
-    openniReadFrame();
-    UpdateDepthTexture();
+    //openniReadFrame();
+    //UpdateDepthTexture();
     updateBody(deltaTime);
     updateAnimations(deltaTime);
     PSupdateBody(deltaTime);
@@ -229,79 +229,6 @@ void SinbadCharacterController::openniReadFrame()
         }
     } // End for
 }
-
-/*void SinbadCharacterController::injectKeyDown(const OIS::KeyEvent& evt)
-{
-    if (evt.key == OIS::KC_Q && (mTopAnimID == ANIM_IDLE_TOP || mTopAnimID == ANIM_RUN_TOP))
-    {
-        // take swords out (or put them back, since it's the same animation but reversed)
-        setTopAnimation(ANIM_DRAW_SWORDS, true);
-        mTimer = 0;
-    }
-    else if (evt.key == OIS::KC_E && !mSwordsDrawn)
-    {
-        if (mTopAnimID == ANIM_IDLE_TOP || mTopAnimID == ANIM_RUN_TOP)
-        {
-            // start dancing
-            setBaseAnimation(ANIM_DANCE, true);
-            setTopAnimation(ANIM_NONE);
-            // disable hand animation because the dance controls hands
-            mAnims[ANIM_HANDS_RELAXED]->setEnabled(false);
-        }
-        else if (mBaseAnimID == ANIM_DANCE)
-        {
-            // stop dancing
-            setBaseAnimation(ANIM_IDLE_BASE);
-            setTopAnimation(ANIM_IDLE_TOP);
-            // re-enable hand animation
-            mAnims[ANIM_HANDS_RELAXED]->setEnabled(true);
-        }
-    }
-
-    //Smoothing Factor.
-    if(evt.key == OIS::KC_H)
-    {
-        m_SmoothingDelta = 1;
-    }
-    else if(evt.key == OIS::KC_N)
-    {
-        m_SmoothingDelta = -1;
-    }
-
-    else if (evt.key == OIS::KC_SPACE && (mTopAnimID == ANIM_IDLE_TOP || mTopAnimID == ANIM_RUN_TOP))
-    {
-        // jump if on ground
-        setBaseAnimation(ANIM_JUMP_START, true);
-        setTopAnimation(ANIM_NONE);
-        mTimer = 0;
-    }
-
-    if (!mKeyDirection.isZeroLength() && mBaseAnimID == ANIM_IDLE_BASE)
-    {
-        // start running if not already moving and the player wants to move
-        setBaseAnimation(ANIM_RUN_BASE, true);
-        if (mTopAnimID == ANIM_IDLE_TOP) setTopAnimation(ANIM_RUN_TOP, true);
-    }
-}
-
-void SinbadCharacterController::injectMouseMove(const OIS::MouseEvent& evt)
-{
-    // update camera goal based on mouse movement
-    updateCameraGoal(-0.05f * evt.state.X.rel, -0.05f * evt.state.Y.rel, -0.0005f * evt.state.Z.rel);
-}
-
-void SinbadCharacterController::injectMouseDown(const OIS::MouseEvent& evt, OIS::MouseButtonID id)
-{
-    Q_UNUSED(evt)
-
-    if (mSwordsDrawn && (mTopAnimID == ANIM_IDLE_TOP || mTopAnimID == ANIM_RUN_TOP))
-    {
-        // if swords are out, and character's not doing something weird, then SLICE!
-        if (id == OIS::MB_Left) setTopAnimation(ANIM_SLICE_VERTICAL, true);
-        else if (id == OIS::MB_Right) setTopAnimation(ANIM_SLICE_HORIZONTAL, true);
-        mTimer = 0;
-    }
-}*/
 
 void SinbadCharacterController::setupBody(SceneManager* sceneMgr)
 {

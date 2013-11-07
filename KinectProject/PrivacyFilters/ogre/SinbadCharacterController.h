@@ -67,9 +67,6 @@ public:
     void initPrimeSensor();
     void addTime(Real deltaTime);
     void openniReadFrame();
-    /*void injectKeyDown(const OIS::KeyEvent& evt);
-    void injectMouseMove(const OIS::MouseEvent& evt);
-    void injectMouseDown(const OIS::MouseEvent& evt, OIS::MouseButtonID id);*/
 
 private:
     // all the animations our character has, and a null ID
