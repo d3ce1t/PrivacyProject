@@ -6,10 +6,10 @@ OgreScene::OgreScene()
     , m_camera(nullptr)
     , m_sceneManager(nullptr)
     , m_chara(nullptr)
-    //, m_lastTime(0)
+    , m_lastTime(0)
 {
     m_ogreEngine = new OgreEngine;
-    connect(m_ogreEngine, &OgreEngine::beforeRendering, this, &OgreScene::addTime, Qt::DirectConnection);
+    //connect(m_ogreEngine, &OgreEngine::beforeRendering, this, &OgreScene::addTime, Qt::DirectConnection);
     m_cameraObject = new CameraNodeObject;
 }
 
@@ -42,6 +42,7 @@ void OgreScene::initialiseOgre(QQuickWindow* quickWindow)
     createScene();
 
     m_ogreEngine->doneOgreContext();
+    m_timer.start();
 }
 
 void OgreScene::createCamera(void)
@@ -94,12 +95,26 @@ void OgreScene::destroyScene(void)
     Ogre::MeshManager::getSingleton().remove("floor");
 }
 
-void OgreScene::addTime(qint64 time_ms)
+void OgreScene::onNewFrame(const QHash<dai::DataFrame::FrameType, shared_ptr<dai::DataFrame>>& frames)
 {
+    if (!frames.contains(dai::DataFrame::Skeleton))
+        return;
+
+    qint64 time_ms = m_timer.elapsed();
+
     if (time_ms == m_lastTime)
         return;
 
-    Real deltaTime = (time_ms - m_lastTime) / 1000.0f;
-    m_chara->addTime(deltaTime);
-    m_lastTime = time_ms;
+    shared_ptr<dai::SkeletonFrame> skeletonFrame = static_pointer_cast<dai::SkeletonFrame>( frames.value(dai::DataFrame::Skeleton) );
+    int userId = skeletonFrame->getAllUsersId().isEmpty() ? 0 : skeletonFrame->getAllUsersId().at(0);
+
+    if (userId > 0) {
+        shared_ptr<dai::Skeleton> skeleton = skeletonFrame->getSkeleton(userId);
+        Real deltaTime = (time_ms - m_lastTime) / 1000.0f;
+        m_chara->addTime(deltaTime, skeleton);
+        m_lastTime = time_ms;
+    }
+    else {
+        m_chara->lostUser();
+    }
 }

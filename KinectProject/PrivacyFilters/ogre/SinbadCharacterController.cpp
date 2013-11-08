@@ -23,32 +23,32 @@ static unsigned int g_UsersColors[] = {/*0x70707080*/0 ,0x80FF0000,0x80FF4500,0x
 
 SinbadCharacterController::SinbadCharacterController(Camera* cam)
 {
-    m_poseTime = 0;
     m_candidateID = 0;
-    m_poseCandidateID = 0;
-    m_openni = nullptr;
+    m_SmoothingFactor = 0.6;
+    m_SmoothingDelta = 0;
+    //m_openni = nullptr;
 
     setupBody(cam->getSceneManager());
     //setupCamera(cam);
     setupAnimations();
 
     // Init depth cam related stuff
-    try {
+    /*try {
         initPrimeSensor();
     }
     catch (int) {
         ErrorDialog dlg;
         dlg.display("Error initing sensor");
         exit(0);
-    }
+    }*/
 }
 
 SinbadCharacterController::~SinbadCharacterController()
 {
-    m_openni->releaseInstance();
+    //m_openni->releaseInstance();
 }
 
-void SinbadCharacterController::UpdateDepthTexture()
+/*void SinbadCharacterController::UpdateDepthTexture()
 {
     if (!m_oniUserTrackerFrame.isValid())
         return;
@@ -94,9 +94,10 @@ void SinbadCharacterController::UpdateDepthTexture()
 
                 if( j > m_Height*(1 - m_detectionPercent) ) {
                     color |= 0xFF070707; //highlight user
-                }/* else {
-                        color &= 0x20F0F0F0; //hide user
-                    }*/
+                }
+                // else {
+                //       color &= 0x20F0F0F0; //hide user
+                // }
             }
             else if (m_candidateID != 0 && m_candidateID == pUsersLBLs[j*m_Width + fixed_i])
             {
@@ -111,26 +112,28 @@ void SinbadCharacterController::UpdateDepthTexture()
 
     // Unlock the pixel buffer
     pixelBuffer->unlock();
-}
+}*/
 
-void SinbadCharacterController::initPrimeSensor()
+/*void SinbadCharacterController::initPrimeSensor()
 {
     qDebug() << "SinbadCharacterController::initPrimeSensor()";
 
-    m_openni = dai::OpenNIRuntime::getInstance();
-    m_openni->getDepthStream().setMirroringEnabled(m_front);
+    //m_openni = dai::OpenNIRuntime::getInstance();
+    //m_openni->getDepthStream().setMirroringEnabled(m_front);
 
     // Skeleton stuff
     m_SmoothingFactor = 0.6;
     m_SmoothingDelta = 0;
-    m_openni->getUserTracker().setSkeletonSmoothingFactor(m_SmoothingFactor);
+    //m_openni->getUserTracker().setSkeletonSmoothingFactor(m_SmoothingFactor);
 
     m_candidateID = 0;
-}
+}*/
 
-void SinbadCharacterController::addTime(Real deltaTime)
+void SinbadCharacterController::addTime(Real deltaTime, shared_ptr<dai::Skeleton> skeleton)
 {
-    //openniReadFrame();
+    qDebug() << deltaTime;
+    m_skeleton = skeleton;
+    updateSkeleton(skeleton);
     //UpdateDepthTexture();
     updateBody(deltaTime);
     updateAnimations(deltaTime);
@@ -138,96 +141,31 @@ void SinbadCharacterController::addTime(Real deltaTime)
     //updateCamera(deltaTime);
 }
 
-void SinbadCharacterController::openniReadFrame()
+void SinbadCharacterController::updateSkeleton(shared_ptr<dai::Skeleton> skeleton)
 {
-    nite::UserTracker& oniUserTracker = m_openni->getUserTracker();
+    const dai::SkeletonJoint& jointTorso = skeleton->getJoint(dai::SkeletonJoint::JOINT_SPINE);
+    m_origTorsoPos.x = -jointTorso.getPosition().x();
+    m_origTorsoPos.y = jointTorso.getPosition().y();
+    m_origTorsoPos.z = -jointTorso.getPosition().z();
+}
 
-    if (oniUserTracker.readFrame(&m_oniUserTrackerFrame) != nite::STATUS_OK) {
-        throw 1;
+void SinbadCharacterController::lostUser()
+{
+    /*qDebug() << "user lost" << user.getId();
+
+    if (m_candidateID == user.getId()) {
+        m_candidateID = 0;
+        resetBonesToInitialState();
+        m_poseCandidateID = 0;
+        m_poseTime = 0;
+        m_detectionPercent = 0;
     }
 
-    if (!m_oniUserTrackerFrame.isValid()) {
-        throw 2;
-    }
-
-    const nite::Array<nite::UserData>& users = m_oniUserTrackerFrame.getUsers();
-
-    for (int i=0; i<users.getSize(); ++i)
-    {
-        const nite::UserData& user = users[i];
-
-        // start looking for new users
-        if (user.isNew())
-        {
-            qDebug()<< "New user!" << user.getId();
-            oniUserTracker.startSkeletonTracking(user.getId());
-            oniUserTracker.startPoseDetection(user.getId(), nite::POSE_PSI);
-        }
-        else if (!user.isLost())
-        {
-            // If we dont have an active candidate
-            if (m_candidateID == 0)
-            {
-                const nite::PoseData& pose = user.getPose(nite::POSE_PSI);
-
-                if (m_poseCandidateID == 0 && pose.isEntered())
-                {
-                    m_poseCandidateID = user.getId();
-                    m_poseTime = m_oniUserTrackerFrame.getTimestamp();
-                    qDebug() << "Pose Entered";
-                }
-                // PoseLost in OpenNI 1.5
-                else if (user.getId() == m_poseCandidateID && pose.isExited())
-                {
-                    m_poseTime = 0;
-                    m_poseCandidateID = 0;
-                    m_detectionPercent = 0;
-                    qDebug() << "Pose Exited";
-                }
-                else if (user.getId() == m_poseCandidateID && pose.isHeld())
-                {
-                    uint64_t currTime = m_oniUserTrackerFrame.getTimestamp();
-                    m_detectionPercent = (currTime - m_poseTime) / (m_poseDuration * 1000.0f);
-                    qDebug() << "Pose Held" << m_detectionPercent;
-
-                    if (currTime - m_poseTime > m_poseDuration * 1000)
-                    {
-                        qDebug() << "Candidate Selected!";
-                        m_candidateID = m_poseCandidateID;
-
-                        const nite::Skeleton& oniSkeleton = user.getSkeleton();
-                        const nite::SkeletonJoint& torsoJoint = oniSkeleton.getJoint(nite::JOINT_TORSO);
-
-                        if (oniSkeleton.getState() == nite::SKELETON_TRACKED && torsoJoint.getPositionConfidence() > 0.5) {
-                            qDebug() << "Initialised!!!";
-                            m_origTorsoPos.x = -torsoJoint.getPosition().x;
-                            m_origTorsoPos.y = torsoJoint.getPosition().y;
-                            m_origTorsoPos.z = -torsoJoint.getPosition().z;
-                        }
-                    }
-                }
-            }
-        }
-        // Lost user
-        else if (user.isLost())
-        {
-            qDebug() << "user lost" << user.getId();
-
-            if (m_candidateID == user.getId()) {
-                m_candidateID = 0;
-                resetBonesToInitialState();
-                m_poseCandidateID = 0;
-                m_poseTime = 0;
-                m_detectionPercent = 0;
-            }
-
-            if (m_poseCandidateID == user.getId()) {
-                m_poseCandidateID = 0;
-                m_poseTime = 0;
-                m_detectionPercent = 0;
-            }
-        }
-    } // End for
+    if (m_poseCandidateID == user.getId()) {
+        m_poseCandidateID = 0;
+        m_poseTime = 0;
+        m_detectionPercent = 0;
+    }*/
 }
 
 void SinbadCharacterController::setupBody(SceneManager* sceneMgr)
@@ -378,7 +316,6 @@ void SinbadCharacterController::setupAnimations()
 
     // relax the hands since we're not holding anything
     mAnims[ANIM_HANDS_RELAXED]->setEnabled(true);
-
     mSwordsDrawn = false;
 }
 
@@ -424,7 +361,7 @@ void SinbadCharacterController::setupCamera(Camera* cam)
     mPivotPitch = 0;
 }
 
-void SinbadCharacterController::transformBone(const Ogre::String& modelBoneName, nite::JointType jointType)
+void SinbadCharacterController::transformBone(const Ogre::String& modelBoneName, dai::SkeletonJoint::JointType jointType)
 {
     // Get the model skeleton bone info
     Skeleton* skel = mBodyEnt->getSkeleton();
@@ -433,8 +370,7 @@ void SinbadCharacterController::transformBone(const Ogre::String& modelBoneName,
     Ogre::Quaternion newQ = Quaternion::IDENTITY;
 
     // Get the openNI bone info
-    const nite::Skeleton& skeleton = m_oniUserTrackerFrame.getUserById(m_candidateID)->getSkeleton();
-    const nite::SkeletonJoint& joint = skeleton.getJoint(jointType);
+    const dai::SkeletonJoint& joint = m_skeleton->getJoint(jointType);
 
     if (joint.getOrientationConfidence() > 0 )
     {
@@ -465,27 +401,23 @@ void SinbadCharacterController::PSupdateBody(Real deltaTime)
         else if(m_SmoothingFactor <= 0)
             m_SmoothingFactor = 0.00;
 
-        m_openni->getUserTracker().setSkeletonSmoothingFactor(m_SmoothingFactor);
+        //m_openni->getUserTracker().setSkeletonSmoothingFactor(m_SmoothingFactor);
 
         Ogre::DisplayString blah = "H/N ";
         blah.append(Ogre::StringConverter::toString((Real)m_SmoothingFactor));
     }
 
-    if (!m_oniUserTrackerFrame.isValid())
-        return;
-
     Skeleton* skel = mBodyEnt->getSkeleton();
     Ogre::Bone* rootBone = skel->getBone("Root");
 
-    const nite::UserData* user = m_oniUserTrackerFrame.getUserById(this->m_candidateID);
+    //const nite::UserData* user = m_oniUserTrackerFrame.getUserById(this->m_candidateID);
 
-    if (user && user->isVisible()) {
+    //if (user && user->isVisible()) {
 
-        const nite::Skeleton& oniSkeleton = user->getSkeleton();
-        const nite::SkeletonJoint& torsoJoint = oniSkeleton.getJoint(nite::JOINT_TORSO);
+        const dai::SkeletonJoint& torsoJoint = m_skeleton->getJoint(dai::SkeletonJoint::JOINT_SPINE);
 
-        if (oniSkeleton.getState() == nite::SKELETON_TRACKED && torsoJoint.getPositionConfidence() > 0.5)
-        {
+        //if (oniSkeleton.getState() == nite::SKELETON_TRACKED && torsoJoint.getPositionConfidence() > 0.5)
+        //{
             transformBone("Stomach", nite::JOINT_TORSO);
             transformBone("Waist", nite::JOINT_TORSO);
             transformBone("Root", nite::JOINT_TORSO);
@@ -514,7 +446,7 @@ void SinbadCharacterController::PSupdateBody(Real deltaTime)
             }
 
             rootBone->setPosition(newPos);
-        }
+        //}
 
         //do gestures for swards
         if ((mTopAnimID == ANIM_IDLE_TOP || mTopAnimID == ANIM_RUN_TOP))
@@ -556,10 +488,10 @@ void SinbadCharacterController::PSupdateBody(Real deltaTime)
                 }
             }
         }
-    } // end user
+    /*} // end user
     else {
         rootBone->resetToInitialState();
-    }
+    }*/
 }
 
 void SinbadCharacterController::updateBody(Real deltaTime)

@@ -6,8 +6,9 @@
 #include "cameranodeobject.h"
 #include "ogre/SinbadCharacterController.h"
 #include <QObject>
+#include "playback/PlaybackListener.h"
 
-class OgreScene : public QObject
+class OgreScene : public QObject, public dai::PlaybackListener
 {
     Q_OBJECT
 
@@ -16,9 +17,9 @@ public:
     CameraNodeObject* cameraNode();
     OgreEngine* engine();
     void initialiseOgre(QQuickWindow* quickWindow);
-    void addTime(qint64 time_ms);
 
 protected:
+    void onNewFrame(const QHash<dai::DataFrame::FrameType, shared_ptr<dai::DataFrame>>& frames);
     void createCamera(void);
     void createScene(void);
     void destroyScene(void);
@@ -32,6 +33,7 @@ private:
     Ogre::SceneManager*     m_sceneManager;
     SinbadCharacterController* m_chara;
     qint64 m_lastTime;
+    QElapsedTimer   m_timer;
 };
 
 #endif // OGRESCENE_H

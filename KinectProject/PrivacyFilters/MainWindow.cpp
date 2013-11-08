@@ -260,6 +260,7 @@ void MainWindow::on_btnStartKinect_clicked()
     m_playback->addListener(m_colorViewer, colorInstance);
     m_playback->addListener(m_colorViewer, userInstance);
     m_playback->addListener(m_colorViewer, skeletonInstance);
+    m_playback->addListener(m_ogreScene, skeletonInstance);
     //m_playback->addListener(m_colorViewer, depthInstance);
     //m_playback->addListener(m_colorViewer, skeletonInstance);
 

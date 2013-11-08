@@ -52,21 +52,17 @@ public:
 	int m_SmoothingDelta;
     bool m_front;
 
-    // time to hold in pose to exit program. In milliseconds.
-    float m_detectionPercent = 0;
-    const uint m_poseDuration = 3000;
-    uint64_t m_poseTime;
-    nite::UserId m_poseCandidateID;
     nite::UserId m_candidateID;
-    nite::UserTrackerFrameRef m_oniUserTrackerFrame;
     Vector3 m_origTorsoPos;
+    shared_ptr<dai::Skeleton> m_skeleton;
 
     SinbadCharacterController(Camera* cam);
     ~SinbadCharacterController();
-    void UpdateDepthTexture();
-    void initPrimeSensor();
-    void addTime(Real deltaTime);
-    void openniReadFrame();
+    void updateSkeleton(shared_ptr<dai::Skeleton> skeleton);
+    void lostUser();
+    //void UpdateDepthTexture();
+    //void initPrimeSensor();
+    void addTime(Real deltaTime, shared_ptr<dai::Skeleton> skeleton);
 
 private:
     // all the animations our character has, and a null ID
@@ -96,7 +92,7 @@ private:
     void setupAnimations();
     void resetBonesToInitialState();
     void setupCamera(Camera* cam);
-    void transformBone(const Ogre::String& modelBoneName, nite::JointType jointType);
+    void transformBone(const Ogre::String& modelBoneName, dai::SkeletonJoint::JointType jointType);
     void PSupdateBody(Real deltaTime);
     void updateBody(Real deltaTime);
     void updateAnimations(Real deltaTime);
@@ -106,7 +102,6 @@ private:
     void setBaseAnimation(AnimID id, bool reset = false);
     void setTopAnimation(AnimID id, bool reset = false);
 
-    dai::OpenNIRuntime* m_openni;
     Camera* mCamera;
     SceneNode* mBodyNode;
     SceneNode* mCameraPivot;

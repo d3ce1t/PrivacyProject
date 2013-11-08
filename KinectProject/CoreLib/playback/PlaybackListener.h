@@ -25,8 +25,8 @@ public:
 protected:
     // This method must be synchronous, so notifier block until it ends
     virtual void onNewFrame(const QHash<DataFrame::FrameType, shared_ptr<DataFrame>>& frames) = 0;
-    virtual void onPlaybackStart() = 0;
-    virtual void onPlaybackStop() = 0;
+    virtual void onPlaybackStart() {}
+    virtual void onPlaybackStop() {}
 
     void startAsyncTask();
     void endAsyncTask();
