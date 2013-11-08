@@ -79,7 +79,7 @@ Quaternion::Quaternion()
 {
     // Identity quaternion
     m_w = 1.0f;
-    m_vectorialPart = Vector3D(0, 0, 0);
+    m_vector = Vector3D(0, 0, 0);
 }
 
 Quaternion::Quaternion(double w, double i, double j, double k)
@@ -87,14 +87,14 @@ Quaternion::Quaternion(double w, double i, double j, double k)
 {
     // Identity quaternion
     m_w = w;
-    m_vectorialPart = Vector3D(i, j, k);
+    m_vector = Vector3D(i, j, k);
 }
 
 Quaternion::Quaternion(const Quaternion& other)
     : QObject(0)
 {
     m_w = other.scalar();
-    m_vectorialPart = other.vector();
+    m_vector = other.vector();
 }
 
 Quaternion& Quaternion::operator=(const Quaternion& other)
@@ -111,12 +111,12 @@ void Quaternion::setScalar(double value)
 
 void Quaternion::setVector(Vector3D vector)
 {
-    m_vectorialPart = vector;
+    m_vector = vector;
 }
 
 void Quaternion::setVector(double i, double j, double k)
 {
-    m_vectorialPart = Vector3D(i, j, k);
+    m_vector = Vector3D(i, j, k);
 }
 
 double Quaternion::scalar() const
@@ -126,7 +126,7 @@ double Quaternion::scalar() const
 
 Vector3D Quaternion::vector() const
 {
-    return m_vectorialPart;
+    return m_vector;
 }
 
 double Quaternion::getAngle() const
@@ -145,21 +145,21 @@ double Quaternion::getAngle() const
 double Quaternion::norm() const
 {
     return sqrt(pow(m_w, 2) +
-                pow(m_vectorialPart.x(), 2) +
-                pow(m_vectorialPart.y(), 2) +
-                pow(m_vectorialPart.z(), 2));
+                pow(m_vector.x(), 2) +
+                pow(m_vector.y(), 2) +
+                pow(m_vector.z(), 2));
 }
 
 void Quaternion::normalize()
 {
     double norm = this->norm();
     m_w = m_w / norm;
-    double norm_i = m_vectorialPart.x() / norm;
-    double norm_j = m_vectorialPart.y() / norm;
-    double norm_k = m_vectorialPart.z() / norm;
-    m_vectorialPart.setX(norm_i);
-    m_vectorialPart.setY(norm_j);
-    m_vectorialPart.setZ(norm_k);
+    double norm_i = m_vector.x() / norm;
+    double norm_j = m_vector.y() / norm;
+    double norm_k = m_vector.z() / norm;
+    m_vector.setX(norm_i);
+    m_vector.setY(norm_j);
+    m_vector.setZ(norm_k);
 
     if (fabs(this->norm() - 1) > 1e-12) {
         qDebug() << "Quaternion::normalize() -> Not a normalized quaternion";
@@ -168,7 +168,7 @@ void Quaternion::normalize()
 
 void Quaternion::print() const
 {
-    cout << m_w << " + " << m_vectorialPart.x() << "i + " << m_vectorialPart.y() << "j + " << m_vectorialPart.z() << "k" << endl;
+    cout << m_w << " + " << m_vector.x() << "i + " << m_vector.y() << "j + " << m_vector.z() << "k" << endl;
 }
 
 double Quaternion::sign(double value) const

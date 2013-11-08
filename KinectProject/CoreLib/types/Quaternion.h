@@ -92,6 +92,10 @@ public:
     Vector3D vector() const;
     double getAngle() const;
     double norm() const;
+    double w() const {return m_w;}
+    double x() const {return m_vector.x();}
+    double y() const {return m_vector.y();}
+    double z() const {return m_vector.z();}
     void normalize();
     void print() const;
 
@@ -100,7 +104,7 @@ protected:
 
 private:
     double m_w;
-    Vector3D m_vectorialPart; // i, j, k or x, y, z
+    Vector3D m_vector; // i, j, k or x, y, z
 };
 
 } // End Namespace

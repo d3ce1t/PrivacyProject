@@ -9,7 +9,6 @@ OgreScene::OgreScene()
     , m_lastTime(0)
 {
     m_ogreEngine = new OgreEngine;
-    //connect(m_ogreEngine, &OgreEngine::beforeRendering, this, &OgreScene::addTime, Qt::DirectConnection);
     m_cameraObject = new CameraNodeObject;
 }
 
@@ -56,9 +55,6 @@ void OgreScene::createCamera(void)
 
 void OgreScene::createScene(void)
 {
-    // set background and some fog
-    m_sceneManager->setFog(Ogre::FOG_LINEAR, Ogre::ColourValue(1.0f, 1.0f, 0.8f), 0,15, 100);
-
     // set shadow properties
     m_sceneManager->setShadowTechnique(Ogre::SHADOWTYPE_TEXTURE_MODULATIVE);
     m_sceneManager->setShadowColour(Ogre::ColourValue(0.5, 0.5, 0.5));
@@ -75,14 +71,14 @@ void OgreScene::createScene(void)
     light->setSpecularColour(Ogre::ColourValue::White);
 
     // create a floor mesh resource
-    Ogre::MeshManager::getSingleton().createPlane("floor", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-        Ogre::Plane(Ogre::Vector3::UNIT_Y, 0),100, 100, 10, 10, true, 1, 10, 10, Ogre::Vector3::UNIT_Z);
+    //Ogre::MeshManager::getSingleton().createPlane("floor", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+    //    Ogre::Plane(Ogre::Vector3::UNIT_Y, 0),100, 100, 10, 10, true, 1, 10, 10, Ogre::Vector3::UNIT_Z);
 
     // create a floor entity, give it a material, and place it at the origin
-    Ogre::Entity* floor = m_sceneManager->createEntity("Floor", "floor");
-    floor->setMaterialName("Examples/Rockwall");
-    floor->setCastShadows(false);
-    m_sceneManager->getRootSceneNode()->attachObject(floor);
+    //Ogre::Entity* floor = m_sceneManager->createEntity("Floor", "floor");
+    //floor->setMaterialName("Examples/Rockwall");
+    //floor->setCastShadows(false);
+    //m_sceneManager->getRootSceneNode()->attachObject(floor);
 
     // create our character controller
     m_chara = new SinbadCharacterController(m_camera);
@@ -92,7 +88,7 @@ void OgreScene::destroyScene(void)
 {
     // clean up character controller and the floor mesh
     if (m_chara) delete m_chara;
-    Ogre::MeshManager::getSingleton().remove("floor");
+    //Ogre::MeshManager::getSingleton().remove("floor");
 }
 
 void OgreScene::onNewFrame(const QHash<dai::DataFrame::FrameType, shared_ptr<dai::DataFrame>>& frames)

@@ -374,8 +374,8 @@ void SinbadCharacterController::transformBone(const Ogre::String& modelBoneName,
 
     if (joint.getOrientationConfidence() > 0 )
     {
-        const nite::Quaternion& q = joint.getOrientation();
-        newQ = Quaternion(-q.w, q.x, -q.y, q.z);
+        const dai::Quaternion& q = joint.getOrientation();
+        newQ = Quaternion(q.w(), -q.x(), q.y(), -q.z());
 
         bone->resetOrientation(); //in order for the conversion from world to local to work.
         newQ = bone->convertWorldToLocalOrientation(newQ);
@@ -386,8 +386,6 @@ void SinbadCharacterController::transformBone(const Ogre::String& modelBoneName,
 void SinbadCharacterController::PSupdateBody(Real deltaTime)
 {
     Q_UNUSED(deltaTime)
-
-    static bool bRightAfterSwardsPositionChanged = false;
 
     mGoalDirection = Vector3::ZERO;   // we will calculate this
 
@@ -410,88 +408,36 @@ void SinbadCharacterController::PSupdateBody(Real deltaTime)
     Skeleton* skel = mBodyEnt->getSkeleton();
     Ogre::Bone* rootBone = skel->getBone("Root");
 
-    //const nite::UserData* user = m_oniUserTrackerFrame.getUserById(this->m_candidateID);
+    const dai::SkeletonJoint& torsoJoint = m_skeleton->getJoint(dai::SkeletonJoint::JOINT_SPINE);
 
-    //if (user && user->isVisible()) {
+    transformBone("Stomach", dai::SkeletonJoint::JOINT_SPINE);
+    transformBone("Waist", dai::SkeletonJoint::JOINT_SPINE);
+    transformBone("Root", dai::SkeletonJoint::JOINT_SPINE);
+    transformBone("Chest",dai::SkeletonJoint::JOINT_SPINE);
+    transformBone("Humerus.L",dai::SkeletonJoint::JOINT_LEFT_SHOULDER);
+    transformBone("Humerus.R",dai::SkeletonJoint::JOINT_RIGHT_SHOULDER);
+    transformBone("Ulna.L",dai::SkeletonJoint::JOINT_LEFT_ELBOW);
+    transformBone("Ulna.R",dai::SkeletonJoint::JOINT_RIGHT_ELBOW);
+    transformBone("Thigh.L",dai::SkeletonJoint::JOINT_LEFT_HIP);
+    transformBone("Thigh.R",dai::SkeletonJoint::JOINT_RIGHT_HIP);
+    transformBone("Calf.L",dai::SkeletonJoint::JOINT_LEFT_KNEE);
+    transformBone("Calf.R",dai::SkeletonJoint::JOINT_RIGHT_KNEE);
 
-        const dai::SkeletonJoint& torsoJoint = m_skeleton->getJoint(dai::SkeletonJoint::JOINT_SPINE);
+    Vector3 newPos;
+    newPos.x = -torsoJoint.getPosition().x();
+    newPos.y = torsoJoint.getPosition().y();
+    newPos.z = -torsoJoint.getPosition().z();
+    newPos = (newPos - m_origTorsoPos)/100;
+    newPos.y -= 0.3;
 
-        //if (oniSkeleton.getState() == nite::SKELETON_TRACKED && torsoJoint.getPositionConfidence() > 0.5)
-        //{
-            transformBone("Stomach", nite::JOINT_TORSO);
-            transformBone("Waist", nite::JOINT_TORSO);
-            transformBone("Root", nite::JOINT_TORSO);
-            transformBone("Chest",nite::JOINT_TORSO);
-            transformBone("Humerus.L",nite::JOINT_LEFT_SHOULDER);
-            transformBone("Humerus.R",nite::JOINT_RIGHT_SHOULDER);
-            transformBone("Ulna.L",nite::JOINT_LEFT_ELBOW);
-            transformBone("Ulna.R",nite::JOINT_RIGHT_ELBOW);
-            transformBone("Thigh.L",nite::JOINT_LEFT_HIP);
-            transformBone("Thigh.R",nite::JOINT_RIGHT_HIP);
-            transformBone("Calf.L",nite::JOINT_LEFT_KNEE);
-            transformBone("Calf.R",nite::JOINT_RIGHT_KNEE);
-
-            Vector3 newPos;
-            newPos.x = -torsoJoint.getPosition().x;
-            newPos.y = torsoJoint.getPosition().y;
-            newPos.z = -torsoJoint.getPosition().z;
-            newPos = (newPos - m_origTorsoPos)/100;
-            newPos.y -= 0.3;
-
-            if (newPos.y < 0) {
-                newPos.y /= 2.5;
-                if (newPos.y < -1.5) {
-                    newPos.y = -1.5;
-                }
-            }
-
-            rootBone->setPosition(newPos);
-        //}
-
-        //do gestures for swards
-        if ((mTopAnimID == ANIM_IDLE_TOP || mTopAnimID == ANIM_RUN_TOP))
-        {
-            const nite::SkeletonJoint& jointHead = oniSkeleton.getJoint(nite::JOINT_HEAD);
-            const nite::SkeletonJoint& jointLeftHand = oniSkeleton.getJoint(nite::JOINT_LEFT_HAND);
-            const nite::SkeletonJoint& jointRightHand = oniSkeleton.getJoint(nite::JOINT_RIGHT_HAND);
-
-            if (jointLeftHand.getPositionConfidence() > 0 && jointHead.getPositionConfidence() > 0)
-            {
-                dai::Vector3D leftVec = dai::Vector3D(jointLeftHand.getPosition().x,
-                                                      jointLeftHand.getPosition().y,
-                                                      jointLeftHand.getPosition().z);
-                dai::Vector3D rightVec = dai::Vector3D(jointRightHand.getPosition().x,
-                                                       jointRightHand.getPosition().y,
-                                                       jointRightHand.getPosition().z);
-                dai::Vector3D headVec = dai::Vector3D(jointHead.getPosition().x,
-                                                      jointHead.getPosition().y,
-                                                      jointHead.getPosition().z);
-
-                dai::Vector3D tempVec = leftVec - rightVec;
-
-                if (tempVec.lengthSquared() < 50000) {
-                    tempVec = leftVec - headVec;
-
-                    if(!bRightAfterSwardsPositionChanged &&
-                            tempVec.lengthSquared() < 100000)
-                    {
-                        if(leftVec.z()+150 > headVec.z()) {
-                            // take swords out (or put them back, since it's the same animation but reversed)
-                            setTopAnimation(ANIM_DRAW_SWORDS, true);
-                            mTimer = 0;
-                            bRightAfterSwardsPositionChanged = true;
-                        }
-                    }
-                }
-                else {
-                    bRightAfterSwardsPositionChanged = false;
-                }
-            }
+    if (newPos.y < 0) {
+        newPos.y /= 2.5;
+        if (newPos.y < -1.5) {
+            newPos.y = -1.5;
         }
-    /*} // end user
-    else {
-        rootBone->resetToInitialState();
-    }*/
+    }
+
+    rootBone->setPosition(newPos);
 }
 
 void SinbadCharacterController::updateBody(Real deltaTime)

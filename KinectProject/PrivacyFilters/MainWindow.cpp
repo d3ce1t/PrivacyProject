@@ -223,9 +223,8 @@ void MainWindow::prueba()
 
 void MainWindow::on_btnStartKinect_clicked()
 {
-    prueba();
     // Create instance
-    /*shared_ptr<dai::OpenNIColorInstance> colorInstance(new dai::OpenNIColorInstance);
+    shared_ptr<dai::OpenNIColorInstance> colorInstance(new dai::OpenNIColorInstance);
     //shared_ptr<dai::OpenNIDepthInstance> depthInstance(new dai::OpenNIDepthInstance);
     shared_ptr<dai::OpenNISkeletonInstance> skeletonInstance(new dai::OpenNISkeletonInstance);
     shared_ptr<dai::OpenNIUserInstance> userInstance(new dai::OpenNIUserInstance);
@@ -268,7 +267,6 @@ void MainWindow::on_btnStartKinect_clicked()
     m_playback->play();
     m_colorViewer->show();
     //depthViewer->show();
-    */
 }
 
 void MainWindow::onPlusKeyPressed()
