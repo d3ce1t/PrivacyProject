@@ -82,27 +82,24 @@ public:
     static double dotProduct(const Quaternion &q1, const Quaternion &q2);
 
     Quaternion();
+    Quaternion(double w, double i, double j, double k);
     Quaternion(const Quaternion& other);
     Quaternion& operator=(const Quaternion& other);
-
+    void setScalar(double value);
+    void setVector(Vector3D vector);
+    void setVector(double i, double j, double k);
     double scalar() const;
     Vector3D vector() const;
     double getAngle() const;
     double norm() const;
+    void normalize();
     void print() const;
 
-    void setScalar(double value);
-    void setVector(Vector3D vector);
-    void setVector(double i, double j, double k);
-    void normalize();
-
-private:
-    // Private methods
+protected:
     double sign(double value) const;
 
-    // Private attributes
-    double m_theta;
-    double m_scalarPart;
+private:
+    double m_w;
     Vector3D m_vectorialPart; // i, j, k or x, y, z
 };
 

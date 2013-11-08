@@ -31,6 +31,7 @@ private slots:
     void on_btnQuit_clicked();
 
 private:
+    void prueba();
     void searchMinAndMaxDepth();
     static void testSegmentation();
 

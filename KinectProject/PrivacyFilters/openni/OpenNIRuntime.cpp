@@ -95,20 +95,20 @@ void OpenNIRuntime::addNewDepthListener(openni::VideoStream::NewFrameListener* l
     m_oniDepthStream.addNewFrameListener(listener);
 }
 
+void OpenNIRuntime::addNewUserTrackerListener(nite::UserTracker::NewFrameListener* listener)
+{
+    m_oniUserTracker.addNewFrameListener(listener);
+}
+
 void OpenNIRuntime::removeDepthListener(openni::VideoStream::NewFrameListener* listener)
 {
     m_oniDepthStream.removeNewFrameListener(listener);
 }
 
-/*void OpenNIRuntime::addNewUserTrackerListener(nite::UserTracker::NewFrameListener* listener)
-{
-    m_oniUserTracker.addNewFrameListener(listener);
-}
-
 void OpenNIRuntime::removeUserTrackerListener(nite::UserTracker::NewFrameListener* listener)
 {
     m_oniUserTracker.removeNewFrameListener(listener);
-}*/
+}
 
 void OpenNIRuntime::initOpenNI()
 {
@@ -163,7 +163,7 @@ void OpenNIRuntime::initOpenNI()
         if (m_oniUserTracker.create(&m_device) != nite::STATUS_OK)
             throw 8;
 
-        if (!m_oniUserTracker.isValid() || !m_oniColorStream.isValid())
+        if (!m_oniUserTracker.isValid() || !m_oniColorStream.isValid() || !m_oniDepthStream.isValid())
             throw 9;
 
         m_oniUserTracker.addNewFrameListener(this);
@@ -257,7 +257,6 @@ void OpenNIRuntime::loadSkeleton(nite::UserTracker& oniUserTracker, nite::UserTr
     const nite::Array<nite::UserData>& users = oniUserTrackerFrame.getUsers();
     m_skeletonFrame.clear();
     m_skeletonFrame.setIndex(oniUserTrackerFrame.getFrameIndex());
-    int trackedSkeletons = 0;
 
     for (int i=0; i<users.getSize(); ++i)
     {
@@ -274,7 +273,6 @@ void OpenNIRuntime::loadSkeleton(nite::UserTracker& oniUserTracker, nite::UserTr
 
             if (oniSkeleton.getState() == nite::SKELETON_TRACKED && head.getPositionConfidence() > 0.5)
             {
-                trackedSkeletons++;
                 auto daiSkeleton = m_skeletonFrame.getSkeleton(user.getId());
 
                 if (daiSkeleton == nullptr) {
@@ -282,21 +280,7 @@ void OpenNIRuntime::loadSkeleton(nite::UserTracker& oniUserTracker, nite::UserTr
                     m_skeletonFrame.setSkeleton(user.getId(), daiSkeleton);
                 }
 
-                for (int j=0; j<15; ++j)
-                {
-                    // Load nite::SkeletonJoint
-                    const nite::SkeletonJoint& niteJoint = oniSkeleton.getJoint((nite::JointType) j);
-                    nite::Point3f nitePos = niteJoint.getPosition();
-
-                    // Copy nite joint pos to my own Joint converting from nite milimeters to meters
-                    SkeletonJoint joint(Point3f(nitePos.x / 1000, nitePos.y / 1000, nitePos.z / 1000), staticMap[j]);
-
-                    //float coordinates[2] = {0};
-                    //oniUserTracker.convertJointCoordinatesToDepth(niteJoint.getPosition().x, niteJoint.getPosition().y, niteJoint.getPosition().z, &coordinates[0], &coordinates[1]);
-                    //joint.setScreenCoordinates(Point3f(coordinates[0], coordinates[1], 0.0));
-                    daiSkeleton->setJoint(staticMap[j], joint);
-                }
-
+                copySkeleton(oniSkeleton, *(daiSkeleton.get()));
                 daiSkeleton->computeQuaternions();
             }
         }
@@ -304,6 +288,26 @@ void OpenNIRuntime::loadSkeleton(nite::UserTracker& oniUserTracker, nite::UserTr
             qDebug() << "user lost" << user.getId();
         }
     } // End for
+}
+
+void OpenNIRuntime::copySkeleton(const nite::Skeleton& srcSkeleton, dai::Skeleton& dstSkeleton)
+{
+    for (int j=0; j<15; ++j)
+    {
+        // Load nite::SkeletonJoint
+        const nite::SkeletonJoint& niteJoint = srcSkeleton.getJoint((nite::JointType) j);
+        const nite::Point3f& nitePos = niteJoint.getPosition();
+        const nite::Quaternion& niteOrientation = niteJoint.getOrientation();
+
+        // Copy nite joint pos to my own Joint converting from nite milimeters to meters
+        SkeletonJoint joint(Point3f(nitePos.x / 1000, nitePos.y / 1000, nitePos.z / 1000), staticMap[j]);
+        joint.setOrientation(Quaternion(niteOrientation.w, niteOrientation.x,
+                                                           niteOrientation.y,
+                                                           niteOrientation.z));
+        joint.setPositionConfidence(niteJoint.getPositionConfidence());
+        joint.setOrientationConfidence(niteJoint.getOrientationConfidence());
+        dstSkeleton.setJoint(staticMap[j], joint);
+    }
 }
 
 void OpenNIRuntime::convertDepthToRealWorld(int x, int y, float distance, float &outX, float &outY) const

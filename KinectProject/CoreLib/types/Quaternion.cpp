@@ -78,14 +78,22 @@ Quaternion::Quaternion()
     : QObject(0)
 {
     // Identity quaternion
-    m_scalarPart = 1.0f;
+    m_w = 1.0f;
     m_vectorialPart = Vector3D(0, 0, 0);
+}
+
+Quaternion::Quaternion(double w, double i, double j, double k)
+    : QObject(0)
+{
+    // Identity quaternion
+    m_w = w;
+    m_vectorialPart = Vector3D(i, j, k);
 }
 
 Quaternion::Quaternion(const Quaternion& other)
     : QObject(0)
 {
-    m_scalarPart = other.scalar();
+    m_w = other.scalar();
     m_vectorialPart = other.vector();
 }
 
@@ -98,16 +106,7 @@ Quaternion& Quaternion::operator=(const Quaternion& other)
 
 void Quaternion::setScalar(double value)
 {
-    // Calculate the rotation angle for this quaternion
-    // in order to get it cached.
-    // From q2rot function of Octave Quaternions package
-    m_theta = acos(value) * 2;
-
-    if (fabs(m_theta) > M_PI)
-        m_theta = m_theta - sign (m_theta) * M_PI;
-
-    // Store the scalar part
-    m_scalarPart = value;
+    m_w = value;
 }
 
 void Quaternion::setVector(Vector3D vector)
@@ -122,7 +121,7 @@ void Quaternion::setVector(double i, double j, double k)
 
 double Quaternion::scalar() const
 {
-    return m_scalarPart;
+    return m_w;
 }
 
 Vector3D Quaternion::vector() const
@@ -132,12 +131,20 @@ Vector3D Quaternion::vector() const
 
 double Quaternion::getAngle() const
 {
-    return m_theta;
+    // Calculate the rotation angle for this quaternion
+    // in order to get it cached.
+    // From q2rot function of Octave Quaternions package
+    double theta = acos(m_w) * 2;
+
+    if (fabs(theta) > M_PI)
+        theta = theta - sign (theta) * M_PI;
+
+    return theta;
 }
 
 double Quaternion::norm() const
 {
-    return sqrt(pow(m_scalarPart, 2) +
+    return sqrt(pow(m_w, 2) +
                 pow(m_vectorialPart.x(), 2) +
                 pow(m_vectorialPart.y(), 2) +
                 pow(m_vectorialPart.z(), 2));
@@ -146,7 +153,7 @@ double Quaternion::norm() const
 void Quaternion::normalize()
 {
     double norm = this->norm();
-    m_scalarPart = m_scalarPart / norm;
+    m_w = m_w / norm;
     double norm_i = m_vectorialPart.x() / norm;
     double norm_j = m_vectorialPart.y() / norm;
     double norm_k = m_vectorialPart.z() / norm;
@@ -161,7 +168,7 @@ void Quaternion::normalize()
 
 void Quaternion::print() const
 {
-    cout << m_scalarPart << " + " << m_vectorialPart.x() << "i + " << m_vectorialPart.y() << "j + " << m_vectorialPart.z() << "k" << endl;
+    cout << m_w << " + " << m_vectorialPart.x() << "i + " << m_vectorialPart.y() << "j + " << m_vectorialPart.z() << "k" << endl;
 }
 
 double Quaternion::sign(double value) const

@@ -13,7 +13,7 @@ public:
 
     static double distance(const Point3f& point1, const Point3f& point2, DistanceType option = DISTANCE_EUCLIDEAN);
 
-    explicit Point3f();
+    Point3f();
     explicit Point3f(double x, double y, double z);
     Point3f(const Point3f& other);
     void set(double x, double y, double z);

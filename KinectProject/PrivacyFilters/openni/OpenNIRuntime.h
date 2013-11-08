@@ -25,15 +25,16 @@ public:
     openni::PlaybackControl* playbackControl();
     void addNewColorListener(openni::VideoStream::NewFrameListener* listener);
     void addNewDepthListener(openni::VideoStream::NewFrameListener* listener);
-    //void addNewUserTrackerListener(nite::UserTracker::NewFrameListener* listener);
+    void addNewUserTrackerListener(nite::UserTracker::NewFrameListener* listener);
     void removeColorListener(openni::VideoStream::NewFrameListener* listener);
     void removeDepthListener(openni::VideoStream::NewFrameListener* listener);
-    //void removeUserTrackerListener(nite::UserTracker::NewFrameListener* listener);
+    void removeUserTrackerListener(nite::UserTracker::NewFrameListener* listener);
     void convertDepthToRealWorld(int x, int y, float distance, float &outX, float &outY) const;
     void convertRealWorldCoordinatesToDepth(float x, float y, float z, float* pOutX, float* pOutY) const;
     void onNewFrame(nite::UserTracker& oniUserTracker);
     nite::UserTracker& getUserTracker();
     openni::VideoStream& getDepthStream();
+    void copySkeleton(const nite::Skeleton& srcSkeleton, dai::Skeleton& dstSkeleton);
 
 private:
     static SkeletonJoint::JointType staticMap[15];

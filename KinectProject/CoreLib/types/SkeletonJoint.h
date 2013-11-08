@@ -1,6 +1,7 @@
 #ifndef SKELETONJOINT_H
 #define SKELETONJOINT_H
 
+#include "Quaternion.h"
 #include "Point3f.h"
 #include <QObject>
 
@@ -47,18 +48,24 @@ public:
     SkeletonJoint();
     explicit SkeletonJoint(const Point3f point, JointType type);
     SkeletonJoint(const SkeletonJoint& other);
+    SkeletonJoint& operator=(const SkeletonJoint& other);
     void setType(JointType type);
     void setPosition(const Point3f point);
-    //void setScreenCoordinates(const Point3f point);
-    const Point3f& getPosition() const;
-    //const Point3f& getScreenPosition() const;
-    SkeletonJoint& operator=(const SkeletonJoint& other);
+    void setPositionConfidence(float value);
+    void setOrientation(const Quaternion& orientation);
+    void setOrientationConfidence(float value);
     JointType getType() const;
+    const Point3f& getPosition() const;
+    float getPositionConfidence() const;
+    const Quaternion& getOrientation() const;
+    float getOrientationConfidence() const;
 
 private:
-    Point3f     m_realworld_point;    // Real World Point in meters
-    //Point3f     m_screenCoordinates;
+    Point3f     m_realworld_point;    // Real World pos in meters
+    Quaternion  m_orientation;        // Orientation
     JointType   m_type;               // Joint Type
+    float       m_position_confidence;
+    float       m_orientation_confidence;
 };
 
 } // End Namespace

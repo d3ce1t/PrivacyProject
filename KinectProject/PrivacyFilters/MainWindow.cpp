@@ -191,10 +191,41 @@ void MainWindow::testSegmentation()
     }
 }*/
 
+void MainWindow::prueba()
+{
+    shared_ptr<dai::OpenNIColorInstance> colorInstance(new dai::OpenNIColorInstance);
+    shared_ptr<dai::OpenNISkeletonInstance> skeletonInstance(new dai::OpenNISkeletonInstance);
+    shared_ptr<dai::OpenNIUserInstance> userInstance(new dai::OpenNIUserInstance);
+
+    // Create Playback
+    m_playback = new dai::PlaybackControl;
+    m_playback->setFPS(15);
+    connect(m_playback, &dai::PlaybackControl::onPlaybackFinished, m_playback, &dai::PlaybackControl::deleteLater);
+
+    // Create viewers
+    m_colorViewer = new dai::InstanceViewerWindow(dai::MODE_2D);
+    m_colorViewer->initialise();
+
+    // Connect all together
+    m_playback->addInstance(colorInstance);
+    m_playback->addInstance(userInstance);
+    m_playback->addInstance(skeletonInstance);
+
+    // Viewer 1
+    m_playback->addListener(m_colorViewer, colorInstance);
+    m_playback->addListener(m_colorViewer, userInstance);
+    m_playback->addListener(m_colorViewer, skeletonInstance);
+
+    // Run
+    m_playback->play();
+    m_colorViewer->show();
+}
+
 void MainWindow::on_btnStartKinect_clicked()
 {
+    prueba();
     // Create instance
-    shared_ptr<dai::OpenNIColorInstance> colorInstance(new dai::OpenNIColorInstance);
+    /*shared_ptr<dai::OpenNIColorInstance> colorInstance(new dai::OpenNIColorInstance);
     //shared_ptr<dai::OpenNIDepthInstance> depthInstance(new dai::OpenNIDepthInstance);
     shared_ptr<dai::OpenNISkeletonInstance> skeletonInstance(new dai::OpenNISkeletonInstance);
     shared_ptr<dai::OpenNIUserInstance> userInstance(new dai::OpenNIUserInstance);
@@ -213,9 +244,9 @@ void MainWindow::on_btnStartKinect_clicked()
 
     // start Ogre once we are in the rendering thread (Ogre must live in the rendering thread)
     connect(m_colorViewer->quickWindow(), &QQuickWindow::beforeSynchronizing, this, &MainWindow::initialiseOgre, Qt::DirectConnection);
-    /*connect(colorViewer->viewerEngine(), &ViewerEngine::plusKeyPressed, this, &MainWindow::onPlusKeyPressed);
-    connect(colorViewer->viewerEngine(), &ViewerEngine::minusKeyPressed, this, &MainWindow::onMinusKeyPressed);
-    connect(colorViewer->viewerEngine(), &ViewerEngine::spaceKeyPressed, this, &MainWindow::onSpaceKeyPressed);*/
+    //connect(colorViewer->viewerEngine(), &ViewerEngine::plusKeyPressed, this, &MainWindow::onPlusKeyPressed);
+    //connect(colorViewer->viewerEngine(), &ViewerEngine::minusKeyPressed, this, &MainWindow::onMinusKeyPressed);
+    //connect(colorViewer->viewerEngine(), &ViewerEngine::spaceKeyPressed, this, &MainWindow::onSpaceKeyPressed);
 
     //dai::InstanceViewerWindow* depthViewer = new dai::InstanceViewerWindow(dai::MODE_3D);
     //depthViewer->initialise();
@@ -236,6 +267,7 @@ void MainWindow::on_btnStartKinect_clicked()
     m_playback->play();
     m_colorViewer->show();
     //depthViewer->show();
+    */
 }
 
 void MainWindow::onPlusKeyPressed()
