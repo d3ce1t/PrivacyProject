@@ -162,7 +162,7 @@ ApplicationWindow {
         anchors.fill: parent
         camera: Camera
         ogreEngine: OgreEngine
-        focus: true
+        focus: false
         z: 1
 
         MouseArea {
@@ -194,7 +194,7 @@ ApplicationWindow {
     InstanceViewer {
         id: instanceViewer
         viewerEngine: ViewerEngine
-        //focus: true
+        focus: true
         anchors.fill: parent
         z: 0
 

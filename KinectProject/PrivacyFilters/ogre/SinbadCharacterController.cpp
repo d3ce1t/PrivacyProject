@@ -26,21 +26,10 @@ SinbadCharacterController::SinbadCharacterController(Camera* cam)
     m_candidateID = 0;
     m_SmoothingFactor = 0.6;
     m_SmoothingDelta = 0;
-    //m_openni = nullptr;
 
     setupBody(cam->getSceneManager());
     //setupCamera(cam);
     setupAnimations();
-
-    // Init depth cam related stuff
-    /*try {
-        initPrimeSensor();
-    }
-    catch (int) {
-        ErrorDialog dlg;
-        dlg.display("Error initing sensor");
-        exit(0);
-    }*/
 }
 
 SinbadCharacterController::~SinbadCharacterController()
@@ -176,10 +165,10 @@ void SinbadCharacterController::setupBody(SceneManager* sceneMgr)
     mBodyNode->attachObject(mBodyEnt);
 
     // create swords and attach to sheath
-    mSword1 = sceneMgr->createEntity("SinbadSword1", "Sword.mesh");
-    mSword2 = sceneMgr->createEntity("SinbadSword2", "Sword.mesh");
-    mBodyEnt->attachObjectToBone("Sheath.L", mSword1);
-    mBodyEnt->attachObjectToBone("Sheath.R", mSword2);
+    //mSword1 = sceneMgr->createEntity("SinbadSword1", "Sword.mesh");
+    //mSword2 = sceneMgr->createEntity("SinbadSword2", "Sword.mesh");
+    //mBodyEnt->attachObjectToBone("Sheath.L", mSword1);
+    //mBodyEnt->attachObjectToBone("Sheath.R", mSword2);
 
     // create a couple of ribbon trails for the swords, just for fun
     NameValuePairList params;
@@ -375,7 +364,7 @@ void SinbadCharacterController::transformBone(const Ogre::String& modelBoneName,
     if (joint.getOrientationConfidence() > 0 )
     {
         const dai::Quaternion& q = joint.getOrientation();
-        newQ = Quaternion(q.w(), -q.x(), q.y(), -q.z());
+        newQ = Quaternion(-q.w(), q.x(), q.y(), -q.z());
 
         bone->resetOrientation(); //in order for the conversion from world to local to work.
         newQ = bone->convertWorldToLocalOrientation(newQ);
@@ -410,6 +399,7 @@ void SinbadCharacterController::PSupdateBody(Real deltaTime)
 
     const dai::SkeletonJoint& torsoJoint = m_skeleton->getJoint(dai::SkeletonJoint::JOINT_SPINE);
 
+    // Ogre Skeleton left-right is from camera perspective. DAI Skeleton left-right is from own skeleton
     transformBone("Stomach", dai::SkeletonJoint::JOINT_SPINE);
     transformBone("Waist", dai::SkeletonJoint::JOINT_SPINE);
     transformBone("Root", dai::SkeletonJoint::JOINT_SPINE);

@@ -169,7 +169,7 @@ void Scene2DPainter::renderBackground()
     glActiveTexture(GL_TEXTURE0 + 0);
 
     // Enable BG
-    if (m_currentFilter == QMLEnumsWrapper::FILTER_INVISIBILITY || m_currentFilter == QMLEnumsWrapper::FILTER_SKELETON
+    if (m_currentFilter == QMLEnumsWrapper::FILTER_INVISIBILITY /*|| m_currentFilter == QMLEnumsWrapper::FILTER_SKELETON*/
             || m_currentFilter == QMLEnumsWrapper::FILTER_SILHOUETTE) {
         glBindTexture(GL_TEXTURE_2D, m_bgTextureId);
     }
