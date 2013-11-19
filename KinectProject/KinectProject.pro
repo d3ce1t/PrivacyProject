@@ -5,5 +5,5 @@ SUBDIRS += \
     QmlOgreLib \
     DatasetBrowser \
     PrivacyFilters
-    #OgreSinbad \
+    #OgreSinbad
     #QmlOgreSinbad 

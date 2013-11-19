@@ -89,7 +89,6 @@ void OpenNIColorInstance::onNewFrame(openni::VideoStream& stream)
     }
 
     m_lockFrame.unlock();
-
     notifyNewFrame();
 }
 

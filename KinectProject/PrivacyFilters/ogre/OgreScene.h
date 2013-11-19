@@ -34,6 +34,7 @@ private:
     SinbadCharacterController* m_chara;
     qint64 m_lastTime;
     QElapsedTimer   m_timer;
+    int m_userId;
 };
 
 #endif // OGRESCENE_H

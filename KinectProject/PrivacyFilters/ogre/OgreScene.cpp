@@ -7,6 +7,7 @@ OgreScene::OgreScene()
     , m_sceneManager(nullptr)
     , m_chara(nullptr)
     , m_lastTime(0)
+    , m_userId(-1)
 {
     m_ogreEngine = new OgreEngine;
     m_cameraObject = new CameraNodeObject;
@@ -104,13 +105,30 @@ void OgreScene::onNewFrame(const QHash<dai::DataFrame::FrameType, shared_ptr<dai
     shared_ptr<dai::SkeletonFrame> skeletonFrame = static_pointer_cast<dai::SkeletonFrame>( frames.value(dai::DataFrame::Skeleton) );
     int userId = skeletonFrame->getAllUsersId().isEmpty() ? 0 : skeletonFrame->getAllUsersId().at(0);
 
-    if (userId > 0) {
+    if (userId > 0 && m_userId == -1) {
+        // New user
+        qDebug() << "New User";
+        m_userId = userId;
         shared_ptr<dai::Skeleton> skeleton = skeletonFrame->getSkeleton(userId);
+        m_chara->setSkeleton(skeleton);
+        m_chara->newUser(userId);
+    }
+    else if (userId > 0 && m_userId == userId) {
+        // Same user
+        qDebug() << "Same user";
+        shared_ptr<dai::Skeleton> skeleton = skeletonFrame->getSkeleton(userId);
+        m_chara->setSkeleton(skeleton);
         Real deltaTime = (time_ms - m_lastTime) / 1000.0f;
-        m_chara->addTime(deltaTime, skeleton);
+        m_chara->addTime(deltaTime);
         m_lastTime = time_ms;
     }
-    else {
-        m_chara->lostUser();
+    else if (userId > 0) {
+        qDebug() << "No debería llegar";
+    }
+    else if (userId == 0 && m_userId > 0) {
+        qDebug() << "User Lost";
+        m_chara->setSkeleton(nullptr);
+        m_chara->lostUser(m_userId);
+        m_userId = -1;
     }
 }

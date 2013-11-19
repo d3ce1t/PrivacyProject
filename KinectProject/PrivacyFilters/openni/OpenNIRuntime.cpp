@@ -167,6 +167,7 @@ void OpenNIRuntime::initOpenNI()
         if (!m_oniUserTracker.isValid() || !m_oniColorStream.isValid() || !m_oniDepthStream.isValid())
             throw 9;
 
+        m_oniUserTracker.setSkeletonSmoothingFactor(0.5);
         m_oniUserTracker.addNewFrameListener(this);
         //m_oniDepthStream.setMirroringEnabled(true);
     }
@@ -265,7 +266,6 @@ void OpenNIRuntime::loadSkeleton(nite::UserTracker& oniUserTracker, nite::UserTr
         const nite::UserData& user = users[i];
 
         if (user.isNew()) {
-            qDebug()<< "New user!" << user.getId();
             oniUserTracker.startSkeletonTracking(user.getId());
         }
         else if (!user.isLost())
@@ -285,9 +285,6 @@ void OpenNIRuntime::loadSkeleton(nite::UserTracker& oniUserTracker, nite::UserTr
                 copySkeleton(oniSkeleton, *(daiSkeleton.get()));
                 daiSkeleton->computeQuaternions();
             }
-        }
-        else if (user.isLost()) {
-            qDebug() << "user lost" << user.getId();
         }
     } // End for
 }

@@ -247,9 +247,6 @@ void MainWindow::on_btnStartKinect_clicked()
     connect(m_colorViewer->viewerEngine(), &ViewerEngine::minusKeyPressed, this, &MainWindow::onMinusKeyPressed);
     connect(m_colorViewer->viewerEngine(), &ViewerEngine::spaceKeyPressed, this, &MainWindow::onSpaceKeyPressed);
 
-    //dai::InstanceViewerWindow* depthViewer = new dai::InstanceViewerWindow(dai::MODE_3D);
-    //depthViewer->initialise();
-
     // Connect all together
     m_playback->addInstance(colorInstance);
     //m_playback->addInstance(depthInstance);
@@ -257,6 +254,7 @@ void MainWindow::on_btnStartKinect_clicked()
     m_playback->addInstance(skeletonInstance);
 
     m_playback->addListener(m_colorViewer, colorInstance);
+    //m_playback->addListener(m_colorViewer, depthInstance);
     m_playback->addListener(m_colorViewer, userInstance);
     m_playback->addListener(m_colorViewer, skeletonInstance);
     m_playback->addListener(m_ogreScene, skeletonInstance);
@@ -266,7 +264,6 @@ void MainWindow::on_btnStartKinect_clicked()
     // Run
     m_playback->play();
     m_colorViewer->show();
-    //depthViewer->show();
 }
 
 void MainWindow::onPlusKeyPressed()

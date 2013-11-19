@@ -1,193 +1,52 @@
 #include "ogre/SinbadCharacterController.h"
 
-// Note: wont work as expected for > 5 users in scene
-static unsigned int g_UsersColors[] = {/*0x70707080*/0 ,0x80FF0000,0x80FF4500,0x80FF1493,0x8000ff00, 0x8000ced1,0x80ffd700};
-#define GetColorForUser(i) g_UsersColors[(i)%(sizeof(g_UsersColors)/sizeof(unsigned int))]
-
-#define VALIDATE_GENERATOR(type, desc, generator)				\
-{																\
-    rc = m_Context.EnumerateExistingNodes(nodes, type);			\
-    if (nodes.IsEmpty())										\
-{															\
-    printf("No %s generator!\n", desc);						\
-    return 1;												\
-}															\
-    (*(nodes.Begin())).GetInstance(generator);					\
-}
-#define CHECK_RC(rc, what)											\
-    if (rc != XN_STATUS_OK)											\
-{																\
-    printf("%s failed: %s\n", what, xnGetStatusString(rc));		\
-    return rc;													\
-}
-
 SinbadCharacterController::SinbadCharacterController(Camera* cam)
 {
-    m_candidateID = 0;
-    m_SmoothingFactor = 0.6;
-    m_SmoothingDelta = 0;
-
     setupBody(cam->getSceneManager());
     //setupCamera(cam);
     setupAnimations();
 }
 
-SinbadCharacterController::~SinbadCharacterController()
+void SinbadCharacterController::setSkeleton(shared_ptr<dai::Skeleton> skeleton)
 {
-    //m_openni->releaseInstance();
+    m_skeleton = skeleton;
 }
 
-/*void SinbadCharacterController::UpdateDepthTexture()
+void SinbadCharacterController::addTime(Real deltaTime)
 {
-    if (!m_oniUserTrackerFrame.isValid())
-        return;
-
-    TexturePtr texture = TextureManager::getSingleton().getByName("MyDepthTexture");
-
-    // Get the pixel buffer
-    if (texture.isNull())
-        return;
-
-    HardwarePixelBufferSharedPtr pixelBuffer = texture->getBuffer();
-
-    // Lock the pixel buffer and get a pixel box
-    pixelBuffer->lock(HardwareBuffer::HBL_DISCARD);
-    const PixelBox& pixelBox = pixelBuffer->getCurrentLock();
-
-    unsigned char* pDest = static_cast<unsigned char*>(pixelBox.data);
-
-    // Get label map
-    const nite::UserMap& userMap = m_oniUserTrackerFrame.getUserMap();
-    const nite::UserId* pUsersLBLs = userMap.getPixels();
-
-    for (size_t j = 0; j < m_Height; j++)
-    {
-        pDest = static_cast<unsigned char*>(pixelBox.data) + j*pixelBox.rowPitch*4;
-
-        for (size_t i = 0; i < m_Width; i++)
-        {
-            // fix i if we are mirrored
-            unsigned int fixed_i = i;
-
-            if(!m_front) {
-                fixed_i = m_Width - i;
-            }
-
-            // determine color
-            unsigned int color = GetColorForUser(pUsersLBLs[j*m_Width + fixed_i]);
-
-            // if we have a candidate, filter out the rest
-            if (m_poseCandidateID != 0 && m_poseCandidateID == pUsersLBLs[j*m_Width + fixed_i])
-            {
-                color = GetColorForUser(1);
-
-                if( j > m_Height*(1 - m_detectionPercent) ) {
-                    color |= 0xFF070707; //highlight user
-                }
-                // else {
-                //       color &= 0x20F0F0F0; //hide user
-                // }
-            }
-            else if (m_candidateID != 0 && m_candidateID == pUsersLBLs[j*m_Width + fixed_i])
-            {
-                color = GetColorForUser(1);
-            }
-
-            // write to output buffer
-            *((unsigned int*)pDest) = color;
-            pDest+=4;
-        }
-    }
-
-    // Unlock the pixel buffer
-    pixelBuffer->unlock();
-}*/
-
-/*void SinbadCharacterController::initPrimeSensor()
-{
-    qDebug() << "SinbadCharacterController::initPrimeSensor()";
-
-    //m_openni = dai::OpenNIRuntime::getInstance();
-    //m_openni->getDepthStream().setMirroringEnabled(m_front);
-
-    // Skeleton stuff
-    m_SmoothingFactor = 0.6;
-    m_SmoothingDelta = 0;
-    //m_openni->getUserTracker().setSkeletonSmoothingFactor(m_SmoothingFactor);
-
-    m_candidateID = 0;
-}*/
-
-void SinbadCharacterController::addTime(Real deltaTime, shared_ptr<dai::Skeleton> skeleton)
-{
-    qDebug() << deltaTime;
-    m_skeleton = skeleton;
-    updateSkeleton(skeleton);
-    //UpdateDepthTexture();
     updateBody(deltaTime);
     updateAnimations(deltaTime);
     PSupdateBody(deltaTime);
     //updateCamera(deltaTime);
 }
 
-void SinbadCharacterController::updateSkeleton(shared_ptr<dai::Skeleton> skeleton)
+void SinbadCharacterController::lostUser(int userId)
 {
-    const dai::SkeletonJoint& jointTorso = skeleton->getJoint(dai::SkeletonJoint::JOINT_SPINE);
-    m_origTorsoPos.x = -jointTorso.getPosition().x();
-    m_origTorsoPos.y = jointTorso.getPosition().y();
-    m_origTorsoPos.z = -jointTorso.getPosition().z();
+    Q_UNUSED(userId);
+    resetBonesToInitialState();
+    mBodyEnt->setVisible(false);
 }
 
-void SinbadCharacterController::lostUser()
+void SinbadCharacterController::newUser(int userId)
 {
-    /*qDebug() << "user lost" << user.getId();
-
-    if (m_candidateID == user.getId()) {
-        m_candidateID = 0;
-        resetBonesToInitialState();
-        m_poseCandidateID = 0;
-        m_poseTime = 0;
-        m_detectionPercent = 0;
-    }
-
-    if (m_poseCandidateID == user.getId()) {
-        m_poseCandidateID = 0;
-        m_poseTime = 0;
-        m_detectionPercent = 0;
-    }*/
+    // Q_UNUSED(userId);
+    qDebug() << "Sinbad: new user" << userId;
+    const dai::SkeletonJoint& jointTorso = m_skeleton->getJoint(dai::SkeletonJoint::JOINT_SPINE);
+    m_origTorsoPos.x = jointTorso.getPosition().x();
+    m_origTorsoPos.y = jointTorso.getPosition().y();
+    m_origTorsoPos.z = -jointTorso.getPosition().z();
+    mBodyEnt->setVisible(true);
 }
 
 void SinbadCharacterController::setupBody(SceneManager* sceneMgr)
 {
     // create main model
     mBodyNode = sceneMgr->getRootSceneNode()->createChildSceneNode(Vector3::UNIT_Y * CHAR_HEIGHT);
+    mBodyNode->scale(10, 11, 10);
+    mBodyNode->setPosition(0, 0, -90);
     mBodyEnt = sceneMgr->createEntity("SinbadBody", "Sinbad.mesh");
+    mBodyEnt->setVisible(false);
     mBodyNode->attachObject(mBodyEnt);
-
-    // create swords and attach to sheath
-    //mSword1 = sceneMgr->createEntity("SinbadSword1", "Sword.mesh");
-    //mSword2 = sceneMgr->createEntity("SinbadSword2", "Sword.mesh");
-    //mBodyEnt->attachObjectToBone("Sheath.L", mSword1);
-    //mBodyEnt->attachObjectToBone("Sheath.R", mSword2);
-
-    // create a couple of ribbon trails for the swords, just for fun
-    NameValuePairList params;
-    params["numberOfChains"] = "2";
-    params["maxElements"] = "80";
-    mSwordTrail = (RibbonTrail*)sceneMgr->createMovableObject("RibbonTrail", &params);
-    mSwordTrail->setMaterialName("Examples/LightRibbonTrail");
-    mSwordTrail->setTrailLength(20);
-    mSwordTrail->setVisible(false);
-    sceneMgr->getRootSceneNode()->attachObject(mSwordTrail);
-
-    for (int i = 0; i < 2; i++)
-    {
-        mSwordTrail->setInitialColour(i, 1, 0.8, 0);
-        mSwordTrail->setColourChange(i, 0.75, 1.25, 1.25, 1.25);
-        mSwordTrail->setWidthChange(i, 1);
-        mSwordTrail->setInitialWidth(i, 0.5);
-    }
-
     mKeyDirection = Vector3::ZERO;
     mVerticalVelocity = 0;
 }
@@ -305,7 +164,6 @@ void SinbadCharacterController::setupAnimations()
 
     // relax the hands since we're not holding anything
     mAnims[ANIM_HANDS_RELAXED]->setEnabled(true);
-    mSwordsDrawn = false;
 }
 
 void SinbadCharacterController::resetBonesToInitialState()
@@ -377,23 +235,6 @@ void SinbadCharacterController::PSupdateBody(Real deltaTime)
     Q_UNUSED(deltaTime)
 
     mGoalDirection = Vector3::ZERO;   // we will calculate this
-
-    //set smoothing according to the players request.
-    if (m_SmoothingDelta!=0)
-    {
-        m_SmoothingFactor += 0.01 * m_SmoothingDelta;
-
-        if(m_SmoothingFactor >= 1)
-            m_SmoothingFactor = 0.99;
-        else if(m_SmoothingFactor <= 0)
-            m_SmoothingFactor = 0.00;
-
-        //m_openni->getUserTracker().setSkeletonSmoothingFactor(m_SmoothingFactor);
-
-        Ogre::DisplayString blah = "H/N ";
-        blah.append(Ogre::StringConverter::toString((Real)m_SmoothingFactor));
-    }
-
     Skeleton* skel = mBodyEnt->getSkeleton();
     Ogre::Bone* rootBone = skel->getBone("Root");
 
@@ -414,10 +255,11 @@ void SinbadCharacterController::PSupdateBody(Real deltaTime)
     transformBone("Calf.R",dai::SkeletonJoint::JOINT_RIGHT_KNEE);
 
     Vector3 newPos;
-    newPos.x = -torsoJoint.getPosition().x();
+    newPos.x = torsoJoint.getPosition().x();
     newPos.y = torsoJoint.getPosition().y();
     newPos.z = -torsoJoint.getPosition().z();
-    newPos = (newPos - m_origTorsoPos)/100;
+    newPos = (newPos - m_origTorsoPos) * 5;
+
     newPos.y -= 0.3;
 
     if (newPos.y < 0) {
@@ -488,51 +330,7 @@ void SinbadCharacterController::updateAnimations(Real deltaTime)
 
     mTimer += deltaTime;
 
-    if (mTopAnimID == ANIM_DRAW_SWORDS)
-    {
-        // flip the draw swords animation if we need to put it back
-        topAnimSpeed = mSwordsDrawn ? -1 : 1;
-
-        // half-way through the animation is when the hand grasps the handles...
-        if (mTimer >= mAnims[mTopAnimID]->getLength() / 2 &&
-                mTimer - deltaTime < mAnims[mTopAnimID]->getLength() / 2)
-        {
-            // so transfer the swords from the sheaths to the hands
-            mBodyEnt->detachAllObjectsFromBone();
-            mBodyEnt->attachObjectToBone(mSwordsDrawn ? "Sheath.L" : "Handle.L", mSword1);
-            mBodyEnt->attachObjectToBone(mSwordsDrawn ? "Sheath.R" : "Handle.R", mSword2);
-            // change the hand state to grab or let go
-            mAnims[ANIM_HANDS_CLOSED]->setEnabled(!mSwordsDrawn);
-            mAnims[ANIM_HANDS_RELAXED]->setEnabled(mSwordsDrawn);
-
-            // toggle sword trails
-            if (mSwordsDrawn)
-            {
-                mSwordTrail->setVisible(false);
-                mSwordTrail->removeNode(mSword1->getParentNode());
-                mSwordTrail->removeNode(mSword2->getParentNode());
-            }
-            else
-            {
-                mSwordTrail->setVisible(true);
-                mSwordTrail->addNode(mSword1->getParentNode());
-                mSwordTrail->addNode(mSword2->getParentNode());
-            }
-        }
-
-        if (mTimer >= mAnims[mTopAnimID]->getLength())
-        {
-            // animation is finished, so return to what we were doing before
-            if (mBaseAnimID == ANIM_IDLE_BASE) setTopAnimation(ANIM_IDLE_TOP);
-            else
-            {
-                setTopAnimation(ANIM_RUN_TOP);
-                mAnims[ANIM_RUN_TOP]->setTimePosition(mAnims[ANIM_RUN_BASE]->getTimePosition());
-            }
-            mSwordsDrawn = !mSwordsDrawn;
-        }
-    }
-    else if (mTopAnimID == ANIM_SLICE_VERTICAL || mTopAnimID == ANIM_SLICE_HORIZONTAL)
+    if (mTopAnimID == ANIM_SLICE_VERTICAL || mTopAnimID == ANIM_SLICE_HORIZONTAL)
     {
         if (mTimer >= mAnims[mTopAnimID]->getLength())
         {

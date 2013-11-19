@@ -47,22 +47,15 @@ class SinbadCharacterController
 public:
     const unsigned int  m_Width = 640;
     const unsigned int m_Height = 480;
-
-	double m_SmoothingFactor;
-	int m_SmoothingDelta;
     bool m_front;
 
-    nite::UserId m_candidateID;
     Vector3 m_origTorsoPos;
-    shared_ptr<dai::Skeleton> m_skeleton;
 
     SinbadCharacterController(Camera* cam);
-    ~SinbadCharacterController();
-    void updateSkeleton(shared_ptr<dai::Skeleton> skeleton);
-    void lostUser();
-    //void UpdateDepthTexture();
-    //void initPrimeSensor();
-    void addTime(Real deltaTime, shared_ptr<dai::Skeleton> skeleton);
+    void lostUser(int userId);
+    void newUser(int userId);
+    void addTime(Real deltaTime);
+    void setSkeleton(shared_ptr<dai::Skeleton> skeleton);
 
 private:
     // all the animations our character has, and a null ID
@@ -109,19 +102,16 @@ private:
     SceneNode* mCameraNode;
     Real mPivotPitch;
     Entity* mBodyEnt;
-    Entity* mSword1;
-    Entity* mSword2;
-    RibbonTrail* mSwordTrail;
     AnimationState* mAnims[NUM_ANIMS];    // master animation list
     AnimID mBaseAnimID;                   // current base (full- or lower-body) animation
     AnimID mTopAnimID;                    // current top (upper-body) animation
     bool mFadingIn[NUM_ANIMS];            // which animations are fading in
     bool mFadingOut[NUM_ANIMS];           // which animations are fading out
-    bool mSwordsDrawn;
     Vector3 mKeyDirection;      // player's local intended direction based on WASD keys
     Vector3 mGoalDirection;     // actual intended direction in world-space
     Real mVerticalVelocity;     // for jumping
     Real mTimer;                // general timer to see how long animations have been playing
+    shared_ptr<dai::Skeleton> m_skeleton;
 };
 
 #endif

@@ -573,15 +573,20 @@ void SinbadCharacterController::PSupdateBody(Real deltaTime)
             newPos.x = -torsoJoint.getPosition().x;
             newPos.y = torsoJoint.getPosition().y;
             newPos.z = -torsoJoint.getPosition().z;
-            newPos = (newPos - m_origTorsoPos)/100;
-            newPos.y -= 0.3;
+
+            newPos = (newPos - m_origTorsoPos);
+            qDebug() << newPos.x << newPos.y << newPos.z;
+
+
+
+            /*newPos.y -= 0.3;
 
             if (newPos.y < 0) {
                 newPos.y /= 2.5;
                 if (newPos.y < -1.5) {
                     newPos.y = -1.5;
                 }
-            }
+            }*/
 
             rootBone->setPosition(newPos);
         }

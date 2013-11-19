@@ -23,6 +23,11 @@ public:
         SKELETON_OPENNI
     };
 
+    enum SkeletonState {
+        NEW_USER,
+        LOST_USER
+    };
+
     struct SkeletonLimb {
         SkeletonJoint::JointType joint1;
         SkeletonJoint::JointType joint2;
@@ -56,6 +61,7 @@ private:
     short m_jointsCount;
     short m_limbsSize;
     SkeletonType m_type;
+    SkeletonState m_state;
 };
 
 } // End Namespace
