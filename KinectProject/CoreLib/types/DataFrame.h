@@ -17,7 +17,8 @@ public:
         Depth,
         Color,
         Skeleton,
-        User
+        User,
+        UserTracker
     };
 
     // Constructor

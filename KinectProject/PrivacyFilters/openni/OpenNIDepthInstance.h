@@ -10,14 +10,12 @@
 namespace dai {
 
 class OpenNIDepthInstance : public StreamInstance<DepthFrame>,
-                            public openni::VideoStream::NewFrameListener,
                             public OpenNIBaseInstance
 {
 public:
     OpenNIDepthInstance();
     virtual ~OpenNIDepthInstance();
     bool is_open() const override;
-    void onNewFrame(openni::VideoStream& stream);
 
 protected:
     bool openInstance() override;
@@ -28,8 +26,6 @@ protected:
 private:
     OpenNIRuntime*          m_openni;
     shared_ptr<DepthFrame>  m_frameBuffer[2];
-    openni::VideoFrameRef   m_oniDepthFrame;
-    QMutex                  m_lockFrame;
 };
 
 } // End namespace

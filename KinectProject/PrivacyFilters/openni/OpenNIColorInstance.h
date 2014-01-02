@@ -10,14 +10,12 @@
 namespace dai {
 
 class OpenNIColorInstance : public StreamInstance<ColorFrame>,
-                            public openni::VideoStream::NewFrameListener,
                             public OpenNIBaseInstance
 {
 public:
     OpenNIColorInstance();
     virtual ~OpenNIColorInstance();
     bool is_open() const override;
-    void onNewFrame(openni::VideoStream& stream);
 
 protected:
     bool openInstance() override;
@@ -28,8 +26,6 @@ protected:
 private:
     OpenNIRuntime*         m_openni;
     shared_ptr<ColorFrame> m_frameBuffer[2];
-    openni::VideoFrameRef  m_oniColorFrame;
-    QMutex                 m_lockFrame;
 };
 
 } // End namespace

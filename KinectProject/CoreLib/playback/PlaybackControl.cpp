@@ -160,13 +160,16 @@ void PlaybackControl::notifyListeners(QList<shared_ptr<BaseInstance> > changedIn
     foreach (shared_ptr<BaseInstance> instance, changedInstances)
     {
         QList<PlaybackListener*> listenerList = instanceToListenerMap.values(instance.get());
-        shared_ptr<DataFrame> frame = instance->frame();
+        QList<shared_ptr<DataFrame>> framesList = instance->frames();
 
-        foreach (PlaybackListener* listener, listenerList)
+        foreach (shared_ptr<DataFrame> frame, framesList)
         {
-           QHashDataFrames hashFrames = sendResult.value(listener); // gets a copy
-           hashFrames.insert(frame->getType(), frame);
-           sendResult.insert(listener, hashFrames);
+            foreach (PlaybackListener* listener, listenerList)
+            {
+                QHashDataFrames hashFrames = sendResult.value(listener); // gets a copy
+                hashFrames.insert(frame->getType(), frame);
+                sendResult.insert(listener, hashFrames);
+            }
         }
     }
 

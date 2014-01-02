@@ -2,7 +2,7 @@ import QtQuick 2.0
 import QtQuick.Controls 1.0
 import InstanceViewer 1.0
 import edu.dai.kinect 1.0
-import Ogre 1.0
+//import Ogre 1.0
 
 ApplicationWindow {
     id: mainWindow
@@ -157,13 +157,14 @@ ApplicationWindow {
         z: 2
     }
 
-    OgreItem {
+    /*OgreItem {
         id: ogreitem
         anchors.fill: parent
         camera: Camera
         ogreEngine: OgreEngine
         focus: false
         z: 1
+        //visible: false
 
         MouseArea {
             anchors.fill: parent
@@ -189,7 +190,7 @@ ApplicationWindow {
             }
             onReleased: { prevX = -1; prevY = -1 }
         }
-    }
+    }*/
 
     InstanceViewer {
         id: instanceViewer

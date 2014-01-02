@@ -14,12 +14,11 @@ HEADERS += \
     DepthSeg.h \
     openni/OpenNIColorInstance.h \
     openni/OpenNIRuntime.h \
-    openni/OpenNIUserInstance.h \
-    openni/OpenNISkeletonInstance.h \
     openni/OpenNIBaseInstance.h \
     ogre/SinbadCharacterController.h \
     ogre/cameranodeobject.h \
-    ogre/OgreScene.h
+    ogre/OgreScene.h \
+    openni/OpenNIUserTrackerInstance.h
 
 SOURCES += \
     Main.cpp \
@@ -29,12 +28,11 @@ SOURCES += \
     DepthSeg.cpp \
     openni/OpenNIColorInstance.cpp \
     openni/OpenNIRuntime.cpp \
-    openni/OpenNIUserInstance.cpp \
-    openni/OpenNISkeletonInstance.cpp \
     openni/OpenNIBaseInstance.cpp \
     ogre/SinbadCharacterController.cpp \
     ogre/cameranodeobject.cpp \
-    ogre/OgreScene.cpp
+    ogre/OgreScene.cpp \
+    openni/OpenNIUserTrackerInstance.cpp
 
 OTHER_FILES += \
     qml/main.qml \

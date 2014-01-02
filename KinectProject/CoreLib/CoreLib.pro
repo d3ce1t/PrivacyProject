@@ -65,7 +65,8 @@ SOURCES += \
     dataset/MSRDaily/MSRDailyColorInstance.cpp \
     Config.cpp \
     viewer/ViewerEngine.cpp \
-    viewer/ViewerRenderer.cpp
+    viewer/ViewerRenderer.cpp \
+    types/UserTrackerFrame.cpp
 
 HEADERS += \
     types/Vector3D.h \
@@ -120,7 +121,8 @@ HEADERS += \
     dataset/MSRDaily/MSRDailyColorInstance.h \
     Config.h \
     viewer/ViewerEngine.h \
-    viewer/ViewerRenderer.h
+    viewer/ViewerRenderer.h \
+    types/UserTrackerFrame.h
 
 unix:!symbian {
     maemo5 {

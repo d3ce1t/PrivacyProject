@@ -31,6 +31,7 @@ public:
     virtual bool hasNext() const override;
     void readNextFrame() override;
     shared_ptr<DataFrame> frame() override;
+    QList< shared_ptr<DataFrame> > frames() override;
     void swapBuffer() override;
     unsigned int getFrameIndex() const;
 
@@ -41,17 +42,17 @@ protected:
     virtual void nextFrame(T& frame) = 0;
     void initFrameBuffer(shared_ptr<T> firstBuffer, shared_ptr<T> secondBuffer);
 
+    QReadWriteLock  m_locker;
+    shared_ptr<T>   m_readFrame;
+
 private:
 
 #if (defined _MSC_VER)
     StreamInstance(const StreamInstance&) {}
 #endif
 
-
-    unsigned int    m_frameIndex;
-    QReadWriteLock  m_locker;
+    unsigned int    m_frameIndex;    
     shared_ptr<T>   m_writeFrame;
-    shared_ptr<T>   m_readFrame;
 };
 
 
@@ -126,6 +127,15 @@ shared_ptr<DataFrame> StreamInstance<T>::frame()
 {
     QReadLocker locker(&m_locker);
     return static_pointer_cast<DataFrame>(m_readFrame);
+}
+
+template <class T>
+QList< shared_ptr<DataFrame> > StreamInstance<T>::frames()
+{
+    QReadLocker locker(&m_locker);
+    QList<shared_ptr<DataFrame>> result;
+    result.append(static_pointer_cast<DataFrame>(m_readFrame));
+    return result;
 }
 
 template <class T>

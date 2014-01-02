@@ -49,65 +49,95 @@ void OpenNIRuntime::releaseInstance()
 }
 
 OpenNIRuntime::OpenNIRuntime()
-    : m_userFrame(640, 480)
 {
-    m_newUserFrameGenerated = false;
-    m_newSkeletonFrameGenerated = false;
+    m_depthStreams = new openni::VideoStream*[1];
+    m_depthStreams[0] = &m_oniDepthStream;
+    m_colorStreams = new openni::VideoStream*[1];
+    m_colorStreams[0] = &m_oniColorStream;
     initOpenNI();
 }
 
 OpenNIRuntime::~OpenNIRuntime()
 {
-   shutdownOpenNI();
+    delete[] m_depthStreams;
+    delete[] m_colorStreams;
+    shutdownOpenNI();
 }
 
-SkeletonFrame OpenNIRuntime::readSkeletonFrame()
+openni::VideoFrameRef OpenNIRuntime::readColorFrame()
 {
-    waitForNewSkeletonFrame();
-    QReadLocker locker(&m_lockUserTracker);
-    return m_skeletonFrame;
+    openni::VideoFrameRef oniColorFrame;
+    int changedIndex;
+
+    if (openni::OpenNI::waitForAnyStream(m_colorStreams, 1, &changedIndex) == openni::STATUS_OK)
+    {
+        if (changedIndex == 0)
+        {
+            if (m_oniColorStream.readFrame(&oniColorFrame) != openni::STATUS_OK)
+                throw 1;
+
+            if (!oniColorFrame.isValid())
+                throw 2;
+
+            int stride = oniColorFrame.getStrideInBytes() / sizeof(openni::RGB888Pixel) - oniColorFrame.getWidth();
+
+            if (stride > 0) {
+                qWarning() << "WARNING: OpenNIRuntime - Not managed color stride!!!";
+                throw 3;
+            }
+        }
+    }
+
+    return oniColorFrame;
 }
 
-UserFrame OpenNIRuntime::readUserFrame()
+openni::VideoFrameRef OpenNIRuntime::readDepthFrame()
 {
-    waitForNewUserFrame();
-    QReadLocker locker(&m_lockUserTracker);
-    return m_userFrame;
+    openni::VideoFrameRef oniDepthFrame;
+    int changedIndex;
+
+    if (openni::OpenNI::waitForAnyStream(m_depthStreams, 1, &changedIndex) == openni::STATUS_OK)
+    {
+        if (changedIndex == 0)
+        {
+            if (m_oniDepthStream.readFrame(&oniDepthFrame) != openni::STATUS_OK) {
+                throw 1;
+            }
+
+            if (!oniDepthFrame.isValid()) {
+                throw 2;
+            }
+
+            int strideDepth = oniDepthFrame.getStrideInBytes() / sizeof(openni::DepthPixel) - oniDepthFrame.getWidth();
+
+            if (strideDepth > 0) {
+                qWarning() << "WARNING: OpenNIRuntime - Not managed depth stride!!!";
+                throw 3;
+            }
+        }
+    }
+
+    return oniDepthFrame;
+}
+
+nite::UserTrackerFrameRef OpenNIRuntime::readUserTrackerFrame()
+{
+    nite::UserTrackerFrameRef oniUserTrackerFrame;
+
+    if (m_oniUserTracker.readFrame(&oniUserTrackerFrame) != nite::STATUS_OK) {
+        throw 1;
+    }
+
+    if (!oniUserTrackerFrame.isValid()) {
+        throw 2;
+    }
+
+    return oniUserTrackerFrame;
 }
 
 openni::PlaybackControl* OpenNIRuntime::playbackControl()
 {
     return m_device.getPlaybackControl();
-}
-
-void OpenNIRuntime::addNewColorListener(openni::VideoStream::NewFrameListener* listener)
-{
-    m_oniColorStream.addNewFrameListener(listener);
-}
-
-void OpenNIRuntime::removeColorListener(openni::VideoStream::NewFrameListener* listener)
-{
-    m_oniColorStream.removeNewFrameListener(listener);
-}
-
-void OpenNIRuntime::addNewDepthListener(openni::VideoStream::NewFrameListener* listener)
-{
-    m_oniDepthStream.addNewFrameListener(listener);
-}
-
-void OpenNIRuntime::addNewUserTrackerListener(nite::UserTracker::NewFrameListener* listener)
-{
-    m_oniUserTracker.addNewFrameListener(listener);
-}
-
-void OpenNIRuntime::removeDepthListener(openni::VideoStream::NewFrameListener* listener)
-{
-    m_oniDepthStream.removeNewFrameListener(listener);
-}
-
-void OpenNIRuntime::removeUserTrackerListener(nite::UserTracker::NewFrameListener* listener)
-{
-    m_oniUserTracker.removeNewFrameListener(listener);
 }
 
 void OpenNIRuntime::initOpenNI()
@@ -168,7 +198,6 @@ void OpenNIRuntime::initOpenNI()
             throw 9;
 
         m_oniUserTracker.setSkeletonSmoothingFactor(0.5);
-        m_oniUserTracker.addNewFrameListener(this);
         //m_oniDepthStream.setMirroringEnabled(true);
     }
     catch (int ex)
@@ -180,8 +209,6 @@ void OpenNIRuntime::initOpenNI()
 
 void OpenNIRuntime::shutdownOpenNI()
 {
-    m_oniUserTracker.removeNewFrameListener(this);
-
     // Release frame refs
     //m_oniColorFrame.release();
     /*m_oniDepthStream.stop();
@@ -206,87 +233,6 @@ nite::UserTracker& OpenNIRuntime::getUserTracker()
 openni::VideoStream& OpenNIRuntime::getDepthStream()
 {
     return m_oniDepthStream;
-}
-
-void OpenNIRuntime::onNewFrame(nite::UserTracker& oniUserTracker)
-{
-    nite::UserTrackerFrameRef oniUserTrackerFrame;
-
-    if (oniUserTracker.readFrame(&oniUserTrackerFrame) != nite::STATUS_OK) {
-        throw 1;
-    }
-
-    if (!oniUserTrackerFrame.isValid()) {
-        throw 2;
-    }
-
-    m_lockUserTracker.lockForWrite();
-    loadUser(oniUserTrackerFrame);
-    loadSkeleton(oniUserTracker, oniUserTrackerFrame);
-    m_lockUserTracker.unlock();
-
-    notifyNewUserFrame();
-    notifyNewSkeletonFrame();
-}
-
-void OpenNIRuntime::loadUser(nite::UserTrackerFrameRef& oniUserTrackerFrame)
-{
-    const nite::UserMap& userMap = oniUserTrackerFrame.getUserMap();
-
-    int strideUser = userMap.getStride() / sizeof(nite::UserId) - userMap.getWidth();
-
-    if (strideUser > 0) {
-        qWarning() << "WARNING: OpenNIRuntime - Not managed user stride!!!";
-        throw 3;
-    }
-
-    const nite::UserId* pLabel = userMap.getPixels();
-    m_userFrame.setIndex(oniUserTrackerFrame.getFrameIndex());
-
-    // Read Depth Frame and Labels
-    for (int y=0; y < userMap.getHeight(); ++y) {
-        for (int x=0; x < userMap.getWidth(); ++x) {
-            uint8_t label = *pLabel;
-            m_userFrame.setItem(y, x, label);
-            pLabel++;
-        }
-        // Skip rest of row (in case it exists)
-        //pLabel += strideUser;
-    }
-}
-
-void OpenNIRuntime::loadSkeleton(nite::UserTracker& oniUserTracker, nite::UserTrackerFrameRef& oniUserTrackerFrame)
-{
-    const nite::Array<nite::UserData>& users = oniUserTrackerFrame.getUsers();
-    m_skeletonFrame.clear();
-    m_skeletonFrame.setIndex(oniUserTrackerFrame.getFrameIndex());
-
-    for (int i=0; i<users.getSize(); ++i)
-    {
-        const nite::UserData& user = users[i];
-
-        if (user.isNew()) {
-            oniUserTracker.startSkeletonTracking(user.getId());
-        }
-        else if (!user.isLost())
-        {
-            const nite::Skeleton& oniSkeleton = user.getSkeleton();
-            const nite::SkeletonJoint& head = user.getSkeleton().getJoint(nite::JOINT_HEAD);
-
-            if (oniSkeleton.getState() == nite::SKELETON_TRACKED && head.getPositionConfidence() > 0.5)
-            {
-                auto daiSkeleton = m_skeletonFrame.getSkeleton(user.getId());
-
-                if (daiSkeleton == nullptr) {
-                    daiSkeleton.reset(new dai::Skeleton(dai::Skeleton::SKELETON_OPENNI));
-                    m_skeletonFrame.setSkeleton(user.getId(), daiSkeleton);
-                }
-
-                copySkeleton(oniSkeleton, *(daiSkeleton.get()));
-                daiSkeleton->computeQuaternions();
-            }
-        }
-    } // End for
 }
 
 void OpenNIRuntime::copySkeleton(const nite::Skeleton& srcSkeleton, dai::Skeleton& dstSkeleton)
@@ -317,46 +263,6 @@ void OpenNIRuntime::convertDepthToRealWorld(int x, int y, float distance, float 
 void OpenNIRuntime::convertRealWorldCoordinatesToDepth(float x, float y, float z, float* pOutX, float* pOutY) const
 {
     m_oniUserTracker.convertJointCoordinatesToDepth(x, y, z * 1000, pOutX, pOutY);
-}
-
-void OpenNIRuntime::notifyNewUserFrame()
-{
-    m_lockUserSync.lock();
-    if (!m_newUserFrameGenerated) {
-        m_newUserFrameGenerated = true;
-        m_userSync.wakeOne();
-    }
-    m_lockUserSync.unlock();
-}
-
-void OpenNIRuntime::waitForNewUserFrame()
-{
-    m_lockUserSync.lock();
-    while (!m_newUserFrameGenerated) {
-        m_userSync.wait(&m_lockUserSync);
-    }
-    m_newUserFrameGenerated = false;
-    m_lockUserSync.unlock();
-}
-
-void OpenNIRuntime::notifyNewSkeletonFrame()
-{
-    m_lockSkeletonSync.lock();
-    if (!m_newSkeletonFrameGenerated) {
-        m_newSkeletonFrameGenerated = true;
-        m_skeletonSync.wakeOne();
-    }
-    m_lockSkeletonSync.unlock();
-}
-
-void OpenNIRuntime::waitForNewSkeletonFrame()
-{
-    m_lockSkeletonSync.lock();
-    while (!m_newSkeletonFrameGenerated) {
-        m_skeletonSync.wait(&m_lockSkeletonSync);
-    }
-    m_newSkeletonFrameGenerated = false;
-    m_lockSkeletonSync.unlock();
 }
 
 } // End namespace

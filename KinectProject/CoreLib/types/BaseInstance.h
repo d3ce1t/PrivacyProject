@@ -11,6 +11,7 @@ enum InstanceType {
     INSTANCE_COLOR,
     INSTANCE_SKELETON,
     INSTANCE_USER,
+    INSTANCE_USERTRACKER,
     INSTANCE_UNINITIALISED
 };
 
@@ -37,6 +38,7 @@ public:
     virtual void swapBuffer() = 0;
     virtual void readNextFrame() = 0;
     virtual shared_ptr<DataFrame> frame() = 0;
+    virtual QList<shared_ptr<DataFrame>> frames() = 0;
 
 protected:
     InstanceType    m_type;

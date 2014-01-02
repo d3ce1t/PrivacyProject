@@ -7,8 +7,7 @@
 #include <iostream>
 #include "openni/OpenNIDepthInstance.h"
 #include "openni/OpenNIColorInstance.h"
-#include "openni/OpenNIUserInstance.h"
-#include "openni/OpenNISkeletonInstance.h"
+#include "openni/OpenNIUserTrackerInstance.h"
 #include "dataset/MSRAction3D/MSR3Action3D.h"
 #include "types/DepthFrame.h"
 #include "types/SkeletonFrame.h"
@@ -191,43 +190,12 @@ void MainWindow::testSegmentation()
     }
 }*/
 
-void MainWindow::prueba()
-{
-    shared_ptr<dai::OpenNIColorInstance> colorInstance(new dai::OpenNIColorInstance);
-    shared_ptr<dai::OpenNISkeletonInstance> skeletonInstance(new dai::OpenNISkeletonInstance);
-    shared_ptr<dai::OpenNIUserInstance> userInstance(new dai::OpenNIUserInstance);
-
-    // Create Playback
-    m_playback = new dai::PlaybackControl;
-    m_playback->setFPS(15);
-    connect(m_playback, &dai::PlaybackControl::onPlaybackFinished, m_playback, &dai::PlaybackControl::deleteLater);
-
-    // Create viewers
-    m_colorViewer = new dai::InstanceViewerWindow(dai::MODE_2D);
-    m_colorViewer->initialise();
-
-    // Connect all together
-    m_playback->addInstance(colorInstance);
-    m_playback->addInstance(userInstance);
-    m_playback->addInstance(skeletonInstance);
-
-    // Viewer 1
-    m_playback->addListener(m_colorViewer, colorInstance);
-    m_playback->addListener(m_colorViewer, userInstance);
-    m_playback->addListener(m_colorViewer, skeletonInstance);
-
-    // Run
-    m_playback->play();
-    m_colorViewer->show();
-}
-
 void MainWindow::on_btnStartKinect_clicked()
 {
     // Create instance
     shared_ptr<dai::OpenNIColorInstance> colorInstance(new dai::OpenNIColorInstance);
     //shared_ptr<dai::OpenNIDepthInstance> depthInstance(new dai::OpenNIDepthInstance);
-    shared_ptr<dai::OpenNISkeletonInstance> skeletonInstance(new dai::OpenNISkeletonInstance);
-    shared_ptr<dai::OpenNIUserInstance> userInstance(new dai::OpenNIUserInstance);
+    shared_ptr<dai::OpenNIUserTrackerInstance> userTrackerInstance(new dai::OpenNIUserTrackerInstance);
 
     // Create Playback
     m_playback = new dai::PlaybackControl;
@@ -236,13 +204,13 @@ void MainWindow::on_btnStartKinect_clicked()
 
     // Create viewers
     m_colorViewer = new dai::InstanceViewerWindow(dai::MODE_2D);
-    m_ogreScene = new OgreScene;
-    m_colorViewer->qmlEngine().rootContext()->setContextProperty("Camera", m_ogreScene->cameraNode());
-    m_colorViewer->qmlEngine().rootContext()->setContextProperty("OgreEngine", m_ogreScene->engine());
+    //m_ogreScene = new OgreScene;
+    //m_colorViewer->qmlEngine().rootContext()->setContextProperty("Camera", m_ogreScene->cameraNode());
+    //m_colorViewer->qmlEngine().rootContext()->setContextProperty("OgreEngine", m_ogreScene->engine());
     m_colorViewer->initialise();
 
     // start Ogre once we are in the rendering thread (Ogre must live in the rendering thread)
-    connect(m_colorViewer->quickWindow(), &QQuickWindow::beforeSynchronizing, this, &MainWindow::initialiseOgre, Qt::DirectConnection);
+    //connect(m_colorViewer->quickWindow(), &QQuickWindow::beforeSynchronizing, this, &MainWindow::initialiseOgre, Qt::DirectConnection);
     connect(m_colorViewer->viewerEngine(), &ViewerEngine::plusKeyPressed, this, &MainWindow::onPlusKeyPressed);
     connect(m_colorViewer->viewerEngine(), &ViewerEngine::minusKeyPressed, this, &MainWindow::onMinusKeyPressed);
     connect(m_colorViewer->viewerEngine(), &ViewerEngine::spaceKeyPressed, this, &MainWindow::onSpaceKeyPressed);
@@ -250,16 +218,12 @@ void MainWindow::on_btnStartKinect_clicked()
     // Connect all together
     m_playback->addInstance(colorInstance);
     //m_playback->addInstance(depthInstance);
-    m_playback->addInstance(userInstance);
-    m_playback->addInstance(skeletonInstance);
+    m_playback->addInstance(userTrackerInstance);
 
     m_playback->addListener(m_colorViewer, colorInstance);
     //m_playback->addListener(m_colorViewer, depthInstance);
-    m_playback->addListener(m_colorViewer, userInstance);
-    m_playback->addListener(m_colorViewer, skeletonInstance);
-    m_playback->addListener(m_ogreScene, skeletonInstance);
-    //m_playback->addListener(m_colorViewer, depthInstance);
-    //m_playback->addListener(m_colorViewer, skeletonInstance);
+    m_playback->addListener(m_colorViewer, userTrackerInstance);
+    //m_playback->addListener(m_ogreScene, skeletonInstance);
 
     // Run
     m_playback->play();
@@ -339,9 +303,9 @@ void MainWindow::on_btnQuit_clicked()
     QApplication::exit(0);
 }
 
-void MainWindow::initialiseOgre()
+/*void MainWindow::initialiseOgre()
 {
     // we only want to initialize once
-    disconnect(m_colorViewer->quickWindow(), &QQuickWindow::beforeSynchronizing, this, &MainWindow::initialiseOgre);
-    m_ogreScene->initialiseOgre(m_colorViewer->quickWindow());
-}
+    //disconnect(m_colorViewer->quickWindow(), &QQuickWindow::beforeSynchronizing, this, &MainWindow::initialiseOgre);
+    //m_ogreScene->initialiseOgre(m_colorViewer->quickWindow());
+}*/
