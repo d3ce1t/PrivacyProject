@@ -19,8 +19,8 @@ public:
     virtual ~MainWindow();
     QString number(int value);
     
-/*public slots:
-    void initialiseOgre();*/
+public slots:
+    void initialiseOgre();
 
 private slots:
     void onPlusKeyPressed();
@@ -37,7 +37,7 @@ private:
 
 private:
     dai::InstanceViewerWindow* m_colorViewer;
-    //OgreScene*            m_ogreScene;
+    OgreScene*            m_ogreScene;
     dai::PlaybackControl* m_playback;
     Ui::MainWindow *ui;
 };

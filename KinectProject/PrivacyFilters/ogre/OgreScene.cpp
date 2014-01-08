@@ -115,7 +115,7 @@ void OgreScene::onNewFrame(const QHash<dai::DataFrame::FrameType, shared_ptr<dai
     }
     else if (userId > 0 && m_userId == userId) {
         // Same user
-        qDebug() << "Same user";
+        //qDebug() << "Same user";
         shared_ptr<dai::Skeleton> skeleton = skeletonFrame->getSkeleton(userId);
         m_chara->setSkeleton(skeleton);
         Real deltaTime = (time_ms - m_lastTime) / 1000.0f;
