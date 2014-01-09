@@ -18,13 +18,6 @@ void SinbadCharacterController::setSkeleton(shared_ptr<dai::Skeleton> skeleton)
     m_skeleton = skeleton;
 }
 
-void SinbadCharacterController::lostUser(int userId)
-{
-    Q_UNUSED(userId);
-    resetBonesToInitialState();
-    mBodyEnt->setVisible(false);
-}
-
 void SinbadCharacterController::newUser(int userId)
 {
     // Q_UNUSED(userId);
@@ -36,13 +29,20 @@ void SinbadCharacterController::newUser(int userId)
     mBodyEnt->setVisible(true);
 }
 
+void SinbadCharacterController::lostUser(int userId)
+{
+    Q_UNUSED(userId);
+    resetBonesToInitialState();
+    //mBodyEnt->setVisible(false);
+}
+
 void SinbadCharacterController::setupBody(SceneManager* sceneMgr)
 {
     // create main model
-    mBodyNode = sceneMgr->getRootSceneNode()->createChildSceneNode(Vector3::UNIT_Y * CHAR_HEIGHT);
-    mBodyNode->scale(10, 11, 10);
-    mBodyNode->setPosition(0, 0, -90);
-    mBodyEnt = sceneMgr->createEntity("SinbadBody", "Sinbad.mesh");
+    mBodyNode = sceneMgr->getRootSceneNode()->createChildSceneNode(Vector3::UNIT_Y);
+    mBodyNode->scale(10, 10, 10);
+    mBodyNode->setPosition(0, 0, 0);
+    mBodyEnt = sceneMgr->createEntity("SinbadBody", "meHumanMale.mesh");
     mBodyEnt->setVisible(false);
     mBodyNode->attachObject(mBodyEnt);
     mKeyDirection = Vector3::ZERO;
@@ -86,7 +86,8 @@ void SinbadCharacterController::setupAnimations()
     Quaternion q2;
     Vector3 xAxis, yAxis, zAxis;
 
-    q.FromAngleAxis(Ogre::Degree(90),Vector3(0,0,-1));
+    // Sinbad Skeleton
+    /*q.FromAngleAxis(Ogre::Degree(90),Vector3(0,0,-1));
     q.ToAxes(xAxis,yAxis,zAxis);
     q2.FromAngleAxis(Ogre::Degree(90),xAxis);
     setupBone("Humerus.L",q*q2);
@@ -113,14 +114,45 @@ void SinbadCharacterController::setupAnimations()
     setupBone("Thigh.R",q*q2);
     setupBone("Calf.L",q*q2);
     setupBone("Calf.R",q*q2);
-    setupBone("Root",Degree(0),Degree(0),Degree(0));
+    setupBone("Root",Degree(0),Degree(0),Degree(0));*/
+
+    // Human
+    /*q.FromAngleAxis(Ogre::Degree(90),Vector3(0,0,-1));
+    q.ToAxes(xAxis,yAxis,zAxis);
+    q2.FromAngleAxis(Ogre::Degree(90),xAxis);
+    setupBone("Upperarm.Left",q*q2);
+
+    q.FromAngleAxis(Ogre::Degree(90),Vector3(0,0,1));
+    q.ToAxes(xAxis,yAxis,zAxis);
+    q2.FromAngleAxis(Ogre::Degree(90),xAxis);
+    setupBone("Upperarm.Right",q*q2);
+
+    q.FromAngleAxis(Ogre::Degree(90),Vector3(0,0,-1));
+    q2.FromAngleAxis(Ogre::Degree(45),Vector3(0,-1,0));
+    setupBone("Forearm.Left",q*q2);
+
+    q.FromAngleAxis(Ogre::Degree(90),Vector3(0,0,1));
+    setupBone("Forearm.Right",q*q2.Inverse());
+
+    q.FromAngleAxis(Ogre::Degree(180),Vector3(0,1,0));
+    setupBone("Back",q);
+    setupBone("Hip",q);
+
+    q.FromAngleAxis(Ogre::Degree(180),Vector3(1,0,0));
+    q2.FromAngleAxis(Ogre::Degree(180),Vector3(0,1,0));
+    setupBone("Thigh.Left",q*q2);
+    setupBone("Thigh.Right",q*q2);
+    setupBone("Shin.Left",q*q2);
+    setupBone("Shin.Right",q*q2);
+    setupBone("COG",Degree(0),Degree(0),Degree(0));*/
 
     // Setup Idle Base Animation
-    mAnimIdle = mBodyEnt->getAnimationState("IdleBase");
+    //mAnimIdle = mBodyEnt->getAnimationState("IdleBase");
+    mAnimIdle = mBodyEnt->getAnimationState("Idle-M");
     mAnimIdle->setLoop(true);
 
     // disable animation updates
-    Animation* anim = mBodyEnt->getSkeleton()->getAnimation("IdleBase");
+    /*Animation* anim = mBodyEnt->getSkeleton()->getAnimation("IdleBase");
     anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Ulna.L")->getHandle());
     anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Ulna.R")->getHandle());
     anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Humerus.L")->getHandle());
@@ -131,7 +163,20 @@ void SinbadCharacterController::setupAnimations()
     anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Thigh.R")->getHandle());
     anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Calf.L")->getHandle());
     anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Calf.R")->getHandle());
-    anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Root")->getHandle());
+    anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Root")->getHandle());*/
+
+    Animation* anim = mBodyEnt->getSkeleton()->getAnimation("Idle-M");
+    anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Forearm.Left")->getHandle());
+    anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Forearm.Right")->getHandle());
+    anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Upperarm.Left")->getHandle());
+    anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Upperarm.Right")->getHandle());
+    anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Back")->getHandle());
+    anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Hip")->getHandle());
+    anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Thigh.Left")->getHandle());
+    anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Thigh.Right")->getHandle());
+    anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Shin.Left")->getHandle());
+    anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Shin.Right")->getHandle());
+    anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("COG")->getHandle());
 }
 
 void SinbadCharacterController::resetBonesToInitialState()
@@ -139,7 +184,7 @@ void SinbadCharacterController::resetBonesToInitialState()
     qDebug() << "resetBonesToInitialState";
 
     Skeleton* skel = mBodyEnt->getSkeleton();
-    skel->getBone("Ulna.L")->resetToInitialState();
+    /*skel->getBone("Ulna.L")->resetToInitialState();
     skel->getBone("Ulna.R")->resetToInitialState();
     skel->getBone("Humerus.L")->resetToInitialState();
     skel->getBone("Humerus.R")->resetToInitialState();
@@ -149,7 +194,19 @@ void SinbadCharacterController::resetBonesToInitialState()
     skel->getBone("Thigh.R")->resetToInitialState();
     skel->getBone("Calf.L")->resetToInitialState();
     skel->getBone("Calf.R")->resetToInitialState();
-    skel->getBone("Root")->resetToInitialState();
+    skel->getBone("Root")->resetToInitialState();*/
+
+    skel->getBone("Forearm.Left")->resetToInitialState();
+    skel->getBone("Forearm.Right")->resetToInitialState();
+    skel->getBone("Upperarm.Left")->resetToInitialState();
+    skel->getBone("Upperarm.Right")->resetToInitialState();
+    skel->getBone("Back")->resetToInitialState();
+    skel->getBone("Hip")->resetToInitialState();
+    skel->getBone("Thigh.Left")->resetToInitialState();
+    skel->getBone("Thigh.Right")->resetToInitialState();
+    skel->getBone("Shin.Left")->resetToInitialState();
+    skel->getBone("Shin.Right")->resetToInitialState();
+    skel->getBone("COG")->resetToInitialState();
 }
 
 void SinbadCharacterController::transformBone(const Ogre::String& modelBoneName, dai::SkeletonJoint::JointType jointType)
@@ -180,12 +237,13 @@ void SinbadCharacterController::PSupdateBody(Real deltaTime)
 
     mGoalDirection = Vector3::ZERO;   // we will calculate this
     Skeleton* skel = mBodyEnt->getSkeleton();
-    Ogre::Bone* rootBone = skel->getBone("Root");
+    //Ogre::Bone* rootBone = skel->getBone("Root");
+    Ogre::Bone* rootBone = skel->getBone("COG");
 
     const dai::SkeletonJoint& torsoJoint = m_skeleton->getJoint(dai::SkeletonJoint::JOINT_SPINE);
 
     // Ogre Skeleton left-right is from camera perspective. DAI Skeleton left-right is from own skeleton
-    transformBone("Stomach", dai::SkeletonJoint::JOINT_SPINE);
+    /*transformBone("Stomach", dai::SkeletonJoint::JOINT_SPINE);
     transformBone("Waist", dai::SkeletonJoint::JOINT_SPINE);
     transformBone("Root", dai::SkeletonJoint::JOINT_SPINE);
     transformBone("Chest",dai::SkeletonJoint::JOINT_SPINE);
@@ -196,7 +254,19 @@ void SinbadCharacterController::PSupdateBody(Real deltaTime)
     transformBone("Thigh.L",dai::SkeletonJoint::JOINT_LEFT_HIP);
     transformBone("Thigh.R",dai::SkeletonJoint::JOINT_RIGHT_HIP);
     transformBone("Calf.L",dai::SkeletonJoint::JOINT_LEFT_KNEE);
-    transformBone("Calf.R",dai::SkeletonJoint::JOINT_RIGHT_KNEE);
+    transformBone("Calf.R",dai::SkeletonJoint::JOINT_RIGHT_KNEE);*/
+
+    transformBone("Back", dai::SkeletonJoint::JOINT_SPINE);
+    transformBone("Hip", dai::SkeletonJoint::JOINT_SPINE);
+    transformBone("COG", dai::SkeletonJoint::JOINT_SPINE);
+    transformBone("Upperarm.Left",dai::SkeletonJoint::JOINT_LEFT_SHOULDER);
+    transformBone("Upperarm.Right",dai::SkeletonJoint::JOINT_RIGHT_SHOULDER);
+    transformBone("Forearm.Left",dai::SkeletonJoint::JOINT_LEFT_ELBOW);
+    transformBone("Forearm.Right",dai::SkeletonJoint::JOINT_RIGHT_ELBOW);
+    transformBone("Thigh.Left",dai::SkeletonJoint::JOINT_LEFT_HIP);
+    transformBone("Thigh.Right",dai::SkeletonJoint::JOINT_RIGHT_HIP);
+    transformBone("Shin.Left",dai::SkeletonJoint::JOINT_LEFT_KNEE);
+    transformBone("Shin.Right",dai::SkeletonJoint::JOINT_RIGHT_KNEE);
 
     Vector3 newPos;
     newPos.x = torsoJoint.getPosition().x();
