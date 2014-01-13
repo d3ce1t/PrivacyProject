@@ -1,5 +1,5 @@
 import QtQuick 2.0
-import QtQuick.Controls 1.0
+import QtQuick.Controls 1.1
 import InstanceViewer 1.0
 import edu.dai.kinect 1.0
 import Ogre 1.0
@@ -164,32 +164,6 @@ ApplicationWindow {
         ogreEngine: OgreEngine
         focus: false
         z: 1
-        //visible: false
-
-        MouseArea {
-            anchors.fill: parent
-            acceptedButtons: Qt.LeftButton | Qt.RightButton
-
-            property int prevX: -1
-            property int prevY: -1
-
-            onPositionChanged: {
-                if (pressedButtons & Qt.LeftButton) {
-                    if (prevX > -1)
-                        ogreitem.camera.yaw -= (mouse.x - prevX) / 2
-                    if (prevY > -1)
-                        ogreitem.camera.pitch -= (mouse.y - prevY) / 2
-                    prevX = mouse.x
-                    prevY = mouse.y
-                }
-                if (pressedButtons & Qt.RightButton) {
-                    if (prevY > -1)
-                        ogreitem.camera.zoom = Math.min(12, Math.max(0.1, ogreitem.camera.zoom - (mouse.y - prevY) / 100));
-                    prevY = mouse.y
-                }
-            }
-            onReleased: { prevX = -1; prevY = -1 }
-        }
     }
 
     InstanceViewer {
@@ -243,47 +217,6 @@ ApplicationWindow {
             }
         }
 
-        // Settings Overlay
-        Rectangle {
-            id: settings
-            color: Qt.rgba(0, 0.7, 1, 0.7)
-            radius: 15
-            anchors.fill: instanceViewer
-            anchors.margins: 30
-            visible: false
-
-            ExclusiveGroup {
-                id: rotationOptions
-            }
-
-            GroupBox {
-                title: "Moving Options"
-                anchors.top: parent.top
-                anchors.left: parent.left
-                anchors.margins: 20
-
-                Column {
-                    spacing: 5
-
-                    RadioButton {
-                        id: checkBoxXYRot
-                        text: "Enable XY rotation"
-                        checked: true
-                        exclusiveGroup: rotationOptions
-                    }
-                    RadioButton {
-                        id: checkBoxZRot
-                        text: "Enable ZY rotation"
-                        exclusiveGroup: rotationOptions
-                    }
-                    CheckBox {
-                        id: checkBoxYTrans
-                        text: "Enable Y translation"
-                    }
-                }
-            }
-        }
-
         // Input
         Keys.onReturnPressed: {
             console.log(instanceViewer.width + " " + instanceViewer.height)
@@ -308,7 +241,7 @@ ApplicationWindow {
             else if (event.key === Qt.Key_Escape) {
                 Qt.quit();
             }
-            else if (event.key === Qt.Key_Up) {
+            /*else if (event.key === Qt.Key_Up) {
                 if (checkBoxXYRot.checked === true) {
                     ViewerEngine.rotateAxisX(2)
                 } else if (checkBoxZRot.checked === true) {
@@ -358,11 +291,155 @@ ApplicationWindow {
                 ViewerEngine.resetPerspective()
             } else {
                 event.accepted = false;
-            }
+            }*/
         }
     } // Instance Viewer
 
+    // Settings Overlay
+    Rectangle {
+        id: settings
+        color: Qt.rgba(0, 0.7, 1, 0.7)
+        radius: 15
+        anchors.fill: instanceViewer
+        anchors.margins: 30
+        visible: false
+        z: 2
+        focus: true
 
+        ExclusiveGroup {
+            id: rotationOptions
+        }
 
+        GroupBox {
+            id: movingOptions
+            title: "Moving Options"
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.margins: 20
 
+            Column {
+                spacing: 5
+
+                RadioButton {
+                    id: checkBoxXYRot
+                    text: "Enable XY rotation"
+                    checked: true
+                    exclusiveGroup: rotationOptions
+                }
+                RadioButton {
+                    id: checkBoxZRot
+                    text: "Enable ZY rotation"
+                    exclusiveGroup: rotationOptions
+                }
+                CheckBox {
+                    id: checkBoxYTrans
+                    text: "Enable Y translation"
+                }
+            }
+        }
+
+        GroupBox {
+            title: "Camera Rotation"
+            anchors.top: movingOptions.bottom
+            anchors.left: parent.left
+            anchors.margins: 20
+
+            Column {
+                spacing: 5
+
+                Label {
+                    text: "Yaw: " + sliderYaw.value
+                }
+
+                Slider {
+                    id: sliderYaw
+                    orientation: Qt.Horizontal
+                    maximumValue: 180
+                    minimumValue: -180
+                    stepSize: 1
+                    value: 0
+                    onValueChanged: ogreitem.camera.yaw = value
+                }
+
+                Label {
+                    text: "Pitch: " + sliderPitch.value
+                }
+
+                Slider {
+                    id: sliderPitch
+                    orientation: Qt.Horizontal
+                    maximumValue: 180
+                    minimumValue: -180
+                    stepSize: 1
+                    value: 0
+                    onValueChanged: ogreitem.camera.pitch = value
+                }
+
+                Label {
+                    text: "Roll: " + sliderRoll.value
+                }
+
+                Slider {
+                    id: sliderRoll
+                    orientation: Qt.Horizontal
+                    maximumValue: 180
+                    minimumValue: -180
+                    stepSize: 1
+                    value: 0
+                    onValueChanged: ogreitem.camera.roll = value
+                }
+            }
+        } // Camera Options
+
+        GroupBox {
+            title: "Camera Position"
+            anchors.top: parent.top
+            anchors.left: movingOptions.right
+            anchors.margins: 20
+
+            Column {
+                spacing: 5
+
+                Label {
+                    text: "X: " + sliderCamX.value
+                }
+
+                Slider {
+                    id: sliderCamX
+                    orientation: Qt.Horizontal
+                    maximumValue: 200
+                    minimumValue: -200
+                    value: 0
+                    onValueChanged: ogreitem.camera.x = value
+                }
+
+                Label {
+                    text: "Y: " + sliderCamY.value
+                }
+
+                Slider {
+                    id: sliderCamY
+                    orientation: Qt.Horizontal
+                    maximumValue: 200
+                    minimumValue: -200
+                    value: 0
+                    onValueChanged: ogreitem.camera.y = value
+                }
+
+                Label {
+                    text: "Z: " + sliderCamZ.value
+                }
+
+                Slider {
+                    id: sliderCamZ
+                    orientation: Qt.Horizontal
+                    maximumValue: 200
+                    minimumValue: -200
+                    value: 0
+                    onValueChanged: ogreitem.camera.z = value
+                }
+            }
+        } // Camera Position
+
+    } // Settins Overlay
 } // Application Window

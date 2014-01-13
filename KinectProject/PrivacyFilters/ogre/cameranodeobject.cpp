@@ -8,22 +8,19 @@
  */
 
 #include "cameranodeobject.h"
-
 #include <OgreRoot.h>
 #include <OgreSceneNode.h>
 #include <OgreCamera.h>
-
 #include <QDebug>
 
-static const Ogre::Vector3 initialPosition(0, 0, 60);
 
 CameraNodeObject::CameraNodeObject(QObject *parent) :
     OgreCameraWrapper(parent),
     m_yaw(0),
     m_pitch(0),
-    m_zoom(1)
+    m_roll(0),
+    m_position(0, 0, 0)
 {
-
 }
 
 void CameraNodeObject::setCamera(Ogre::Camera* cam)
@@ -31,7 +28,11 @@ void CameraNodeObject::setCamera(Ogre::Camera* cam)
   m_camera = cam;
   m_node = Ogre::Root::getSingleton().getSceneManager("mySceneManager")->getRootSceneNode()->createChildSceneNode();
   m_node->attachObject(cam);
-  cam->move(initialPosition);
+  m_position = m_node->getPosition();
+  m_node->setPosition(0, 14.9733, 2.13904);
+  setPitch(-6);
+  qDebug() << "CamPos" << m_camera->getPosition().x << m_camera->getPosition().y << m_camera->getPosition().z;
+  qDebug() << "NodePos" << m_position.x << m_position.y << m_position.z;
 }
 
 Ogre::SceneNode* CameraNodeObject::sceneNode() const
@@ -49,9 +50,24 @@ qreal CameraNodeObject::pitch() const
     return m_pitch;
 }
 
-qreal CameraNodeObject::zoom() const
+qreal CameraNodeObject::roll() const
 {
-    return m_zoom;
+    return m_roll;
+}
+
+qreal CameraNodeObject::x() const
+{
+   return m_position.x;
+}
+
+qreal CameraNodeObject::y() const
+{
+    return m_position.y;
+}
+
+qreal CameraNodeObject::z() const
+{
+    return m_position.z;
 }
 
 void CameraNodeObject::setYaw(qreal y)
@@ -66,12 +82,28 @@ void CameraNodeObject::setPitch(qreal p)
     updateRotation();
 }
 
-void CameraNodeObject::setZoom(qreal z)
+void CameraNodeObject::setRoll(qreal r)
 {
-    m_zoom = z;
-    m_node->resetOrientation();
-    m_camera->setPosition(initialPosition * (1 / m_zoom));
+    m_roll = r;
     updateRotation();
+}
+
+void CameraNodeObject::setX(qreal x)
+{
+    m_position.x = x;
+    updatePosition();
+}
+
+void CameraNodeObject::setY(qreal y)
+{
+    m_position.y = y;
+    updatePosition();
+}
+
+void CameraNodeObject::setZ(qreal z)
+{
+    m_position.z = z;
+    updatePosition();
 }
 
 void CameraNodeObject::updateRotation()
@@ -79,4 +111,13 @@ void CameraNodeObject::updateRotation()
     m_node->resetOrientation();
     m_node->yaw(Ogre::Radian(Ogre::Degree(m_yaw)));
     m_node->pitch(Ogre::Radian(Ogre::Degree(m_pitch)));
+    m_node->roll(Ogre::Radian(Ogre::Degree(m_roll)));
+}
+
+void CameraNodeObject::updatePosition()
+{
+    m_node->resetOrientation();
+    m_node->setPosition(m_position);
+    qDebug() << "CamPos" << m_camera->getPosition().x << m_camera->getPosition().y << m_camera->getPosition().z;
+    qDebug() << "NodePos" << m_position.x << m_position.y << m_position.z;
 }
