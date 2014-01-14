@@ -84,40 +84,36 @@ void SinbadCharacterController::setupAnimations()
 
     Quaternion q = Quaternion::IDENTITY;
     Quaternion q2;
-    Vector3 xAxis, yAxis, zAxis;
 
-    // Human
-    q.FromAngleAxis(Ogre::Degree(90),Vector3(0,0,-1));
-    q.ToAxes(xAxis,yAxis,zAxis);
-    q2.FromAngleAxis(Ogre::Degree(90),xAxis);
-    setupBone("Upperarm.Left",q*q2);
+    q.FromAngleAxis(Ogre::Degree(90), Vector3(0, 0, -1));
+    q2.FromAngleAxis(Ogre::Degree(90), Vector3(0, -1, 0));
+    setupBone("Upperarm.Left", q*q2);
 
-    q.FromAngleAxis(Ogre::Degree(90),Vector3(0,0,1));
-    q.ToAxes(xAxis,yAxis,zAxis);
-    q2.FromAngleAxis(Ogre::Degree(90),xAxis);
-    setupBone("Upperarm.Right",q*q2);
+    q.FromAngleAxis(Ogre::Degree(90),Vector3(0, 0, 1));
+    q2.FromAngleAxis(Ogre::Degree(90),Vector3(0, 1, 0));
+    setupBone("Upperarm.Right", q*q2);
 
-    q.FromAngleAxis(Ogre::Degree(90),Vector3(0,0,-1));
-    q2.FromAngleAxis(Ogre::Degree(45),Vector3(0,-1,0));
-    setupBone("Forearm.Left",q*q2);
+    q.FromAngleAxis(Ogre::Degree(90),Vector3(0, 0, -1));
+    q2.FromAngleAxis(Ogre::Degree(90),Vector3(0, -1, 0));
+    setupBone("Forearm.Left", q*q2);
 
-    q.FromAngleAxis(Ogre::Degree(90),Vector3(0,0,1));
-    setupBone("Forearm.Right",q*q2.Inverse());
+    q.FromAngleAxis(Ogre::Degree(90),Vector3(0, 0, 1));
+    q2.FromAngleAxis(Ogre::Degree(90),Vector3(0, 1, 0));
+    setupBone("Forearm.Right", q*q2);
 
-    q.FromAngleAxis(Ogre::Degree(0),Vector3(0,1,0));
+    q.FromAngleAxis(Ogre::Degree(0),Vector3(0, 0, 1));
     setupBone("Back",q);
-    //setupBone("Hip",q);
 
-    q.FromAngleAxis(Ogre::Degree(180),Vector3(1,0,0));
-    q2.FromAngleAxis(Ogre::Degree(0),Vector3(0,1,0));
+    q.FromAngleAxis(Ogre::Degree(180),Vector3(1, 0, 0));
+    q2.FromAngleAxis(Ogre::Degree(0), Vector3(0, 1, 0));
+    setupBone("Hip", q*q2);
     setupBone("Thigh.Left",q*q2);
     setupBone("Thigh.Right",q*q2);
     setupBone("Shin.Left",q*q2);
     setupBone("Shin.Right",q*q2);
 
-    //q.FromAngleAxis(Ogre::Degree(0), Vector3(0, 1, 0));
-    //setupBone("COG",q);
-    //setupBone("COG",Degree(0),Degree(0),Degree(0));
+    q.FromAngleAxis(Ogre::Degree(-45), Vector3(1, 0, 0));
+    setupBone("COG", q);
 
     // Setup Idle Base Animation
     mAnimIdle = mBodyEnt->getAnimationState("Idle-M");
@@ -153,7 +149,7 @@ void SinbadCharacterController::resetBonesToInitialState()
     skel->getBone("Thigh.Right")->resetToInitialState();
     skel->getBone("Shin.Left")->resetToInitialState();
     skel->getBone("Shin.Right")->resetToInitialState();
-    skel->getBone("COG")->resetToInitialState();
+    //skel->getBone("COG")->resetToInitialState();
 }
 
 void SinbadCharacterController::transformBone(const Ogre::String& modelBoneName, dai::SkeletonJoint::JointType jointType)
@@ -183,7 +179,6 @@ void SinbadCharacterController::PSupdateBody(Real deltaTime)
 
     mGoalDirection = Vector3::ZERO;   // we will calculate this
     Skeleton* skel = mBodyEnt->getSkeleton();
-    //Ogre::Bone* rootBone = skel->getBone("Root");
     Ogre::Bone* rootBone = skel->getBone("COG");
 
     const dai::SkeletonJoint& torsoJoint = m_skeleton->getJoint(dai::SkeletonJoint::JOINT_SPINE);
@@ -191,7 +186,7 @@ void SinbadCharacterController::PSupdateBody(Real deltaTime)
     // Ogre Skeleton left-right is from camera perspective. DAI Skeleton left-right is from own skeleton
     transformBone("Back", dai::SkeletonJoint::JOINT_SPINE);
     transformBone("Hip", dai::SkeletonJoint::JOINT_SPINE);
-    transformBone("COG", dai::SkeletonJoint::JOINT_SPINE);
+    //transformBone("COG", dai::SkeletonJoint::JOINT_SPINE);
     transformBone("Upperarm.Left",dai::SkeletonJoint::JOINT_LEFT_SHOULDER);
     transformBone("Upperarm.Right",dai::SkeletonJoint::JOINT_RIGHT_SHOULDER);
     transformBone("Forearm.Left",dai::SkeletonJoint::JOINT_LEFT_ELBOW);
@@ -216,6 +211,8 @@ void SinbadCharacterController::PSupdateBody(Real deltaTime)
         }
     }
 
+    qDebug() << "Confidence" << torsoJoint.getPositionConfidence() << torsoJoint.getPosition().x() << torsoJoint.getPosition().y() << torsoJoint.getPosition().z();
+    qDebug() << "Bone Depth" << rootBone->getPosition().x << rootBone->getPosition().y << rootBone->getPosition().z;
     //rootBone->setPosition(newPos);
 }
 

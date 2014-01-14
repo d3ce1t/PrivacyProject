@@ -7,19 +7,14 @@
 #include <OgreErrorDialog.h>
 
 #define CHAR_HEIGHT 15         // height of character's center of mass above ground
-#define RUN_SPEED 17          // character running speed in units per second
-#define TURN_SPEED 500.0f     // character turning in degrees per second
+#define RUN_SPEED   17         // character running speed in units per second
+#define TURN_SPEED  500.0f     // character turning in degrees per second
 
 using namespace Ogre;
 
 class SinbadCharacterController
 {
 public:
-
-    enum BoneType {
-
-    };
-
     SinbadCharacterController(Camera* cam);
     void addTime(Real deltaTime);
     void setSkeleton(shared_ptr<dai::Skeleton> skeleton);
