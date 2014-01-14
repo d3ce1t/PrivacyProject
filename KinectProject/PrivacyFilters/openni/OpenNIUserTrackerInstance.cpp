@@ -58,6 +58,11 @@ void OpenNIUserTrackerInstance::nextFrame(UserTrackerFrame &frame)
 {
     nite::UserTrackerFrameRef oniUserTrackerFrame = m_openni->readUserTrackerFrame();
 
+    if (!oniUserTrackerFrame.isValid()) {
+        qDebug() << "UserTracker Frame isn't valid";
+        return;
+    }
+
     // Load User
     const nite::UserMap& userMap = oniUserTrackerFrame.getUserMap();
 
@@ -115,6 +120,8 @@ void OpenNIUserTrackerInstance::nextFrame(UserTrackerFrame &frame)
             }
         }
     } // End for
+
+    oniUserTrackerFrame.release();
 }
 
 QList< shared_ptr<DataFrame> > OpenNIUserTrackerInstance::frames()

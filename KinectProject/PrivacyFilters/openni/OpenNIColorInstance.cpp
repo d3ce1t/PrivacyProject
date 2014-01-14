@@ -51,16 +51,21 @@ void OpenNIColorInstance::closeInstance()
 
 void OpenNIColorInstance::restartInstance()
 {
-
 }
 
 void OpenNIColorInstance::nextFrame(ColorFrame &frame)
 {
     openni::VideoFrameRef oniColorFrame = m_openni->readColorFrame();
 
+    if (!oniColorFrame.isValid()) {
+        qDebug() << "Color Frame isn't valid";
+        return;
+    }
+
     // Read this frame
     frame.setIndex(oniColorFrame.getFrameIndex());
     memcpy((void*) frame.getDataPtr(), oniColorFrame.getData(), 640 * 480 * sizeof(openni::RGB888Pixel));
+    oniColorFrame.release();
 
     // Stats
     computeStats(frame.getIndex());

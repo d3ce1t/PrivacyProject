@@ -43,8 +43,10 @@ void OpenNIRuntime::releaseInstance()
     mutex.lock();
     _instance_counter--;
 
-    if (_instance_counter == 0)
-        delete this;
+    if (_instance_counter == 0) {
+        delete _instance;
+        _instance = nullptr;
+    }
     mutex.unlock();
 }
 
@@ -64,12 +66,100 @@ OpenNIRuntime::~OpenNIRuntime()
     shutdownOpenNI();
 }
 
+openni::PlaybackControl* OpenNIRuntime::playbackControl()
+{
+    return m_device.getPlaybackControl();
+}
+
+void OpenNIRuntime::initOpenNI()
+{
+    //const char* deviceURI = openni::ANY_DEVICE;
+    const char* deviceURI = "/files/capture/PrimeSense Short-Range (1.09) - 1 user.oni";
+    //const char* deviceURI = "/files/capture/PSSR - Ogre.oni";
+
+    try {
+        if (openni::OpenNI::initialize() != openni::STATUS_OK)
+            throw 1;
+
+        if (m_device.open(deviceURI) != openni::STATUS_OK)
+            throw 2;
+
+        if (nite::NiTE::initialize() != nite::STATUS_OK)
+            throw 3;
+
+        // Enable Depth to Color image registration
+        if (m_device.isImageRegistrationModeSupported(openni::IMAGE_REGISTRATION_DEPTH_TO_COLOR)) {
+            if (m_device.getImageRegistrationMode() == openni::IMAGE_REGISTRATION_OFF)
+                m_device.setImageRegistrationMode(openni::IMAGE_REGISTRATION_DEPTH_TO_COLOR);
+        }
+
+        // Enable Depth and Color sync
+        if (!m_device.getDepthColorSyncEnabled())
+            m_device.setDepthColorSyncEnabled(true);
+
+        qDebug() << "Sync Enabled:" << m_device.getDepthColorSyncEnabled();
+
+        // Create Color Stream and Setup Mode
+        if (m_oniColorStream.create(m_device, openni::SENSOR_COLOR) != openni::STATUS_OK)
+            throw 4;
+
+        openni::VideoMode videoMode = m_oniColorStream.getVideoMode();
+        videoMode.setPixelFormat(openni::PIXEL_FORMAT_RGB888);
+        videoMode.setResolution(640, 480);
+        m_oniColorStream.setVideoMode(videoMode);
+
+        // Create Depth Stream and Setup Mode
+        if (m_oniDepthStream.create(m_device, openni::SENSOR_DEPTH) != openni::STATUS_OK)
+            throw 5;
+
+        videoMode = m_oniDepthStream.getVideoMode();
+        videoMode.setResolution(640, 480);
+        m_oniDepthStream.setVideoMode(videoMode);
+
+        // Start
+        m_oniColorStream.stop();
+        if (m_oniColorStream.start() != openni::STATUS_OK)
+            throw 6;
+
+        /*if (m_oniDepthStream.start() != openni::STATUS_OK)
+            throw 7;*/
+
+        if (m_oniUserTracker.create(&m_device) != nite::STATUS_OK)
+            throw 8;
+
+        if (!m_oniUserTracker.isValid() || !m_oniColorStream.isValid() || !m_oniDepthStream.isValid())
+            throw 9;
+
+        m_oniUserTracker.setSkeletonSmoothingFactor(0.5);
+        //m_oniDepthStream.setMirroringEnabled(true);
+    }
+    catch (int ex)
+    {
+        printf("OpenNI init error:\n%s\n", openni::OpenNI::getExtendedError());
+        throw ex;
+    }
+}
+
+void OpenNIRuntime::shutdownOpenNI()
+{
+    // Destroy streams and close device
+    m_oniUserTracker.destroy();
+    m_oniDepthStream.destroy();
+    m_oniColorStream.stop();
+    m_oniColorStream.destroy();
+    m_device.close();
+
+    // Shutdown library
+    nite::NiTE::shutdown();
+    openni::OpenNI::shutdown();
+}
+
 openni::VideoFrameRef OpenNIRuntime::readColorFrame()
 {
     openni::VideoFrameRef oniColorFrame;
     int changedIndex;
 
-    if (openni::OpenNI::waitForAnyStream(m_colorStreams, 1, &changedIndex) == openni::STATUS_OK)
+    if (openni::OpenNI::waitForAnyStream(m_colorStreams, 1, &changedIndex, 500) == openni::STATUS_OK)
     {
         if (changedIndex == 0)
         {
@@ -133,96 +223,6 @@ nite::UserTrackerFrameRef OpenNIRuntime::readUserTrackerFrame()
     }
 
     return oniUserTrackerFrame;
-}
-
-openni::PlaybackControl* OpenNIRuntime::playbackControl()
-{
-    return m_device.getPlaybackControl();
-}
-
-void OpenNIRuntime::initOpenNI()
-{
-    //const char* deviceURI = openni::ANY_DEVICE;
-    const char* deviceURI = "/files/capture/PrimeSense Short-Range (1.09) - 1 user.oni";
-    //const char* deviceURI = "/files/capture/PSSR - Ogre.oni";
-
-    try {
-        if (openni::OpenNI::initialize() != openni::STATUS_OK)
-            throw 1;
-
-        if (m_device.open(deviceURI) != openni::STATUS_OK)
-            throw 2;
-
-        if (nite::NiTE::initialize() != nite::STATUS_OK)
-            throw 3;
-
-        // Enable Depth to Color image registration
-        if (m_device.isImageRegistrationModeSupported(openni::IMAGE_REGISTRATION_DEPTH_TO_COLOR)) {
-            if (m_device.getImageRegistrationMode() == openni::IMAGE_REGISTRATION_OFF)
-                m_device.setImageRegistrationMode(openni::IMAGE_REGISTRATION_DEPTH_TO_COLOR);
-        }
-
-        // Enable Depth and Color sync
-        if (!m_device.getDepthColorSyncEnabled())
-            m_device.setDepthColorSyncEnabled(true);
-
-        qDebug() << "Sync Enabled:" << m_device.getDepthColorSyncEnabled();
-
-        // Create Color Stream and Setup Mode
-        if (m_oniColorStream.create(m_device, openni::SENSOR_COLOR) != openni::STATUS_OK)
-            throw 4;
-
-        openni::VideoMode videoMode = m_oniColorStream.getVideoMode();
-        videoMode.setResolution(640, 480);
-        m_oniColorStream.setVideoMode(videoMode);
-
-        // Create Depth Stream and Setup Mode
-        if (m_oniDepthStream.create(m_device, openni::SENSOR_DEPTH) != openni::STATUS_OK)
-            throw 5;
-
-        videoMode = m_oniDepthStream.getVideoMode();
-        videoMode.setResolution(640, 480);
-        m_oniDepthStream.setVideoMode(videoMode);
-
-        // Start
-        if (m_oniColorStream.start() != openni::STATUS_OK)
-            throw 6;
-
-        if (m_oniDepthStream.start() != openni::STATUS_OK)
-            throw 7;
-
-        if (m_oniUserTracker.create(&m_device) != nite::STATUS_OK)
-            throw 8;
-
-        if (!m_oniUserTracker.isValid() || !m_oniColorStream.isValid() || !m_oniDepthStream.isValid())
-            throw 9;
-
-        m_oniUserTracker.setSkeletonSmoothingFactor(0.5);
-        //m_oniDepthStream.setMirroringEnabled(true);
-    }
-    catch (int ex)
-    {
-        printf("OpenNI init error:\n%s\n", openni::OpenNI::getExtendedError());
-        throw ex;
-    }
-}
-
-void OpenNIRuntime::shutdownOpenNI()
-{
-    // Release frame refs
-    //m_oniColorFrame.release();
-    /*m_oniDepthStream.stop();
-    m_oniColorStream.stop();*/
-
-    // Destroy streams and close device
-    m_oniUserTracker.destroy();
-    m_oniDepthStream.destroy();
-    m_oniColorStream.destroy();
-    m_device.close();
-
-    // Shutdown library
-    nite::NiTE::shutdown();
-    openni::OpenNI::shutdown();
 }
 
 nite::UserTracker& OpenNIRuntime::getUserTracker()
