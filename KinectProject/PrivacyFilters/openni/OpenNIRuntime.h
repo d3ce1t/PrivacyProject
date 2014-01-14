@@ -11,7 +11,7 @@ namespace dai {
 #define MAX_USERS 10
 
 // Class Declaration
-class OpenNIRuntime //: public nite::UserTracker::NewFrameListener
+class OpenNIRuntime
 {
 public:
     static OpenNIRuntime* getInstance();

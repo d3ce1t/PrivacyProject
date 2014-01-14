@@ -130,8 +130,7 @@ void OpenNIRuntime::initOpenNI()
         if (!m_oniUserTracker.isValid() || !m_oniColorStream.isValid() || !m_oniDepthStream.isValid())
             throw 9;
 
-        m_oniUserTracker.setSkeletonSmoothingFactor(0.5);
-        //m_oniDepthStream.setMirroringEnabled(true);
+        m_oniUserTracker.setSkeletonSmoothingFactor(0.4);
     }
     catch (int ex)
     {

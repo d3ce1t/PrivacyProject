@@ -33,7 +33,7 @@ void SinbadCharacterController::lostUser(int userId)
 {
     Q_UNUSED(userId);
     resetBonesToInitialState();
-    //mBodyEnt->setVisible(false);
+    mBodyEnt->setVisible(false);
 }
 
 void SinbadCharacterController::setupBody(SceneManager* sceneMgr)
@@ -43,7 +43,7 @@ void SinbadCharacterController::setupBody(SceneManager* sceneMgr)
     mBodyNode->scale(23, 23, 23);
     mBodyNode->setPosition(0, 0, 0);
     mBodyEnt = sceneMgr->createEntity("SinbadBody", "meHumanMale.mesh");
-    mBodyEnt->setVisible(true);
+    mBodyEnt->setVisible(false);
     mBodyNode->attachObject(mBodyEnt);
     mKeyDirection = Vector3::ZERO;
 }
@@ -137,7 +137,6 @@ void SinbadCharacterController::setupAnimations()
 void SinbadCharacterController::resetBonesToInitialState()
 {
     qDebug() << "resetBonesToInitialState";
-
     Skeleton* skel = mBodyEnt->getSkeleton();
     skel->getBone("Forearm.Left")->resetToInitialState();
     skel->getBone("Forearm.Right")->resetToInitialState();

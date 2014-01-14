@@ -194,7 +194,6 @@ void MainWindow::on_btnStartKinect_clicked()
 {
     // Create instance
     shared_ptr<dai::OpenNIColorInstance> colorInstance(new dai::OpenNIColorInstance);
-    //shared_ptr<dai::OpenNIDepthInstance> depthInstance(new dai::OpenNIDepthInstance);
     shared_ptr<dai::OpenNIUserTrackerInstance> userTrackerInstance(new dai::OpenNIUserTrackerInstance);
 
     // Create Playback
@@ -217,11 +216,9 @@ void MainWindow::on_btnStartKinect_clicked()
 
     // Connect all together
     m_playback->addInstance(colorInstance);
-    //m_playback->addInstance(depthInstance);
     m_playback->addInstance(userTrackerInstance);
 
     m_playback->addListener(m_colorViewer, colorInstance);
-    //m_playback->addListener(m_colorViewer, depthInstance);
     m_playback->addListener(m_colorViewer, userTrackerInstance);
     m_playback->addListener(m_ogreScene, userTrackerInstance);
 
