@@ -4,6 +4,7 @@
 #include "types/DataFrame.h"
 #include "types/SkeletonFrame.h"
 #include "types/UserFrame.h"
+#include "types/DepthFrame.h"
 
 namespace dai {
 
@@ -20,6 +21,7 @@ public:
 
     shared_ptr<SkeletonFrame> skeletonFrame;
     shared_ptr<UserFrame> userFrame;
+    shared_ptr<DepthFrame> depthFrame;
 };
 
 } // End Namespace

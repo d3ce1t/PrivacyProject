@@ -202,7 +202,7 @@ void MainWindow::on_btnStartKinect_clicked()
     connect(m_playback, &dai::PlaybackControl::onPlaybackFinished, m_playback, &dai::PlaybackControl::deleteLater);
 
     // Create viewers
-    m_colorViewer = new dai::InstanceViewerWindow(dai::MODE_2D);
+    m_colorViewer = new dai::InstanceViewerWindow(dai::MODE_3D);
     m_ogreScene = new OgreScene;
     m_colorViewer->qmlEngine().rootContext()->setContextProperty("Camera", m_ogreScene->cameraNode());
     m_colorViewer->qmlEngine().rootContext()->setContextProperty("OgreEngine", m_ogreScene->engine());

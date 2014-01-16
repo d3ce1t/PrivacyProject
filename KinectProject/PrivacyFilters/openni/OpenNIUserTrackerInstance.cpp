@@ -63,6 +63,20 @@ void OpenNIUserTrackerInstance::nextFrame(UserTrackerFrame &frame)
         return;
     }
 
+    // Load Depth
+    openni::VideoFrameRef oniDepthFrame = oniUserTrackerFrame.getDepthFrame();
+    const openni::DepthPixel* pDepth = (const openni::DepthPixel*) oniDepthFrame.getData();
+    frame.depthFrame->setIndex(oniDepthFrame.getFrameIndex());
+
+    for (int y=0; y < oniDepthFrame.getHeight(); ++y) {
+        for (int x=0; x < oniDepthFrame.getWidth(); ++x) {
+            frame.depthFrame->setItem(y, x, *pDepth / 1000.0f);
+            pDepth++;
+        }
+        // Skip rest of row (in case it exists)
+        //pDepth += strideDepth;
+    }
+
     // Load User
     const nite::UserMap& userMap = oniUserTrackerFrame.getUserMap();
 
@@ -76,7 +90,7 @@ void OpenNIUserTrackerInstance::nextFrame(UserTrackerFrame &frame)
     const nite::UserId* pLabel = userMap.getPixels();
     frame.userFrame->setIndex(oniUserTrackerFrame.getFrameIndex());
 
-    // Read Depth Frame and Labels
+    // Read Labels
     for (int y=0; y < userMap.getHeight(); ++y) {
         for (int x=0; x < userMap.getWidth(); ++x) {
             uint8_t label = *pLabel;
