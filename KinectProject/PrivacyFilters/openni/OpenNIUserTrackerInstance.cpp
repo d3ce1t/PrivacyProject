@@ -1,4 +1,5 @@
 #include "OpenNIUserTrackerInstance.h"
+#include "exceptions/NotOpenedInstanceException.h"
 #include <exception>
 #include <iostream>
 
@@ -10,16 +11,40 @@ OpenNIUserTrackerInstance::OpenNIUserTrackerInstance()
 {
     this->m_type = INSTANCE_USERTRACKER;
     this->m_title = "UserTracker Live Stream";
-    m_frameBuffer[0].reset(new UserTrackerFrame(640, 480));
-    m_frameBuffer[1].reset(new UserTrackerFrame(640, 480));
-    StreamInstance::initFrameBuffer(m_frameBuffer[0], m_frameBuffer[1]);
+    m_frameBuffer[0] = new UserTrackerFrame(640, 480);
+    m_frameBuffer[1] = new UserTrackerFrame(640, 480);
+    m_writeFrame = m_frameBuffer[0];
+    m_readFrame = m_frameBuffer[1];
     m_openni = nullptr;
 }
 
 OpenNIUserTrackerInstance::~OpenNIUserTrackerInstance()
 {
-    closeInstance();
-    m_openni = nullptr;
+    delete m_frameBuffer[0];
+    delete m_frameBuffer[1];
+    m_writeFrame = nullptr;
+    m_readFrame = nullptr;
+    close();
+}
+
+void OpenNIUserTrackerInstance::open()
+{
+    if (!is_open()) {
+        m_openni = OpenNIRuntime::getInstance();
+    }
+}
+
+void OpenNIUserTrackerInstance::close()
+{
+    if (is_open()) {
+        m_openni->releaseInstance();
+        m_openni = nullptr;
+    }
+}
+
+void OpenNIUserTrackerInstance::restart()
+{
+
 }
 
 bool OpenNIUserTrackerInstance::is_open() const
@@ -27,31 +52,28 @@ bool OpenNIUserTrackerInstance::is_open() const
     return m_openni != nullptr;
 }
 
-bool OpenNIUserTrackerInstance::openInstance()
+bool OpenNIUserTrackerInstance::hasNext() const
 {
-    bool result = false;
-
-    if (!is_open())
-    {
-        m_openni = OpenNIRuntime::getInstance();
-        result = true;
-    }
-
-    return result;
+    return true;
 }
 
-void OpenNIUserTrackerInstance::closeInstance()
+void OpenNIUserTrackerInstance::swapBuffer()
 {
-    if (is_open())
-    {
-        m_openni->releaseInstance();
-        m_openni = nullptr;
-    }
+    QWriteLocker locker(&m_locker);
+    UserTrackerFrame* tmpPtr = m_readFrame;
+    m_readFrame = m_writeFrame;
+    m_writeFrame = tmpPtr;
 }
 
-void OpenNIUserTrackerInstance::restartInstance()
+void OpenNIUserTrackerInstance::readNextFrame()
 {
+    if (!is_open()) {
+        throw NotOpenedInstanceException();
+    }
 
+    if (hasNext()) {
+        nextFrame(*m_writeFrame);
+    }
 }
 
 void OpenNIUserTrackerInstance::nextFrame(UserTrackerFrame &frame)
@@ -63,21 +85,9 @@ void OpenNIUserTrackerInstance::nextFrame(UserTrackerFrame &frame)
         return;
     }
 
-    // Load Depth
+    // Load Depth and User Labels
     openni::VideoFrameRef oniDepthFrame = oniUserTrackerFrame.getDepthFrame();
     const openni::DepthPixel* pDepth = (const openni::DepthPixel*) oniDepthFrame.getData();
-    frame.depthFrame->setIndex(oniDepthFrame.getFrameIndex());
-
-    for (int y=0; y < oniDepthFrame.getHeight(); ++y) {
-        for (int x=0; x < oniDepthFrame.getWidth(); ++x) {
-            frame.depthFrame->setItem(y, x, *pDepth / 1000.0f);
-            pDepth++;
-        }
-        // Skip rest of row (in case it exists)
-        //pDepth += strideDepth;
-    }
-
-    // Load User
     const nite::UserMap& userMap = oniUserTrackerFrame.getUserMap();
 
     int strideUser = userMap.getStride() / sizeof(nite::UserId) - userMap.getWidth();
@@ -88,13 +98,15 @@ void OpenNIUserTrackerInstance::nextFrame(UserTrackerFrame &frame)
     }
 
     const nite::UserId* pLabel = userMap.getPixels();
+    frame.depthFrame->setIndex(oniDepthFrame.getFrameIndex());
     frame.userFrame->setIndex(oniUserTrackerFrame.getFrameIndex());
 
-    // Read Labels
     for (int y=0; y < userMap.getHeight(); ++y) {
         for (int x=0; x < userMap.getWidth(); ++x) {
             uint8_t label = *pLabel;
+            frame.depthFrame->setItem(y, x, *pDepth / 1000.0f);
             frame.userFrame->setItem(y, x, label);
+            pDepth++;
             pLabel++;
         }
         // Skip rest of row (in case it exists)
@@ -142,8 +154,9 @@ QList< shared_ptr<DataFrame> > OpenNIUserTrackerInstance::frames()
 {
     QReadLocker locker(&m_locker);
     QList<shared_ptr<DataFrame>> result;
-    result.append(static_pointer_cast<DataFrame>(m_readFrame->userFrame));
-    result.append(static_pointer_cast<DataFrame>(m_readFrame->skeletonFrame));
+    result.append( static_pointer_cast<DataFrame>(m_readFrame->depthFrame) );
+    result.append( static_pointer_cast<DataFrame>(m_readFrame->userFrame) );
+    result.append( static_pointer_cast<DataFrame>(m_readFrame->skeletonFrame) );
     return result;
 }
 

@@ -30,7 +30,6 @@ public:
     void restart() override;
     virtual bool hasNext() const override;
     void readNextFrame() override;
-    shared_ptr<DataFrame> frame() override;
     QList< shared_ptr<DataFrame> > frames() override;
     void swapBuffer() override;
     unsigned int getFrameIndex() const;
@@ -120,13 +119,6 @@ template <class T>
 bool StreamInstance<T>::hasNext() const
 {
     return true;
-}
-
-template <class T>
-shared_ptr<DataFrame> StreamInstance<T>::frame()
-{
-    QReadLocker locker(&m_locker);
-    return static_pointer_cast<DataFrame>(m_readFrame);
 }
 
 template <class T>

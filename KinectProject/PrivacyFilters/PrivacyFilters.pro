@@ -18,7 +18,8 @@ HEADERS += \
     ogre/SinbadCharacterController.h \
     ogre/cameranodeobject.h \
     ogre/OgreScene.h \
-    openni/OpenNIUserTrackerInstance.h
+    openni/OpenNIUserTrackerInstance.h \
+    openni/UserTrackerFrame.h
 
 SOURCES += \
     Main.cpp \
@@ -32,7 +33,8 @@ SOURCES += \
     ogre/SinbadCharacterController.cpp \
     ogre/cameranodeobject.cpp \
     ogre/OgreScene.cpp \
-    openni/OpenNIUserTrackerInstance.cpp
+    openni/OpenNIUserTrackerInstance.cpp \
+    openni/UserTrackerFrame.cpp
 
 OTHER_FILES += \
     qml/main.qml \

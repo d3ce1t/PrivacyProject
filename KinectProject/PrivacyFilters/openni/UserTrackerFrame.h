@@ -1,20 +1,19 @@
 #ifndef USERTRACKERFRAME_H
 #define USERTRACKERFRAME_H
 
-#include "types/DataFrame.h"
 #include "types/SkeletonFrame.h"
 #include "types/UserFrame.h"
 #include "types/DepthFrame.h"
 
 namespace dai {
 
-class UserTrackerFrame : public DataFrame
+class UserTrackerFrame
 {
 public:
     UserTrackerFrame();
+    ~UserTrackerFrame() = default;
     UserTrackerFrame(int width, int height);
     UserTrackerFrame(const UserTrackerFrame& other);
-    shared_ptr<DataFrame> clone() const override;
 
     // Overload operators
     UserTrackerFrame& operator=(const UserTrackerFrame& other);
