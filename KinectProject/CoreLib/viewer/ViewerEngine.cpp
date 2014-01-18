@@ -90,7 +90,7 @@ void ViewerEngine::prepareScene(dai::QHashDataFrames dataFrames)
     m_scene->clearItems();
 
     // Background of Scene
-    if (dataFrames.contains(DataFrame::Color))
+    if (m_mode == MODE_2D && dataFrames.contains(DataFrame::Color))
     {
         // Compute dilate user mask to separate background from foreground
         if (dataFrames.contains(DataFrame::User))
@@ -115,13 +115,9 @@ void ViewerEngine::prepareScene(dai::QHashDataFrames dataFrames)
 
         m_scene->setBackground( dataFrames.value(DataFrame::Color) );
     }
-    else if (dataFrames.contains(DataFrame::Depth)) {
+    else if (m_mode == MODE_3D && dataFrames.contains(DataFrame::Depth)) {
         m_scene->setBackground( dataFrames.value(DataFrame::Depth) );
     }
-
-    // I only show user mask if it's the only one frame
-    if (dataFrames.size() > 1)
-        dataFrames.remove(DataFrame::User);
 
     // Add skeleton item to the scene
     if (dataFrames.contains(DataFrame::Skeleton))

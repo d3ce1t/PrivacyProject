@@ -17,23 +17,17 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     virtual ~MainWindow();
-    QString number(int value);
     
 public slots:
     void initialiseOgre();
+    void renderScreen();
 
 private slots:
     void onPlusKeyPressed();
     void onMinusKeyPressed();
     void onSpaceKeyPressed();
     void on_btnStartKinect_clicked();
-
     void on_btnQuit_clicked();
-
-private:
-    void prueba();
-    void searchMinAndMaxDepth();
-    static void testSegmentation();
 
 private:
     dai::InstanceViewerWindow* m_colorViewer;

@@ -80,7 +80,6 @@ void InstanceViewerWindow::initialise()
     // Windows setup
     connect(m_quickWindow, SIGNAL(closing(QQuickCloseEvent*)), this, SLOT(deleteLater()));
     connect(m_viewerEngine, &ViewerEngine::frameRendered, this, &InstanceViewerWindow::completeAsyncTask);
-
     m_initialised = true;
 }
 

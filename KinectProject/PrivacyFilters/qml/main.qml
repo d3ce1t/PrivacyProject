@@ -162,7 +162,6 @@ ApplicationWindow {
         anchors.fill: parent
         camera: Camera
         ogreEngine: OgreEngine
-        focus: false
         z: 1
     }
 
@@ -241,7 +240,7 @@ ApplicationWindow {
             else if (event.key === Qt.Key_Escape) {
                 Qt.quit();
             }
-            /*else if (event.key === Qt.Key_Up) {
+            else if (event.key === Qt.Key_Up) {
                 if (checkBoxXYRot.checked === true) {
                     ViewerEngine.rotateAxisX(2)
                 } else if (checkBoxZRot.checked === true) {
@@ -291,7 +290,7 @@ ApplicationWindow {
                 ViewerEngine.resetPerspective()
             } else {
                 event.accepted = false;
-            }*/
+            }
         }
     } // Instance Viewer
 
@@ -433,8 +432,8 @@ ApplicationWindow {
                 Slider {
                     id: sliderCamZ
                     orientation: Qt.Horizontal
-                    maximumValue: 200
-                    minimumValue: -200
+                    maximumValue: 1000
+                    minimumValue: -1000
                     value: 0
                     onValueChanged: ogreitem.camera.z = value
                 }

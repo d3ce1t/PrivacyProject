@@ -10,8 +10,6 @@ QMAKE_LFLAGS = -std=c++11
 HEADERS += \
     MainWindow.h \
     openni/OpenNIDepthInstance.h \
-    KMeans.h \
-    DepthSeg.h \
     openni/OpenNIColorInstance.h \
     openni/OpenNIRuntime.h \
     openni/OpenNIBaseInstance.h \
@@ -19,14 +17,13 @@ HEADERS += \
     ogre/cameranodeobject.h \
     ogre/OgreScene.h \
     openni/OpenNIUserTrackerInstance.h \
-    openni/UserTrackerFrame.h
+    openni/UserTrackerFrame.h \
+    ogre/OgrePointCloud.h
 
 SOURCES += \
     Main.cpp \
     MainWindow.cpp \
     openni/OpenNIDepthInstance.cpp \
-    KMeans.cpp \
-    DepthSeg.cpp \
     openni/OpenNIColorInstance.cpp \
     openni/OpenNIRuntime.cpp \
     openni/OpenNIBaseInstance.cpp \
@@ -34,7 +31,8 @@ SOURCES += \
     ogre/cameranodeobject.cpp \
     ogre/OgreScene.cpp \
     openni/OpenNIUserTrackerInstance.cpp \
-    openni/UserTrackerFrame.cpp
+    openni/UserTrackerFrame.cpp \
+    ogre/OgrePointCloud.cpp
 
 OTHER_FILES += \
     qml/main.qml \

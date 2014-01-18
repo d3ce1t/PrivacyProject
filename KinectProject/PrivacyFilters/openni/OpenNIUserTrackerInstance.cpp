@@ -109,8 +109,6 @@ void OpenNIUserTrackerInstance::nextFrame(UserTrackerFrame &frame)
             pDepth++;
             pLabel++;
         }
-        // Skip rest of row (in case it exists)
-        //pLabel += strideUser;
     }
 
     // Load Skeleton
