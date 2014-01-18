@@ -1,0 +1,15 @@
+material PointCloud
+{
+   technique
+   {
+      pass
+      {
+         diffuse vertexcolour
+         specular vertexcolour
+         ambient vertexcolour
+         point_size 0.05
+         point_sprites on
+         point_size_attenuation on
+      }
+   }
+}
