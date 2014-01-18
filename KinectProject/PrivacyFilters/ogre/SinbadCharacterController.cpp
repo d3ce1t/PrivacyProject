@@ -20,8 +20,7 @@ void SinbadCharacterController::setSkeleton(shared_ptr<dai::Skeleton> skeleton)
 
 void SinbadCharacterController::newUser(int userId)
 {
-    // Q_UNUSED(userId);
-    qDebug() << "Sinbad: new user" << userId;
+    Q_UNUSED(userId);
     const dai::SkeletonJoint& jointTorso = m_skeleton->getJoint(dai::SkeletonJoint::JOINT_SPINE);
     m_origTorsoPos.x = jointTorso.getPosition().x();
     m_origTorsoPos.y = jointTorso.getPosition().y();
@@ -40,7 +39,7 @@ void SinbadCharacterController::setupBody(SceneManager* sceneMgr)
 {
     // create main model
     mBodyNode = sceneMgr->getRootSceneNode()->createChildSceneNode(Vector3::UNIT_Y);
-    mBodyNode->scale(23, 23, 23);
+    mBodyNode->scale(37, 35, 32);
     mBodyNode->setPosition(0, 0, 0);
     mBodyEnt = sceneMgr->createEntity("SinbadBody", "meHumanMale.mesh");
     mBodyEnt->setVisible(false);
@@ -197,22 +196,9 @@ void SinbadCharacterController::PSupdateBody(Real deltaTime)
 
     Vector3 newPos;
     newPos.x = torsoJoint.getPosition().x();
-    newPos.y = torsoJoint.getPosition().y();
-    newPos.z = -torsoJoint.getPosition().z();
-    newPos = (newPos - m_origTorsoPos) * 5;
-
-    newPos.y -= 0.3;
-
-    if (newPos.y < 0) {
-        newPos.y /= 2.5;
-        if (newPos.y < -1.5) {
-            newPos.y = -1.5;
-        }
-    }
-
-    qDebug() << "Confidence" << torsoJoint.getPositionConfidence() << torsoJoint.getPosition().x() << torsoJoint.getPosition().y() << torsoJoint.getPosition().z();
-    qDebug() << "Bone Depth" << rootBone->getPosition().x << rootBone->getPosition().y << rootBone->getPosition().z;
-    //rootBone->setPosition(newPos);
+    newPos.y = torsoJoint.getPosition().y() - 0.25;
+    newPos.z = -(torsoJoint.getPosition().z() + 0.5);
+    rootBone->setPosition(newPos);
 }
 
 void SinbadCharacterController::updateBody(Real deltaTime)

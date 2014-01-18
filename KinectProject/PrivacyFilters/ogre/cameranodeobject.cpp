@@ -29,8 +29,8 @@ void CameraNodeObject::setCamera(Ogre::Camera* cam)
   m_node = Ogre::Root::getSingleton().getSceneManager("mySceneManager")->getRootSceneNode()->createChildSceneNode();
   m_node->attachObject(cam);
   m_position = m_node->getPosition();
-  m_node->setPosition(0, 14.9733, 2.13904);
-  setPitch(-6);
+  //m_node->setPosition(0, 14.9733, 2.13904);
+  //setPitch(-6);
   qDebug() << "CamPos" << m_camera->getPosition().x << m_camera->getPosition().y << m_camera->getPosition().z;
   qDebug() << "NodePos" << m_position.x << m_position.y << m_position.z;
 }
