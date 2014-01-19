@@ -2,6 +2,11 @@
 #include <QDebug>
 
 SinbadCharacterController::SinbadCharacterController(Camera* cam)
+    : m_enabled(false)
+    , mBodyNode(nullptr)
+    , mCameraNode(nullptr)
+    , mBodyEnt(nullptr)
+    , m_userVisible(false)
 {
     setupBody(cam->getSceneManager());
     setupAnimations();
@@ -25,7 +30,8 @@ void SinbadCharacterController::newUser(int userId)
     m_origTorsoPos.x = jointTorso.getPosition().x();
     m_origTorsoPos.y = jointTorso.getPosition().y();
     m_origTorsoPos.z = -jointTorso.getPosition().z();
-    mBodyEnt->setVisible(true);
+    mBodyEnt->setVisible(m_enabled);
+    m_userVisible = true;
 }
 
 void SinbadCharacterController::lostUser(int userId)
@@ -33,13 +39,25 @@ void SinbadCharacterController::lostUser(int userId)
     Q_UNUSED(userId);
     resetBonesToInitialState();
     mBodyEnt->setVisible(false);
+    m_userVisible = false;
+}
+
+void SinbadCharacterController::setVisible(bool visible)
+{
+    m_enabled = visible;
+
+    // Hide char if it's visible and the filter is now disabled
+    if (mBodyEnt) {
+        mBodyEnt->setVisible(m_userVisible && m_enabled);
+    }
 }
 
 void SinbadCharacterController::setupBody(SceneManager* sceneMgr)
 {
     // create main model
     mBodyNode = sceneMgr->getRootSceneNode()->createChildSceneNode(Vector3::UNIT_Y);
-    mBodyNode->scale(37, 35, 32);
+    //mBodyNode->scale(37, 35, 32);
+    mBodyNode->scale(20, 20, 20);
     mBodyNode->setPosition(0, 0, 0);
     mBodyEnt = sceneMgr->createEntity("SinbadBody", "meHumanMale.mesh");
     mBodyEnt->setVisible(false);
@@ -197,7 +215,7 @@ void SinbadCharacterController::PSupdateBody(Real deltaTime)
     Vector3 newPos;
     newPos.x = torsoJoint.getPosition().x();
     newPos.y = torsoJoint.getPosition().y() - 0.25;
-    newPos.z = -(torsoJoint.getPosition().z() + 0.5);
+    newPos.z = -(torsoJoint.getPosition().z() + 0.25);
     rootBone->setPosition(newPos);
 }
 

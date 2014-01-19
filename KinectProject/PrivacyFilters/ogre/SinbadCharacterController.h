@@ -19,6 +19,7 @@ public:
     void setSkeleton(shared_ptr<dai::Skeleton> skeleton);
     void newUser(int userId);
     void lostUser(int userId);
+    void setVisible(bool visible);
 
 private:
     void setupBody(SceneManager* sceneMgr);
@@ -31,6 +32,7 @@ private:
     void PSupdateBody(Real deltaTime);
     void updateBody(Real deltaTime);    
 
+    bool m_enabled;
     Vector3 m_origTorsoPos;
     AnimationState* mAnimIdle;
     SceneNode* mBodyNode;
@@ -40,6 +42,7 @@ private:
     Vector3 mGoalDirection;     // actual intended direction in world-space
     Real mTimer;                // general timer to see how long animations have been playing
     shared_ptr<dai::Skeleton> m_skeleton;
+    bool m_userVisible;
 };
 
 #endif

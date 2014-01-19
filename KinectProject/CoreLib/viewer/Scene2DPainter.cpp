@@ -169,8 +169,10 @@ void Scene2DPainter::renderBackground()
     glActiveTexture(GL_TEXTURE0 + 0);
 
     // Enable BG
-    if (m_currentFilter == QMLEnumsWrapper::FILTER_INVISIBILITY /*|| m_currentFilter == QMLEnumsWrapper::FILTER_SKELETON*/
-            || m_currentFilter == QMLEnumsWrapper::FILTER_SILHOUETTE) {
+    if (m_currentFilter == QMLEnumsWrapper::FILTER_INVISIBILITY
+            || m_currentFilter == QMLEnumsWrapper::FILTER_SKELETON
+            || m_currentFilter == QMLEnumsWrapper::FILTER_SILHOUETTE)
+    {
         glBindTexture(GL_TEXTURE_2D, m_bgTextureId);
     }
     // Enable FG
@@ -198,7 +200,9 @@ void Scene2DPainter::renderItems()
         bg = m_fgTextureId;
     }
 
+    // Skeleton Item
     shared_ptr<SkeletonItem> skeletonItem = static_pointer_cast<SkeletonItem>( this->getFirstItem(ITEM_SKELETON) );
+
     if (skeletonItem) {
         if (Config::getInstance()->isFiltersEnabled()) {
             skeletonItem->setVisible( m_currentFilter == QMLEnumsWrapper::FILTER_SKELETON ? true : false );
@@ -206,6 +210,7 @@ void Scene2DPainter::renderItems()
         skeletonItem->setMode3D(false);
     }
 
+    // Silhouette Item
     shared_ptr<SilhouetteItem> silhouetteItem = static_pointer_cast<SilhouetteItem>( this->getFirstItem(ITEM_SILHOUETTE) );
 
     if (silhouetteItem) {

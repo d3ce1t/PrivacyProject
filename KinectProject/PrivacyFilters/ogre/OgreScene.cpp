@@ -66,6 +66,7 @@ void OgreScene::createCamera(void)
     m_camera->setNearClipDistance(0.1f);
     m_camera->setAspectRatio(4/3);
     m_camera->setFOVy(Ogre::Degree(45));
+    //m_camera->setPosition(Vector3(120, 0, 0));
     m_camera->setPosition(Vector3(0, 0, 0));
     m_camera->lookAt(0, 0, 0);
     m_cameraObject->setCamera(m_camera);
@@ -251,5 +252,12 @@ void OgreScene::renderOgre()
         m_pointCloud->updateVertexPositions(m_pDepthData, m_numPoints);
         m_pointCloud->updateVertexColours(m_pColorData, 640*480);
         m_ogreEngine->doneOgreContext();
+    }
+}
+
+void OgreScene::enableFilter(bool flag)
+{
+    if (m_chara) {
+        m_chara->setVisible(flag);
     }
 }

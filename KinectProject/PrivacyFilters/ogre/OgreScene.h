@@ -24,6 +24,9 @@ public:
     void initialiseOgre(QQuickWindow* quickWindow);
     void renderOgre();
 
+public slots:
+    void enableFilter(bool flag);
+
 protected:
     void onNewFrame(const QHash<dai::DataFrame::FrameType, shared_ptr<dai::DataFrame>>& frames);
     void createPointCloud();

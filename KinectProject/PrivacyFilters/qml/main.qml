@@ -43,6 +43,7 @@ ApplicationWindow {
                     overlayText.opacity = 1
                     overlayTextHide.start()
                     ViewerEngine.enableFilter(ColorFilter.FILTER_DISABLED) // GPU - No Filter
+                    Scene.enableFilter(false)
                 }
             }
 
@@ -56,6 +57,7 @@ ApplicationWindow {
                     overlayText.opacity = 1
                     overlayTextHide.start()
                     ViewerEngine.enableFilter(ColorFilter.FILTER_INVISIBILITY) // GPU
+                    Scene.enableFilter(false)
                 }
             }
             MenuItem {
@@ -68,6 +70,7 @@ ApplicationWindow {
                     overlayText.opacity = 1
                     overlayTextHide.start()
                     ViewerEngine.enableFilter(ColorFilter.FILTER_BLUR) // GPU
+                    Scene.enableFilter(false)
                 }
             }
             MenuItem {
@@ -80,6 +83,7 @@ ApplicationWindow {
                     overlayText.opacity = 1
                     overlayTextHide.start()
                     ViewerEngine.enableFilter(ColorFilter.FILTER_PIXELATION) // GPU
+                    Scene.enableFilter(false)
                 }
             }
             MenuItem {
@@ -92,6 +96,7 @@ ApplicationWindow {
                     overlayText.opacity = 1
                     overlayTextHide.start()
                     ViewerEngine.enableFilter(ColorFilter.FILTER_EMBOSS) // GPU
+                    Scene.enableFilter(false)
                 }
             }
             MenuItem {
@@ -104,6 +109,7 @@ ApplicationWindow {
                     overlayText.opacity = 1
                     overlayTextHide.start()
                     ViewerEngine.enableFilter(ColorFilter.FILTER_SILHOUETTE) // GPU
+                    Scene.enableFilter(false)
                 }
             }
             MenuItem {
@@ -116,6 +122,20 @@ ApplicationWindow {
                     overlayText.opacity = 1
                     overlayTextHide.start()
                     ViewerEngine.enableFilter(ColorFilter.FILTER_SKELETON) // GPU
+                    Scene.enableFilter(false)
+                }
+            }
+            MenuItem {
+                text: "3D Model"
+                checkable: true
+                exclusiveGroup: privacyFilter
+                shortcut: "Ctrl+7"
+                onTriggered: {
+                    overlayText.text = "3D Model Filter Enabled"
+                    overlayText.opacity = 1
+                    overlayTextHide.start()
+                    ViewerEngine.enableFilter(ColorFilter.FILTER_INVISIBILITY) // GPU
+                    Scene.enableFilter(true)
                 }
             }
         }

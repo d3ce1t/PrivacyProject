@@ -16,7 +16,8 @@ public:
         FILTER_PIXELATION,
         FILTER_EMBOSS,
         FILTER_SILHOUETTE,
-        FILTER_SKELETON
+        FILTER_SKELETON,
+        FILTER_3DMODEL
     };
 };
 
