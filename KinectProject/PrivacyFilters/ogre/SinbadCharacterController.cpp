@@ -30,7 +30,7 @@ void SinbadCharacterController::newUser(int userId)
     m_origTorsoPos.x = jointTorso.getPosition().x();
     m_origTorsoPos.y = jointTorso.getPosition().y();
     m_origTorsoPos.z = -jointTorso.getPosition().z();
-    //mBodyEnt->setVisible(m_enabled);
+    mBodyEnt->setVisible(m_enabled);
     m_userVisible = true;
 }
 
@@ -38,31 +38,28 @@ void SinbadCharacterController::lostUser(int userId)
 {
     Q_UNUSED(userId);
     resetBonesToInitialState();
-    //mBodyEnt->setVisible(false);
+    mBodyEnt->setVisible(false);
     m_userVisible = false;
 }
 
 void SinbadCharacterController::setVisible(bool visible)
 {
-    /*m_enabled = visible;
+    m_enabled = visible;
 
     // Hide char if it's visible and the filter is now disabled
     if (mBodyEnt) {
         mBodyEnt->setVisible(m_userVisible && m_enabled);
-    }*/
+    }
 }
 
 void SinbadCharacterController::setupBody(SceneManager* sceneMgr)
 {
     // create main model
     mBodyNode = sceneMgr->getRootSceneNode()->createChildSceneNode("Human", Vector3::UNIT_Y);
-    //mBodyNode->scale(37, 35, 32);
-    mBodyNode->scale(20, 20, 20);
-    mBodyNode->setPosition(0, -35, -100);
-    mBodyEnt = sceneMgr->createEntity("SinbadBody", "generic_male_01.mesh");
-    //mBodyEnt = sceneMgr->createEntity("SinbadBody", "meHumanMale.mesh");
-    //mBodyEnt->setVisible(false);
-    mBodyEnt->setVisible(true);
+    mBodyNode->scale(10.5, 10, 10);
+    mBodyNode->setPosition(0, 0, 0);
+    mBodyEnt = sceneMgr->createEntity("HumanBody", "generic_male_01.mesh");
+    mBodyEnt->setVisible(false);
     mBodyNode->attachObject(mBodyEnt);
     mKeyDirection = Vector3::ZERO;
 }
@@ -121,6 +118,7 @@ void SinbadCharacterController::setupAnimations()
 
     q.FromAngleAxis(Ogre::Degree(0),Vector3(1, 0, 0));
     setupBone("Back",q);
+    setupBone("Head", q);
 
     q.FromAngleAxis(Ogre::Degree(180),Vector3(1, 0, 0));
     q2.FromAngleAxis(Ogre::Degree(0), Vector3(0, 1, 0));
@@ -135,22 +133,23 @@ void SinbadCharacterController::setupAnimations()
     setupBone("Root", q*q2);
 
     // Setup Idle Base Animation
-    //mAnimIdle = mBodyEnt->getAnimationState("Idle-M");
-    //mAnimIdle->setLoop(true);
+    mAnimIdle = mBodyEnt->getAnimationState("Idle");
+    mAnimIdle->setLoop(true);
 
     // disable animation updates
-    /*Animation* anim = mBodyEnt->getSkeleton()->getAnimation("Idle-M");
-    anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Forearm.Left")->getHandle());
-    anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Forearm.Right")->getHandle());
-    anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Upperarm.Left")->getHandle());
-    anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Upperarm.Right")->getHandle());
+    Animation* anim = mBodyEnt->getSkeleton()->getAnimation("Idle");
+    anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Forearm.L")->getHandle());
+    anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Forearm.R")->getHandle());
+    anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Upperarm.L")->getHandle());
+    anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Upperarm.R")->getHandle());
     anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Back")->getHandle());
+    anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Head")->getHandle());
     anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Hip")->getHandle());
-    anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Thigh.Left")->getHandle());
-    anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Thigh.Right")->getHandle());
-    anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Shin.Left")->getHandle());
-    anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Shin.Right")->getHandle());
-    anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("COG")->getHandle());*/
+    anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Thigh.L")->getHandle());
+    anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Thigh.R")->getHandle());
+    anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Shin.L")->getHandle());
+    anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Shin.R")->getHandle());
+    anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Root")->getHandle());
 }
 
 void SinbadCharacterController::resetBonesToInitialState()
@@ -162,6 +161,7 @@ void SinbadCharacterController::resetBonesToInitialState()
     skel->getBone("Upperarm.L")->resetToInitialState();
     skel->getBone("Upperarm.R")->resetToInitialState();
     skel->getBone("Back")->resetToInitialState();
+    skel->getBone("Head")->resetToInitialState();
     skel->getBone("Hip")->resetToInitialState();
     skel->getBone("Thigh.L")->resetToInitialState();
     skel->getBone("Thigh.R")->resetToInitialState();
@@ -197,11 +197,12 @@ void SinbadCharacterController::PSupdateBody(Real deltaTime)
 
     mGoalDirection = Vector3::ZERO;   // we will calculate this
     Skeleton* skel = mBodyEnt->getSkeleton();
-    //Ogre::Bone* rootBone = skel->getBone("Root");
+    Ogre::Bone* rootBone = skel->getBone("Root");
 
     const dai::SkeletonJoint& torsoJoint = m_skeleton->getJoint(dai::SkeletonJoint::JOINT_SPINE);
 
     // Ogre Skeleton left-right is from camera perspective. DAI Skeleton left-right is from own skeleton
+    transformBone("Head", dai::SkeletonJoint::JOINT_HEAD);
     transformBone("Back", dai::SkeletonJoint::JOINT_SPINE);
     transformBone("Hip", dai::SkeletonJoint::JOINT_SPINE);
     transformBone("Root", dai::SkeletonJoint::JOINT_SPINE);
@@ -217,8 +218,8 @@ void SinbadCharacterController::PSupdateBody(Real deltaTime)
     Vector3 newPos;
     newPos.x = torsoJoint.getPosition().x();
     newPos.y = torsoJoint.getPosition().y() - 0.25;
-    newPos.z = -(torsoJoint.getPosition().z() + 0.25);
-    //rootBone->setPosition(newPos);
+    newPos.z = -(torsoJoint.getPosition().z() + 3.2f);
+    rootBone->setPosition(newPos);
 }
 
 void SinbadCharacterController::updateBody(Real deltaTime)
@@ -248,6 +249,6 @@ void SinbadCharacterController::updateBody(Real deltaTime)
         mBodyNode->yaw(Degree(yawToGoal));
 
         // move in current body direction (not the goal direction)
-        //mBodyNode->translate(0, 0, deltaTime * RUN_SPEED * mAnimIdle->getWeight(), Node::TS_LOCAL);
+        mBodyNode->translate(0, 0, deltaTime * RUN_SPEED * mAnimIdle->getWeight(), Node::TS_LOCAL);
     }
 }

@@ -81,12 +81,12 @@ void OgreScene::createScene(void)
     m_sceneManager->setShadowTextureCount(1);
 
     // use a small amount of ambient lighting
-    m_sceneManager->setAmbientLight(Ogre::ColourValue(0.3, 0.3, 0.3));
+    //m_sceneManager->setAmbientLight(Ogre::ColourValue(0.5, 0.5, 0.3));
 
     // add a bright light above the scene
     Ogre::Light* light = m_sceneManager->createLight();
     light->setType(Ogre::Light::LT_POINT);
-    light->setPosition(-10, 40, 20);
+    light->setPosition(0, 15, 10);
     light->setSpecularColour(Ogre::ColourValue::White);
 
     // Create a Point Cloud Mesh
