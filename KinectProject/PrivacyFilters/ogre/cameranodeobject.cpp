@@ -108,10 +108,17 @@ void CameraNodeObject::setZ(qreal z)
 
 void CameraNodeObject::updateRotation()
 {
-    m_node->resetOrientation();
+    Ogre::Node* myNode = Ogre::Root::getSingleton().getSceneManager("mySceneManager")->getRootSceneNode()->getChild("Human");
+
+    myNode->resetOrientation();;
+    myNode->yaw(Ogre::Radian(Ogre::Degree(m_yaw)));
+    myNode->pitch(Ogre::Radian(Ogre::Degree(m_pitch)));
+    myNode->roll(Ogre::Radian(Ogre::Degree(m_roll)));
+
+    /*m_node->resetOrientation();
     m_node->yaw(Ogre::Radian(Ogre::Degree(m_yaw)));
     m_node->pitch(Ogre::Radian(Ogre::Degree(m_pitch)));
-    m_node->roll(Ogre::Radian(Ogre::Degree(m_roll)));
+    m_node->roll(Ogre::Radian(Ogre::Degree(m_roll)));*/
 }
 
 void CameraNodeObject::updatePosition()
