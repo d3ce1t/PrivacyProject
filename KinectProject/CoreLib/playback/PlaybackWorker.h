@@ -25,6 +25,7 @@ public:
     void setFPS(float fps);
     float getFPS() const;
     void stop();
+    void pause();
 
 public slots:
     void run();
@@ -41,6 +42,7 @@ protected:
 
 private:
     bool                            m_running;
+    bool                            m_paused;
     qint64                          m_sleepTime;
     float                           m_fps;
     PlaybackControl*                m_parent;

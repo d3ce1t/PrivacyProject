@@ -100,14 +100,7 @@ void MainWindow::onMinusKeyPressed()
 
 void MainWindow::onSpaceKeyPressed()
 {
-    dai::OpenNIRuntime* openniInstance = dai::OpenNIRuntime::getInstance();
-    openni::PlaybackControl* control = openniInstance->playbackControl();
-    if (control->getSpeed() > 0)
-        control->setSpeed(-1);
-    else
-        control->setSpeed(1);
-
-    qDebug() << "Current speed" << control->getSpeed();
+    m_playback->pause();
 }
 
 void MainWindow::on_btnQuit_clicked()

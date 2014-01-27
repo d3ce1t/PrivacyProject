@@ -32,6 +32,7 @@ public:
     void setFPS(float fps);
     void play(bool restartAll = false);
     void stop();
+    void pause();
     void enablePlayLoop(bool value);
     void addInstance(shared_ptr<BaseInstance> instance);
     void removeInstance(shared_ptr<BaseInstance> instance);

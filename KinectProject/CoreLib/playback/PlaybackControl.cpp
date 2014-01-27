@@ -85,6 +85,13 @@ void PlaybackControl::stop()
     }
 }
 
+void PlaybackControl::pause()
+{
+    if (m_worker != nullptr) {
+        m_worker->pause();
+    }
+}
+
 void PlaybackControl::stopAsync()
 {
     std::cerr << "PlaybackControl::stopAsync()" << std::endl;

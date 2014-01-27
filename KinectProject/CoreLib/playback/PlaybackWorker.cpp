@@ -7,11 +7,12 @@
 namespace dai {
 
 PlaybackWorker::PlaybackWorker(PlaybackControl* parent)
-    : m_sleepTime(40000) // 40000 microseconds = 40 ms
+    : m_running(false)
+    , m_paused(false)
+    , m_sleepTime(40000) // 40000 microseconds = 40 ms
+    , m_parent(parent)
+    , m_notifierFinish(false)
 {
-    m_parent = parent;
-    m_running = false;
-    m_notifierFinish = false;
 }
 
 void PlaybackWorker::initialise()
@@ -58,17 +59,22 @@ void PlaybackWorker::run()
         }
         else if (readInstances.count() > 0)
         {
-            // Notify listeners
+            // Notify listeners (async): PlaybackNotifier::notifyListeners is called
             emit availableInstances(readInstances);
+            bool paused = m_paused; // copy in order to make next if (paused) branches work in pairs
 
             // Prefetch read
-            readInstances = m_parent->readAllInstances();
+            if (!paused) {
+                readInstances = m_parent->readAllInstances();
+            }
 
             // WaitForNotifiers
             waitForNotifier();
 
-            // Swap
-            swap(readInstances);
+            // Swap (swap read and write buffers from instances)
+            if (!paused) {
+                swap(readInstances);
+            }
 
             // Set last time
             lastTime = timeNow;
@@ -112,6 +118,12 @@ void PlaybackWorker::stop()
 {
     m_running = false;
     std::cerr << "PlaybackWorker::stop()" << std::endl;
+}
+
+void PlaybackWorker::pause()
+{
+    m_paused = !m_paused;
+    std::cerr << "PlaybackWorker::pause()" << std::endl;
 }
 
 void PlaybackWorker::setFPS(float fps)
