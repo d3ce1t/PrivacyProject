@@ -67,7 +67,7 @@ void OgreScene::createCamera(void)
     m_camera->setAspectRatio(4/3);
     m_camera->setFOVy(Ogre::Degree(45));
     //m_camera->setPosition(Vector3(120, 0, 0));
-    m_camera->setPosition(Vector3(0, 0, 0));
+    m_camera->setPosition(Ogre::Vector3(0, 0, 0));
     m_camera->lookAt(0, 0, 0);
     m_cameraObject->setCamera(m_camera);
 }
@@ -107,7 +107,7 @@ void OgreScene::createPointCloud()
     // Create a Point Cloud entity
     Ogre::Entity *entity = m_sceneManager->createEntity("PointCloud", "PointCloud", "General");
     entity->setMaterialName("PointCloud");
-    Ogre::SceneNode *node = m_sceneManager->getRootSceneNode()->createChildSceneNode(Vector3::UNIT_Y);
+    Ogre::SceneNode *node = m_sceneManager->getRootSceneNode()->createChildSceneNode(Ogre::Vector3::UNIT_Y);
     node->scale(23, 23, 23);
     node->setPosition(0, 0, 0);
     node->attachObject(entity);
@@ -162,7 +162,7 @@ void OgreScene::onNewFrame(const QHash<dai::DataFrame::FrameType, shared_ptr<dai
             // Same user
             shared_ptr<dai::Skeleton> skeleton = skeletonFrame->getSkeleton(userId);
             m_chara->setSkeleton(skeleton);
-            Real deltaTime = (time_ms - m_lastTime) / 1000.0f;
+            Ogre::Real deltaTime = (time_ms - m_lastTime) / 1000.0f;
             m_chara->addTime(deltaTime);
             m_lastTime = time_ms;
         }

@@ -10,6 +10,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = CoreLib
 TEMPLATE = lib
 CONFIG += staticlib
+CONFIG += create_prl
 
 # Static Release
 #win32 {
@@ -140,10 +141,11 @@ unix:!macx {
 
 win32 {
     INCLUDEPATH += $$PWD
-
     # OpenCV2
-    INCLUDEPATH += "C:/opencv/build/include"
-    DEPENDPATH += "C:/opencv/build/include"
+    INCLUDEPATH += "C:/opt/opencv-2.4.9/include"
+    DEPENDPATH += "C:/opt/opencv-2.4.9/include"
+    contains(QMAKE_TARGET.arch, x86_64):LIBS += -L"C:/opt/opencv-2.4.9/x64/vc11/lib" -lopencv_core249 -lopencv_imgproc249
+    contains(QMAKE_TARGET.arch, x86):LIBS += -L"C:/opt/opencv-2.4.9/x86/vc11/lib" -lopencv_core249 -lopencv_imgproc249
 }
 
 OTHER_FILES +=

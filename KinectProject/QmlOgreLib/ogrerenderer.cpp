@@ -5,7 +5,6 @@
 #include <Ogre.h>
 #include <QOpenGLFramebufferObject>
 
-
 OgreRenderer::OgreRenderer(const OgreItem* viewer)
     : m_shaderProgram(nullptr)
     , m_engine(nullptr)

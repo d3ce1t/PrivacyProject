@@ -18,7 +18,9 @@ void Scene3DPainter::initialise()
 
 void Scene3DPainter::render(QOpenGLFramebufferObject *fbo)
 {
-     Q_ASSERT( (m_bg != nullptr && m_bg->getType() == DataFrame::Depth) || m_bg == nullptr);
+    Q_UNUSED(fbo)
+
+    Q_ASSERT( (m_bg != nullptr && m_bg->getType() == DataFrame::Depth) || m_bg == nullptr);
 
     // Init Each Frame (because QtQuick could change it)
     glDepthRange(0.0f, 1.0f);

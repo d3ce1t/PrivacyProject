@@ -11,7 +11,7 @@ class UserTrackerFrame
 {
 public:
     UserTrackerFrame();
-    ~UserTrackerFrame() = default;
+    //~UserTrackerFrame();
     UserTrackerFrame(int width, int height);
     UserTrackerFrame(const UserTrackerFrame& other);
 

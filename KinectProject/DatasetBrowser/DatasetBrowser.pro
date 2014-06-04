@@ -9,6 +9,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = DatasetBrowser
 TEMPLATE = app
+CONFIG += link_prl
 
 # Use C++11
 QMAKE_CXXFLAGS += -std=c++11
@@ -75,6 +76,6 @@ win32 {
     DEPENDPATH += $$PWD/../CoreLib
 
     # OpenCV2
-    contains(QMAKE_TARGET.arch, x86_64):LIBS += -L"C:/opencv/build/x64/vc11/lib" -lopencv_core246 -lopencv_imgproc246
-    contains(QMAKE_TARGET.arch, x86):LIBS += -L"C:/opencv/build/x86/vc10/lib" -lopencv_core246 -lopencv_imgproc246
+    # contains(QMAKE_TARGET.arch, x86_64):LIBS += -L"C:/opt/opencv-2.4.9/x64/vc11/lib" -lopencv_core249 -lopencv_imgproc249
+    # contains(QMAKE_TARGET.arch, x86):LIBS += -L"C:/opt/opencv-2.4.9/x86/vc11/lib" -lopencv_core249 -lopencv_imgproc249
 }

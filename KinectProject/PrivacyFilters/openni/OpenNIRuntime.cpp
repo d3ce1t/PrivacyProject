@@ -74,7 +74,7 @@ openni::PlaybackControl* OpenNIRuntime::playbackControl()
 void OpenNIRuntime::initOpenNI()
 {
     //const char* deviceURI = openni::ANY_DEVICE;
-    const char* deviceURI = "/files/capture/PrimeSense Short-Range (1.09) - 1 user.oni";
+    const char* deviceURI = "/opt/captures/PrimeSense Short-Range (1.09) - 1 user.oni";
     //const char* deviceURI = "/files/capture/PSSR - Ogre.oni";
 
     try {

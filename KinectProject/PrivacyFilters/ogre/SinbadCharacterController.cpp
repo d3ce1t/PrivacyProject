@@ -1,7 +1,7 @@
 #include "ogre/SinbadCharacterController.h"
 #include <QDebug>
 
-SinbadCharacterController::SinbadCharacterController(Camera* cam)
+SinbadCharacterController::SinbadCharacterController(Ogre::Camera* cam)
     : m_enabled(false)
     , mBodyNode(nullptr)
     , mCameraNode(nullptr)
@@ -12,7 +12,7 @@ SinbadCharacterController::SinbadCharacterController(Camera* cam)
     setupAnimations();
 }
 
-void SinbadCharacterController::addTime(Real deltaTime)
+void SinbadCharacterController::addTime(Ogre::Real deltaTime)
 {
     updateBody(deltaTime);
     PSupdateBody(deltaTime);
@@ -52,26 +52,26 @@ void SinbadCharacterController::setVisible(bool visible)
     }
 }
 
-void SinbadCharacterController::setupBody(SceneManager* sceneMgr)
+void SinbadCharacterController::setupBody(Ogre::SceneManager* sceneMgr)
 {
     // create main model
-    mBodyNode = sceneMgr->getRootSceneNode()->createChildSceneNode("Human", Vector3::UNIT_Y);
+    mBodyNode = sceneMgr->getRootSceneNode()->createChildSceneNode("Human", Ogre::Vector3::UNIT_Y);
     mBodyNode->scale(10.5, 10, 10);
     mBodyNode->setPosition(0, 0, 0);
     mBodyEnt = sceneMgr->createEntity("HumanBody", "generic_male_01.mesh");
     mBodyEnt->setVisible(false);
     mBodyNode->attachObject(mBodyEnt);
-    mKeyDirection = Vector3::ZERO;
+    mKeyDirection = Ogre::Vector3::ZERO;
 }
 
-void SinbadCharacterController::setupBone(const String& name,const Ogre::Radian& angle, const Vector3 axis)
+void SinbadCharacterController::setupBone(const Ogre::String &name, const Ogre::Radian &angle, const Ogre::Vector3 axis)
 {
-    Quaternion q;
+    Ogre::Quaternion q;
     q.FromAngleAxis(angle,axis);
     setupBone(name, q);
 }
 
-void SinbadCharacterController::setupBone(const String& name,const Degree& yaw,const Degree& pitch,const Degree& roll)
+void SinbadCharacterController::setupBone(const Ogre::String &name, const Ogre::Degree &yaw,const Ogre::Degree &pitch,const Ogre::Degree &roll)
 {
     Ogre::Bone* bone = mBodyEnt->getSkeleton()->getBone(name);
     bone->setManuallyControlled(true);
@@ -83,7 +83,7 @@ void SinbadCharacterController::setupBone(const String& name,const Degree& yaw,c
     bone->setInitialState();
 }
 
-void SinbadCharacterController::setupBone(const String& name,const Ogre::Quaternion& q)
+void SinbadCharacterController::setupBone(const Ogre::String &name, const Ogre::Quaternion &q)
 {
     Ogre::Bone* bone = mBodyEnt->getSkeleton()->getBone(name);
     bone->setManuallyControlled(true);
@@ -96,40 +96,40 @@ void SinbadCharacterController::setupBone(const String& name,const Ogre::Quatern
 void SinbadCharacterController::setupAnimations()
 {
     // this is very important due to the nature of the exported animations
-    mBodyEnt->getSkeleton()->setBlendMode(ANIMBLEND_CUMULATIVE);
+    mBodyEnt->getSkeleton()->setBlendMode(Ogre::ANIMBLEND_CUMULATIVE);
 
-    Quaternion q, q2;
+    Ogre::Quaternion q, q2;
 
-    q.FromAngleAxis(Ogre::Degree(90), Vector3(0, 0, -1));
-    q2.FromAngleAxis(Ogre::Degree(180), Vector3(0, -1, 0));
+    q.FromAngleAxis(Ogre::Degree(90), Ogre::Vector3(0, 0, -1));
+    q2.FromAngleAxis(Ogre::Degree(180), Ogre::Vector3(0, -1, 0));
     setupBone("Upperarm.L", q*q2);
 
-    q.FromAngleAxis(Ogre::Degree(90),Vector3(0, 0, -1));
-    q2.FromAngleAxis(Ogre::Degree(225),Vector3(0, 1, 0));
+    q.FromAngleAxis(Ogre::Degree(90),Ogre::Vector3(0, 0, -1));
+    q2.FromAngleAxis(Ogre::Degree(225),Ogre::Vector3(0, 1, 0));
     setupBone("Forearm.L", q*q2);
 
-    q.FromAngleAxis(Ogre::Degree(90),Vector3(0, 0, 1));
-    q2.FromAngleAxis(Ogre::Degree(180),Vector3(0, 1, 0));
+    q.FromAngleAxis(Ogre::Degree(90),Ogre::Vector3(0, 0, 1));
+    q2.FromAngleAxis(Ogre::Degree(180),Ogre::Vector3(0, 1, 0));
     setupBone("Upperarm.R", q*q2);
 
-    q.FromAngleAxis(Ogre::Degree(90),Vector3(0, 0, 1));
-    q2.FromAngleAxis(Ogre::Degree(225),Vector3(0, -1, 0));
+    q.FromAngleAxis(Ogre::Degree(90),Ogre::Vector3(0, 0, 1));
+    q2.FromAngleAxis(Ogre::Degree(225),Ogre::Vector3(0, -1, 0));
     setupBone("Forearm.R", q*q2);
 
-    q.FromAngleAxis(Ogre::Degree(0),Vector3(1, 0, 0));
+    q.FromAngleAxis(Ogre::Degree(0),Ogre::Vector3(1, 0, 0));
     setupBone("Back",q);
     setupBone("Head", q);
 
-    q.FromAngleAxis(Ogre::Degree(180),Vector3(1, 0, 0));
-    q2.FromAngleAxis(Ogre::Degree(0), Vector3(0, 1, 0));
+    q.FromAngleAxis(Ogre::Degree(180),Ogre::Vector3(1, 0, 0));
+    q2.FromAngleAxis(Ogre::Degree(0), Ogre::Vector3(0, 1, 0));
     setupBone("Hip", q*q2);
     setupBone("Thigh.L",q*q2);
     setupBone("Thigh.R",q*q2);
     setupBone("Shin.L",q*q2);
     setupBone("Shin.R",q*q2);
 
-    q.FromAngleAxis(Ogre::Degree(90), Vector3(-1, 0, 0));
-    q2.FromAngleAxis(Ogre::Degree(180), Vector3(0, 0, 1));
+    q.FromAngleAxis(Ogre::Degree(90), Ogre::Vector3(-1, 0, 0));
+    q2.FromAngleAxis(Ogre::Degree(180), Ogre::Vector3(0, 0, 1));
     setupBone("Root", q*q2);
 
     // Setup Idle Base Animation
@@ -137,7 +137,7 @@ void SinbadCharacterController::setupAnimations()
     mAnimIdle->setLoop(true);
 
     // disable animation updates
-    Animation* anim = mBodyEnt->getSkeleton()->getAnimation("Idle");
+    Ogre::Animation* anim = mBodyEnt->getSkeleton()->getAnimation("Idle");
     anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Forearm.L")->getHandle());
     anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Forearm.R")->getHandle());
     anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Upperarm.L")->getHandle());
@@ -155,7 +155,7 @@ void SinbadCharacterController::setupAnimations()
 void SinbadCharacterController::resetBonesToInitialState()
 {
     qDebug() << "resetBonesToInitialState";
-    Skeleton* skel = mBodyEnt->getSkeleton();
+    Ogre::Skeleton* skel = mBodyEnt->getSkeleton();
     skel->getBone("Forearm.L")->resetToInitialState();
     skel->getBone("Forearm.R")->resetToInitialState();
     skel->getBone("Upperarm.L")->resetToInitialState();
@@ -173,10 +173,10 @@ void SinbadCharacterController::resetBonesToInitialState()
 void SinbadCharacterController::transformBone(const Ogre::String& modelBoneName, dai::SkeletonJoint::JointType jointType)
 {
     // Get the model skeleton bone info
-    Skeleton* skel = mBodyEnt->getSkeleton();
+    Ogre::Skeleton* skel = mBodyEnt->getSkeleton();
     Ogre::Bone* bone = skel->getBone(modelBoneName);
     Ogre::Quaternion qI = bone->getInitialOrientation();
-    Ogre::Quaternion newQ = Quaternion::IDENTITY;
+    Ogre::Quaternion newQ = Ogre::Quaternion::IDENTITY;
 
     // Get the openNI bone info
     const dai::SkeletonJoint& joint = m_skeleton->getJoint(jointType);
@@ -184,19 +184,19 @@ void SinbadCharacterController::transformBone(const Ogre::String& modelBoneName,
     if (joint.getOrientationConfidence() > 0 )
     {
         const dai::Quaternion& q = joint.getOrientation();
-        newQ = Quaternion(-q.w(), q.x(), q.y(), -q.z());
+        newQ = Ogre::Quaternion(-q.w(), q.x(), q.y(), -q.z());
         bone->resetOrientation(); //in order for the conversion from world to local to work.
         newQ = bone->convertWorldToLocalOrientation(newQ);
         bone->setOrientation(newQ*qI);
     }
 }
 
-void SinbadCharacterController::PSupdateBody(Real deltaTime)
+void SinbadCharacterController::PSupdateBody(Ogre::Real deltaTime)
 {
     Q_UNUSED(deltaTime)
 
-    mGoalDirection = Vector3::ZERO;   // we will calculate this
-    Skeleton* skel = mBodyEnt->getSkeleton();
+    mGoalDirection = Ogre::Vector3::ZERO;   // we will calculate this
+    Ogre::Skeleton* skel = mBodyEnt->getSkeleton();
     Ogre::Bone* rootBone = skel->getBone("Root");
 
     const dai::SkeletonJoint& torsoJoint = m_skeleton->getJoint(dai::SkeletonJoint::JOINT_SPINE);
@@ -215,18 +215,18 @@ void SinbadCharacterController::PSupdateBody(Real deltaTime)
     transformBone("Shin.L",dai::SkeletonJoint::JOINT_LEFT_KNEE);
     transformBone("Shin.R",dai::SkeletonJoint::JOINT_RIGHT_KNEE);
 
-    Vector3 newPos;
+    Ogre::Vector3 newPos;
     newPos.x = torsoJoint.getPosition().x();
     newPos.y = torsoJoint.getPosition().y() - 0.25;
     newPos.z = -(torsoJoint.getPosition().z() + 3.2f);
     rootBone->setPosition(newPos);
 }
 
-void SinbadCharacterController::updateBody(Real deltaTime)
+void SinbadCharacterController::updateBody(Ogre::Real deltaTime)
 {
-    mGoalDirection = Vector3::ZERO;   // we will calculate this
+    mGoalDirection = Ogre::Vector3::ZERO;   // we will calculate this
 
-    if (mKeyDirection != Vector3::ZERO)
+    if (mKeyDirection != Ogre::Vector3::ZERO)
     {
         // calculate actually goal direction in world based on player's key directions
         mGoalDirection += mKeyDirection.z * mCameraNode->getOrientation().zAxis();
@@ -234,21 +234,21 @@ void SinbadCharacterController::updateBody(Real deltaTime)
         mGoalDirection.y = 0;
         mGoalDirection.normalise();
 
-        Quaternion toGoal = mBodyNode->getOrientation().zAxis().getRotationTo(mGoalDirection);
+        Ogre::Quaternion toGoal = mBodyNode->getOrientation().zAxis().getRotationTo(mGoalDirection);
 
         // calculate how much the character has to turn to face goal direction
-        Real yawToGoal = toGoal.getYaw().valueDegrees();
+        Ogre::Real yawToGoal = toGoal.getYaw().valueDegrees();
         // this is how much the character CAN turn this frame
-        Real yawAtSpeed = yawToGoal / Math::Abs(yawToGoal) * deltaTime * TURN_SPEED;
+        Ogre::Real yawAtSpeed = yawToGoal / Ogre::Math::Abs(yawToGoal) * deltaTime * TURN_SPEED;
         // reduce "turnability" if we're in midair
 
         // turn as much as we can, but not more than we need to
-        if (yawToGoal < 0) yawToGoal = std::min<Real>(0, std::max<Real>(yawToGoal, yawAtSpeed)); //yawToGoal = Math::Clamp<Real>(yawToGoal, yawAtSpeed, 0);
-        else if (yawToGoal > 0) yawToGoal = std::max<Real>(0, std::min<Real>(yawToGoal, yawAtSpeed)); //yawToGoal = Math::Clamp<Real>(yawToGoal, 0, yawAtSpeed);
+        if (yawToGoal < 0) yawToGoal = std::min<Ogre::Real>(0, std::max<Ogre::Real>(yawToGoal, yawAtSpeed)); //yawToGoal = Math::Clamp<Real>(yawToGoal, yawAtSpeed, 0);
+        else if (yawToGoal > 0) yawToGoal = std::max<Ogre::Real>(0, std::min<Ogre::Real>(yawToGoal, yawAtSpeed)); //yawToGoal = Math::Clamp<Real>(yawToGoal, 0, yawAtSpeed);
 
-        mBodyNode->yaw(Degree(yawToGoal));
+        mBodyNode->yaw(Ogre::Degree(yawToGoal));
 
         // move in current body direction (not the goal direction)
-        mBodyNode->translate(0, 0, deltaTime * RUN_SPEED * mAnimIdle->getWeight(), Node::TS_LOCAL);
+        mBodyNode->translate(0, 0, deltaTime * RUN_SPEED * mAnimIdle->getWeight(), Ogre::Node::TS_LOCAL);
     }
 }

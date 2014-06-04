@@ -25,9 +25,6 @@ namespace dai {
 class ScenePainter : public QOpenGLFunctions
 {
 public:
-    static void loadVideoTexture(GLuint glTextureId, GLsizei width, GLsizei height, void *texture);
-    static void loadMaskTexture(GLuint glTextureId, GLsizei width, GLsizei height, void *texture);
-
     ScenePainter();
     virtual ~ScenePainter();
     void clearItems();
@@ -38,12 +35,15 @@ public:
     void setMatrix(const QMatrix4x4& matrix);
     void markAsDirty();
     bool isDirty() const;
-    bool clearDirty();
+    void clearDirty();
     QMatrix4x4& getMatrix();
     virtual void resetPerspective();
     void setSize(int width, int height);
     int width() const;
     int height() const;
+
+    void loadVideoTexture(GLuint glTextureId, GLsizei width, GLsizei height, void *texture);
+    void loadMaskTexture(GLuint glTextureId, GLsizei width, GLsizei height, void *texture);
 
 protected:
     void renderItems();

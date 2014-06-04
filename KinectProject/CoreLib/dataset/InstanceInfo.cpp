@@ -29,6 +29,11 @@ InstanceInfo::InstanceInfo(const InstanceInfo& other)
     m_parent = other.m_parent;
 }
 
+InstanceInfo::~InstanceInfo()
+{
+
+}
+
 InstanceInfo& InstanceInfo::operator=(const InstanceInfo& other)
 {
     m_type = other.m_type;

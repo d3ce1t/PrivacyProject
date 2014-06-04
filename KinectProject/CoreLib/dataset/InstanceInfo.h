@@ -14,6 +14,7 @@ public:
     InstanceInfo(shared_ptr<DatasetMetadata> parent = nullptr);
     explicit InstanceInfo(InstanceType type, shared_ptr<DatasetMetadata> parent = nullptr);
     InstanceInfo(const InstanceInfo& other);
+    virtual ~InstanceInfo();
 
     InstanceType getType() const;
     int getActivity() const;

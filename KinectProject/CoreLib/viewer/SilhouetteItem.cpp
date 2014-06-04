@@ -48,7 +48,7 @@ void SilhouetteItem::render(int pass)
 void SilhouetteItem::renderFirstPass()
 {
     // Load into GPU
-    ScenePainter::loadMaskTexture(m_maskTextureId, m_user->getWidth(), m_user->getHeight(), (void *) m_user->getDataPtr());
+    m_scene->loadMaskTexture(m_maskTextureId, m_user->getWidth(), m_user->getHeight(), (void *) m_user->getDataPtr());
 
     // Render
     m_shaderProgram->bind();

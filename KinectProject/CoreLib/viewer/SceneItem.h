@@ -33,17 +33,17 @@ protected:
     virtual void render(int pass) = 0;
 
     int m_neededPasses;
+    ScenePainter* m_scene;
 
     // OpenGL identifiers
     GLuint                   m_fgTextureId;
-
 
 private:
     ItemType m_type;
     int m_z_order; // 0 = first item to be drawn
     bool m_initialised;
     bool m_visible;
-    ScenePainter* m_scene;
+
 };
 
 } // End Namespace

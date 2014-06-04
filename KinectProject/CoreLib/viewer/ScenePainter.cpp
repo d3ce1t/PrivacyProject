@@ -29,7 +29,7 @@ bool ScenePainter::isDirty() const
     return m_dirty.load() > 0;
 }
 
-bool ScenePainter::clearDirty()
+void ScenePainter::clearDirty()
 {
     m_dirty.store(0);
 }
