@@ -5,6 +5,14 @@ fragment_program Ogre/Compositor/HDR/downscale2x2LuminenceHLSL_fp hlsl
 	entry_point downscale2x2Luminence
 	target ps_2_0
 }
+
+fragment_program Ogre/Compositor/HDR/downscale2x2LuminenceHLSL_fp4 hlsl
+{
+	source hdrfp4.hlsl
+	entry_point downscale2x2Luminencefp4
+	target ps_4_0
+}
+
 fragment_program Ogre/Compositor/HDR/downscale2x2LuminenceGLSL_fp glsl
 {
 	source hdr_downscale2x2luminence.glsl
@@ -13,9 +21,19 @@ fragment_program Ogre/Compositor/HDR/downscale2x2LuminenceGLSL_fp glsl
 		param_named inRTT int 0
 	}
 }
+fragment_program Ogre/Compositor/HDR/downscale2x2LuminenceGLSLES_fp glsles
+{
+	source hdr_downscale2x2luminence.glsles
+	default_params
+	{
+		param_named inRTT int 0
+	}
+}
 fragment_program Ogre/Compositor/HDR/downscale2x2Luminence_fp unified
 {
+	delegate Ogre/Compositor/HDR/downscale2x2LuminenceHLSL_fp4
 	delegate Ogre/Compositor/HDR/downscale2x2LuminenceGLSL_fp
+	delegate Ogre/Compositor/HDR/downscale2x2LuminenceGLSLES_fp
 	delegate Ogre/Compositor/HDR/downscale2x2LuminenceHLSL_fp
 	default_params
 	{
@@ -32,6 +50,7 @@ material Ogre/Compositor/HDR/Downsample2x2Luminence
 			cull_hardware none
 			cull_software none
 			depth_check off
+            polygon_mode_overrideable false
 
 			vertex_program_ref Ogre/Compositor/StdQuad_vp
 			{
@@ -57,6 +76,20 @@ fragment_program Ogre/Compositor/HDR/downscale3x3HLSL_fp hlsl
 	entry_point downscale3x3
 	target ps_2_0
 }
+fragment_program Ogre/Compositor/HDR/downscale3x3HLSL_fp4 hlsl
+{
+	source hdrfp4.hlsl
+	entry_point downscale3x3fp4
+	target ps_4_0
+}
+fragment_program Ogre/Compositor/HDR/downscale3x3GLSLES_fp glsles
+{
+	source hdr_downscale3x3.glsles
+	default_params
+	{
+		param_named inRTT int 0
+	}
+}
 fragment_program Ogre/Compositor/HDR/downscale3x3GLSL_fp glsl
 {
 	source hdr_downscale3x3.glsl
@@ -67,7 +100,9 @@ fragment_program Ogre/Compositor/HDR/downscale3x3GLSL_fp glsl
 }
 fragment_program Ogre/Compositor/HDR/downscale3x3_fp unified
 {
+	delegate Ogre/Compositor/HDR/downscale3x3HLSL_fp4
 	delegate Ogre/Compositor/HDR/downscale3x3GLSL_fp
+	delegate Ogre/Compositor/HDR/downscale3x3GLSLES_fp
 	delegate Ogre/Compositor/HDR/downscale3x3HLSL_fp
 	default_params
 	{
@@ -85,6 +120,7 @@ material Ogre/Compositor/HDR/Downsample3x3
 			cull_hardware none
 			cull_software none
 			depth_check off
+            polygon_mode_overrideable false
 
 			vertex_program_ref Ogre/Compositor/StdQuad_vp
 			{
@@ -110,6 +146,13 @@ fragment_program Ogre/Compositor/HDR/downscale3x3brightpassHLSL_fp hlsl
 	entry_point downscale3x3brightpass
 	target ps_2_0
 }
+fragment_program Ogre/Compositor/HDR/downscale3x3brightpassHLSL_fp4 hlsl
+{
+	source hdrfp4.hlsl
+	entry_point downscale3x3brightpassfp4
+	target ps_4_0
+}
+
 fragment_program Ogre/Compositor/HDR/utils_fp glsl
 {
 	source hdr_tonemap_util.glsl
@@ -125,9 +168,20 @@ fragment_program Ogre/Compositor/HDR/downscale3x3brightpassGLSL_fp glsl
 		param_named inLum int 1
 	}
 }
+fragment_program Ogre/Compositor/HDR/downscale3x3brightpassGLSLES_fp glsles
+{
+	source hdr_downscale3x3brightpass.glsles
+	default_params
+	{
+		param_named inRTT int 0
+		param_named inLum int 1
+	}
+}
 fragment_program Ogre/Compositor/HDR/downscale3x3brightpass_fp unified
 {
+	delegate Ogre/Compositor/HDR/downscale3x3brightpassHLSL_fp4
 	delegate Ogre/Compositor/HDR/downscale3x3brightpassGLSL_fp
+	delegate Ogre/Compositor/HDR/downscale3x3brightpassGLSLES_fp
 	delegate Ogre/Compositor/HDR/downscale3x3brightpassHLSL_fp
 	default_params
 	{
@@ -145,6 +199,7 @@ material Ogre/Compositor/HDR/Downsample3x3Brightpass
 			cull_hardware none
 			cull_software none
 			depth_check off
+            polygon_mode_overrideable false
 
 			vertex_program_ref Ogre/Compositor/StdQuad_vp
 			{
@@ -177,6 +232,12 @@ fragment_program Ogre/Compositor/HDR/bloomHLSL_fp hlsl
 	entry_point bloom
 	target ps_2_0
 }
+fragment_program Ogre/Compositor/HDR/bloomHLSL_fp4 hlsl
+{
+	source hdrfp4.hlsl
+	entry_point bloomfp4
+	target ps_4_0
+}
 fragment_program Ogre/Compositor/HDR/bloomGLSL_fp glsl
 {
 	source hdr_bloom.glsl
@@ -185,9 +246,19 @@ fragment_program Ogre/Compositor/HDR/bloomGLSL_fp glsl
 		param_named inRTT int 0
 	}
 }
+fragment_program Ogre/Compositor/HDR/bloomGLSLES_fp glsles
+{
+	source hdr_bloom.glsles
+	default_params
+	{
+		param_named inRTT int 0
+	}
+}
 fragment_program Ogre/Compositor/HDR/bloom_fp unified
 {
+	delegate Ogre/Compositor/HDR/bloomHLSL_fp4
 	delegate Ogre/Compositor/HDR/bloomGLSL_fp
+	delegate Ogre/Compositor/HDR/bloomGLSLES_fp	
 	delegate Ogre/Compositor/HDR/bloomHLSL_fp
 }
 
@@ -201,6 +272,7 @@ material Ogre/Compositor/HDR/GaussianBloom
 			cull_hardware none
 			cull_software none
 			depth_check off
+            polygon_mode_overrideable false
 
 			vertex_program_ref Ogre/Compositor/StdQuad_vp
 			{
@@ -228,9 +300,17 @@ fragment_program Ogre/Compositor/HDR/finaltonemappingHLSL_fp hlsl
 	entry_point finalToneMapping
 	target ps_2_0
 }
+fragment_program Ogre/Compositor/HDR/finaltonemappingHLSL_fp4 hlsl
+{
+	source hdrfp4.hlsl
+	entry_point finalToneMappingfp4
+	target ps_4_0
+}
+
 fragment_program Ogre/Compositor/HDR/finaltonemappingGLSL_fp glsl
 {
 	source hdr_finalToneMapping.glsl
+
 	// re-use common functions
 	attach Ogre/Compositor/HDR/utils_fp
 	default_params
@@ -240,10 +320,22 @@ fragment_program Ogre/Compositor/HDR/finaltonemappingGLSL_fp glsl
 		param_named inLum int 2
 	}
 }
+fragment_program Ogre/Compositor/HDR/finaltonemappingGLSLES_fp glsles
+{
+	source hdr_finalToneMapping.glsles
+	default_params
+	{
+		param_named inRTT int 0
+		param_named inBloom int 1
+		param_named inLum int 2
+	}
+}
 fragment_program Ogre/Compositor/HDR/finaltonemapping_fp unified
 {
-	delegate Ogre/Compositor/HDR/finaltonemappingHLSL_fp
+	delegate Ogre/Compositor/HDR/finaltonemappingHLSL_fp4
 	delegate Ogre/Compositor/HDR/finaltonemappingGLSL_fp
+	delegate Ogre/Compositor/HDR/finaltonemappingGLSLES_fp
+	delegate Ogre/Compositor/HDR/finaltonemappingHLSL_fp
 }
 
 material Ogre/Compositor/HDR/ToneMapping
@@ -255,6 +347,7 @@ material Ogre/Compositor/HDR/ToneMapping
 			cull_hardware none
 			cull_software none
 			depth_check off
+            polygon_mode_overrideable false
 
 			vertex_program_ref Ogre/Compositor/StdQuad_vp
 			{
@@ -282,5 +375,3 @@ material Ogre/Compositor/HDR/ToneMapping
 		}
 	}
 }
-
-
