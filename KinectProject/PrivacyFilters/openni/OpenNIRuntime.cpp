@@ -75,7 +75,6 @@ void OpenNIRuntime::initOpenNI()
 {
     //const char* deviceURI = openni::ANY_DEVICE;
     const char* deviceURI = "/opt/captures/PrimeSense Short-Range (1.09) - 1 user.oni";
-    //const char* deviceURI = "/files/capture/PSSR - Ogre.oni";
 
     try {
         if (openni::OpenNI::initialize() != openni::STATUS_OK)
@@ -117,7 +116,6 @@ void OpenNIRuntime::initOpenNI()
         m_oniDepthStream.setVideoMode(videoMode);
 
         // Start
-        m_oniColorStream.stop();
         if (m_oniColorStream.start() != openni::STATUS_OK)
             throw 6;
 

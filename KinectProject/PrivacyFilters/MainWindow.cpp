@@ -72,7 +72,6 @@ void MainWindow::on_btnStartKinect_clicked()
     m_playback->addInstance(userTrackerInstance);
     m_playback->addListener(m_colorViewer, colorInstance);
     m_playback->addListener(m_colorViewer, userTrackerInstance);
-    //m_playback->addListener(m_ogreScene, colorInstance);
     m_playback->addListener(m_ogreScene, userTrackerInstance);
 
     // Run

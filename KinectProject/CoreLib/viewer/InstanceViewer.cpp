@@ -21,13 +21,11 @@ InstanceViewer::~InstanceViewer()
 void InstanceViewer::setViewerEngine(ViewerEngine *viewerEngine)
 {
     Q_ASSERT(viewerEngine != nullptr);
-    qDebug() << QThread::currentThreadId();
     m_viewerEngine = viewerEngine;
 }
 
 QQuickFramebufferObject::Renderer* InstanceViewer::createRenderer() const
 {
-    qDebug() << QThread::currentThreadId();
     ViewerRenderer* renderer = new ViewerRenderer(this);
     renderer->setViewerEngine(m_viewerEngine);
     return renderer;
