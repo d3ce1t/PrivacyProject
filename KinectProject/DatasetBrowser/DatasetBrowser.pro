@@ -60,14 +60,6 @@ unix:!macx {
     DEPENDPATH += /usr/include/opencv/
 }
 
-# CoreLib Dynamic
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../CoreLib/release/ -lCoreLib
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../CoreLib/debug/ -lCoreLib
-
-# CoreLib Static
-win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/release/CoreLib.lib
-else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/debug/CoreLib.lib
-
 win32 {
     INCLUDEPATH += $$PWD
 
@@ -75,7 +67,22 @@ win32 {
     INCLUDEPATH += $$PWD/../CoreLib
     DEPENDPATH += $$PWD/../CoreLib
 
-    # OpenCV2
-    # contains(QMAKE_TARGET.arch, x86_64):LIBS += -L"C:/opt/opencv-2.4.9/x64/vc11/lib" -lopencv_core249 -lopencv_imgproc249
-    # contains(QMAKE_TARGET.arch, x86):LIBS += -L"C:/opt/opencv-2.4.9/x86/vc11/lib" -lopencv_core249 -lopencv_imgproc249
+    # CoreLib Dynamic
+    CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../CoreLib/release/ -lCoreLib
+    else:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../CoreLib/debug/ -lCoreLib
+
+    # CoreLib Static
+    CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/release/CoreLib.lib
+    else:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/debug/CoreLib.lib
 }
+
+CONFIG(release, debug|release): DESTDIR = $$OUT_PWD/release
+CONFIG(debug, debug|release): DESTDIR = $$OUT_PWD/debug
+
+# Copy OpenCV dll
+win32:OPENCV_DIR = C:\opt\opencv-2.4.9\x86\vc11\bin
+win32:OpenCV.path = $$DESTDIR
+win32:OpenCV.files = $$OPENCV_DIR/opencv_core249.dll $$OPENCV_DIR/opencv_imgproc249.dll
+
+# make install
+win32:INSTALLS += OpenCV
