@@ -49,7 +49,7 @@ unix:!macx {
         INCLUDEPATH += $$OGREDIR/include/OGRE
         INCLUDEPATH += $$OGREDIR/include/OGRE/RenderSystems/GL
         CONFIG(release, debug|release) {
-            LIBS += -L$$OGREDIR/lib/release -L$$OGREDIR/lib/release/opt -lOgreMain -lRenderSystem_GL
+            LIBS += -L$$OGREDIR/lib/release -L$$OGREDIR/lib/Release/opt -lOgreMain -lRenderSystem_GL
         } else {
             LIBS += -L$$OGREDIR/lib/debug -L$$OGREDIR/lib/debug/opt -lOgreMain_d -lRenderSystem_GL_d
         }

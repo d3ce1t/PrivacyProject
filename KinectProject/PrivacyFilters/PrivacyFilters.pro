@@ -101,8 +101,8 @@ win32 {
     CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../CoreLib/release/ -lCoreLib
     else:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../CoreLib/debug/ -lCoreLib
     # Link Static
-    CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/release/CoreLib.lib
-    else:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/debug/CoreLib.lib
+    !win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/release/CoreLib.lib
+    else:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/debug/CoreLib.lib
 
     # QmlOgreLib
     INCLUDEPATH += $$PWD/../QmlOgreLib
@@ -122,20 +122,10 @@ win32 {
         message(Using Ogre libraries in $$OGREDIR)
         INCLUDEPATH += $$OGREDIR/include/OGRE
         INCLUDEPATH += $$OGREDIR/include/OGRE/RenderSystems/GL
-        #CONFIG(release, debug|release) {
-        #    LIBS += -L$$OGREDIR/lib/release -L$$OGREDIR/lib/release/opt -lOgreMain -lRenderSystem_GL
-        #} else {
-        #    LIBS += -L$$OGREDIR/lib/debug -L$$OGREDIR/lib/debug/opt -lOgreMain_d -lRenderSystem_GL_d
-        #}
 
         BOOSTDIR = $$OGREDIR/boost
         !isEmpty(BOOSTDIR) {
             INCLUDEPATH += $$BOOSTDIR
-        #    CONFIG(release, debug|release) {
-        #        LIBS += -L$$BOOSTDIR/lib -llibboost_date_time-vc110-mt-1_55 -llibboost_thread-vc110-mt-1_55
-        #    } else {
-        #        LIBS += -L$$BOOSTDIR/lib -llibboost_date_time-vc110-mt-gd-1_55 -llibboost_thread-vc110-mt-gd-1_55
-        #    }
         }
     }
 
@@ -184,7 +174,8 @@ Resources.files = ../OgreData/*
 unix!macosx:Config.path = $$OUT_PWD
 unix!macosx:Config.files = config/linux/*
 win32:Config.path = $$DESTDIR
-win32:Config.files = config/win/*
+win32:CONFIG(release, debug|release):Config.files = config/win/release/*
+win32:CONFIG(debug, debug|release):Config.files = config/win/debug/*
 
 # Copy OpenCV dll
 win32:OPENCV_DIR = C:\opt\opencv-2.4.9\x86\vc11\bin
@@ -192,9 +183,10 @@ win32:OpenCV.path = $$DESTDIR
 win32:OpenCV.files = $$OPENCV_DIR/opencv_core249.dll $$OPENCV_DIR/opencv_imgproc249.dll
 
 # Copy Ogre dll
-win32:OGRE_DIR = C:\opt\OgreSDK_vc11_v1-9-0\bin\debug
+win32:CONFIG(release, debug|release): OGRE_DIR = C:\opt\OgreSDK_vc11_v1-9-0\bin\Release
+win32:CONFIG(debug, debug|release): OGRE_DIR = C:\opt\OgreSDK_vc11_v1-9-0\bin\debug
 win32:Ogre.path = $$DESTDIR
-win32:Ogre.files = $$OGRE_DIR/OgreMain_d.dll $$OGRE_DIR/RenderSystem_GL_d.dll
+win32:Ogre.files = $$OGRE_DIR/OgreMain_d.dll $$OGRE_DIR/RenderSystem_GL_d.dll $$OGRE_DIR/OgreMain.dll $$OGRE_DIR/RenderSystem_GL.dll
 
 # Copy OpenNI dll
 win32:OPENNI_DIR = "C:\Program Files (x86)\OpenNI2\Redist"

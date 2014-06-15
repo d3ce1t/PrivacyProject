@@ -43,9 +43,6 @@ SOURCES += \
     dataset/MSRDaily/MSRDailySkeletonInstance.cpp \
     dataset/MSRDaily/MSRDailyDepthInstance.cpp \
     dataset/MSRDaily/MSRDailyActivity3D.cpp \
-    playback/PlaybackWorker.cpp \
-    playback/PlaybackNotifier.cpp \
-    playback/PlaybackListener.cpp \
     playback/PlaybackControl.cpp \
     viewer/SkeletonItem.cpp \
     viewer/SilhouetteItem.cpp \
@@ -56,7 +53,6 @@ SOURCES += \
     viewer/Model3DItem.cpp \
     viewer/InstanceViewerWindow.cpp \
     viewer/InstanceViewer.cpp \
-    viewer/InstanceRecorder.cpp \
     viewer/CustomItem.cpp \
     InstanceWidgetItem.cpp \
     types/FrameFilter.cpp \
@@ -66,7 +62,8 @@ SOURCES += \
     dataset/MSRDaily/MSRDailyColorInstance.cpp \
     Config.cpp \
     viewer/ViewerEngine.cpp \
-    viewer/ViewerRenderer.cpp
+    viewer/ViewerRenderer.cpp \
+    playback/PlaybackWorker.cpp
 
 HEADERS += \
     types/Vector3D.h \
@@ -96,9 +93,6 @@ HEADERS += \
     dataset/MSRDaily/MSRDailyDepthInstance.h \
     dataset/MSRDaily/MSRDailyActivity3D.h \
     Utils.h \
-    playback/PlaybackWorker.h \
-    playback/PlaybackNotifier.h \
-    playback/PlaybackListener.h \
     playback/PlaybackControl.h \
     viewer/SkeletonItem.h \
     viewer/SilhouetteItem.h \
@@ -110,7 +104,6 @@ HEADERS += \
     viewer/Model3DItem.h \
     viewer/InstanceViewerWindow.h \
     viewer/InstanceViewer.h \
-    viewer/InstanceRecorder.h \
     viewer/CustomItem.h \
     InstanceWidgetItem.h \
     types/FrameFilter.h \
@@ -121,7 +114,8 @@ HEADERS += \
     dataset/MSRDaily/MSRDailyColorInstance.h \
     Config.h \
     viewer/ViewerEngine.h \
-    viewer/ViewerRenderer.h
+    viewer/ViewerRenderer.h \
+    playback/PlaybackWorker.h
 
 unix:!symbian {
     maemo5 {
