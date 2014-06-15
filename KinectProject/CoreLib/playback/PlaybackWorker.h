@@ -2,11 +2,10 @@
 #define PLAYBACKWORKER_H
 
 #include <QObject>
-#include "PlaybackNotifier.h"
+#include <QList>
+#include <QReadWriteLock>
 #include <memory>
-#include "types/StreamInstance.h"
-#include <QWaitCondition>
-#include <QMutex>
+#include "types/BaseInstance.h"
 
 using namespace std;
 
@@ -18,41 +17,37 @@ class PlaybackWorker : public QObject
 {
     Q_OBJECT
 
-    friend class PlaybackNotifier;
-
 public:
-    PlaybackWorker(PlaybackControl *parent);
+    PlaybackWorker(const PlaybackControl* playback, QList<shared_ptr<BaseInstance>>& instances);
+    void enablePlayLoop(bool value);
     void setFPS(float fps);
     float getFPS() const;
-    void stop();
-    void pause();
+    bool isValidFrame(qint64 frameIndex);
 
 public slots:
     void run();
+    void stop();
 
 signals:
-    void availableInstances(QList<shared_ptr<BaseInstance>> instances);
-    void finished();
-
-protected:
-    void initialise();
-    void sync();
-    void waitForNotifier();
-    void swap(const QList<shared_ptr<BaseInstance> > &instances);
+    void onNewFrames(const QMultiHashDataFrames dataFrames, const qint64 frameId, const PlaybackControl* playback);
+    void onStop();
 
 private:
-    bool                            m_running;
-    bool                            m_paused;
-    qint64                          m_sleepTime;
-    float                           m_fps;
-    PlaybackControl*                m_parent;
-    PlaybackNotifier*               m_notifier;
-    QThread*                        m_thread;
-    QMutex                          m_lockSync;
-    QWaitCondition                  m_sync;
-    bool                            m_notifierFinish;
+    void openAllInstances();
+    void closeAllInstances();
+    QList<shared_ptr<BaseInstance> > readAllInstances();
+    void swapAllInstances(const QList<shared_ptr<BaseInstance> > &instances);
+
+    const PlaybackControl*           m_playback;
+    QList<shared_ptr<BaseInstance>>& m_instances;
+    bool                             m_playloop_enabled;
+    qint64                           m_slotTime;
+    bool                             m_running;
+    float                            m_fps;
+    QReadWriteLock                   m_lock;
+    qint64                           m_framesCounter;
 };
 
-} // End namespace
+} // End Namespace
 
 #endif // PLAYBACKWORKER_H

@@ -50,8 +50,8 @@ void MainWindow::on_btnStartKinect_clicked()
 
     // Create Playback
     m_playback = new dai::PlaybackControl;
-    m_playback->setFPS(10);
-    connect(m_playback, &dai::PlaybackControl::onPlaybackFinished, m_playback, &dai::PlaybackControl::deleteLater);
+    m_playback->setFPS(30);
+    connect(m_playback, &dai::PlaybackControl::onStop, m_playback, &dai::PlaybackControl::deleteLater);
 
     // Create viewers
     m_colorViewer = new dai::InstanceViewerWindow(dai::MODE_2D);
@@ -70,13 +70,12 @@ void MainWindow::on_btnStartKinect_clicked()
     // Connect all together
     m_playback->addInstance(colorInstance);
     m_playback->addInstance(userTrackerInstance);
-    m_playback->addListener(m_colorViewer, colorInstance);
-    m_playback->addListener(m_colorViewer, userTrackerInstance);
-    m_playback->addListener(m_ogreScene, userTrackerInstance);
+    connect(m_playback, &dai::PlaybackControl::onNewFrames, m_colorViewer, &dai::InstanceViewerWindow::newFrames);
+    connect(m_playback, &dai::PlaybackControl::onNewFrames, m_ogreScene, &OgreScene::newFrames);
 
     // Run
-    m_playback->play();
     m_colorViewer->show();
+    m_playback->play();
 }
 
 void MainWindow::onPlusKeyPressed()
@@ -99,7 +98,7 @@ void MainWindow::onMinusKeyPressed()
 
 void MainWindow::onSpaceKeyPressed()
 {
-    m_playback->pause();
+    //m_playback->pause();
 }
 
 void MainWindow::on_btnQuit_clicked()

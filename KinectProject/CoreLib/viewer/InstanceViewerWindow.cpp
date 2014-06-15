@@ -7,6 +7,7 @@
 #include <QQmlContext>
 #include "CustomItem.h"
 #include <QMetaEnum>
+#include <QDebug>
 
 namespace dai {
 
@@ -79,7 +80,7 @@ void InstanceViewerWindow::initialise()
 
     // Windows setup
     connect(m_quickWindow, SIGNAL(closing(QQuickCloseEvent*)), this, SLOT(deleteLater()));
-    connect(m_viewerEngine, &ViewerEngine::frameRendered, this, &InstanceViewerWindow::completeAsyncTask);
+    //connect(m_viewerEngine, &ViewerEngine::frameRendered, this, &InstanceViewerWindow::completeAsyncTask);
     m_initialised = true;
 }
 
@@ -91,7 +92,8 @@ void InstanceViewerWindow::show()
 
 void InstanceViewerWindow::processListItem(QListWidget* widget)
 {
-    if (widget == nullptr)
+    Q_UNUSED(widget)
+    /*if (widget == nullptr)
         return;
 
     InstanceWidgetItem* instanceItem = (InstanceWidgetItem*) widget->selectedItems().at(0);
@@ -100,41 +102,50 @@ void InstanceViewerWindow::processListItem(QListWidget* widget)
     shared_ptr<BaseInstance> instance = dataset.getInstance(info);
 
     if (instance) {
-        playback()->removeListener(this, instance->getType());
         playback()->addInstance(instance);
         playback()->addListener(this, instance);
         playback()->play(true);
         setTitle("Instance Viewer (" + instance->getTitle() + ")");
-    }
+    }*/
 }
 
-// Called from Notifier thread
-void InstanceViewerWindow::onNewFrame(const QHash<DataFrame::FrameType, shared_ptr<DataFrame>>& dataFrames)
+// SLOT connected to the Playback onNewFrames Signal
+void InstanceViewerWindow::newFrames(const QMultiHashDataFrames dataFrames, const qint64 frameId, const PlaybackControl *playback)
 {
-    // Sent to viewer (execute the method in the thread it belongs to)
-    QMetaObject::invokeMethod(m_viewerEngine, "prepareScene",
-                                  Qt::AutoConnection,
-                                  Q_ARG(QHashDataFrames, dataFrames));
+    // Check the received frames are valid because we could have been called out of time
+    if (!playback->isValidFrame(frameId)) {
+        qDebug() << "Frame Id:" << frameId << "Skipped";
+        return;
+    }
+
+    // Copy frames
+    QMultiHashDataFrames copyFrames;
+
+    foreach (DataFrame::FrameType key, dataFrames.keys()) {
+        QList<shared_ptr<DataFrame>> auxFrames = dataFrames.values(key);
+        foreach (shared_ptr<DataFrame> frame, auxFrames) {
+            copyFrames.insert(key, frame->clone());
+        }
+    }
+
+    // Check if the frames has been copied correctly
+    if (!playback->isValidFrame(frameId)) {
+        qDebug() << "Frame Id:" << frameId << "Read but Not Valid";
+        return;
+    }
+
+    // Do task
+    m_viewerEngine->prepareScene(copyFrames);
 
     // Feed skeleton data models
-    if (dataFrames.contains(DataFrame::Skeleton)) {
-        shared_ptr<SkeletonFrame> skeleton = static_pointer_cast<SkeletonFrame>( dataFrames.value(DataFrame::Skeleton) );
-        QMetaObject::invokeMethod(this, "feedDataModels",
-                                      Qt::AutoConnection,
-                                      Q_ARG(shared_ptr<SkeletonFrame>, skeleton));
+    if (copyFrames.contains(DataFrame::Skeleton))
+    {
+        shared_ptr<SkeletonFrame> skeleton = static_pointer_cast<SkeletonFrame>( copyFrames.value(DataFrame::Skeleton) );
+        feedDataModels(skeleton);
     }
 
-    // ¿Why is this causing flickering?
-    m_fps = playback()->getFPS();
+    m_fps = playback->getFPS();
     emit changeOfStatus();
-
-    // Block notifier thread
-    PlaybackListener::startAsyncTask();
-}
-
-void InstanceViewerWindow::completeAsyncTask()
-{
-    PlaybackListener::endAsyncTask();
 }
 
 float InstanceViewerWindow::getFPS() const

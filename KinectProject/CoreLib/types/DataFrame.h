@@ -3,7 +3,7 @@
 
 #include <QList>
 #include <memory>
-#include <QHash>
+#include <QMultiHash>
 
 using namespace std;
 
@@ -42,7 +42,7 @@ protected:
     FrameType m_type;
 };
 
-typedef QHash<DataFrame::FrameType, shared_ptr<DataFrame>> QHashDataFrames;
+typedef QMultiHash<DataFrame::FrameType, shared_ptr<DataFrame>> QMultiHashDataFrames;
 
 } // End Namespace
 

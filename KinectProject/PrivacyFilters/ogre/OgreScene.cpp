@@ -126,8 +126,11 @@ void OgreScene::destroyScene(void)
     }
 }
 
-void OgreScene::onNewFrame(const QHash<dai::DataFrame::FrameType, shared_ptr<dai::DataFrame>>& frames)
+void OgreScene::newFrames(const dai::QMultiHashDataFrames frames, const qint64 frameId, const dai::PlaybackControl* playback)
 {
+    Q_UNUSED(playback)
+    Q_UNUSED(count)
+
     qint64 time_ms = m_timer.elapsed();
 
     if (!m_initialised || time_ms == m_lastTime)

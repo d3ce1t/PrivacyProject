@@ -4,18 +4,18 @@
 #include <QQuickWindow>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
-#include "playback/PlaybackListener.h"
 #include "types/SkeletonFrame.h"
 #include <QMultiHash>
 #include <QObject>
 #include <QTableView>
 #include <QStandardItemModel>
 #include <QListWidget>
+#include "playback/PlaybackControl.h"
 #include "viewer/ViewerEngine.h"
 
 namespace dai {
 
-class InstanceViewerWindow : public QObject, public PlaybackListener
+class InstanceViewerWindow : public QObject
 {
     Q_OBJECT
 
@@ -39,16 +39,11 @@ public slots:
     void showJointsWindow();
     void showDistancesWindow();
     void showQuaternionsWindow();
+    void newFrames(const QMultiHashDataFrames dataFrames, const qint64 frameId, const PlaybackControl* playback);
 
 private slots:
     float getFPS() const;
-    void completeAsyncTask();
     void feedDataModels(shared_ptr<SkeletonFrame> skeletonFrame);
-
-protected:
-    void onNewFrame(const QHash<DataFrame::FrameType, shared_ptr<DataFrame>>& dataFrames);
-    void onPlaybackStart() {}
-    void onPlaybackStop() {}
 
 private:
     void setupJointsModel(QStandardItemModel &model);

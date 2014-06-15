@@ -79,7 +79,7 @@ void MSRActionDepthInstance::nextFrame(DepthFrame &frame)
             float value = m_readBuffer[y].depthRow[x];
 
             if (value != 0) {
-                value = 2.0 + normalise<float>(m_readBuffer[y].depthRow[x], 290, 649, 0, 0.9);
+                value = 2.0 + normalise<float>(m_readBuffer[y].depthRow[x], 290, 649, 0, 0.9f);
             }
 
             frame.setItem(y, x, value);

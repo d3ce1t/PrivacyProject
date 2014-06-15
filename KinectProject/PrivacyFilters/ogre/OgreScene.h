@@ -7,12 +7,12 @@
 #include "ogre/SinbadCharacterController.h"
 #include "ogre/OgrePointCloud.h"
 #include <QObject>
-#include "playback/PlaybackListener.h"
+#include "playback/PlaybackControl.h"
 #include "types/DepthFrame.h"
 #include "types/ColorFrame.h"
 #include <QReadWriteLock>
 
-class OgreScene : public QObject, public dai::PlaybackListener
+class OgreScene : public QObject
 {
     Q_OBJECT
 
@@ -26,9 +26,9 @@ public:
 
 public slots:
     void enableFilter(bool flag);
+    void newFrames(const dai::QMultiHashDataFrames frames, const qint64 frameId, const dai::PlaybackControl* playback);
 
 protected:
-    void onNewFrame(const QHash<dai::DataFrame::FrameType, shared_ptr<dai::DataFrame>>& frames);
     void createPointCloud();
     void loadDepthData(shared_ptr<dai::DepthFrame> depthFrame);
     void loadColorData(shared_ptr<dai::ColorFrame> colorFrame);

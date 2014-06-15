@@ -136,7 +136,7 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
         InstanceViewerWindow* windowViewer = new InstanceViewerWindow(mode);
         windowViewer->initialise();
         m_playback.addInstance(instance);
-        m_playback.addListener(windowViewer, instance);
+        connect(&m_playback, &dai::PlaybackControl::onNewFrames, windowViewer, &dai::InstanceViewerWindow::newFrames);
 
         try {
             m_playback.play(ui->checkSync->isChecked());
