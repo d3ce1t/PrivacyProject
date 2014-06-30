@@ -110,7 +110,7 @@ void InstanceViewerWindow::processListItem(QListWidget* widget)
 }
 
 // SLOT connected to the Playback onNewFrames Signal
-void InstanceViewerWindow::newFrames(const QMultiHashDataFrames dataFrames, const qint64 frameId, const PlaybackControl *playback)
+void InstanceViewerWindow::newFrames(const QHashDataFrames dataFrames, const qint64 frameId, const PlaybackControl *playback)
 {
     // Check the received frames are valid because we could have been called out of time
     if (!playback->isValidFrame(frameId)) {
@@ -119,13 +119,11 @@ void InstanceViewerWindow::newFrames(const QMultiHashDataFrames dataFrames, cons
     }
 
     // Copy frames
-    QMultiHashDataFrames copyFrames;
+    QHashDataFrames copyFrames;
 
     foreach (DataFrame::FrameType key, dataFrames.keys()) {
-        QList<shared_ptr<DataFrame>> auxFrames = dataFrames.values(key);
-        foreach (shared_ptr<DataFrame> frame, auxFrames) {
-            copyFrames.insert(key, frame->clone());
-        }
+        shared_ptr<DataFrame> frame = dataFrames.value(key);
+        copyFrames.insert(key, frame->clone());
     }
 
     // Check if the frames has been copied correctly

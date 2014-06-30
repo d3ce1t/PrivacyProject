@@ -126,20 +126,20 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
     {
         ViewerMode mode;
 
-        if (instance->getType() == INSTANCE_COLOR || instance->getType() == INSTANCE_USER) {
+        if (info.getType() == DataFrame::Color || info.getType() == DataFrame::User) {
             mode = MODE_2D;
-        }
-        else if (instance->getType() == INSTANCE_DEPTH || instance->getType() == INSTANCE_SKELETON) {
+        } else if (info.getType() == DataFrame::Depth || info.getType() == DataFrame::Skeleton) {
             mode = MODE_3D;
         }
 
         InstanceViewerWindow* windowViewer = new InstanceViewerWindow(mode);
         windowViewer->initialise();
+        m_playback.clearInstances();
         m_playback.addInstance(instance);
-        connect(&m_playback, &dai::PlaybackControl::onNewFrames, windowViewer, &dai::InstanceViewerWindow::newFrames);
+        connect(m_playback.worker(), &dai::PlaybackWorker::onNewFrames, windowViewer, &dai::InstanceViewerWindow::newFrames);
 
         try {
-            m_playback.play(ui->checkSync->isChecked());
+            m_playback.play();
             windowViewer->setTitle("Instance Viewer (" + instance->getTitle() + ")");
             windowViewer->show();
         }
@@ -167,37 +167,46 @@ void DatasetBrowser::loadDataset(Dataset::DatasetType type)
     }
 
     // Load widgets with DataSet Info
-    const DatasetMetadata& info = m_dataset->getMetadata();
+    const DatasetMetadata& dsMetaData = m_dataset->getMetadata();
 
     // Load Activities
-    for (int i=1; i<=info.getNumberOfActivities(); ++i) {
-        QListWidgetItem* item = new QListWidgetItem(info.getActivityName(i), ui->listActivities);
+    for (int i=1; i<=dsMetaData.getNumberOfActivities(); ++i) {
+        QListWidgetItem* item = new QListWidgetItem(dsMetaData.getActivityName(i), ui->listActivities);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable); // set checkable flag
         item->setCheckState(Qt::Checked);
     }
 
     // Load Actors
-    for (int i=1; i<=info.getNumberOfActors(); ++i) {
-        QListWidgetItem* item = new QListWidgetItem(info.getActorName(i), ui->listActors);
+    for (int i=1; i<=dsMetaData.getNumberOfActors(); ++i) {
+        QListWidgetItem* item = new QListWidgetItem(dsMetaData.getActorName(i), ui->listActors);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable); // set checkable flag
         item->setCheckState(Qt::Checked); // AND initialize check state
     }
 
     // Load Samples
-    for (int i=1; i<=info.getNumberOfSampleTypes(); ++i) {
-        QListWidgetItem* item = new QListWidgetItem(info.getSampleName(i), ui->listSamples);
+    for (int i=1; i<=dsMetaData.getNumberOfSampleTypes(); ++i) {
+        QListWidgetItem* item = new QListWidgetItem(dsMetaData.getSampleName(i), ui->listSamples);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable); // set checkable flag
         item->setCheckState(Qt::Checked); // AND initialize check state
     }
 
-    // Load Instance Tyepes
-    const QMap<QString, InstanceType> availableInstances = info.availableInstanceTypes();
-    foreach (QString type, availableInstances.keys()) {
-        ui->comboType->addItem(type[0].toUpper() + type.mid(1), QVariant(availableInstances.value(type)));
+    // Load Instance Types
+    const DataFrame::SupportedFrames supportedFrames = dsMetaData.availableInstanceTypes();
+
+    if (supportedFrames.testFlag(DataFrame::Depth)) {
+        ui->comboType->addItem("Depth", QVariant(DataFrame::Depth));
+    }
+    if (supportedFrames.testFlag(DataFrame::Color)) {
+        ui->comboType->addItem("Color", QVariant(DataFrame::Color));
+    }
+    if (supportedFrames.testFlag(DataFrame::Skeleton)) {
+        ui->comboType->addItem("Skeleton", QVariant(DataFrame::Skeleton));
+    }
+    if (supportedFrames.testFlag(DataFrame::User)) {
+        ui->comboType->addItem("User", QVariant(DataFrame::User));
     }
 
     ui->comboType->blockSignals(false);
-
     loadInstances();
 }
 
@@ -208,7 +217,7 @@ void DatasetBrowser::loadInstances()
     ui->listInstances->clear();
 
     // Prepare Filter
-    InstanceType showType = (InstanceType) ui->comboType->itemData(ui->comboType->currentIndex()).toInt();
+    DataFrame::FrameType showType = (DataFrame::FrameType) ui->comboType->itemData(ui->comboType->currentIndex()).toInt();
     QList<int> activities;
 
     for (int i=0; i<ui->listActivities->count(); ++i) {

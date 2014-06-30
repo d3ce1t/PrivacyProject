@@ -8,8 +8,8 @@ using namespace std;
 namespace dai {
 
 OpenNIUserTrackerInstance::OpenNIUserTrackerInstance()
+    : BaseInstance(DataFrame::Depth | DataFrame::User | DataFrame::Skeleton)
 {
-    this->m_type = INSTANCE_USERTRACKER;
     this->m_title = "UserTracker Live Stream";
     m_frameBuffer[0] = new UserTrackerFrame(640, 480);
     m_frameBuffer[1] = new UserTrackerFrame(640, 480);

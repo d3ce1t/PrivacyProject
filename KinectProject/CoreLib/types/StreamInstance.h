@@ -16,13 +16,10 @@ template <class T>
 class StreamInstance : public BaseInstance
 {
 public:
-    StreamInstance();
+    StreamInstance(DataFrame::SupportedFrames supportedFrames);
 
 #if (!defined _MSC_VER)
     StreamInstance(const StreamInstance& other) = delete;
-    virtual ~StreamInstance() = default;
-#else
-    virtual ~StreamInstance() {}
 #endif
 
     void open() override;
@@ -56,9 +53,9 @@ private:
 
 
 template <class T>
-StreamInstance<T>::StreamInstance()
+StreamInstance<T>::StreamInstance(DataFrame::SupportedFrames supportedFrames)
+    : BaseInstance(supportedFrames)
 {
-    m_type = INSTANCE_UNINITIALISED;
     m_writeFrame = nullptr;
     m_readFrame = nullptr;
     m_frameIndex = 0;

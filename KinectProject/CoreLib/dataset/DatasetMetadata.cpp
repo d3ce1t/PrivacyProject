@@ -29,7 +29,7 @@ DatasetMetadata::~DatasetMetadata()
     m_sampleTypes.clear();
 
 
-    QHashIterator<InstanceType, QHash<int, InstanceInfoList*>* > it(m_instances);
+    QHashIterator<DataFrame::FrameType, QHash<int, InstanceInfoList*>* > it(m_instances);
 
     while (it.hasNext())
     {
@@ -89,7 +89,7 @@ int DatasetMetadata::getNumberOfSampleTypes() const
     return m_numberOfSampleTypes;
 }
 
-const InstanceInfo DatasetMetadata::instance(InstanceType type, int activity, int actor, int sample)
+const InstanceInfo DatasetMetadata::instance(DataFrame::FrameType type, int activity, int actor, int sample)
 {
     InstanceInfo* result = 0;
     QHash<int, InstanceInfoList*>& hashInstances = *(m_instances[type]);
@@ -118,7 +118,7 @@ const InstanceInfo DatasetMetadata::instance(InstanceType type, int activity, in
 }
 
 const InstanceInfoList* DatasetMetadata::instances(
-        InstanceType type, const QList<int>* activities, const QList<int>* actors, const QList<int>* samples) const
+        DataFrame::FrameType type, const QList<int>* activities, const QList<int>* actors, const QList<int>* samples) const
 {
     InstanceInfoList* result = new InstanceInfoList();
 
@@ -201,7 +201,7 @@ void DatasetMetadata::addInstanceInfo(InstanceInfo* instance)
 
 shared_ptr<DatasetMetadata> DatasetMetadata::load(QString xmlPath)
 {
-    shared_ptr<DatasetMetadata> result(new DatasetMetadata());
+    shared_ptr<DatasetMetadata> dsMetaDataObject(new DatasetMetadata());
     QFile file(xmlPath);
     file.open(QIODevice::ReadOnly);
 
@@ -221,53 +221,53 @@ shared_ptr<DatasetMetadata> DatasetMetadata::load(QString xmlPath)
         case QXmlStreamReader::StartElement:
             // DataSet tag
             if (reader.name() == "dataset") {
-                result->m_name = reader.attributes().value("name").toString();
+                dsMetaDataObject->m_name = reader.attributes().value("name").toString();
             }
             // Description tag
             else if (reader.name() == "description") {
                 reader.readNext();
-                result->m_description = reader.text().toString().trimmed();
+                dsMetaDataObject->m_description = reader.text().toString().trimmed();
             }
             // Path tag
             else if (reader.name() == "path") {
                 reader.readNext();
-                result->m_path = reader.text().toString().trimmed();
+                dsMetaDataObject->m_path = reader.text().toString().trimmed();
             }
             // Activities tag
             else if (reader.name() == "activities") {
                 int number = reader.attributes().value("size").toString().toInt();
-                result->m_numberOfActivities = number;
+                dsMetaDataObject->m_numberOfActivities = number;
                 insideActivities = true;
             }
             // Activity tag
             else if (reader.name() == "activity" && insideActivities) {
                 int key = reader.attributes().value("key").toString().toInt();
                 reader.readNext();
-                result->m_activities[key] = new QString(reader.text().toString());
+                dsMetaDataObject->m_activities[key] = new QString(reader.text().toString());
             }
             // Actors tag
             else if (reader.name() == "actors") {
                 int number = reader.attributes().value("size").toString().toInt();
-                result->m_numberOfActors = number;
+                dsMetaDataObject->m_numberOfActors = number;
                 insideActors = true;
             }
             // Actor tag
             else if (reader.name() == "actor" && insideActors) {
                 int key = reader.attributes().value("key").toString().toInt();
                 reader.readNext();
-                result->m_actors[key] = new QString(reader.text().toString());
+                dsMetaDataObject->m_actors[key] = new QString(reader.text().toString());
             }
             // Samples tag
             else if (reader.name() == "samples") {
                 int number = reader.attributes().value("size").toString().toInt();
-                result->m_numberOfSampleTypes = number;
+                dsMetaDataObject->m_numberOfSampleTypes = number;
                 insideSamples = true;
             }
             // Sample tag
             else if (reader.name() == "sample" && insideSamples) {
                 int key = reader.attributes().value("key").toString().toInt();
                 reader.readNext();
-                result->m_sampleTypes[key] = new QString(reader.text().toString());
+                dsMetaDataObject->m_sampleTypes[key] = new QString(reader.text().toString());
             }
             // Instances tag
             else if (reader.name() == "instances") {
@@ -284,29 +284,27 @@ shared_ptr<DatasetMetadata> DatasetMetadata::load(QString xmlPath)
                 reader.readNext(); // seek into text
                 QString file = reader.text().toString();
 
-                InstanceType type = INSTANCE_UNINITIALISED;
+                DataFrame::FrameType type = DataFrame::Unknown;
 
                 if (strType == "depth")
-                    type = INSTANCE_DEPTH;
+                    type = DataFrame::Depth;
                 else if (strType == "color")
-                    type = INSTANCE_COLOR;
+                    type = DataFrame::Color;
                 else if (strType == "skeleton")
-                    type = INSTANCE_SKELETON;
+                    type = DataFrame::Skeleton;
                 else if (strType == "user")
-                    type = INSTANCE_USER;
+                    type = DataFrame::User;
 
-                if (!result->m_availableInstanceTypes.contains(strType)) {
-                    result->m_availableInstanceTypes.insert(strType, type);
-                }
+                dsMetaDataObject->m_availableInstanceTypes |= type;
 
-                InstanceInfo* instanceInfo = new InstanceInfo(type, result);
+                InstanceInfo* instanceInfo = new InstanceInfo(type, dsMetaDataObject);
                 instanceInfo->setActivity(activity);
                 instanceInfo->setActor(actor);
                 instanceInfo->setSample(sample);
                 instanceInfo->setFileName(file);
 
                 // Insert
-                result->addInstanceInfo(instanceInfo);
+                dsMetaDataObject->addInstanceInfo(instanceInfo);
             }
             break;
 
@@ -338,7 +336,7 @@ shared_ptr<DatasetMetadata> DatasetMetadata::load(QString xmlPath)
     reader.clear();
     file.close();
 
-    return result;
+    return dsMetaDataObject;
 }
 
 void DatasetMetadata::setDataset(Dataset* dataset)
@@ -351,7 +349,7 @@ const Dataset &DatasetMetadata::dataset() const
     return *m_dataset;
 }
 
-const QMap<QString, InstanceType> DatasetMetadata::availableInstanceTypes() const
+const DataFrame::SupportedFrames DatasetMetadata::availableInstanceTypes() const
 {
     return m_availableInstanceTypes;
 }

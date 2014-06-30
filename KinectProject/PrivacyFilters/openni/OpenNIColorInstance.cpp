@@ -7,8 +7,8 @@ using namespace std;
 namespace dai {
 
 OpenNIColorInstance::OpenNIColorInstance()
+    : StreamInstance(DataFrame::Color)
 {
-    this->m_type = dai::INSTANCE_COLOR;
     this->m_title = "Color Live Stream";
     m_frameBuffer[0].reset(new ColorFrame(640, 480));
     m_frameBuffer[1].reset(new ColorFrame(640, 480));

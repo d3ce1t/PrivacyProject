@@ -14,7 +14,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {   
     ui->setupUi(this);
-    m_playback = nullptr;
+
+    // Setup playback
+    m_playback.setFPS(30);
 
     // Show this window centered
     QDesktopWidget *desktop = QApplication::desktop();
@@ -48,14 +50,15 @@ void MainWindow::on_btnStartKinect_clicked()
     shared_ptr<dai::OpenNIColorInstance> colorInstance(new dai::OpenNIColorInstance);
     shared_ptr<dai::OpenNIUserTrackerInstance> userTrackerInstance(new dai::OpenNIUserTrackerInstance);
 
-    // Create Playback
-    m_playback = new dai::PlaybackControl;
-    m_playback->setFPS(30);
-    connect(m_playback, &dai::PlaybackControl::onStop, m_playback, &dai::PlaybackControl::deleteLater);
+    // Playback
+    m_playback.clearInstances();
+    m_playback.addInstance(colorInstance);
+    m_playback.addInstance(userTrackerInstance);
 
     // Create viewers
     m_colorViewer = new dai::InstanceViewerWindow(dai::MODE_2D);
     m_ogreScene = new OgreScene;
+    connect(m_colorViewer, &dai::InstanceViewerWindow::destroyed, m_ogreScene, &OgreScene::deleteLater);
     m_colorViewer->qmlEngine().rootContext()->setContextProperty("Scene", m_ogreScene);
     m_colorViewer->qmlEngine().rootContext()->setContextProperty("Camera", m_ogreScene->cameraNode());
     m_colorViewer->qmlEngine().rootContext()->setContextProperty("OgreEngine", m_ogreScene->engine());
@@ -67,15 +70,13 @@ void MainWindow::on_btnStartKinect_clicked()
     connect(m_colorViewer->viewerEngine(), &ViewerEngine::minusKeyPressed, this, &MainWindow::onMinusKeyPressed);
     connect(m_colorViewer->viewerEngine(), &ViewerEngine::spaceKeyPressed, this, &MainWindow::onSpaceKeyPressed);
 
-    // Connect all together
-    m_playback->addInstance(colorInstance);
-    m_playback->addInstance(userTrackerInstance);
-    connect(m_playback, &dai::PlaybackControl::onNewFrames, m_colorViewer, &dai::InstanceViewerWindow::newFrames);
-    connect(m_playback, &dai::PlaybackControl::onNewFrames, m_ogreScene, &OgreScene::newFrames);
+    // Connect playback with viewers
+    connect(m_playback.worker(), &dai::PlaybackWorker::onNewFrames, m_colorViewer, &dai::InstanceViewerWindow::newFrames);
+    connect(m_playback.worker(), &dai::PlaybackWorker::onNewFrames, m_ogreScene, &OgreScene::newFrames);
 
     // Run
     m_colorViewer->show();
-    m_playback->play();
+    m_playback.play();
 }
 
 void MainWindow::onPlusKeyPressed()
@@ -103,10 +104,7 @@ void MainWindow::onSpaceKeyPressed()
 
 void MainWindow::on_btnQuit_clicked()
 {
-    if (m_playback != nullptr) {
-        m_playback->stop();
-    }
-
+    m_playback.stop();
     QApplication::exit(0);
 }
 

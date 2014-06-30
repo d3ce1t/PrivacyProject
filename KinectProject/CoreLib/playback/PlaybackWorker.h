@@ -29,7 +29,7 @@ public slots:
     void stop();
 
 signals:
-    void onNewFrames(const QMultiHashDataFrames dataFrames, const qint64 frameId, const PlaybackControl* playback);
+    void onNewFrames(const QHashDataFrames dataFrames, const qint64 frameId, const PlaybackControl* playback);
     void onStop();
 
 private:

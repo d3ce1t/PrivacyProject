@@ -39,7 +39,7 @@ public slots:
     void onPlusKeyPressed();
     void onMinusKeyPressed();
     void onSpaceKeyPressed();
-    void prepareScene(QMultiHashDataFrames dataFrames);
+    void prepareScene(QHashDataFrames dataFrames);
     void enableFilter(int filter);
     void resetPerspective();
     void rotateAxisX(float angle);

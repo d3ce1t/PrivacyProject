@@ -60,12 +60,13 @@ void PlaybackWorker::run()
     qint64 averageTime = 0;
     m_framesCounter = 0;
     qint64 offsetTime = 0;
+    int listeners = receivers( SIGNAL(onNewFrames(const QHashDataFrames, const qint64, const PlaybackControl*)) );
 
     m_running = true;
     openAllInstances();
     timer.start();
 
-    while (m_running)
+    while (m_running && listeners > 0)
     {
         // Retrieve instances from which frames has been read
         readInstances = readAllInstances();
@@ -81,7 +82,7 @@ void PlaybackWorker::run()
             swapAllInstances(readInstances);
 
             // Prepare data
-            QMultiHash<DataFrame::FrameType, shared_ptr<DataFrame>> readFrames;
+            QHashDataFrames readFrames;
 
             foreach (shared_ptr<BaseInstance> instance, readInstances) {
                 QList<shared_ptr<DataFrame>> frames = instance->frames();
@@ -105,14 +106,15 @@ void PlaybackWorker::run()
             m_fps = 1000000000 / totalTime;
             offsetTime = m_slotTime - totalTime;
 
-            /*if (m_framesCounter >= 100)
-                m_running = false;*/
+            // Do I have listeners?
+            listeners = receivers( SIGNAL(onNewFrames(const QHashDataFrames, const qint64, const PlaybackControl*)) );
         }
         else {
             m_running = false;
         }
     }
 
+    m_running = false;
     closeAllInstances();
     qDebug() << "Average Time:" << (averageTime / m_framesCounter) / 1000 << "Frame Count:" << m_framesCounter;
     emit onStop();

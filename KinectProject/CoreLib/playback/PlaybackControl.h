@@ -25,14 +25,12 @@ public:
     void setFPS(float fps);
     float getFPS() const;
     bool isValidFrame(qint64 frameIndex) const;
+    PlaybackWorker* worker() const;
 
 public slots:
     void play(bool restartAll = false);
     void stop();
-
-signals:
-    void onNewFrames(const QMultiHashDataFrames dataFrames, const qint64 frameId, const PlaybackControl* playback);
-    void onStop();
+    void clearInstances();
 
 private:
     QThread                         m_workerThread;

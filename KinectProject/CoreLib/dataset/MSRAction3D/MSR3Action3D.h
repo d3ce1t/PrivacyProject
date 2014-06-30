@@ -11,7 +11,7 @@ public:
     MSR3Action3D();
 
 protected:
-    shared_ptr<BaseInstance> instance(int activity, int actor, int sample, InstanceType type) const override;
+    shared_ptr<BaseInstance> instance(int activity, int actor, int sample, DataFrame::FrameType type) const override;
 };
 
 } // End Namespace

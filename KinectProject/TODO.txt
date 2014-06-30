@@ -1,0 +1,15 @@
+DONE:
+- Unificar InstanceType y FrameType. Hacer que se pueda consultar que tipos de frames genera una instancia.
+
+QUEUE:
+- PlaybackControl: Limitar el número de instancias añadibles según los tipos de Frames (Color, Depth, Users y Skeletons). Si hay dos instancias que generan el mismo tipo de frame debería ser un error (no debería permitirse).
+
+- Viewer: Tener en cuenta el límite de tipos de frames para reservar memoria donde éstos se copiarán (así evito crear y destruir memoria todo el tiempo).
+
+- OgreScene: Copiar los frames igual que el resto de viewers.
+
+- Arreglar DatasetBrowser. Crear varios playbacks para tener la funcionalidad  de antes.
+
+- Separar la parte de procesamiento de filtros del propio viewer.
+
+- Instances: No usar double buffer.

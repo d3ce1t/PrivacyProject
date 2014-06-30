@@ -10,18 +10,18 @@ MSRDailyActivity3D::MSRDailyActivity3D()
 {
 }
 
-shared_ptr<BaseInstance> MSRDailyActivity3D::instance(int activity, int actor, int sample, InstanceType type) const
+shared_ptr<BaseInstance> MSRDailyActivity3D::instance(int activity, int actor, int sample, DataFrame::FrameType type) const
 {
     const InstanceInfo instanceInfo = m_metadata->instance(type, activity, actor, sample);
 
     switch (type) {
-    case INSTANCE_DEPTH:
+    case DataFrame::Depth:
         return shared_ptr<BaseInstance>(new MSRDailyDepthInstance(instanceInfo));
         break;
-    case INSTANCE_SKELETON:
+    case DataFrame::Skeleton:
         return shared_ptr<BaseInstance>(new MSRDailySkeletonInstance(instanceInfo));
         break;
-    case INSTANCE_COLOR:
+    case DataFrame::Color:
         return shared_ptr<BaseInstance>(new MSRDailyColorInstance(instanceInfo));
         break;
     default:

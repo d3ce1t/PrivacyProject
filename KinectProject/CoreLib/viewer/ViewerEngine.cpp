@@ -18,7 +18,7 @@ ViewerEngine::ViewerEngine(ViewerMode mode)
     qmlRegisterType<InstanceViewer>("InstanceViewer", 1, 0, "InstanceViewer");
     qmlRegisterUncreatableType<QMLEnumsWrapper>("edu.dai.kinect", 1, 0, "ColorFilter", "This exports SomeState enums to QML");
 
-    qRegisterMetaType<QMultiHashDataFrames>("QMultiHashDataFrames");
+    qRegisterMetaType<QHashDataFrames>("QHashDataFrames");
     qRegisterMetaType<PlaybackControl*>("PlaybackControl*");
     qRegisterMetaType<QList<shared_ptr<BaseInstance>>>("QList<shared_ptr<BaseInstance>>");
     qRegisterMetaType<shared_ptr<SkeletonFrame>>("shared_ptr<SkeletonFrame>");
@@ -80,7 +80,7 @@ void ViewerEngine::onSpaceKeyPressed()
     emit spaceKeyPressed();
 }
 
-void ViewerEngine::prepareScene(dai::QMultiHashDataFrames dataFrames)
+void ViewerEngine::prepareScene(dai::QHashDataFrames dataFrames)
 {
     if (!m_running)
         return;

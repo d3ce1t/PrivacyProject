@@ -7,8 +7,8 @@ using namespace std;
 namespace dai {
 
 OpenNIDepthInstance::OpenNIDepthInstance()
+    : StreamInstance(DataFrame::Depth)
 {
-    this->m_type = dai::INSTANCE_DEPTH;
     this->m_title = "Depth Live Stream";
     m_frameBuffer[0].reset(new DepthFrame(640, 480));
     m_frameBuffer[1].reset(new DepthFrame(640, 480));

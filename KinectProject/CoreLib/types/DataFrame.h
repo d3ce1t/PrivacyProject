@@ -3,7 +3,8 @@
 
 #include <QList>
 #include <memory>
-#include <QMultiHash>
+#include <QHash>
+#include <QFlags>
 
 using namespace std;
 
@@ -12,13 +13,16 @@ namespace dai {
 class DataFrame
 {
 public:
-
     enum FrameType {
-        Depth,
-        Color,
-        Skeleton,
-        User
+        Unknown  = 0x00,
+        Depth    = 0x01,
+        Color    = 0x02,
+        Skeleton = 0x04,
+        User     = 0x08
     };
+    Q_DECLARE_FLAGS(SupportedFrames, FrameType)
+
+    bool static isColorSupported(const FrameType& type);
 
     // Constructor
     DataFrame(FrameType type);
@@ -41,8 +45,9 @@ protected:
     unsigned int m_index;
     FrameType m_type;
 };
+Q_DECLARE_OPERATORS_FOR_FLAGS(DataFrame::SupportedFrames)
 
-typedef QMultiHash<DataFrame::FrameType, shared_ptr<DataFrame>> QMultiHashDataFrames;
+typedef QHash<DataFrame::FrameType, shared_ptr<DataFrame>> QHashDataFrames;
 
 } // End Namespace
 

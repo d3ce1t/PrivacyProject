@@ -36,9 +36,9 @@ private:
 
 template <class T>
 DataInstance<T>::DataInstance(const InstanceInfo &info)
-    : m_info(info)
+    : StreamInstance(info.getType())
+    , m_info(info)
 {
-    this->m_type = info.getType();
     this->m_title = info.getFileName();
     m_nFrames = 0;
 }

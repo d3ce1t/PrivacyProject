@@ -2,18 +2,19 @@
 
 namespace dai {
 
-BaseInstance::BaseInstance()
+BaseInstance::BaseInstance(DataFrame::SupportedFrames supportedFrames)
 {
-}
-
-auto BaseInstance::getType() const -> InstanceType
-{
-    return m_type;
+    m_supportedFrames = supportedFrames;
 }
 
 const QString& BaseInstance::getTitle() const
 {
     return m_title;
+}
+
+DataFrame::SupportedFrames BaseInstance::getSupportedFrames() const
+{
+    return m_supportedFrames;
 }
 
 } // End Namespace

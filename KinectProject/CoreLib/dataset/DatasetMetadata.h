@@ -29,13 +29,13 @@ public:
     int getNumberOfActivities() const;
     int getNumberOfActors() const;
     int getNumberOfSampleTypes() const;
-    const InstanceInfoList* instances(InstanceType type, const QList<int> *activities = 0, const QList<int> *actors = 0, const QList<int> *samples = 0) const;
-    const InstanceInfo instance(InstanceType type, int activity, int actor, int sample);
+    const InstanceInfoList* instances(DataFrame::FrameType type, const QList<int> *activities = 0, const QList<int> *actors = 0, const QList<int> *samples = 0) const;
+    const InstanceInfo instance(DataFrame::FrameType type, int activity, int actor, int sample);
     const QString& getActivityName(int key) const;
     const QString& getActorName(int key) const;
     const QString& getSampleName(int key) const;
     const Dataset& dataset() const;
-    const QMap<QString, InstanceType> availableInstanceTypes() const;
+    const DataFrame::SupportedFrames availableInstanceTypes() const;
 
 private:
     void setDataset(Dataset* dataset);
@@ -54,7 +54,7 @@ private:
     QHash<int, QString*>         m_actors;
     QHash<int, QString*>         m_sampleTypes;
     Dataset*                     m_dataset;
-    QMap<QString, InstanceType>  m_availableInstanceTypes;
+    DataFrame::SupportedFrames   m_availableInstanceTypes;
 
     /**
      * @brief m_instances
@@ -62,7 +62,7 @@ private:
      * Each instance type (depth, color, skeleton) has a hash of InstanceInfo* elements
      * indexed by activity keys. Each instanceInfo must match the given key.
      */
-    QHash<InstanceType, QHash<int, InstanceInfoList*>* > m_instances;
+    QHash<DataFrame::FrameType, QHash<int, InstanceInfoList*>* > m_instances;
 };
 
 } // End Namespace

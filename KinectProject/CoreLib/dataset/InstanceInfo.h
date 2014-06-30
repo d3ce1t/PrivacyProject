@@ -3,6 +3,7 @@
 
 #include <QString>
 #include "types/BaseInstance.h"
+#include "types/DataFrame.h"
 
 namespace dai {
 
@@ -12,17 +13,17 @@ class InstanceInfo
 {
 public:
     InstanceInfo(shared_ptr<DatasetMetadata> parent = nullptr);
-    explicit InstanceInfo(InstanceType type, shared_ptr<DatasetMetadata> parent = nullptr);
+    explicit InstanceInfo(DataFrame::FrameType type, shared_ptr<DatasetMetadata> parent = nullptr);
     InstanceInfo(const InstanceInfo& other);
     virtual ~InstanceInfo();
 
-    InstanceType getType() const;
+    DataFrame::FrameType getType() const;
     int getActivity() const;
     int getActor() const;
     int getSample() const;
     QString getFileName() const;
     const DatasetMetadata& parent() const;
-    void setType(InstanceType type);
+    void setType(DataFrame::FrameType type);
     void setActivity(int activity);
     void setActor(int actor);
     void setSample(int sample);
@@ -31,7 +32,7 @@ public:
     InstanceInfo& operator=(const InstanceInfo& other);
 
 private:
-    InstanceType m_type;
+    DataFrame::FrameType m_type;
     int m_activity;
     int m_actor;
     int m_sample;

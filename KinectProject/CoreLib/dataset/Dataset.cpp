@@ -23,7 +23,7 @@ const DatasetMetadata& Dataset::getMetadata() const
     return *m_metadata;
 }
 
-shared_ptr<BaseInstance> Dataset::getInstance(int activity, int actor, int sample, InstanceType type) const
+shared_ptr<BaseInstance> Dataset::getInstance(int activity, int actor, int sample, DataFrame::FrameType type) const
 {
     return instance(activity, actor, sample, type);
 }

@@ -9,8 +9,6 @@ PlaybackControl::PlaybackControl()
     m_worker = new PlaybackWorker(this, m_instances);
     m_worker->moveToThread(&m_workerThread);
     connect(&m_workerThread, &QThread::finished, m_worker, &QObject::deleteLater);
-    connect(m_worker, &PlaybackWorker::onNewFrames, this, &PlaybackControl::onNewFrames);
-    connect(m_worker, &PlaybackWorker::onStop, this, &PlaybackControl::onStop);
     m_workerThread.start();
 }
 
@@ -54,6 +52,11 @@ bool PlaybackControl::isValidFrame(qint64 frameIndex) const
     return m_worker->isValidFrame(frameIndex);
 }
 
+PlaybackWorker* PlaybackControl::worker() const
+{
+    return m_worker;
+}
+
 void PlaybackControl::addInstance(shared_ptr<BaseInstance> instance)
 {
     if (!m_instances.contains(instance))
@@ -64,6 +67,11 @@ void PlaybackControl::removeInstance(shared_ptr<BaseInstance> instance)
 {
     if (m_instances.contains(instance))
         m_instances.removeAll(instance);
+}
+
+void PlaybackControl::clearInstances()
+{
+    m_instances.clear();
 }
 
 void PlaybackControl::enablePlayLoop(bool value)

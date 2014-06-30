@@ -6,13 +6,13 @@ using namespace dai;
 
 InstanceInfo::InstanceInfo(shared_ptr<DatasetMetadata> parent)
 {
-    m_type = INSTANCE_UNINITIALISED;
+    m_type = DataFrame::Unknown;
     m_parent = parent;
 }
 
-InstanceInfo::InstanceInfo(InstanceType type, shared_ptr<DatasetMetadata> parent)
+InstanceInfo::InstanceInfo(DataFrame::FrameType type, shared_ptr<DatasetMetadata> parent)
 {
-    if (type == INSTANCE_UNINITIALISED)
+    if (type == DataFrame::Unknown)
         throw NotImplementedException();
 
     m_type = type;
@@ -45,7 +45,7 @@ InstanceInfo& InstanceInfo::operator=(const InstanceInfo& other)
     return *this;
 }
 
-InstanceType InstanceInfo::getType() const
+DataFrame::FrameType InstanceInfo::getType() const
 {
     return m_type;
 }
@@ -75,7 +75,7 @@ const DatasetMetadata &InstanceInfo::parent() const
     return *m_parent;
 }
 
-void InstanceInfo::setType(InstanceType type)
+void InstanceInfo::setType(DataFrame::FrameType type)
 {
     m_type = type;
 }

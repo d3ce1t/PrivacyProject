@@ -6,19 +6,10 @@
 
 namespace dai {
 
-enum InstanceType {
-    INSTANCE_DEPTH,
-    INSTANCE_COLOR,
-    INSTANCE_SKELETON,
-    INSTANCE_USER,
-    INSTANCE_USERTRACKER,
-    INSTANCE_UNINITIALISED
-};
-
 class BaseInstance
 {
 public:
-    BaseInstance();
+    BaseInstance(DataFrame::SupportedFrames supportedFrames);
 
 #if (!defined _MSC_VER)
     BaseInstance(const BaseInstance& other) = delete;
@@ -27,7 +18,6 @@ public:
     virtual ~BaseInstance() {}
 #endif
 
-    InstanceType getType() const;
     const QString& getTitle() const;
 
     virtual void open() = 0;
@@ -38,15 +28,17 @@ public:
     virtual void swapBuffer() = 0;
     virtual void readNextFrame() = 0;
     virtual QList<shared_ptr<DataFrame>> frames() = 0;
+    DataFrame::SupportedFrames getSupportedFrames() const;
 
 protected:
-    InstanceType    m_type;
     QString         m_title;
+    DataFrame::SupportedFrames m_supportedFrames;
 
 private:
 #if (defined _MSC_VER)
      BaseInstance(const BaseInstance&) {}
 #endif
+
 
 };
 

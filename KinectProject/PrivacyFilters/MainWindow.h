@@ -32,7 +32,7 @@ private slots:
 private:
     dai::InstanceViewerWindow* m_colorViewer;
     OgreScene*            m_ogreScene;
-    dai::PlaybackControl* m_playback;
+    dai::PlaybackControl  m_playback;
     Ui::MainWindow *ui;
 };
 

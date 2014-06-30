@@ -5,7 +5,6 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include "types/SkeletonFrame.h"
-#include <QMultiHash>
 #include <QObject>
 #include <QTableView>
 #include <QStandardItemModel>
@@ -23,8 +22,8 @@ class InstanceViewerWindow : public QObject
 
 public:
     InstanceViewerWindow(ViewerMode mode);
-    void initialise();
     virtual ~InstanceViewerWindow();
+    void initialise();
     const ViewerEngine* viewerEngine() const;
     void setTitle(const QString& title);
     void show();
@@ -39,7 +38,7 @@ public slots:
     void showJointsWindow();
     void showDistancesWindow();
     void showQuaternionsWindow();
-    void newFrames(const QMultiHashDataFrames dataFrames, const qint64 frameId, const PlaybackControl* playback);
+    void newFrames(const QHashDataFrames dataFrames, const qint64 frameId, const PlaybackControl* playback);
 
 private slots:
     float getFPS() const;
