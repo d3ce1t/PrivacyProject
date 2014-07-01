@@ -110,11 +110,30 @@ void InstanceViewerWindow::processListItem(QListWidget* widget)
 }
 
 // SLOT connected to the Playback onNewFrames Signal
-void InstanceViewerWindow::newFrames(const QHashDataFrames dataFrames, const qint64 frameId, const PlaybackControl *playback)
+void InstanceViewerWindow::newFrames(const QHashDataFrames dataFrames, const qint64 frameId, const qint64 availableTime, const PlaybackControl *playback)
 {
+    /*static qint64 total = 0;
+    static qint64 counter = 0;
+    static qint64 max = 0;
+    static qint64 min = 99999999999999999;
+    qint64 timeReceived = playback->superTimer.nsecsElapsed();
+    qint64 diff = timeReceived - availableTime;
+    total += diff;
+    counter++;
+
+    if (diff > max) max = diff;
+    if (diff < min) min = diff;
+
+    qDebug() << "Diff (ms)" << diff / 1000000.0f <<
+                "Max (ms)" << max / 1000000.0f <<
+                "Min (ms)" << min / 1000000.0f <<
+                "Avg (ms)" << (total / counter) / 1000000.0f;*/
+
+    // La copia de frames tarda 1 ms
+
     // Check the received frames are valid because we could have been called out of time
     if (!playback->isValidFrame(frameId)) {
-        qDebug() << "Frame Id:" << frameId << "Skipped";
+        qDebug() << "Frame Id:" << frameId << "Skipped" << "Available (ms)" << availableTime / 1000000.0f;
         return;
     }
 
@@ -128,7 +147,7 @@ void InstanceViewerWindow::newFrames(const QHashDataFrames dataFrames, const qin
 
     // Check if the frames has been copied correctly
     if (!playback->isValidFrame(frameId)) {
-        qDebug() << "Frame Id:" << frameId << "Read but Not Valid";
+        qDebug() << "Frame Id:" << frameId << "Read but Not Valid" << "Available (ms)" << availableTime / 1000000.0f;
         return;
     }
 

@@ -26,13 +26,13 @@ protected:
     bool openInstance() override;
     void closeInstance() override;
     void restartInstance() override;
-    void nextFrame(DepthFrame& frame) override;
+    QList<shared_ptr<DataFrame>> nextFrames() override;
 
 private:
     ifstream    m_file;
     int         m_width;
     int         m_height;
-    shared_ptr<DepthFrame>  m_frameBuffer[2];
+    shared_ptr<DepthFrame> m_frameBuffer;
     BinaryDepthFrame m_readBuffer[240]; // I know MSR Action 3D depth is 320 x 240
 };
 

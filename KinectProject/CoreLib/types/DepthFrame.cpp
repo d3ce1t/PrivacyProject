@@ -8,6 +8,7 @@ namespace dai {
 DepthFrame::DepthFrame()
     : GenericFrame<float>(DataFrame::Depth)
 {
+    m_units = METERS;
     m_nNonZeroOfPoints = 0;
 }
 
@@ -15,6 +16,12 @@ DepthFrame::DepthFrame(int width, int height)
     : GenericFrame<float>(width, height, DataFrame::Depth)
 {
     m_nNonZeroOfPoints = 0;
+}
+
+DepthFrame::DepthFrame(int width, int height, float *pData)
+    : GenericFrame<float>(width, height, pData, DataFrame::Depth)
+{
+     m_nNonZeroOfPoints = 0;
 }
 
 DepthFrame::~DepthFrame()
@@ -45,9 +52,14 @@ unsigned int DepthFrame::getNumOfNonZeroPoints() const
     return m_nNonZeroOfPoints;
 }
 
+DepthFrame::DistanceUnits DepthFrame::distanceUnits() const
+{
+    return m_units;
+}
+
 void DepthFrame::setItem(int row, int column, float value)
 {
-    float current_value = GenericFrame<float>::getItem(row, column);
+    uint16_t current_value = GenericFrame<float>::getItem(row, column);
     GenericFrame<float>::setItem(row, column, value);
 
     if (value != 0 && current_value == 0) {
@@ -86,8 +98,8 @@ void DepthFrame::calculateHistogram(QMap<float, float> &pHistogram, const DepthF
 
     // Accumulate in the given depth all the points of previous depth layers
     QMapIterator<float, float> it(pHistogram);
-    float previousKey;
-    float currentKey;
+    uint16_t previousKey;
+    uint16_t currentKey;
 
     if (it.hasNext()) {
         it.next();

@@ -4,13 +4,10 @@
 #include "OpenNIRuntime.h"
 #include "types/StreamInstance.h"
 #include "types/ColorFrame.h"
-#include "openni/OpenNIBaseInstance.h"
-#include <QMutex>
 
 namespace dai {
 
-class OpenNIColorInstance : public StreamInstance<ColorFrame>,
-                            public OpenNIBaseInstance
+class OpenNIColorInstance : public StreamInstance
 {
 public:
     OpenNIColorInstance();
@@ -21,11 +18,10 @@ protected:
     bool openInstance() override;
     void closeInstance() override;
     void restartInstance() override;
-    void nextFrame(ColorFrame& frame) override;
+    QList<shared_ptr<DataFrame>> nextFrames() override;
 
 private:
-    OpenNIRuntime*         m_openni;
-    shared_ptr<ColorFrame> m_frameBuffer[2];
+    OpenNIRuntime* m_openni;
 };
 
 } // End namespace

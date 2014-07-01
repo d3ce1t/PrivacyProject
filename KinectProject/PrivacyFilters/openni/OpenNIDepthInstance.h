@@ -4,13 +4,11 @@
 #include "OpenNIRuntime.h"
 #include "types/StreamInstance.h"
 #include "types/DepthFrame.h"
-#include "openni/OpenNIBaseInstance.h"
 #include <QMutex>
 
 namespace dai {
 
-class OpenNIDepthInstance : public StreamInstance<DepthFrame>,
-                            public OpenNIBaseInstance
+class OpenNIDepthInstance : public StreamInstance
 {
 public:
     OpenNIDepthInstance();
@@ -21,11 +19,10 @@ protected:
     bool openInstance() override;
     void closeInstance() override;
     void restartInstance() override;
-    void nextFrame(DepthFrame& frame) override;
+    QList<shared_ptr<DataFrame>> nextFrames() override;
 
 private:
-    OpenNIRuntime*          m_openni;
-    shared_ptr<DepthFrame>  m_frameBuffer[2];
+    OpenNIRuntime* m_openni;
 };
 
 } // End namespace

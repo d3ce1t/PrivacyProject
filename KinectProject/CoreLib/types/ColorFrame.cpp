@@ -12,6 +12,11 @@ ColorFrame::ColorFrame(int width, int height)
 {
 }
 
+ColorFrame::ColorFrame(int width, int height, RGBColor *pData)
+    : GenericFrame<RGBColor>(width, height, pData, DataFrame::Color)
+{
+}
+
 ColorFrame::ColorFrame(const ColorFrame& other)
     : GenericFrame<RGBColor>(other)
 {
@@ -23,7 +28,4 @@ ColorFrame& ColorFrame::operator=(const ColorFrame& other)
     return *this;
 }
 
-
 } // End Namespace
-
-

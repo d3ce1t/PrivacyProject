@@ -5,7 +5,6 @@
 #include <QString>
 #include <memory>
 #include "DataInstance.h"
-#include "types/BaseInstance.h"
 #include "types/DepthFrame.h"
 #include "types/ColorFrame.h"
 #include "types/SkeletonFrame.h"
@@ -34,11 +33,11 @@ public:
 
     const DatasetMetadata& getMetadata() const;
 
-    shared_ptr<BaseInstance> getInstance(int activity, int actor, int sample, DataFrame::FrameType type) const;
-    shared_ptr<BaseInstance> getInstance(const InstanceInfo &info) const;
+    shared_ptr<StreamInstance> getInstance(int activity, int actor, int sample, DataFrame::FrameType type) const;
+    shared_ptr<StreamInstance> getInstance(const InstanceInfo &info) const;
 
 protected:
-    virtual shared_ptr<BaseInstance> instance(int activity, int actor, int sample, DataFrame::FrameType type) const = 0;
+    virtual shared_ptr<StreamInstance> instance(int activity, int actor, int sample, DataFrame::FrameType type) const = 0;
 
     shared_ptr<DatasetMetadata> m_metadata;
 };

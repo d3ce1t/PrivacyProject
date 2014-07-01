@@ -7,7 +7,7 @@
 namespace dai {
 
 template <class T>
-class DataInstance : public StreamInstance<T>
+class DataInstance : public StreamInstance
 {
 public:
     explicit DataInstance(const InstanceInfo& info);
@@ -39,7 +39,6 @@ DataInstance<T>::DataInstance(const InstanceInfo &info)
     : StreamInstance(info.getType())
     , m_info(info)
 {
-    this->m_title = info.getFileName();
     m_nFrames = 0;
 }
 

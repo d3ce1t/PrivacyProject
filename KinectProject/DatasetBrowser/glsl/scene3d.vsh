@@ -13,7 +13,7 @@ vec3 convertDepthToRealWorld(vec2 coordinates, float distance)
     vec2 cd = vec2(0.5 * width, 0.5 * height);
     vec3 result;
     result.xy = (coordinates - cd) * distance * fd;
-    result.xy = 2 * result.xy; // becaise I want to scale XY to 640x480
+    result.xy = 2 * result.xy; // because I want to scale XY to 640x480
     result.z = -distance;
     return result;
 }
@@ -27,5 +27,3 @@ void main()
     gl_Position = perspectiveMatrix * vec4(realPos.xyz, 1.0);
     v_distance = distanceAttr;
 }
-
-

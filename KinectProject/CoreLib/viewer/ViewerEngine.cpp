@@ -7,7 +7,6 @@
 #include "viewer/Scene3DPainter.h"
 #include "viewer/SilhouetteItem.h"
 #include "viewer/SkeletonItem.h"
-#include "types/BaseInstance.h"
 
 ViewerEngine::ViewerEngine(ViewerMode mode)
     : QObject()
@@ -20,7 +19,7 @@ ViewerEngine::ViewerEngine(ViewerMode mode)
 
     qRegisterMetaType<QHashDataFrames>("QHashDataFrames");
     qRegisterMetaType<PlaybackControl*>("PlaybackControl*");
-    qRegisterMetaType<QList<shared_ptr<BaseInstance>>>("QList<shared_ptr<BaseInstance>>");
+    qRegisterMetaType<QList<shared_ptr<StreamInstance>>>("QList<shared_ptr<StreamInstance>>");
     qRegisterMetaType<shared_ptr<SkeletonFrame>>("shared_ptr<SkeletonFrame>");
 
     // Create Scene

@@ -7,7 +7,7 @@
 
 namespace dai {
 
-PlaybackWorker::PlaybackWorker(const PlaybackControl* playback, QList<shared_ptr<BaseInstance> > &instances)
+PlaybackWorker::PlaybackWorker(const PlaybackControl* playback, QList<shared_ptr<StreamInstance> > &instances)
     : m_playback(playback)
     , m_instances(instances)
     , m_playloop_enabled(false)
@@ -53,14 +53,15 @@ bool PlaybackWorker::isValidFrame(qint64 frameIndex)
  */
 void PlaybackWorker::run()
 {
-    QList<shared_ptr<BaseInstance>> readInstances;
+    QList<shared_ptr<StreamInstance>> readInstances;
     QElapsedTimer timer;
+    qint64 availableTime;
     qint64 remainingTime = 0;
     qint64 totalTime = 0;
     qint64 averageTime = 0;
     m_framesCounter = 0;
     qint64 offsetTime = 0;
-    int listeners = receivers( SIGNAL(onNewFrames(const QHashDataFrames, const qint64, const PlaybackControl*)) );
+    int listeners = receivers( SIGNAL(onNewFrames(const QHashDataFrames, const qint64, const qint64, const PlaybackControl*)) );
 
     m_running = true;
     openAllInstances();
@@ -68,50 +69,52 @@ void PlaybackWorker::run()
 
     while (m_running && listeners > 0)
     {
-        // Retrieve instances from which frames has been read
-        readInstances = readAllInstances();
+        // Frames counter
+        m_lock.lockForWrite();
+        m_framesCounter++;
+        m_lock.unlock();
 
+        // Retrieve instances from which frames has been read
+        readInstances = readAllInstances(); // 10 ms
+
+        // 0.02 ms
         if (readInstances.count() > 0)
         {
-            // Frames counter
-            m_lock.lockForWrite();
-            m_framesCounter++;
-            m_lock.unlock();
-
-            // Swap buffers, write buffer becomes the read buffer and vice versa
-            swapAllInstances(readInstances);
-
             // Prepare data
             QHashDataFrames readFrames;
 
-            foreach (shared_ptr<BaseInstance> instance, readInstances) {
+            foreach (shared_ptr<StreamInstance> instance, readInstances) {
                 QList<shared_ptr<DataFrame>> frames = instance->frames();
                 foreach (shared_ptr<DataFrame> frame, frames) {
                     readFrames.insert(frame->getType(), frame);
                 }
             }
 
-            // Emit Signal
-            emit onNewFrames(readFrames, m_framesCounter, m_playback);
-
-            // Time management: Do I have time?
-            remainingTime = m_slotTime - timer.nsecsElapsed() + offsetTime;
-
-            if (remainingTime > 0)
-                QThread::currentThread()->usleep(remainingTime / 1000);
-
-            totalTime = timer.nsecsElapsed();
-            timer.restart();
-            averageTime += totalTime;
-            m_fps = 1000000000 / totalTime;
-            offsetTime = m_slotTime - totalTime;
-
-            // Do I have listeners?
-            listeners = receivers( SIGNAL(onNewFrames(const QHashDataFrames, const qint64, const PlaybackControl*)) );
+            // Notify listeners
+            // signals and slots, debug,   25 fps, Max 29.46 (ms), Min 0.05 (ms), Avg 14.44 (ms)
+            // signals and slots, debug,   10 fps, Max 78.40 (ms), Min 0.05 (ms), Avg 15.52 (ms)
+            emit onNewFrames(readFrames, m_framesCounter, m_playback->superTimer.nsecsElapsed(), m_playback);
         }
         else {
             m_running = false;
         }
+
+        // Do I have listeners?
+        listeners = receivers( SIGNAL(onNewFrames(const QHashDataFrames, const qint64, const qint64, const PlaybackControl*)) );
+
+        // Time management: Do I have time?
+        availableTime = m_slotTime + offsetTime;
+        remainingTime = availableTime - timer.nsecsElapsed();
+
+        if (remainingTime > 0) {
+            QThread::currentThread()->usleep( (remainingTime / 1000) - 500); // Espero un poco menos de lo acordado
+        }
+
+        totalTime = timer.nsecsElapsed();
+        timer.restart();
+        averageTime += totalTime;
+        m_fps = 1000000000 / totalTime;
+        offsetTime = availableTime - totalTime;
     }
 
     m_running = false;
@@ -128,11 +131,11 @@ void PlaybackWorker::stop()
 inline void PlaybackWorker::openAllInstances()
 {
     // Open all instances
-    QListIterator<shared_ptr<BaseInstance>> it(m_instances);
+    QListIterator<shared_ptr<StreamInstance>> it(m_instances);
 
     while (it.hasNext())
     {
-        shared_ptr<BaseInstance> instance = it.next();
+        shared_ptr<StreamInstance> instance = it.next();
 
         if (!instance->is_open()) {
             try {
@@ -149,7 +152,7 @@ inline void PlaybackWorker::openAllInstances()
 inline void PlaybackWorker::closeAllInstances()
 {
     // Close all opened instances
-    QListIterator<shared_ptr<BaseInstance> > it(m_instances);
+    QListIterator<shared_ptr<StreamInstance> > it(m_instances);
 
     while (it.hasNext()) {
         auto instance = it.next();
@@ -160,12 +163,14 @@ inline void PlaybackWorker::closeAllInstances()
     }
 }
 
-inline QList<shared_ptr<BaseInstance>> PlaybackWorker::readAllInstances()
+// Debug:   20 ms
+// Release: 10 ms
+inline QList<shared_ptr<StreamInstance> > PlaybackWorker::readAllInstances()
 {
-    QList<shared_ptr<BaseInstance>> instances = m_instances; // implicit sharing
-    QList<shared_ptr<BaseInstance>> changedInstances;
+    QList<shared_ptr<StreamInstance>> instances = m_instances; // implicit sharing
+    QList<shared_ptr<StreamInstance>> changedInstances;
 
-    foreach (shared_ptr<BaseInstance> instance, instances)
+    foreach (shared_ptr<StreamInstance> instance, instances)
     {
         if (instance->is_open())
         {
@@ -173,7 +178,7 @@ inline QList<shared_ptr<BaseInstance>> PlaybackWorker::readAllInstances()
                 instance->restart();
 
             if (instance->hasNext()) {
-                instance->readNextFrame();
+                instance->readNextFrames();
                 changedInstances << instance;
             } else {
                 instance->close();
@@ -183,13 +188,6 @@ inline QList<shared_ptr<BaseInstance>> PlaybackWorker::readAllInstances()
     }
 
     return changedInstances;
-}
-
-inline void PlaybackWorker::swapAllInstances(const QList<shared_ptr<BaseInstance> > &instances)
-{
-    foreach (shared_ptr<BaseInstance> instance, instances) {
-        instance->swapBuffer();
-    }
 }
 
 } // End Namespace

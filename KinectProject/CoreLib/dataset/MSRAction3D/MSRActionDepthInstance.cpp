@@ -8,9 +8,7 @@ namespace dai {
 MSRActionDepthInstance::MSRActionDepthInstance(const InstanceInfo &info)
     : DataInstance(info)
 {
-    m_frameBuffer[0].reset(new DepthFrame(320, 240));
-    m_frameBuffer[1].reset(new DepthFrame(320, 240));
-    DataInstance::initFrameBuffer(m_frameBuffer[0], m_frameBuffer[1]);
+    m_frameBuffer = make_shared<DepthFrame>(320, 240);
     m_width = 0;
     m_height = 0;
 }
@@ -68,8 +66,10 @@ void MSRActionDepthInstance::restartInstance()
     }
 }
 
-void MSRActionDepthInstance::nextFrame(DepthFrame &frame)
+QList<shared_ptr<DataFrame>> MSRActionDepthInstance::nextFrames()
 {
+    QList<shared_ptr<DataFrame>> result;
+
     // Read Data from File
     m_file.read( (char *) m_readBuffer, sizeof(m_readBuffer) );
 
@@ -82,9 +82,12 @@ void MSRActionDepthInstance::nextFrame(DepthFrame &frame)
                 value = 2.0 + normalise<float>(m_readBuffer[y].depthRow[x], 290, 649, 0, 0.9f);
             }
 
-            frame.setItem(y, x, value);
+            m_frameBuffer->setItem(y, x, value);
         }
     }
+
+    result.append(m_frameBuffer);
+    return result;
 }
 
 } // End Namespace

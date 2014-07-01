@@ -9,10 +9,6 @@ namespace dai {
 OpenNIColorInstance::OpenNIColorInstance()
     : StreamInstance(DataFrame::Color)
 {
-    this->m_title = "Color Live Stream";
-    m_frameBuffer[0].reset(new ColorFrame(640, 480));
-    m_frameBuffer[1].reset(new ColorFrame(640, 480));
-    StreamInstance::initFrameBuffer(m_frameBuffer[0], m_frameBuffer[1]);
     m_openni = nullptr;
 }
 
@@ -53,22 +49,12 @@ void OpenNIColorInstance::restartInstance()
 {
 }
 
-void OpenNIColorInstance::nextFrame(ColorFrame &frame)
+QList<shared_ptr<DataFrame>> OpenNIColorInstance::nextFrames()
 {
-    openni::VideoFrameRef oniColorFrame = m_openni->readColorFrame();
-
-    if (!oniColorFrame.isValid()) {
-        qDebug() << "Color Frame isn't valid";
-        return;
-    }
-
-    // Read this frame
-    frame.setIndex(oniColorFrame.getFrameIndex());
-    memcpy((void*) frame.getDataPtr(), oniColorFrame.getData(), 640 * 480 * sizeof(openni::RGB888Pixel));
-    oniColorFrame.release();
-
-    // Stats
-    computeStats(frame.getIndex());
+    QList<shared_ptr<DataFrame>> result;
+    shared_ptr<ColorFrame> colorFrame = m_openni->readColorFrame();
+    result.append(colorFrame);
+    return result;
 }
 
 } // End namespace

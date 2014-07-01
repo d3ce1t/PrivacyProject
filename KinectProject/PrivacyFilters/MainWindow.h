@@ -30,7 +30,7 @@ private slots:
     void on_btnQuit_clicked();
 
 private:
-    dai::InstanceViewerWindow* m_colorViewer;
+    dai::InstanceViewerWindow* m_viewer;
     OgreScene*            m_ogreScene;
     dai::PlaybackControl  m_playback;
     Ui::MainWindow *ui;

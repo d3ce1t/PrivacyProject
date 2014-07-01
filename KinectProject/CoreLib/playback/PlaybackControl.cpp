@@ -10,6 +10,7 @@ PlaybackControl::PlaybackControl()
     m_worker->moveToThread(&m_workerThread);
     connect(&m_workerThread, &QThread::finished, m_worker, &QObject::deleteLater);
     m_workerThread.start();
+    superTimer.start();
 }
 
 PlaybackControl::~PlaybackControl()
@@ -57,13 +58,13 @@ PlaybackWorker* PlaybackControl::worker() const
     return m_worker;
 }
 
-void PlaybackControl::addInstance(shared_ptr<BaseInstance> instance)
+void PlaybackControl::addInstance(shared_ptr<StreamInstance> instance)
 {
     if (!m_instances.contains(instance))
         m_instances << instance;
 }
 
-void PlaybackControl::removeInstance(shared_ptr<BaseInstance> instance)
+void PlaybackControl::removeInstance(shared_ptr<StreamInstance> instance)
 {
     if (m_instances.contains(instance))
         m_instances.removeAll(instance);

@@ -7,7 +7,6 @@
 #include "InstanceWidgetItem.h"
 #include "DatasetSelector.h"
 #include <QGuiApplication>
-#include <QDebug>
 #include <QtWidgets/QDesktopWidget>
 #include <QTimer>
 #include <QMessageBox>
@@ -120,7 +119,7 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
 {
     InstanceWidgetItem* instanceItem = dynamic_cast<InstanceWidgetItem*>(item);
     InstanceInfo& info = instanceItem->getInfo();
-    shared_ptr<BaseInstance> instance = m_dataset->getInstance(info);
+    shared_ptr<StreamInstance> instance = m_dataset->getInstance(info);
 
     if (instance)
     {
@@ -140,7 +139,7 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
 
         try {
             m_playback.play();
-            windowViewer->setTitle("Instance Viewer (" + instance->getTitle() + ")");
+            windowViewer->setTitle("Instance Viewer");
             windowViewer->show();
         }
         catch (CannotOpenInstanceException ex)

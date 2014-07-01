@@ -23,12 +23,12 @@ const DatasetMetadata& Dataset::getMetadata() const
     return *m_metadata;
 }
 
-shared_ptr<BaseInstance> Dataset::getInstance(int activity, int actor, int sample, DataFrame::FrameType type) const
+shared_ptr<StreamInstance> Dataset::getInstance(int activity, int actor, int sample, DataFrame::FrameType type) const
 {
     return instance(activity, actor, sample, type);
 }
 
-shared_ptr<BaseInstance> Dataset::getInstance(const InstanceInfo& info) const
+shared_ptr<StreamInstance> Dataset::getInstance(const InstanceInfo& info) const
 {
     return instance(info.getActivity(), info.getActor(), info.getSample(), info.getType());
 }

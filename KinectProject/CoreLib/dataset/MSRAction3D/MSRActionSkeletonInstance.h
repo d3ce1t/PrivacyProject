@@ -20,14 +20,14 @@ protected:
     bool openInstance() override;
     void closeInstance() override;
     void restartInstance() override;
-    void nextFrame(SkeletonFrame& frame) override;
+    QList<shared_ptr<DataFrame>> nextFrames() override;
 
 private:
     static SkeletonJoint::JointType staticMap[20];
 
     ifstream         m_file;
     int              m_nJoints;
-    shared_ptr<SkeletonFrame> m_frameBuffer[2];
+    shared_ptr<SkeletonFrame> m_frameBuffer;
 };
 
 } // End of namespace

@@ -38,7 +38,7 @@ public slots:
     void showJointsWindow();
     void showDistancesWindow();
     void showQuaternionsWindow();
-    void newFrames(const QHashDataFrames dataFrames, const qint64 frameId, const PlaybackControl* playback);
+    void newFrames(const QHashDataFrames dataFrames, const qint64 frameId, const qint64 availableTime, const PlaybackControl* playback);
 
 private slots:
     float getFPS() const;

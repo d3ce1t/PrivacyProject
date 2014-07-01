@@ -33,7 +33,6 @@ SOURCES += \
     types/DepthFrame.cpp \
     types/DataFrame.cpp \
     types/ColorFrame.cpp \
-    types/BaseInstance.cpp \
     dataset/InstanceInfo.cpp \
     dataset/DatasetMetadata.cpp \
     dataset/Dataset.cpp \
@@ -63,7 +62,8 @@ SOURCES += \
     Config.cpp \
     viewer/ViewerEngine.cpp \
     viewer/ViewerRenderer.cpp \
-    playback/PlaybackWorker.cpp
+    playback/PlaybackWorker.cpp \
+    types/StreamInstance.cpp
 
 HEADERS += \
     types/Vector3D.h \
@@ -78,7 +78,6 @@ HEADERS += \
     types/DepthFrame.h \
     types/DataFrame.h \
     types/ColorFrame.h \
-    types/BaseInstance.h \
     exceptions/NotSupportedDatasetException.h \
     exceptions/NotOpenedInstanceException.h \
     exceptions/NotImplementedException.h \

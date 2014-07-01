@@ -2,35 +2,31 @@
 #define OPENNIUSERTRACKERINSTANCE_H
 
 #include "OpenNIRuntime.h"
-#include "UserTrackerFrame.h"
-#include "types/BaseInstance.h"
-#include <QReadWriteLock>
+#include "types/StreamInstance.h"
+#include "types/SkeletonFrame.h"
+#include "types/UserFrame.h"
+#include "types/DepthFrame.h"
 
 namespace dai {
 
-class OpenNIUserTrackerInstance : public BaseInstance
+class OpenNIUserTrackerInstance : public StreamInstance
 {
 public:
     OpenNIUserTrackerInstance();
     virtual ~OpenNIUserTrackerInstance();
-    void open() override;
-    void close() override;
-    void restart() override;
     bool is_open() const override;
-    bool hasNext() const override;
-    void swapBuffer() override;
-    void readNextFrame() override;
-    QList< shared_ptr<DataFrame> > frames() override;
+
+protected:
+    bool openInstance() override;
+    void closeInstance() override;
+    void restartInstance() override;
+    QList<shared_ptr<DataFrame>> nextFrames() override;
 
 private:
-    void nextFrame(UserTrackerFrame& frame);
-
-private:
-    OpenNIRuntime*    m_openni;
-    UserTrackerFrame* m_frameBuffer[2];
-    QReadWriteLock    m_locker;
-    UserTrackerFrame* m_readFrame;
-    UserTrackerFrame* m_writeFrame;
+    OpenNIRuntime* m_openni;
+    shared_ptr<DepthFrame> m_frameDepth;
+    shared_ptr<UserFrame> m_frameUser;
+    shared_ptr<SkeletonFrame> m_frameSkeleton;
 };
 
 } // End Namespace

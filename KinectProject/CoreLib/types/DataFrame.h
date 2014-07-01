@@ -22,8 +22,6 @@ public:
     };
     Q_DECLARE_FLAGS(SupportedFrames, FrameType)
 
-    bool static isColorSupported(const FrameType& type);
-
     // Constructor
     DataFrame(FrameType type);
     DataFrame(const DataFrame& other);

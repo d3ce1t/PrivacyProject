@@ -20,6 +20,7 @@ public:
     ColorFrame();
     ColorFrame(int width, int height);
     ColorFrame(const ColorFrame& other);
+    ColorFrame(int width, int height, RGBColor *pData);
 
     // Overriden operators
     ColorFrame& operator=(const ColorFrame& other);

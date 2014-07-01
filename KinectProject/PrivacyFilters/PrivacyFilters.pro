@@ -14,12 +14,10 @@ HEADERS += \
     openni/OpenNIDepthInstance.h \
     openni/OpenNIColorInstance.h \
     openni/OpenNIRuntime.h \
-    openni/OpenNIBaseInstance.h \
     ogre/SinbadCharacterController.h \
     ogre/cameranodeobject.h \
     ogre/OgreScene.h \
     openni/OpenNIUserTrackerInstance.h \
-    openni/UserTrackerFrame.h \
     ogre/OgrePointCloud.h
 
 SOURCES += \
@@ -28,12 +26,10 @@ SOURCES += \
     openni/OpenNIDepthInstance.cpp \
     openni/OpenNIColorInstance.cpp \
     openni/OpenNIRuntime.cpp \
-    openni/OpenNIBaseInstance.cpp \
     ogre/SinbadCharacterController.cpp \
     ogre/cameranodeobject.cpp \
     ogre/OgreScene.cpp \
     openni/OpenNIUserTrackerInstance.cpp \
-    openni/UserTrackerFrame.cpp \
     ogre/OgrePointCloud.cpp
 
 OTHER_FILES += \

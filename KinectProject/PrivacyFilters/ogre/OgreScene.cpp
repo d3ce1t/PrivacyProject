@@ -126,7 +126,7 @@ void OgreScene::destroyScene(void)
     }
 }
 
-void OgreScene::newFrames(const dai::QHashDataFrames frames, const qint64 frameId, const dai::PlaybackControl* playback)
+void OgreScene::newFrames(const dai::QHashDataFrames frames, const qint64 frameId, const qint64 availableTime, const dai::PlaybackControl* playback)
 {
     Q_UNUSED(playback)
     Q_UNUSED(count)

@@ -16,9 +16,12 @@ public:
     // Constructor, Destructors and Copy Constructor
     GenericFrame(FrameType type);
     GenericFrame(int width, int height, FrameType type);
+    GenericFrame(int width, int height, T* pData, FrameType type);
     GenericFrame(const GenericFrame<T>& other);
-    shared_ptr<DataFrame> clone() const;
     virtual ~GenericFrame();
+    shared_ptr<DataFrame> clone() const;
+    void setDataPtr(int width, int height, T* pData);
+    void setDataPtr(T* pData);
 
     // Member Methods
     int getWidth() const;
@@ -42,11 +45,13 @@ private:
     T*  m_data;
     int m_width;
     int m_height;
+    bool m_managedData;
 };
 
 template <class T>
 GenericFrame<T>::GenericFrame(FrameType type)
     : DataFrame(type)
+    , m_managedData(false)
 {
     this->m_data = nullptr;
     this->m_width = 0;
@@ -56,11 +61,22 @@ GenericFrame<T>::GenericFrame(FrameType type)
 template <class T>
 GenericFrame<T>::GenericFrame(int width, int height, FrameType type)
     : DataFrame(type)
+    , m_managedData(true)
 {
     this->m_width = width;
     this->m_height = height;
     this->m_data = new T[width * height];
     memset(this->m_data, 0, width*height*sizeof(T));
+}
+
+template <class T>
+GenericFrame<T>::GenericFrame(int width, int height, T* pData, FrameType type)
+    : DataFrame(type)
+    , m_managedData(false)
+{
+    this->m_width = width;
+    this->m_height = height;
+    this->m_data = pData;
 }
 
 template <class T>
@@ -70,14 +86,17 @@ GenericFrame<T>::GenericFrame(const GenericFrame<T> &other)
     this->m_width = other.m_width;
     this->m_height = other.m_height;
     this->m_data = new T[this->m_width * this->m_height];
+    this->m_managedData = true;
     memcpy(this->m_data, other.m_data, this->m_width * this->m_height * sizeof(T));
 }
 
 template <class T>
 GenericFrame<T>::~GenericFrame()
 {
-    delete[] this->m_data;
-    this->m_data = nullptr;
+    if (m_managedData && m_data != nullptr) {
+        delete[] this->m_data;
+        this->m_data = nullptr;
+    }
     //qDebug() << "GenericFrame<T>::~GenericFrame()";
 }
 
@@ -85,6 +104,26 @@ template <class T>
 shared_ptr<DataFrame> GenericFrame<T>::clone() const
 {
     return shared_ptr<GenericFrame<T>>(new GenericFrame<T>(*this));
+}
+
+template <class T>
+void GenericFrame<T>::setDataPtr(int width, int height, T *pData)
+{
+    this->m_width = width;
+    this->m_height = height;
+    setDataPtr(pData);
+}
+
+template <class T>
+inline void GenericFrame<T>::setDataPtr(T* pData)
+{
+    if (m_managedData && m_data != nullptr) {
+        delete[] this->m_data;
+        this->m_data = nullptr;
+    }
+
+    this->m_data = pData;
+    this->m_managedData = false;
 }
 
 template <class T>
@@ -105,6 +144,7 @@ GenericFrame<T>& GenericFrame<T>::operator=(const GenericFrame<T>& other)
         }
     }
 
+    this->m_managedData = true;
     memcpy(this->m_data, other.m_data, this->m_width * this->m_height * sizeof(T));
     return *this;
 }

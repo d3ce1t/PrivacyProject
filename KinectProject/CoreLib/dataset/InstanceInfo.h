@@ -2,7 +2,6 @@
 #define INSTANCE_INFO_H
 
 #include <QString>
-#include "types/BaseInstance.h"
 #include "types/DataFrame.h"
 
 namespace dai {

@@ -52,6 +52,10 @@ void OpenNIRuntime::releaseInstance()
 
 OpenNIRuntime::OpenNIRuntime()
 {
+    m_colorFrame = make_shared<ColorFrame>();
+    m_depthFrame = make_shared<DepthFrame>(640, 480);
+
+    // Videostreams
     m_depthStreams = new openni::VideoStream*[1];
     m_depthStreams[0] = &m_oniDepthStream;
     m_colorStreams = new openni::VideoStream*[1];
@@ -119,8 +123,8 @@ void OpenNIRuntime::initOpenNI()
         if (m_oniColorStream.start() != openni::STATUS_OK)
             throw 6;
 
-        /*if (m_oniDepthStream.start() != openni::STATUS_OK)
-            throw 7;*/
+        if (m_oniDepthStream.start() != openni::STATUS_OK)
+            throw 7;
 
         if (m_oniUserTracker.create(&m_device) != nite::STATUS_OK)
             throw 8;
@@ -151,60 +155,64 @@ void OpenNIRuntime::shutdownOpenNI()
     openni::OpenNI::shutdown();
 }
 
-openni::VideoFrameRef OpenNIRuntime::readColorFrame()
+shared_ptr<ColorFrame> OpenNIRuntime::readColorFrame()
 {
-    openni::VideoFrameRef oniColorFrame;
-    int changedIndex;
+    if (m_oniColorStream.readFrame(&m_oniColorFrame) != openni::STATUS_OK)
+        throw 1;
 
-    if (openni::OpenNI::waitForAnyStream(m_colorStreams, 1, &changedIndex, 500) == openni::STATUS_OK)
-    {
-        if (changedIndex == 0)
-        {
-            if (m_oniColorStream.readFrame(&oniColorFrame) != openni::STATUS_OK)
-                throw 1;
+    if (!m_oniColorFrame.isValid())
+        throw 2;
 
-            if (!oniColorFrame.isValid())
-                throw 2;
+    int stride = m_oniColorFrame.getStrideInBytes() / sizeof(openni::RGB888Pixel) - m_oniColorFrame.getWidth();
 
-            int stride = oniColorFrame.getStrideInBytes() / sizeof(openni::RGB888Pixel) - oniColorFrame.getWidth();
-
-            if (stride > 0) {
-                qWarning() << "WARNING: OpenNIRuntime - Not managed color stride!!!";
-                throw 3;
-            }
-        }
+    if (stride > 0) {
+        qWarning() << "WARNING: OpenNIRuntime - Not managed color stride!!!";
+        throw 3;
     }
 
-    return oniColorFrame;
+    m_colorFrame->setDataPtr(640, 480, (RGBColor*) m_oniColorFrame.getData());
+    m_colorFrame->setIndex(m_oniColorFrame.getFrameIndex());
+    return m_colorFrame;
 }
 
-openni::VideoFrameRef OpenNIRuntime::readDepthFrame()
+shared_ptr<DepthFrame> OpenNIRuntime::readDepthFrame()
 {
-    openni::VideoFrameRef oniDepthFrame;
     int changedIndex;
 
     if (openni::OpenNI::waitForAnyStream(m_depthStreams, 1, &changedIndex) == openni::STATUS_OK)
     {
         if (changedIndex == 0)
         {
-            if (m_oniDepthStream.readFrame(&oniDepthFrame) != openni::STATUS_OK) {
+            if (m_oniDepthStream.readFrame(&m_oniDepthFrame) != openni::STATUS_OK) {
                 throw 1;
             }
 
-            if (!oniDepthFrame.isValid()) {
+            if (!m_oniDepthFrame.isValid()) {
                 throw 2;
             }
 
-            int strideDepth = oniDepthFrame.getStrideInBytes() / sizeof(openni::DepthPixel) - oniDepthFrame.getWidth();
+            int strideDepth = m_oniDepthFrame.getStrideInBytes() / sizeof(openni::DepthPixel) - m_oniDepthFrame.getWidth();
 
             if (strideDepth > 0) {
                 qWarning() << "WARNING: OpenNIRuntime - Not managed depth stride!!!";
                 throw 3;
             }
+
+            // Hack: Make a copy
+            const openni::DepthPixel* pDepth = (const openni::DepthPixel*) m_oniDepthFrame.getData();
+
+            for (int y=0; y < m_oniDepthFrame.getHeight(); ++y) {
+                for (int x=0; x < m_oniDepthFrame.getWidth(); ++x) {
+                    m_depthFrame->setItem(y, x, *pDepth / 1000.0f);
+                    pDepth++;
+                }
+            }
+
+            m_depthFrame->setIndex(m_oniDepthFrame.getFrameIndex());
         }
     }
 
-    return oniDepthFrame;
+    return m_depthFrame;
 }
 
 nite::UserTrackerFrameRef OpenNIRuntime::readUserTrackerFrame()
@@ -225,11 +233,6 @@ nite::UserTrackerFrameRef OpenNIRuntime::readUserTrackerFrame()
 nite::UserTracker& OpenNIRuntime::getUserTracker()
 {
     return m_oniUserTracker;
-}
-
-openni::VideoStream& OpenNIRuntime::getDepthStream()
-{
-    return m_oniDepthStream;
 }
 
 void OpenNIRuntime::copySkeleton(const nite::Skeleton& srcSkeleton, dai::Skeleton& dstSkeleton)

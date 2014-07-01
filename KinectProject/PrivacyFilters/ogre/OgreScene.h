@@ -26,7 +26,7 @@ public:
 
 public slots:
     void enableFilter(bool flag);
-    void newFrames(const dai::QHashDataFrames frames, const qint64 frameId, const dai::PlaybackControl* playback);
+    void newFrames(const dai::QHashDataFrames frames, const qint64 frameId, const qint64 availableTime, const dai::PlaybackControl* playback);
 
 protected:
     void createPointCloud();

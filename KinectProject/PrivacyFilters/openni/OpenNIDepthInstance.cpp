@@ -9,10 +9,6 @@ namespace dai {
 OpenNIDepthInstance::OpenNIDepthInstance()
     : StreamInstance(DataFrame::Depth)
 {
-    this->m_title = "Depth Live Stream";
-    m_frameBuffer[0].reset(new DepthFrame(640, 480));
-    m_frameBuffer[1].reset(new DepthFrame(640, 480));
-    StreamInstance::initFrameBuffer(m_frameBuffer[0], m_frameBuffer[1]);
     m_openni = nullptr;
 }
 
@@ -51,28 +47,14 @@ void OpenNIDepthInstance::closeInstance()
 
 void OpenNIDepthInstance::restartInstance()
 {
-
 }
 
-void OpenNIDepthInstance::nextFrame(DepthFrame &frame)
+QList<shared_ptr<DataFrame>> OpenNIDepthInstance::nextFrames()
 {
-    openni::VideoFrameRef oniDepthFrame = m_openni->readDepthFrame();
-
-    // Read this frame
-    const openni::DepthPixel* pDepth = (const openni::DepthPixel*) oniDepthFrame.getData();
-    frame.setIndex(oniDepthFrame.getFrameIndex());
-
-    for (int y=0; y < oniDepthFrame.getHeight(); ++y) {
-        for (int x=0; x < oniDepthFrame.getWidth(); ++x) {
-            frame.setItem(y, x, *pDepth / 1000.0f);
-            pDepth++;
-        }
-        // Skip rest of row (in case it exists)
-        //pDepth += strideDepth;
-    }
-
-    // Stats
-    computeStats(frame.getIndex());
+    QList<shared_ptr<DataFrame>> result;
+    shared_ptr<DepthFrame> depthFrame = m_openni->readDepthFrame();
+    result.append(depthFrame);
+    return result;
 }
 
 } // End namespace

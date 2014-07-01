@@ -33,9 +33,7 @@ SkeletonJoint::JointType MSRDailySkeletonInstance::staticMap[20] = {
 MSRDailySkeletonInstance::MSRDailySkeletonInstance(const InstanceInfo& info)
     : DataInstance(info)
 {
-    m_frameBuffer[0].reset(new SkeletonFrame);
-    m_frameBuffer[1].reset(new SkeletonFrame);
-    DataInstance::initFrameBuffer(m_frameBuffer[0], m_frameBuffer[1]);
+    m_frameBuffer = make_shared<SkeletonFrame>();
     m_nJoints = 0;
 }
 
@@ -86,13 +84,14 @@ void MSRDailySkeletonInstance::restartInstance()
     }
 }
 
-void MSRDailySkeletonInstance::nextFrame(SkeletonFrame &frame)
+QList<shared_ptr<DataFrame>> MSRDailySkeletonInstance::nextFrames()
 {
-    auto skeleton = frame.getSkeleton(1);
+    QList<shared_ptr<DataFrame>> result;
+    auto skeleton = m_frameBuffer->getSkeleton(1);
 
     if (skeleton == nullptr) {
-        skeleton.reset(new Skeleton(Skeleton::SKELETON_KINECT));
-        frame.setSkeleton(1, skeleton);
+        skeleton = make_shared<Skeleton>(Skeleton::SKELETON_KINECT);
+        m_frameBuffer->setSkeleton(1, skeleton);
     }
 
     // Read Data from File
@@ -127,6 +126,9 @@ void MSRDailySkeletonInstance::nextFrame(SkeletonFrame &frame)
     }
 
     skeleton->computeQuaternions();
+
+    result.append(m_frameBuffer);
+    return result;
 }
 
 } // End Namespace

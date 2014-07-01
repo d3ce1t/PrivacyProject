@@ -3,10 +3,10 @@
 
 #include <QObject>
 #include <QList>
-#include "types/BaseInstance.h"
 #include "playback/PlaybackWorker.h"
 #include <QThread>
 #include <memory>
+#include <QElapsedTimer>
 
 using namespace std;
 
@@ -19,13 +19,15 @@ class PlaybackControl : public QObject
 public:
     PlaybackControl();
     virtual ~PlaybackControl();
-    void addInstance(shared_ptr<BaseInstance> instance);
-    void removeInstance(shared_ptr<BaseInstance> instance);
+    void addInstance(shared_ptr<StreamInstance> instance);
+    void removeInstance(shared_ptr<StreamInstance> instance);
     void enablePlayLoop(bool value);
     void setFPS(float fps);
     float getFPS() const;
     bool isValidFrame(qint64 frameIndex) const;
     PlaybackWorker* worker() const;
+
+    QElapsedTimer superTimer;
 
 public slots:
     void play(bool restartAll = false);
@@ -33,9 +35,9 @@ public slots:
     void clearInstances();
 
 private:
-    QThread                         m_workerThread;
-    PlaybackWorker                  *m_worker;
-    QList<shared_ptr<BaseInstance>> m_instances;
+    QThread                           m_workerThread;
+    PlaybackWorker                   *m_worker;
+    QList<shared_ptr<StreamInstance>> m_instances;
 };
 
 } // End namespace

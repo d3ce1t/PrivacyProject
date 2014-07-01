@@ -11,7 +11,7 @@ public:
     MSRDailyActivity3D();
 
 protected:
-    shared_ptr<BaseInstance> instance(int activity, int actor, int sample, DataFrame::FrameType type) const;
+    shared_ptr<StreamInstance> instance(int activity, int actor, int sample, DataFrame::FrameType type) const;
 };
 
 }

@@ -18,15 +18,23 @@ namespace dai {
 class DepthFrame : public GenericFrame<float>
 {
 public:
+
+    enum DistanceUnits {
+        MILIMETERS,
+        METERS
+    };
+
     // Static Class Methods
     static void calculateHistogram(QMap<float, float> &pHistogram, const DepthFrame &frame);
 
     // Constructors
     DepthFrame();
     DepthFrame(int width, int height);
+    DepthFrame(int width, int height, float *pData);
     virtual ~DepthFrame();
     DepthFrame(const DepthFrame& other);
     shared_ptr<DataFrame> clone() const;
+    DistanceUnits distanceUnits() const;
 
     // Member Methods
     unsigned int getNumOfNonZeroPoints() const;
@@ -37,6 +45,7 @@ public:
 
 private:
     unsigned int m_nNonZeroOfPoints;
+    DistanceUnits m_units;
 };
 
 } // End Namespace

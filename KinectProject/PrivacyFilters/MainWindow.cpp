@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include "openni/OpenNIColorInstance.h"
+#include "openni/OpenNIDepthInstance.h"
 #include "openni/OpenNIUserTrackerInstance.h"
 
 using namespace std;
@@ -16,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     // Setup playback
-    m_playback.setFPS(30);
+    m_playback.setFPS(10);
 
     // Show this window centered
     QDesktopWidget *desktop = QApplication::desktop();
@@ -47,35 +48,37 @@ MainWindow::~MainWindow()
 void MainWindow::on_btnStartKinect_clicked()
 {
     // Create instance
-    shared_ptr<dai::OpenNIColorInstance> colorInstance(new dai::OpenNIColorInstance);
-    shared_ptr<dai::OpenNIUserTrackerInstance> userTrackerInstance(new dai::OpenNIUserTrackerInstance);
+    shared_ptr<dai::OpenNIColorInstance> colorInstance = make_shared<dai::OpenNIColorInstance>();
+    //shared_ptr<dai::OpenNIDepthInstance> depthInstance = make_shared<dai::OpenNIDepthInstance>();
+    shared_ptr<dai::OpenNIUserTrackerInstance> userTrackerInstance = make_shared<dai::OpenNIUserTrackerInstance>();
 
     // Playback
     m_playback.clearInstances();
     m_playback.addInstance(colorInstance);
     m_playback.addInstance(userTrackerInstance);
+    //m_playback.addInstance(depthInstance);
 
     // Create viewers
-    m_colorViewer = new dai::InstanceViewerWindow(dai::MODE_2D);
+    m_viewer = new dai::InstanceViewerWindow(dai::MODE_2D);
     m_ogreScene = new OgreScene;
-    connect(m_colorViewer, &dai::InstanceViewerWindow::destroyed, m_ogreScene, &OgreScene::deleteLater);
-    m_colorViewer->qmlEngine().rootContext()->setContextProperty("Scene", m_ogreScene);
-    m_colorViewer->qmlEngine().rootContext()->setContextProperty("Camera", m_ogreScene->cameraNode());
-    m_colorViewer->qmlEngine().rootContext()->setContextProperty("OgreEngine", m_ogreScene->engine());
-    m_colorViewer->initialise();
+    connect(m_viewer, &dai::InstanceViewerWindow::destroyed, m_ogreScene, &OgreScene::deleteLater);
+    m_viewer->qmlEngine().rootContext()->setContextProperty("Scene", m_ogreScene);
+    m_viewer->qmlEngine().rootContext()->setContextProperty("Camera", m_ogreScene->cameraNode());
+    m_viewer->qmlEngine().rootContext()->setContextProperty("OgreEngine", m_ogreScene->engine());
+    m_viewer->initialise();
 
     // start Ogre once we are in the rendering thread (Ogre must live in the rendering thread)
-    connect(m_colorViewer->quickWindow(), &QQuickWindow::beforeSynchronizing, this, &MainWindow::initialiseOgre, Qt::DirectConnection);
-    connect(m_colorViewer->viewerEngine(), &ViewerEngine::plusKeyPressed, this, &MainWindow::onPlusKeyPressed);
-    connect(m_colorViewer->viewerEngine(), &ViewerEngine::minusKeyPressed, this, &MainWindow::onMinusKeyPressed);
-    connect(m_colorViewer->viewerEngine(), &ViewerEngine::spaceKeyPressed, this, &MainWindow::onSpaceKeyPressed);
+    connect(m_viewer->quickWindow(), &QQuickWindow::beforeSynchronizing, this, &MainWindow::initialiseOgre, Qt::DirectConnection);
+    connect(m_viewer->viewerEngine(), &ViewerEngine::plusKeyPressed, this, &MainWindow::onPlusKeyPressed);
+    connect(m_viewer->viewerEngine(), &ViewerEngine::minusKeyPressed, this, &MainWindow::onMinusKeyPressed);
+    connect(m_viewer->viewerEngine(), &ViewerEngine::spaceKeyPressed, this, &MainWindow::onSpaceKeyPressed);
 
     // Connect playback with viewers
-    connect(m_playback.worker(), &dai::PlaybackWorker::onNewFrames, m_colorViewer, &dai::InstanceViewerWindow::newFrames);
+    connect(m_playback.worker(), &dai::PlaybackWorker::onNewFrames, m_viewer, &dai::InstanceViewerWindow::newFrames);
     connect(m_playback.worker(), &dai::PlaybackWorker::onNewFrames, m_ogreScene, &OgreScene::newFrames);
 
     // Run
-    m_colorViewer->show();
+    m_viewer->show();
     m_playback.play();
 }
 
@@ -111,9 +114,9 @@ void MainWindow::on_btnQuit_clicked()
 void MainWindow::initialiseOgre()
 {
     // we only want to initialize once
-    disconnect(m_colorViewer->quickWindow(), &QQuickWindow::beforeSynchronizing, this, &MainWindow::initialiseOgre);
-    connect(m_colorViewer->quickWindow(), &QQuickWindow::beforeSynchronizing, this, &MainWindow::renderScreen, Qt::DirectConnection);
-    m_ogreScene->initialiseOgre(m_colorViewer->quickWindow());
+    disconnect(m_viewer->quickWindow(), &QQuickWindow::beforeSynchronizing, this, &MainWindow::initialiseOgre);
+    connect(m_viewer->quickWindow(), &QQuickWindow::beforeSynchronizing, this, &MainWindow::renderScreen, Qt::DirectConnection);
+    m_ogreScene->initialiseOgre(m_viewer->quickWindow());
 }
 
 void MainWindow::renderScreen()
