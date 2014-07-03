@@ -11,6 +11,7 @@ PlaybackWorker::PlaybackWorker()
     , m_slotTime(40 * 1000000) // 40 ms in ns, 25 fps
     , m_running(false)
     , m_fps(0)
+    , m_supportedFrames(DataFrame::Unknown)
 {
     superTimer.start();
 }
@@ -19,23 +20,45 @@ PlaybackWorker::~PlaybackWorker()
 {
     m_listeners.clear();
     m_instances.clear();
+    m_supportedFrames = DataFrame::Unknown;
 }
 
-void PlaybackWorker::addInstance(shared_ptr<StreamInstance> instance)
+bool PlaybackWorker::addInstance(shared_ptr<StreamInstance> instance)
 {
+    bool added = false;
+
     if (!m_instances.contains(instance))
-        m_instances << instance;
+    {
+        DataFrame::SupportedFrames result = m_supportedFrames & instance->getSupportedFrames();
+
+        if ( int(result) == 0) {
+            m_instances << instance;
+            m_supportedFrames |= instance->getSupportedFrames();
+            added = true;
+        } else {
+            qDebug() << "WARNING" << "The provided instance cannot be added because it generates the"
+                     << "same type of frame than another instance";
+        }
+    }
+    else {
+        qDebug() << "The provided instance already exists";
+    }
+
+    return added;
 }
 
 void PlaybackWorker::removeInstance(shared_ptr<StreamInstance> instance)
 {
-    if (m_instances.contains(instance))
-        m_instances.removeAll(instance);
+    if (m_instances.contains(instance)) {
+        m_instances.removeOne(instance);
+        m_supportedFrames ^= instance->getSupportedFrames();
+    }
 }
 
 void PlaybackWorker::clearInstances()
 {
     m_instances.clear();
+    m_supportedFrames = DataFrame::Unknown;
 }
 
 void PlaybackWorker::addListener(PlaybackListener* listener)

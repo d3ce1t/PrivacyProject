@@ -35,7 +35,7 @@ public slots:
 private:
     void enablePlayLoop(bool value);
     void setFPS(float fps);
-    void addInstance(shared_ptr<StreamInstance> instance);
+    bool addInstance(shared_ptr<StreamInstance> instance);
     void removeInstance(shared_ptr<StreamInstance> instance);
     void clearInstances();
     void addListener(PlaybackListener* listener);
@@ -55,6 +55,7 @@ private:
     QReadWriteLock                     m_counterLock;
     QReadWriteLock                     m_listenersLock;
     qint64                             m_framesCounter;
+    DataFrame::SupportedFrames         m_supportedFrames;
 };
 
 } // End Namespace

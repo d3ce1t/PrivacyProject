@@ -19,7 +19,7 @@ public:
     virtual ~PlaybackControl();
     void addListener(PlaybackListener* listener);
     void removeListener(PlaybackListener* listener);
-    void addInstance(shared_ptr<StreamInstance> instance);
+    bool addInstance(shared_ptr<StreamInstance> instance);
     void removeInstance(shared_ptr<StreamInstance> instance);
     void clearInstances();
     void enablePlayLoop(bool value);

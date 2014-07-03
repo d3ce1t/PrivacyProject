@@ -3,8 +3,9 @@ DONE:
 
 - Instances: No usar double buffer.
 
-QUEUE:
 - PlaybackControl: Limitar el número de instancias añadibles según los tipos de Frames (Color, Depth, Users y Skeletons). Si hay dos instancias que generan el mismo tipo de frame debería ser un error (no debería permitirse).
+
+QUEUE:
 
 - Viewer: Tener en cuenta el límite de tipos de frames para reservar memoria donde éstos se copiarán (así evito crear y destruir memoria todo el tiempo).
 

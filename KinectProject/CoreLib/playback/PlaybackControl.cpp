@@ -52,9 +52,9 @@ void PlaybackControl::removeListener(PlaybackListener *listener)
     m_worker->removeListener(listener);
 }
 
-void PlaybackControl::addInstance(shared_ptr<StreamInstance> instance)
+bool PlaybackControl::addInstance(shared_ptr<StreamInstance> instance)
 {
-    m_worker->addInstance(instance);
+    return m_worker->addInstance(instance);
 }
 
 void PlaybackControl::removeInstance(shared_ptr<StreamInstance> instance)
