@@ -19,6 +19,7 @@ ViewerEngine::ViewerEngine(ViewerMode mode)
 
     qRegisterMetaType<QHashDataFrames>("QHashDataFrames");
     qRegisterMetaType<PlaybackControl*>("PlaybackControl*");
+    qRegisterMetaType<const PlaybackControl*>("const PlaybackControl*");
     qRegisterMetaType<QList<shared_ptr<StreamInstance>>>("QList<shared_ptr<StreamInstance>>");
     qRegisterMetaType<shared_ptr<SkeletonFrame>>("shared_ptr<SkeletonFrame>");
 

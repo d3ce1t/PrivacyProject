@@ -1,43 +1,37 @@
 #ifndef PLAYBACKCONTROL_H
 #define PLAYBACKCONTROL_H
 
-#include <QObject>
-#include <QList>
-#include "playback/PlaybackWorker.h"
 #include <QThread>
+#include "types/StreamInstance.h"
 #include <memory>
-#include <QElapsedTimer>
 
 using namespace std;
 
 namespace dai {
 
-class PlaybackControl : public QObject
-{
-    Q_OBJECT
+class PlaybackListener;
+class PlaybackWorker;
 
+class PlaybackControl
+{
 public:
     PlaybackControl();
     virtual ~PlaybackControl();
+    void addListener(PlaybackListener* listener);
+    void removeListener(PlaybackListener* listener);
     void addInstance(shared_ptr<StreamInstance> instance);
     void removeInstance(shared_ptr<StreamInstance> instance);
+    void clearInstances();
     void enablePlayLoop(bool value);
     void setFPS(float fps);
-    float getFPS() const;
-    bool isValidFrame(qint64 frameIndex) const;
-    PlaybackWorker* worker() const;
 
-    QElapsedTimer superTimer;
-
-public slots:
+// These could be slots
     void play(bool restartAll = false);
     void stop();
-    void clearInstances();
 
 private:
-    QThread                           m_workerThread;
-    PlaybackWorker                   *m_worker;
-    QList<shared_ptr<StreamInstance>> m_instances;
+    QThread         m_workerThread;
+    PlaybackWorker *m_worker;
 };
 
 } // End namespace

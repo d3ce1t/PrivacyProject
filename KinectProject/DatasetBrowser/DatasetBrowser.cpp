@@ -135,7 +135,7 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
         windowViewer->initialise();
         m_playback.clearInstances();
         m_playback.addInstance(instance);
-        connect(m_playback.worker(), &dai::PlaybackWorker::onNewFrames, windowViewer, &dai::InstanceViewerWindow::newFrames);
+        m_playback.addListener(windowViewer);
 
         try {
             m_playback.play();

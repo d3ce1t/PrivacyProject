@@ -63,7 +63,8 @@ SOURCES += \
     viewer/ViewerEngine.cpp \
     viewer/ViewerRenderer.cpp \
     playback/PlaybackWorker.cpp \
-    types/StreamInstance.cpp
+    types/StreamInstance.cpp \
+    playback/PlaybackListener.cpp
 
 HEADERS += \
     types/Vector3D.h \
@@ -114,7 +115,8 @@ HEADERS += \
     Config.h \
     viewer/ViewerEngine.h \
     viewer/ViewerRenderer.h \
-    playback/PlaybackWorker.h
+    playback/PlaybackWorker.h \
+    playback/PlaybackListener.h
 
 unix:!symbian {
     maemo5 {

@@ -15,8 +15,8 @@ class DataFrame
 public:
     enum FrameType {
         Unknown  = 0x00,
-        Depth    = 0x01,
-        Color    = 0x02,
+        Color    = 0x01,
+        Depth    = 0x02,
         Skeleton = 0x04,
         User     = 0x08
     };

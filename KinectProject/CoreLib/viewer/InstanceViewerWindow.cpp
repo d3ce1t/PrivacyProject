@@ -14,24 +14,27 @@ namespace dai {
 InstanceViewerWindow::InstanceViewerWindow(ViewerMode mode)
     : m_initialised(false)
     , m_fps(0)
-    , m_viewerEngine(nullptr)
+    , m_viewerEngine(ViewerEngine(mode))
     , m_viewerMode(mode)
     , m_quickWindow(nullptr)
     , m_frameCounter(0)
+    , m_delayInMs(0)
+    , m_modelsInitialised(false)
 {
-    m_viewerEngine = new ViewerEngine(mode);
-
     // expose objects as QML globals
     m_qmlEngine.rootContext()->setContextProperty("Window", this);
-    m_qmlEngine.rootContext()->setContextProperty("ViewerEngine", m_viewerEngine);
+    m_qmlEngine.rootContext()->setContextProperty("ViewerEngine", &m_viewerEngine);
 }
 
 InstanceViewerWindow::~InstanceViewerWindow()
 {
     qDebug() << "InstanceViewerWindow::~InstanceViewerWindow()";
-    m_viewerEngine = nullptr;
+
+    stopListener();
 
     // Close windows and clear models
+    m_modelsLock.lock();
+
     m_joints_table_view.close();
     m_joints_model.clear();
 
@@ -40,6 +43,8 @@ InstanceViewerWindow::~InstanceViewerWindow()
 
     m_quaternions_table_view.close();
     m_quaternions_model.clear();
+
+    m_modelsLock.unlock();
 }
 
 QQmlApplicationEngine& InstanceViewerWindow::qmlEngine()
@@ -76,7 +81,7 @@ void InstanceViewerWindow::initialise()
     }
 
     m_quickWindow->setTitle("Instance Viewer");
-    m_viewerEngine->startEngine(m_quickWindow);
+    m_viewerEngine.startEngine(m_quickWindow);
 
     // Windows setup
     connect(m_quickWindow, SIGNAL(closing(QQuickCloseEvent*)), this, SLOT(deleteLater()));
@@ -109,59 +114,48 @@ void InstanceViewerWindow::processListItem(QListWidget* widget)
     }*/
 }
 
-// SLOT connected to the Playback onNewFrames Signal
-void InstanceViewerWindow::newFrames(const QHashDataFrames dataFrames, const qint64 frameId, const qint64 availableTime, const PlaybackControl *playback)
+void InstanceViewerWindow::setDelay(qint64 milliseconds)
 {
-    /*static qint64 total = 0;
-    static qint64 counter = 0;
-    static qint64 max = 0;
-    static qint64 min = 99999999999999999;
-    qint64 timeReceived = playback->superTimer.nsecsElapsed();
-    qint64 diff = timeReceived - availableTime;
-    total += diff;
-    counter++;
+    m_delayInMs = milliseconds;
+}
 
-    if (diff > max) max = diff;
-    if (diff < min) min = diff;
-
-    qDebug() << "Diff (ms)" << diff / 1000000.0f <<
-                "Max (ms)" << max / 1000000.0f <<
-                "Min (ms)" << min / 1000000.0f <<
-                "Avg (ms)" << (total / counter) / 1000000.0f;*/
-
-    // La copia de frames tarda 1 ms
-
+void InstanceViewerWindow::newFrames(const QHashDataFrames dataFrames, const qint64 frameId)
+{
     // Check the received frames are valid because we could have been called out of time
-    if (!playback->isValidFrame(frameId)) {
-        qDebug() << "Frame Id:" << frameId << "Skipped" << "Available (ms)" << availableTime / 1000000.0f;
-        return;
-    }
-
-    // Copy frames
-    QHashDataFrames copyFrames;
-
-    foreach (DataFrame::FrameType key, dataFrames.keys()) {
-        shared_ptr<DataFrame> frame = dataFrames.value(key);
-        copyFrames.insert(key, frame->clone());
-    }
-
-    // Check if the frames has been copied correctly
-    if (!playback->isValidFrame(frameId)) {
-        qDebug() << "Frame Id:" << frameId << "Read but Not Valid" << "Available (ms)" << availableTime / 1000000.0f;
-        return;
-    }
-
-    // Do task
-    m_viewerEngine->prepareScene(copyFrames);
-
-    // Feed skeleton data models
-    if (copyFrames.contains(DataFrame::Skeleton))
+    if (playbackHandler()->isValidFrame(frameId))
     {
-        shared_ptr<SkeletonFrame> skeleton = static_pointer_cast<SkeletonFrame>( copyFrames.value(DataFrame::Skeleton) );
-        feedDataModels(skeleton);
+        // Copy frames (1 ms)
+        QHashDataFrames copyFrames;
+
+        foreach (DataFrame::FrameType key, dataFrames.keys()) {
+            shared_ptr<DataFrame> frame = dataFrames.value(key);
+            copyFrames.insert(key, frame->clone());
+        }
+
+        // Check if the frames has been copied correctly
+        if (playbackHandler()->isValidFrame(frameId))
+        {
+            // Do task
+            m_viewerEngine.prepareScene(copyFrames);
+
+            // Feed skeleton data models
+            if (copyFrames.contains(DataFrame::Skeleton)) {
+                shared_ptr<SkeletonFrame> skeleton = static_pointer_cast<SkeletonFrame>( copyFrames.value(DataFrame::Skeleton) );
+                feedDataModels(skeleton);
+            }
+
+            if (m_delayInMs > 0)
+                QThread::currentThread()->msleep(m_delayInMs);
+        }
+        else {
+            qDebug() << "Frame Id:" << frameId << "Read but Not Valid";
+        }
+    }
+    else {
+        qDebug() << "Frame Id:" << frameId << "Skipped";
     }
 
-    m_fps = playback->getFPS();
+    m_fps = playbackHandler()->getFPS();
     emit changeOfStatus();
 }
 
@@ -172,7 +166,7 @@ float InstanceViewerWindow::getFPS() const
 
 const ViewerEngine* InstanceViewerWindow::viewerEngine() const
 {
-    return m_viewerEngine;
+    return &m_viewerEngine;
 }
 
 void InstanceViewerWindow::showJointsWindow()
@@ -207,6 +201,8 @@ void InstanceViewerWindow::showQuaternionsWindow()
 
 void InstanceViewerWindow::setupJointsModel(QStandardItemModel &model)
 {
+    QMutexLocker locker(&m_modelsLock);
+
     // Setup Joints Model
     model.setRowCount(20);
     model.setColumnCount(3);
@@ -248,6 +244,8 @@ void InstanceViewerWindow::setupJointsModel(QStandardItemModel &model)
 
 void InstanceViewerWindow::setupDistancesModel(QStandardItemModel &model)
 {
+    QMutexLocker locker(&m_modelsLock);
+
     // Setup Distances model
     model.setRowCount(20);
     model.setColumnCount(20);
@@ -281,7 +279,7 @@ void InstanceViewerWindow::setupDistancesModel(QStandardItemModel &model)
 
 void InstanceViewerWindow::setupQuaternionModel(QStandardItemModel &model)
 {
-    m_frameCounter = 0;
+    QMutexLocker locker(&m_modelsLock);
 
     // Setup Quaternions Model
     model.setRowCount(20);
@@ -349,6 +347,8 @@ void InstanceViewerWindow::feedDataModels(shared_ptr<SkeletonFrame> skeletonFram
 
 void InstanceViewerWindow::feedJointsModel(const dai::Skeleton& skeleton, QStandardItemModel& model)
 {
+    QMutexLocker locker(&m_modelsLock);
+
     // Joints Model
     for (int i=0; i<skeleton.getJointsCount(); ++i)
     {
@@ -366,6 +366,8 @@ void InstanceViewerWindow::feedJointsModel(const dai::Skeleton& skeleton, QStand
 
 void InstanceViewerWindow::feedDistancesModel(const dai::Skeleton &skeleton, QStandardItemModel& model)
 {
+    QMutexLocker locker(&m_modelsLock);
+
     // Distances Model
     for (int i=0; i<skeleton.getJointsCount(); ++i)
     {
@@ -392,6 +394,8 @@ void InstanceViewerWindow::feedDistancesModel(const dai::Skeleton &skeleton, QSt
 
 void InstanceViewerWindow::feedQuaternionsModel(const dai::Skeleton &skeleton, QStandardItemModel& model)
 {
+    QMutexLocker locker(&m_modelsLock);
+
     // Quaternions Model
     for (int i=0; i<20; ++i)
     {
@@ -438,6 +442,27 @@ float InstanceViewerWindow::colorIntensity(float x)
     // max =  1.79175946922805
     // b =  2.99573227355399
     return (log(100*(x+0.1)) - b)/max;
+}
+
+void InstanceViewerWindow::measureTime(qint64 initialTime)
+{
+    static qint64 total = 0;
+    static qint64 counter = 0;
+    static qint64 max = 0;
+    static qint64 min = 99999999999999999;
+
+    qint64 timeReceived = playbackHandler()->superTimer.nsecsElapsed();
+    qint64 diff = timeReceived - initialTime;
+    total += diff;
+    counter++;
+
+    if (diff > max) max = diff;
+    if (diff < min) min = diff;
+
+    qDebug() << "Diff (ms)" << diff / 1000000.0f <<
+                "Max (ms)" << max / 1000000.0f <<
+                "Min (ms)" << min / 1000000.0f <<
+                "Avg (ms)" << (total / counter) / 1000000.0f;
 }
 
 } // End Namespace

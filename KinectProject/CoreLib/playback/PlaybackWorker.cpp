@@ -1,20 +1,60 @@
 #include "PlaybackWorker.h"
-#include "PlaybackControl.h"
-#include <QElapsedTimer>
+#include "PlaybackListener.h"
+#include <QtConcurrent/QtConcurrent>
 #include "exceptions/CannotOpenInstanceException.h"
-#include <iostream>
 #include <QDebug>
 
 namespace dai {
 
-PlaybackWorker::PlaybackWorker(const PlaybackControl* playback, QList<shared_ptr<StreamInstance> > &instances)
-    : m_playback(playback)
-    , m_instances(instances)
-    , m_playloop_enabled(false)
-    , m_slotTime(40 * 1000000) // 40 ms in ns
+PlaybackWorker::PlaybackWorker()
+    : m_playloop_enabled(false)
+    , m_slotTime(40 * 1000000) // 40 ms in ns, 25 fps
     , m_running(false)
     , m_fps(0)
 {
+    superTimer.start();
+}
+
+PlaybackWorker::~PlaybackWorker()
+{
+    m_listeners.clear();
+    m_instances.clear();
+}
+
+void PlaybackWorker::addInstance(shared_ptr<StreamInstance> instance)
+{
+    if (!m_instances.contains(instance))
+        m_instances << instance;
+}
+
+void PlaybackWorker::removeInstance(shared_ptr<StreamInstance> instance)
+{
+    if (m_instances.contains(instance))
+        m_instances.removeAll(instance);
+}
+
+void PlaybackWorker::clearInstances()
+{
+    m_instances.clear();
+}
+
+void PlaybackWorker::addListener(PlaybackListener* listener)
+{
+    QWriteLocker locker(&m_listenersLock);
+
+    if (!m_listeners.contains(listener)) {
+        listener->m_worker = this;
+        m_listeners << listener;
+    }
+}
+
+void PlaybackWorker::removeListener(PlaybackListener* listener)
+{
+    QWriteLocker locker(&m_listenersLock);
+
+    if (m_listeners.contains(listener)) {
+        m_listeners.removeAll(listener);
+    }
 }
 
 void PlaybackWorker::enablePlayLoop(bool value)
@@ -36,11 +76,11 @@ bool PlaybackWorker::isValidFrame(qint64 frameIndex)
 {
     bool result = false;
 
-    m_lock.lockForRead();
+    m_counterLock.lockForRead();
     if (frameIndex == m_framesCounter) {
         result = true;
     }
-    m_lock.unlock();
+    m_counterLock.unlock();
 
     return result;
 }
@@ -61,53 +101,35 @@ void PlaybackWorker::run()
     qint64 averageTime = 0;
     m_framesCounter = 0;
     qint64 offsetTime = 0;
-    int listeners = receivers( SIGNAL(onNewFrames(const QHashDataFrames, const qint64, const qint64, const PlaybackControl*)) );
 
     m_running = true;
+    setupListeners();
     openAllInstances();
     timer.start();
 
-    while (m_running && listeners > 0)
+    while (m_running)
     {
         // Frames counter
-        m_lock.lockForWrite();
+        m_counterLock.lockForWrite();
         m_framesCounter++;
-        m_lock.unlock();
+        m_counterLock.unlock();
 
         // Retrieve instances from which frames has been read
-        readInstances = readAllInstances(); // 10 ms
+        readInstances = readAllInstances(); // Debug: 20 ms, Release: 10 ms
 
-        // 0.02 ms
-        if (readInstances.count() > 0)
-        {
-            // Prepare data
-            QHashDataFrames readFrames;
-
-            foreach (shared_ptr<StreamInstance> instance, readInstances) {
-                QList<shared_ptr<DataFrame>> frames = instance->frames();
-                foreach (shared_ptr<DataFrame> frame, frames) {
-                    readFrames.insert(frame->getType(), frame);
-                }
-            }
-
-            // Notify listeners
-            // signals and slots, debug,   25 fps, Max 29.46 (ms), Min 0.05 (ms), Avg 14.44 (ms)
-            // signals and slots, debug,   10 fps, Max 78.40 (ms), Min 0.05 (ms), Avg 15.52 (ms)
-            emit onNewFrames(readFrames, m_framesCounter, m_playback->superTimer.nsecsElapsed(), m_playback);
-        }
-        else {
+        // Notify instances 0.02 ms
+        if (readInstances.count() > 0) {
+            m_running = notifyListeners(readInstances);
+        } else {
             m_running = false;
         }
-
-        // Do I have listeners?
-        listeners = receivers( SIGNAL(onNewFrames(const QHashDataFrames, const qint64, const qint64, const PlaybackControl*)) );
 
         // Time management: Do I have time?
         availableTime = m_slotTime + offsetTime;
         remainingTime = availableTime - timer.nsecsElapsed();
 
         if (remainingTime > 0) {
-            QThread::currentThread()->usleep( (remainingTime / 1000) - 500); // Espero un poco menos de lo acordado
+            QThread::currentThread()->usleep(remainingTime / 1000);
         }
 
         totalTime = timer.nsecsElapsed();
@@ -119,13 +141,48 @@ void PlaybackWorker::run()
 
     m_running = false;
     closeAllInstances();
-    qDebug() << "Average Time:" << (averageTime / m_framesCounter) / 1000 << "Frame Count:" << m_framesCounter;
-    emit onStop();
+
+    if (m_framesCounter > 0)
+        qDebug() << "Average Time:" << (averageTime / m_framesCounter) / 1000 << "Frame Count:" << m_framesCounter;
 }
 
 void PlaybackWorker::stop()
 {
     m_running = false;
+}
+
+void PlaybackWorker::setupListeners()
+{
+    if (QThreadPool::globalInstance()->maxThreadCount() < m_listeners.size())
+        QThreadPool::globalInstance()->setMaxThreadCount(m_listeners.size());
+}
+
+// Devuelve true si hay listeners a los que notificar, false en caso contrario.
+inline bool PlaybackWorker::notifyListeners(QList<shared_ptr<StreamInstance> > instances)
+{
+    // Prepare data
+    QHashDataFrames readFrames;
+
+    foreach (shared_ptr<StreamInstance> instance, instances) {
+        QList<shared_ptr<DataFrame>> frames = instance->frames();
+        foreach (shared_ptr<DataFrame> frame, frames) {
+            readFrames.insert(frame->getType(), frame);
+        }
+    }
+
+    // Notify listeners (Time is measured since this method is called and until the notification is received)
+    // signals and slots, debug,   25 fps, Max 29.46 (ms), Min 0.05 (ms), Avg 14.44 (ms)
+    // New Approach: Max (ms) 6.08369 Min (ms) 1.02753 Avg (ms) 1.50493
+    QReadLocker locker(&m_listenersLock);
+
+    foreach (PlaybackListener* listener, m_listeners) {
+        QFuture<void> future = listener->m_future;
+        if (future.isFinished()) {
+            listener->m_future = QtConcurrent::run(listener, &PlaybackListener::newFrames, readFrames, m_framesCounter);
+        }
+    }
+
+    return !m_listeners.isEmpty();
 }
 
 inline void PlaybackWorker::openAllInstances()
@@ -140,7 +197,6 @@ inline void PlaybackWorker::openAllInstances()
         if (!instance->is_open()) {
             try {
                 instance->open();
-                std::cerr << "Open" << std::endl;
             }
             catch (CannotOpenInstanceException ex) {
                 throw ex;
@@ -158,7 +214,6 @@ inline void PlaybackWorker::closeAllInstances()
         auto instance = it.next();
         if (instance->is_open()) {
             instance->close();
-            std::cerr << "Close" << std::endl;
         }
     }
 }
@@ -182,7 +237,7 @@ inline QList<shared_ptr<StreamInstance> > PlaybackWorker::readAllInstances()
                 changedInstances << instance;
             } else {
                 instance->close();
-                std::cerr << "Closed" << std::endl;
+                qDebug() << "Closed";
             }
         }
     }

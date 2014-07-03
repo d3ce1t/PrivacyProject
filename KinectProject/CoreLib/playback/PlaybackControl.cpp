@@ -1,16 +1,16 @@
 #include "PlaybackControl.h"
-#include <iostream>
+#include "PlaybackListener.h"
+#include "PlaybackWorker.h"
 #include <QDebug>
 
 namespace dai {
 
 PlaybackControl::PlaybackControl()
 {
-    m_worker = new PlaybackWorker(this, m_instances);
+    m_worker = new PlaybackWorker;
     m_worker->moveToThread(&m_workerThread);
-    connect(&m_workerThread, &QThread::finished, m_worker, &QObject::deleteLater);
+    QObject::connect(&m_workerThread, &QThread::finished, m_worker, &QObject::deleteLater);
     m_workerThread.start();
-    superTimer.start();
 }
 
 PlaybackControl::~PlaybackControl()
@@ -18,8 +18,7 @@ PlaybackControl::~PlaybackControl()
     stop();
     m_workerThread.quit();
     m_workerThread.wait();
-    m_instances.clear();
-    std::cerr << "PlaybackControl::~PlaybackControl()" << std::endl;
+    qDebug() << "PlaybackControl::~PlaybackControl()";
 }
 
 void PlaybackControl::play(bool restartAll)
@@ -35,7 +34,7 @@ void PlaybackControl::play(bool restartAll)
 void PlaybackControl::stop()
 {
     m_worker->stop();
-    std::cerr << "PlaybackControl::stop()" << std::endl;
+    qDebug() << "PlaybackControl::stop()";
 }
 
 void PlaybackControl::setFPS(float fps)
@@ -43,36 +42,29 @@ void PlaybackControl::setFPS(float fps)
     m_worker->setFPS(fps);
 }
 
-float PlaybackControl::getFPS() const
+void PlaybackControl::addListener(PlaybackListener *listener)
 {
-    return m_worker->getFPS();
+    m_worker->addListener(listener);
 }
 
-bool PlaybackControl::isValidFrame(qint64 frameIndex) const
+void PlaybackControl::removeListener(PlaybackListener *listener)
 {
-    return m_worker->isValidFrame(frameIndex);
-}
-
-PlaybackWorker* PlaybackControl::worker() const
-{
-    return m_worker;
+    m_worker->removeListener(listener);
 }
 
 void PlaybackControl::addInstance(shared_ptr<StreamInstance> instance)
 {
-    if (!m_instances.contains(instance))
-        m_instances << instance;
+    m_worker->addInstance(instance);
 }
 
 void PlaybackControl::removeInstance(shared_ptr<StreamInstance> instance)
 {
-    if (m_instances.contains(instance))
-        m_instances.removeAll(instance);
+    m_worker->removeInstance(instance);
 }
 
 void PlaybackControl::clearInstances()
 {
-    m_instances.clear();
+    m_worker->clearInstances();
 }
 
 void PlaybackControl::enablePlayLoop(bool value)

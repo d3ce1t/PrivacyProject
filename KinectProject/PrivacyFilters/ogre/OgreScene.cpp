@@ -1,8 +1,7 @@
 #include "OgreScene.h"
 
 OgreScene::OgreScene()
-    : QObject()
-    , m_root(nullptr)
+    : m_root(nullptr)
     , m_camera(nullptr)
     , m_sceneManager(nullptr)
     , m_chara(nullptr)
@@ -126,11 +125,8 @@ void OgreScene::destroyScene(void)
     }
 }
 
-void OgreScene::newFrames(const dai::QHashDataFrames frames, const qint64 frameId, const qint64 availableTime, const dai::PlaybackControl* playback)
+void OgreScene::newFrames(const dai::QHashDataFrames frames, const qint64 frameId)
 {
-    Q_UNUSED(playback)
-    Q_UNUSED(count)
-
     qint64 time_ms = m_timer.elapsed();
 
     if (!m_initialised || time_ms == m_lastTime)

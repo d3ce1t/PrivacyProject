@@ -9,12 +9,14 @@
 #include <QTableView>
 #include <QStandardItemModel>
 #include <QListWidget>
+#include <QMutexLocker>
 #include "playback/PlaybackControl.h"
+#include "playback/PlaybackListener.h"
 #include "viewer/ViewerEngine.h"
 
 namespace dai {
 
-class InstanceViewerWindow : public QObject
+class InstanceViewerWindow : public QObject, public PlaybackListener
 {
     Q_OBJECT
 
@@ -29,6 +31,8 @@ public:
     void show();
     QQmlApplicationEngine& qmlEngine();
     QQuickWindow* quickWindow();
+    void newFrames(const QHashDataFrames dataFrames, const qint64 frameId) override;
+    void setDelay(qint64 milliseconds);
 
 signals:
     void changeOfStatus();
@@ -38,13 +42,13 @@ public slots:
     void showJointsWindow();
     void showDistancesWindow();
     void showQuaternionsWindow();
-    void newFrames(const QHashDataFrames dataFrames, const qint64 frameId, const qint64 availableTime, const PlaybackControl* playback);
 
 private slots:
     float getFPS() const;
     void feedDataModels(shared_ptr<SkeletonFrame> skeletonFrame);
 
 private:
+    void measureTime(qint64 initialTime);
     void setupJointsModel(QStandardItemModel &model);
     void setupDistancesModel(QStandardItemModel &model);
     void setupQuaternionModel(QStandardItemModel &model);
@@ -55,8 +59,10 @@ private:
 
     bool                    m_initialised;
     float                   m_fps;
+    long                    m_frameCounter;
+    unsigned long           m_delayInMs;
 
-    ViewerEngine*           m_viewerEngine;
+    ViewerEngine            m_viewerEngine;
     ViewerMode              m_viewerMode;
     QQmlApplicationEngine   m_qmlEngine;
     QQuickWindow*           m_quickWindow;
@@ -69,7 +75,8 @@ private:
     QStandardItemModel      m_distances_model;
     QStandardItemModel      m_quaternions_model;
     Quaternion              m_lastQuaternions[20];
-    long                    m_frameCounter;
+    bool                    m_modelsInitialised;
+    QMutex                  m_modelsLock;
 };
 
 } // End Namespace
