@@ -5,13 +5,12 @@ DONE:
 
 - PlaybackControl: Limitar el número de instancias añadibles según los tipos de Frames (Color, Depth, Users y Skeletons). Si hay dos instancias que generan el mismo tipo de frame debería ser un error (no debería permitirse).
 
-QUEUE:
-
-- Viewer: Tener en cuenta el límite de tipos de frames para reservar memoria donde éstos se copiarán (así evito crear y destruir memoria todo el tiempo).
-
 - OgreScene: Copiar los frames igual que el resto de viewers.
 
-- Arreglar DatasetBrowser. Crear varios playbacks para tener la funcionalidad  de antes.
+QUEUE:
 
 - Separar la parte de procesamiento de filtros del propio viewer.
 
+- Arreglar DatasetBrowser. Crear varios playbacks para tener la funcionalidad de antes.
+
+- (Optimización) Viewer: Tener en cuenta el límite de tipos de frames para reservar memoria donde éstos se copiarán (así evito crear y destruir memoria todo el tiempo). Sugerencia: C++11 operación de movimiento.

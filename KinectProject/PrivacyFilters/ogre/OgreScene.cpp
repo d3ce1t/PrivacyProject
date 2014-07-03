@@ -19,6 +19,8 @@ OgreScene::OgreScene()
 
 OgreScene::~OgreScene()
 {
+    stopListener();
+
     if (m_pDepthData) {
         delete[] m_pDepthData;
         m_pDepthData = nullptr;
@@ -132,46 +134,61 @@ void OgreScene::newFrames(const dai::QHashDataFrames frames, const qint64 frameI
     if (!m_initialised || time_ms == m_lastTime)
         return;
 
-    // Load Depth
-    if (m_pointCloud && frames.contains(dai::DataFrame::Depth)) {
-        shared_ptr<dai::DepthFrame> depthFrame = static_pointer_cast<dai::DepthFrame>(frames.value(dai::DataFrame::Depth));
-        loadDepthData(depthFrame);
-    }
-
-    // Load Color
-    if (m_pointCloud && frames.contains(dai::DataFrame::Color)) {
-        shared_ptr<dai::ColorFrame> colorFrame = static_pointer_cast<dai::ColorFrame>(frames.value(dai::DataFrame::Color));
-        loadColorData(colorFrame);
-    }
-
-    // Load Skeleton
-    if (frames.contains(dai::DataFrame::Skeleton))
+    if (playbackHandler()->isValidFrame(frameId))
     {
-        shared_ptr<dai::SkeletonFrame> skeletonFrame = static_pointer_cast<dai::SkeletonFrame>( frames.value(dai::DataFrame::Skeleton) );
-        int userId = skeletonFrame->getAllUsersId().isEmpty() ? 0 : skeletonFrame->getAllUsersId().at(0);
+        // Copy frames (1 ms)
+        dai::QHashDataFrames copyFrames;
 
-        if (userId > 0 && m_userId == -1) {
-            // New user
-            m_userId = userId;
-            shared_ptr<dai::Skeleton> skeleton = skeletonFrame->getSkeleton(userId);
-            m_chara->setSkeleton(skeleton);
-            m_chara->newUser(userId);
+        foreach (dai::DataFrame::FrameType key, frames.keys()) {
+            shared_ptr<dai::DataFrame> frame = frames.value(key);
+            copyFrames.insert(key, frame->clone());
         }
-        else if (userId > 0 && m_userId == userId) {
-            // Same user
-            shared_ptr<dai::Skeleton> skeleton = skeletonFrame->getSkeleton(userId);
-            m_chara->setSkeleton(skeleton);
-            Ogre::Real deltaTime = (time_ms - m_lastTime) / 1000.0f;
-            m_chara->addTime(deltaTime);
-            m_lastTime = time_ms;
-        }
-        else if (userId > 0) {
-            qDebug() << "No debería llegar";
-        }
-        else if (userId == 0 && m_userId > 0) {
-            m_chara->setSkeleton(nullptr);
-            m_chara->lostUser(m_userId);
-            m_userId = -1;
+
+        // Check if the frames has been copied correctly
+        if (playbackHandler()->isValidFrame(frameId))
+        {
+            // Load Depth
+            if (m_pointCloud && copyFrames.contains(dai::DataFrame::Depth)) {
+                shared_ptr<dai::DepthFrame> depthFrame = static_pointer_cast<dai::DepthFrame>(copyFrames.value(dai::DataFrame::Depth));
+                loadDepthData(depthFrame);
+            }
+
+            // Load Color
+            if (m_pointCloud && copyFrames.contains(dai::DataFrame::Color)) {
+                shared_ptr<dai::ColorFrame> colorFrame = static_pointer_cast<dai::ColorFrame>(copyFrames.value(dai::DataFrame::Color));
+                loadColorData(colorFrame);
+            }
+
+            // Load Skeleton
+            if (copyFrames.contains(dai::DataFrame::Skeleton))
+            {
+                shared_ptr<dai::SkeletonFrame> skeletonFrame = static_pointer_cast<dai::SkeletonFrame>( copyFrames.value(dai::DataFrame::Skeleton) );
+                int userId = skeletonFrame->getAllUsersId().isEmpty() ? 0 : skeletonFrame->getAllUsersId().at(0);
+
+                if (userId > 0 && m_userId == -1) {
+                    // New user
+                    m_userId = userId;
+                    shared_ptr<dai::Skeleton> skeleton = skeletonFrame->getSkeleton(userId);
+                    m_chara->setSkeleton(skeleton);
+                    m_chara->newUser(userId);
+                }
+                else if (userId > 0 && m_userId == userId) {
+                    // Same user
+                    shared_ptr<dai::Skeleton> skeleton = skeletonFrame->getSkeleton(userId);
+                    m_chara->setSkeleton(skeleton);
+                    Ogre::Real deltaTime = (time_ms - m_lastTime) / 1000.0f;
+                    m_chara->addTime(deltaTime);
+                    m_lastTime = time_ms;
+                }
+                else if (userId > 0) {
+                    qDebug() << "No debería llegar";
+                }
+                else if (userId == 0 && m_userId > 0) {
+                    m_chara->setSkeleton(nullptr);
+                    m_chara->lostUser(m_userId);
+                    m_userId = -1;
+                }
+            }
         }
     }
 }
