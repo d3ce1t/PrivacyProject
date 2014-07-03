@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QQuickWindow>
 #include "viewer/ScenePainter.h"
-#include "types/UserFrame.h"
+#include "types/MaskFrame.h"
 #include "types/FrameFilter.h"
 
 namespace dai {
@@ -51,7 +51,7 @@ public slots:
 
 private:
     // Private Functions
-    shared_ptr<DataFrame> applyFilter(shared_ptr<DataFrame> inputFrame, shared_ptr<UserFrame> userMask = nullptr) const;
+    shared_ptr<DataFrame> applyFilter(shared_ptr<DataFrame> inputFrame, shared_ptr<MaskFrame> userMask = nullptr) const;
     void testOutput();
     void updatePaintersMatrix();
 

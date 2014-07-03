@@ -38,7 +38,7 @@ ViewerEngine::ViewerEngine(ViewerMode mode)
     dilateFilter->enableFilter(true);
 
     // Filters are later retrieved from more recently to less recently inserted
-    m_filters.insert(DataFrame::User, dilateFilter);
+    m_filters.insert(DataFrame::Mask, dilateFilter);
 }
 
 ViewerEngine::~ViewerEngine()
@@ -95,11 +95,11 @@ void ViewerEngine::prepareScene(dai::QHashDataFrames dataFrames)
     if (m_mode == MODE_2D && dataFrames.contains(DataFrame::Color))
     {
         // Compute dilate user mask to separate background from foreground
-        if (dataFrames.contains(DataFrame::User))
+        if (dataFrames.contains(DataFrame::Mask))
         {
-             shared_ptr<DilateUserFilter> dilateFilter = static_pointer_cast<DilateUserFilter>(m_filters.value(DataFrame::User));
+             shared_ptr<DilateUserFilter> dilateFilter = static_pointer_cast<DilateUserFilter>(m_filters.value(DataFrame::Mask));
              dilateFilter->setDilationSize(18);
-             shared_ptr<UserFrame> userMask = static_pointer_cast<UserFrame>(applyFilter(dataFrames.value(DataFrame::User)));
+             shared_ptr<MaskFrame> userMask = static_pointer_cast<MaskFrame>(applyFilter(dataFrames.value(DataFrame::Mask)));
              shared_ptr<Scene2DPainter> scene = static_pointer_cast<Scene2DPainter>(m_scene);
              scene->setMask(userMask);
 
@@ -107,7 +107,7 @@ void ViewerEngine::prepareScene(dai::QHashDataFrames dataFrames)
              if (!silhouetteItem)
                  silhouetteItem.reset(new SilhouetteItem);
 
-             silhouetteItem->setUser( static_pointer_cast<UserFrame>(dataFrames.value(DataFrame::User)) );
+             silhouetteItem->setUser( static_pointer_cast<MaskFrame>(dataFrames.value(DataFrame::Mask)) );
              m_scene->addItem(silhouetteItem);
         }
         else {
@@ -146,7 +146,7 @@ void ViewerEngine::renderOpenGLScene(QOpenGLFramebufferObject* fbo)
     }
 }
 
-shared_ptr<DataFrame> ViewerEngine::applyFilter(shared_ptr<DataFrame> inputFrame, shared_ptr<UserFrame> userMask) const
+shared_ptr<DataFrame> ViewerEngine::applyFilter(shared_ptr<DataFrame> inputFrame, shared_ptr<MaskFrame> userMask) const
 {
     QList<shared_ptr<FrameFilter>> filters = m_filters.values(inputFrame->getType());
 

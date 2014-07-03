@@ -8,7 +8,7 @@ FrameFilter::FrameFilter()
     m_enabled = false;
 }
 
-void FrameFilter::setMask(shared_ptr<UserFrame> mask)
+void FrameFilter::setMask(shared_ptr<MaskFrame> mask)
 {
     m_userMask = mask;
 }

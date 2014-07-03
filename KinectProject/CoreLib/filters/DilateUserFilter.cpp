@@ -1,6 +1,6 @@
 #include "DilateUserFilter.h"
 #include <opencv2/opencv.hpp>
-#include "types/UserFrame.h"
+#include "types/MaskFrame.h"
 
 namespace dai {
 
@@ -9,7 +9,7 @@ void DilateUserFilter::applyFilter(shared_ptr<DataFrame> frame)
     if (!m_enabled)
         return;
 
-    UserFrame* userFrame = (UserFrame*) frame.get();
+    MaskFrame* userFrame = (MaskFrame*) frame.get();
 
     // User mask have to cover user in color frame completely
     dilateUserMask(const_cast<uint8_t*>(userFrame->getDataPtr()));

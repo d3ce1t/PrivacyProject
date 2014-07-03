@@ -293,7 +293,7 @@ shared_ptr<DatasetMetadata> DatasetMetadata::load(QString xmlPath)
                 else if (strType == "skeleton")
                     type = DataFrame::Skeleton;
                 else if (strType == "user")
-                    type = DataFrame::User;
+                    type = DataFrame::Mask;
 
                 dsMetaDataObject->m_availableInstanceTypes |= type;
 

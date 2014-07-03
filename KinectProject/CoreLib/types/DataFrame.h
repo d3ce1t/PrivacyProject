@@ -18,7 +18,7 @@ public:
         Color    = 0x01,
         Depth    = 0x02,
         Skeleton = 0x04,
-        User     = 0x08
+        Mask     = 0x08
     };
     Q_DECLARE_FLAGS(SupportedFrames, FrameType)
 

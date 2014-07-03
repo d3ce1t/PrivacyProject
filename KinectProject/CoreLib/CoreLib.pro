@@ -24,7 +24,6 @@ QMAKE_LFLAGS = -std=c++11
 
 SOURCES += \
     types/Vector3D.cpp \
-    types/UserFrame.cpp \
     types/SkeletonJoint.cpp \
     types/SkeletonFrame.cpp \
     types/Skeleton.cpp \
@@ -65,11 +64,11 @@ SOURCES += \
     playback/PlaybackWorker.cpp \
     types/StreamInstance.cpp \
     playback/PlaybackListener.cpp \
-    dataset/DataInstance.cpp
+    dataset/DataInstance.cpp \
+    types/MaskFrame.cpp
 
 HEADERS += \
     types/Vector3D.h \
-    types/UserFrame.h \
     types/StreamInstance.h \
     types/SkeletonJoint.h \
     types/SkeletonFrame.h \
@@ -117,7 +116,8 @@ HEADERS += \
     viewer/ViewerEngine.h \
     viewer/ViewerRenderer.h \
     playback/PlaybackWorker.h \
-    playback/PlaybackListener.h
+    playback/PlaybackListener.h \
+    types/MaskFrame.h
 
 unix:!symbian {
     maemo5 {

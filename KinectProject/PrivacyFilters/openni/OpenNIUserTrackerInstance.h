@@ -4,7 +4,7 @@
 #include "OpenNIRuntime.h"
 #include "types/StreamInstance.h"
 #include "types/SkeletonFrame.h"
-#include "types/UserFrame.h"
+#include "types/MaskFrame.h"
 #include "types/DepthFrame.h"
 
 namespace dai {
@@ -25,7 +25,7 @@ protected:
 private:
     OpenNIRuntime* m_openni;
     shared_ptr<DepthFrame> m_frameDepth;
-    shared_ptr<UserFrame> m_frameUser;
+    shared_ptr<MaskFrame> m_frameUser;
     shared_ptr<SkeletonFrame> m_frameSkeleton;
 };
 

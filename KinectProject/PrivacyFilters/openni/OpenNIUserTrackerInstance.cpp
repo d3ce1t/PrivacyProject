@@ -7,10 +7,10 @@ using namespace std;
 namespace dai {
 
 OpenNIUserTrackerInstance::OpenNIUserTrackerInstance()
-    : StreamInstance(DataFrame::Depth | DataFrame::User | DataFrame::Skeleton)
+    : StreamInstance(DataFrame::Depth | DataFrame::Mask | DataFrame::Skeleton)
 {
     m_frameDepth = make_shared<DepthFrame>(640, 480);
-    m_frameUser = make_shared<UserFrame>(640, 480);
+    m_frameUser = make_shared<MaskFrame>(640, 480);
     m_frameSkeleton = make_shared<SkeletonFrame>();
     m_openni = nullptr;
 }

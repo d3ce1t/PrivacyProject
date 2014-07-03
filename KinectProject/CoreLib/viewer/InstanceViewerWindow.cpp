@@ -3,7 +3,7 @@
 #include "InstanceWidgetItem.h"
 #include "dataset/Dataset.h"
 #include "dataset/InstanceInfo.h"
-#include "types/UserFrame.h"
+#include "types/MaskFrame.h"
 #include <QQmlContext>
 #include "CustomItem.h"
 #include <QMetaEnum>

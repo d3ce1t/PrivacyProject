@@ -22,7 +22,7 @@ Scene2DPainter::~Scene2DPainter()
     m_shaderProgram->removeAllShaders();
 }
 
-void Scene2DPainter::setMask(shared_ptr<UserFrame> mask)
+void Scene2DPainter::setMask(shared_ptr<MaskFrame> mask)
 {
     m_mask = mask;
 }

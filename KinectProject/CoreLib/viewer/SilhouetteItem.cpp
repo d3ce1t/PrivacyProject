@@ -10,7 +10,7 @@ SilhouetteItem::SilhouetteItem()
     m_neededPasses = 2;
 }
 
-void SilhouetteItem::setUser(shared_ptr<UserFrame> user)
+void SilhouetteItem::setUser(shared_ptr<MaskFrame> user)
 {
     m_user = user;
 }

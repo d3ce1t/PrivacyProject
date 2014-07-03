@@ -6,7 +6,7 @@
 #include <QOpenGLBuffer>
 #include <QOpenGLVertexArrayObject>
 #include "viewer/ScenePainter.h"
-#include "types/UserFrame.h"
+#include "types/MaskFrame.h"
 #include "QMLEnumsWrapper.h"
 
 namespace dai {
@@ -16,7 +16,7 @@ class Scene2DPainter : public ScenePainter
 public:
     Scene2DPainter();
     ~Scene2DPainter();
-    void setMask(shared_ptr<UserFrame> mask);
+    void setMask(shared_ptr<MaskFrame> mask);
     void enableFilter(QMLEnumsWrapper::ColorFilter type);
     QMLEnumsWrapper::ColorFilter currentFilter() const;
     void resetPerspective() override;
@@ -38,7 +38,7 @@ private:
 
     QMLEnumsWrapper::ColorFilter m_currentFilter;
     QOpenGLShaderProgram*     m_shaderProgram;
-    shared_ptr<UserFrame>     m_mask;
+    shared_ptr<MaskFrame>     m_mask;
 
     // OpenGL Buffer
     QOpenGLContext*           m_defaultContext;

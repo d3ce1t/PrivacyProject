@@ -125,7 +125,7 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
     {
         ViewerMode mode;
 
-        if (info.getType() == DataFrame::Color || info.getType() == DataFrame::User) {
+        if (info.getType() == DataFrame::Color || info.getType() == DataFrame::Mask) {
             mode = MODE_2D;
         } else if (info.getType() == DataFrame::Depth || info.getType() == DataFrame::Skeleton) {
             mode = MODE_3D;
@@ -201,8 +201,8 @@ void DatasetBrowser::loadDataset(Dataset::DatasetType type)
     if (supportedFrames.testFlag(DataFrame::Skeleton)) {
         ui->comboType->addItem("Skeleton", QVariant(DataFrame::Skeleton));
     }
-    if (supportedFrames.testFlag(DataFrame::User)) {
-        ui->comboType->addItem("User", QVariant(DataFrame::User));
+    if (supportedFrames.testFlag(DataFrame::Mask)) {
+        ui->comboType->addItem("User", QVariant(DataFrame::Mask));
     }
 
     ui->comboType->blockSignals(false);

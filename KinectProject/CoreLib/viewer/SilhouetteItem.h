@@ -2,7 +2,7 @@
 #define SILHOUETTEITEM_H
 
 #include "viewer/SceneItem.h"
-#include "types/UserFrame.h"
+#include "types/MaskFrame.h"
 #include "types/ColorFrame.h"
 #include <QOpenGLBuffer>
 #include <QOpenGLVertexArrayObject>
@@ -23,7 +23,7 @@ public:
     };
 
     SilhouetteItem();
-    void setUser(shared_ptr<UserFrame> user);
+    void setUser(shared_ptr<MaskFrame> user);
     void setDrawingEffect(SilhouetteEffect effect);
 
 protected:
@@ -39,7 +39,7 @@ private:
     SilhouetteEffect         m_drawingEffect;
 
     QOpenGLShaderProgram*    m_shaderProgram;
-    shared_ptr<UserFrame>    m_user;
+    shared_ptr<MaskFrame>    m_user;
     QOpenGLVertexArrayObject m_vao;
     QOpenGLBuffer            m_positionsBuffer;
     QOpenGLBuffer            m_texCoordBuffer;
