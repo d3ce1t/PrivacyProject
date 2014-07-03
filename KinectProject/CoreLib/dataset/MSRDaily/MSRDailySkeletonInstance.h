@@ -9,7 +9,7 @@ using namespace std;
 
 namespace dai {
 
-class MSRDailySkeletonInstance : public DataInstance<SkeletonFrame>
+class MSRDailySkeletonInstance : public DataInstance
 {
 public:
     explicit MSRDailySkeletonInstance(const InstanceInfo& info);

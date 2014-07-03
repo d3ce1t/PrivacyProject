@@ -64,7 +64,8 @@ SOURCES += \
     viewer/ViewerRenderer.cpp \
     playback/PlaybackWorker.cpp \
     types/StreamInstance.cpp \
-    playback/PlaybackListener.cpp
+    playback/PlaybackListener.cpp \
+    dataset/DataInstance.cpp
 
 HEADERS += \
     types/Vector3D.h \

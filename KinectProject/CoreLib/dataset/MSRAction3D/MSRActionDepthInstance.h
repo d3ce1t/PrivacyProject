@@ -11,7 +11,7 @@ using namespace std;
 
 namespace dai {
 
-class MSRActionDepthInstance : public DataInstance<DepthFrame>
+class MSRActionDepthInstance : public DataInstance
 {
 public:
     struct BinaryDepthFrame {

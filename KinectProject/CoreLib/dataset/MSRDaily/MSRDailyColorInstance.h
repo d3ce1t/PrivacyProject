@@ -11,7 +11,7 @@
 
 namespace dai {
 
-class MSRDailyColorInstance : public DataInstance<ColorFrame>,
+class MSRDailyColorInstance : public DataInstance,
                               public QAbstractVideoSurface
 {
 public:
