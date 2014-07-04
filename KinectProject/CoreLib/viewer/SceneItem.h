@@ -36,7 +36,7 @@ protected:
     ScenePainter* m_scene;
 
     // OpenGL identifiers
-    GLuint                   m_fgTextureId;
+    GLuint m_fgTextureId;
 
 private:
     ItemType m_type;

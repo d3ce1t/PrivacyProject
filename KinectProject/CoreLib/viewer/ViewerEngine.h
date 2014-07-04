@@ -5,7 +5,6 @@
 #include <QQuickWindow>
 #include "viewer/ScenePainter.h"
 #include "types/MaskFrame.h"
-#include "types/FrameFilter.h"
 
 namespace dai {
 
@@ -50,17 +49,10 @@ public slots:
     void translateAxisZ(float value);
 
 private:
-    // Private Functions
-    //shared_ptr<DataFrame> applyFilter(shared_ptr<DataFrame> inputFrame, shared_ptr<MaskFrame> userMask = nullptr) const;
-    void testOutput();
-    void updatePaintersMatrix();
-
-    // Private member attributes
     QQuickWindow*                                             m_quickWindow;
     shared_ptr<ScenePainter>                                  m_scene;
     ViewerMode                                                m_mode;
     bool                                                      m_running;
-    //QMultiHash<DataFrame::FrameType, shared_ptr<FrameFilter>> m_filters;
     QSize                                                     m_size;
 };
 

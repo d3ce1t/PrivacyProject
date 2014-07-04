@@ -53,11 +53,6 @@ unix:!macx {
     PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/libCoreLib.a
     INCLUDEPATH += $$PWD/../CoreLib
     DEPENDPATH += $$PWD/../CoreLib
-
-    # OpenCV2
-    LIBS += -lopencv_core -lopencv_imgproc
-    INCLUDEPATH += /usr/include/opencv/
-    DEPENDPATH += /usr/include/opencv/
 }
 
 win32 {
@@ -78,11 +73,3 @@ win32 {
 
 CONFIG(release, debug|release): DESTDIR = $$OUT_PWD/release
 CONFIG(debug, debug|release): DESTDIR = $$OUT_PWD/debug
-
-# Copy OpenCV dll
-win32:OPENCV_DIR = C:\opt\opencv-2.4.9\x86\vc11\bin
-win32:OpenCV.path = $$DESTDIR
-win32:OpenCV.files = $$OPENCV_DIR/opencv_core249.dll $$OPENCV_DIR/opencv_imgproc249.dll
-
-# make install
-win32:INSTALLS += OpenCV

@@ -20,7 +20,7 @@ void main()
 {
     float mask = texture2D(texMask, v_texCoord).r;
 
-    if (mask == 0.0)
+    if (mask == 0.0 || mask == 1.0)
         discard;
 
     if (stage == 1)

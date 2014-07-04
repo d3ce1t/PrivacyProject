@@ -1,5 +1,5 @@
 #include "PrivacyFilter.h"
-#include "filters/DilateUserFilter.h"
+#include "types/MaskFrame.h"
 #include <opencv2/opencv.hpp>
 
 namespace dai {
@@ -70,5 +70,56 @@ void PrivacyFilter::dilateUserMask(uint8_t *labels)
                                                cv::Point( dilationSize, dilationSize ) );
     cv::dilate(newImag, newImag, kernel);
 }
+
+/*void PrivacyFilter::blurEffect(shared_ptr<DataFrame> frame)
+{
+    ColorFrame* colorFrame = (ColorFrame*) frame.get();
+    ColorFrame  background = *colorFrame;
+    cv::Mat newImag(480, 640, CV_8UC3,  const_cast<RGBColor*>(colorFrame->getDataPtr()));
+
+    cv::GaussianBlur( newImag, newImag, cv::Size( 29, 29 ), 0, 0 );
+
+    for (int i=0; i<480; ++i) {
+        for (int j=0; j<640; ++j) {
+            if (m_userMask->getItem(i, j) == 0) {
+                RGBColor color = background.getItem(i, j);
+                colorFrame->setItem(i, j, color);
+            }
+        }
+    }
+}
+
+void PrivacyFilter::invisibilityEffect(shared_ptr<DataFrame> frame)
+{
+    if (m_userMask == nullptr)
+        return;
+
+    ColorFrame* colorFrame = (ColorFrame*) frame.get();
+
+    // Get initial background at 20th frame
+    if (colorFrame->getIndex() == 20) {
+        m_background = *colorFrame;
+    }
+
+    // Update Background and make replacement
+    for (int i=0; i<m_userMask->getHeight(); ++i)
+    {
+        for (int j=0; j<m_userMask->getWidth(); ++j)
+        {
+            uint8_t uLabel = m_userMask->getItem(i, j);
+
+            if (uLabel != 0) {
+                if (m_enabled) {
+                    RGBColor bgColor = m_background.getItem(i, j);
+                    colorFrame->setItem(i, j, bgColor);
+                }
+            }
+            else {
+                RGBColor color = colorFrame->getItem(i, j);
+                m_background.setItem(i, j, color);
+            }
+        }
+    }
+}*/
 
 } // End Namespace

@@ -12,12 +12,6 @@ TEMPLATE = lib
 CONFIG += staticlib
 CONFIG += create_prl
 
-# Static Release
-#win32 {
-#    QMAKE_CFLAGS_RELEASE += /MT
-#    QMAKE_CXXFLAGS_RELEASE += /MT
-#}
-
 # Use C++11
 QMAKE_CXXFLAGS += -std=c++11
 QMAKE_LFLAGS = -std=c++11
@@ -53,10 +47,6 @@ SOURCES += \
     viewer/InstanceViewer.cpp \
     viewer/CustomItem.cpp \
     InstanceWidgetItem.cpp \
-    types/FrameFilter.cpp \
-    filters/InvisibilityFilter.cpp \
-    filters/DilateUserFilter.cpp \
-    filters/BlurFilter.cpp \
     dataset/MSRDaily/MSRDailyColorInstance.cpp \
     Config.cpp \
     viewer/ViewerEngine.cpp \
@@ -107,10 +97,6 @@ HEADERS += \
     viewer/InstanceViewer.h \
     viewer/CustomItem.h \
     InstanceWidgetItem.h \
-    types/FrameFilter.h \
-    filters/InvisibilityFilter.h \
-    filters/DilateUserFilter.h \
-    filters/BlurFilter.h \
     exceptions/CannotOpenInstanceException.h \
     dataset/MSRDaily/MSRDailyColorInstance.h \
     Config.h \
@@ -121,29 +107,12 @@ HEADERS += \
     playback/NodeProducer.h \
     playback/NodeListener.h
 
-unix:!symbian {
-    maemo5 {
-        target.path = /opt/usr/lib
-    } else {
-        target.path = /usr/lib
-    }
-    #INSTALLS += target
-}
-
 unix:!macx {
-    # OpenCV2
-    # LIBS += -lopencv_core -lopencv_imgproc
-    INCLUDEPATH += /usr/include/opencv/
-    DEPENDPATH += /usr/include/opencv/
+
 }
 
 win32 {
     INCLUDEPATH += $$PWD
-    # OpenCV2
-    INCLUDEPATH += "C:/opt/opencv-2.4.9/include"
-    DEPENDPATH += "C:/opt/opencv-2.4.9/include"
-    contains(QMAKE_TARGET.arch, x86_64):LIBS += -L"C:/opt/opencv-2.4.9/x64/vc11/lib" -lopencv_core249 -lopencv_imgproc249
-    contains(QMAKE_TARGET.arch, x86):LIBS += -L"C:/opt/opencv-2.4.9/x86/vc11/lib" -lopencv_core249 -lopencv_imgproc249
 }
 
 OTHER_FILES +=

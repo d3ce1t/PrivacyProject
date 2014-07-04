@@ -1,6 +1,5 @@
 #include "ViewerEngine.h"
 #include <QtQml>
-#include "filters/DilateUserFilter.h"
 #include "playback/PlaybackControl.h"
 #include "viewer/InstanceViewer.h"
 #include "viewer/Scene2DPainter.h"
@@ -32,18 +31,10 @@ ViewerEngine::ViewerEngine(ViewerMode mode)
     }
 
     m_mode = mode;
-
-    // Filters setup
-    //shared_ptr<DilateUserFilter> dilateFilter(new DilateUserFilter);
-    //dilateFilter->enableFilter(true);
-
-    // Filters are later retrieved from more recently to less recently inserted
-    //m_filters.insert(DataFrame::Mask, dilateFilter);
 }
 
 ViewerEngine::~ViewerEngine()
 {
-    //m_filters.clear();
     m_running = false;
     m_quickWindow = nullptr;
     qDebug() << "ViewerEngine::~ViewerEngine()";
@@ -97,9 +88,6 @@ void ViewerEngine::prepareScene(dai::QHashDataFrames dataFrames)
         // Compute dilate user mask to separate background from foreground
         if (dataFrames.contains(DataFrame::Mask))
         {
-             /*shared_ptr<DilateUserFilter> dilateFilter = static_pointer_cast<DilateUserFilter>(m_filters.value(DataFrame::Mask));
-             dilateFilter->setDilationSize(18);
-             shared_ptr<MaskFrame> userMask = static_pointer_cast<MaskFrame>(applyFilter(dataFrames.value(DataFrame::Mask)));*/
              shared_ptr<Scene2DPainter> scene = static_pointer_cast<Scene2DPainter>(m_scene);
              scene->setMask(static_pointer_cast<MaskFrame>(dataFrames.value(DataFrame::Mask)));
 
@@ -145,26 +133,6 @@ void ViewerEngine::renderOpenGLScene(QOpenGLFramebufferObject* fbo)
         emit frameRendered();
     }
 }
-
-/*shared_ptr<DataFrame> ViewerEngine::applyFilter(shared_ptr<DataFrame> inputFrame, shared_ptr<MaskFrame> userMask) const
-{
-    QList<shared_ptr<FrameFilter>> filters = m_filters.values(inputFrame->getType());
-
-    if (filters.count() == 0)
-        return inputFrame;
-
-    // I clone the frame because I do not want to modify the frame read by the instance
-    shared_ptr<DataFrame> outputFrame = inputFrame->clone();
-
-    foreach (shared_ptr<FrameFilter> frameFilter, filters)
-    {
-        frameFilter->setMask(userMask);
-        frameFilter->applyFilter(outputFrame);
-        frameFilter->setMask(nullptr); // Hack
-    }
-
-    return outputFrame;
-}*/
 
 void ViewerEngine::enableFilter(int filter)
 {
