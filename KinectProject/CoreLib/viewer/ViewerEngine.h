@@ -51,7 +51,7 @@ public slots:
 
 private:
     // Private Functions
-    shared_ptr<DataFrame> applyFilter(shared_ptr<DataFrame> inputFrame, shared_ptr<MaskFrame> userMask = nullptr) const;
+    //shared_ptr<DataFrame> applyFilter(shared_ptr<DataFrame> inputFrame, shared_ptr<MaskFrame> userMask = nullptr) const;
     void testOutput();
     void updatePaintersMatrix();
 
@@ -60,7 +60,7 @@ private:
     shared_ptr<ScenePainter>                                  m_scene;
     ViewerMode                                                m_mode;
     bool                                                      m_running;
-    QMultiHash<DataFrame::FrameType, shared_ptr<FrameFilter>> m_filters;
+    //QMultiHash<DataFrame::FrameType, shared_ptr<FrameFilter>> m_filters;
     QSize                                                     m_size;
 };
 

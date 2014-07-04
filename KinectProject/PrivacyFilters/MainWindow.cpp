@@ -7,6 +7,7 @@
 #include "openni/OpenNIColorInstance.h"
 #include "openni/OpenNIDepthInstance.h"
 #include "openni/OpenNIUserTrackerInstance.h"
+#include "filters/PrivacyFilter.h"
 
 using namespace std;
 
@@ -15,9 +16,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {   
     ui->setupUi(this);
-
-    // Setup playback
-    m_playback.setFPS(20);
 
     // Show this window centered
     QDesktopWidget *desktop = QApplication::desktop();
@@ -51,14 +49,18 @@ void MainWindow::on_btnStartKinect_clicked()
     shared_ptr<dai::OpenNIColorInstance> colorInstance = make_shared<dai::OpenNIColorInstance>();
     shared_ptr<dai::OpenNIUserTrackerInstance> userTrackerInstance = make_shared<dai::OpenNIUserTrackerInstance>();
 
-    // Playback
-    m_playback.clearInstances();
-    m_playback.addInstance(colorInstance);
-    m_playback.addInstance(userTrackerInstance);
+    // Create Main Producer
+    dai::PlaybackControl* playback = new dai::PlaybackControl;
+    playback->setFPS(20);
+    playback->addInstance(colorInstance);
+    playback->addInstance(userTrackerInstance);
+
+    // Create PrivacyNode
+    dai::PrivacyFilter* privacyFilter = new dai::PrivacyFilter;
+    playback->addListener(privacyFilter);
 
     // Create viewers
     m_viewer = new dai::InstanceViewerWindow(dai::MODE_2D);
-    //m_viewer->setDelay(3000);
     m_ogreScene = new OgreScene;
     connect(m_viewer, &dai::InstanceViewerWindow::destroyed, m_ogreScene, &OgreScene::deleteLater);
     m_viewer->qmlEngine().rootContext()->setContextProperty("Scene", m_ogreScene);
@@ -73,12 +75,12 @@ void MainWindow::on_btnStartKinect_clicked()
     connect(m_viewer->viewerEngine(), &ViewerEngine::spaceKeyPressed, this, &MainWindow::onSpaceKeyPressed);
 
     // Connect playback with viewers
-    m_playback.addListener(m_viewer);
-    m_playback.addListener(m_ogreScene);
+    privacyFilter->addListener(m_viewer);
+    privacyFilter->addListener(m_ogreScene);
 
     // Run
     m_viewer->show();
-    m_playback.play();
+    playback->play();
 }
 
 void MainWindow::onPlusKeyPressed()
@@ -106,7 +108,7 @@ void MainWindow::onSpaceKeyPressed()
 
 void MainWindow::on_btnQuit_clicked()
 {
-    m_playback.stop();
+    //m_playback.stop();
     QApplication::exit(0);
 }
 

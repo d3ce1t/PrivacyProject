@@ -8,12 +8,12 @@
 #include "ogre/OgrePointCloud.h"
 #include <QObject>
 #include "playback/PlaybackControl.h"
-#include "playback/PlaybackListener.h"
+#include "playback/NodeListener.h"
 #include "types/DepthFrame.h"
 #include "types/ColorFrame.h"
 #include <QReadWriteLock>
 
-class OgreScene : public QObject, public dai::PlaybackListener
+class OgreScene : public QObject, public dai::NodeListener
 {
     Q_OBJECT
 
@@ -24,7 +24,7 @@ public:
     OgreEngine* engine();
     void initialiseOgre(QQuickWindow* quickWindow);
     void renderOgre();
-    void newFrames(const dai::QHashDataFrames frames, const qint64 frameId);
+    void newFrames(const dai::QHashDataFrames frames) override;
 
 public slots:
     void enableFilter(bool flag);

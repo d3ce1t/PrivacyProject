@@ -18,7 +18,8 @@ HEADERS += \
     ogre/cameranodeobject.h \
     ogre/OgreScene.h \
     openni/OpenNIUserTrackerInstance.h \
-    ogre/OgrePointCloud.h
+    ogre/OgrePointCloud.h \
+    filters/PrivacyFilter.h
 
 SOURCES += \
     Main.cpp \
@@ -30,7 +31,8 @@ SOURCES += \
     ogre/cameranodeobject.cpp \
     ogre/OgreScene.cpp \
     openni/OpenNIUserTrackerInstance.cpp \
-    ogre/OgrePointCloud.cpp
+    ogre/OgrePointCloud.cpp \
+    filters/PrivacyFilter.cpp
 
 OTHER_FILES += \
     qml/main.qml \
@@ -148,6 +150,12 @@ win32 {
         INCLUDEPATH += "C:/Program Files (x86)/PrimeSense/NiTE2/Include"
         DEPENDPATH += "C:/Program Files (x86)/PrimeSense/NiTE2/Include"
     }
+
+    # OpenCV2
+    INCLUDEPATH += "C:/opt/opencv-2.4.9/include"
+    DEPENDPATH += "C:/opt/opencv-2.4.9/include"
+    contains(QMAKE_TARGET.arch, x86_64):LIBS += -L"C:/opt/opencv-2.4.9/x64/vc11/lib" -lopencv_core249 -lopencv_imgproc249
+    contains(QMAKE_TARGET.arch, x86):LIBS += -L"C:/opt/opencv-2.4.9/x86/vc11/lib" -lopencv_core249 -lopencv_imgproc249
 
     # OgreDLLs
     #CONFIG(release, debug|release): DESTDIR = $$OUT_PWD/release

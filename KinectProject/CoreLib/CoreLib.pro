@@ -63,9 +63,10 @@ SOURCES += \
     viewer/ViewerRenderer.cpp \
     playback/PlaybackWorker.cpp \
     types/StreamInstance.cpp \
-    playback/PlaybackListener.cpp \
     dataset/DataInstance.cpp \
-    types/MaskFrame.cpp
+    types/MaskFrame.cpp \
+    playback/NodeProducer.cpp \
+    playback/NodeListener.cpp
 
 HEADERS += \
     types/Vector3D.h \
@@ -116,8 +117,9 @@ HEADERS += \
     viewer/ViewerEngine.h \
     viewer/ViewerRenderer.h \
     playback/PlaybackWorker.h \
-    playback/PlaybackListener.h \
-    types/MaskFrame.h
+    types/MaskFrame.h \
+    playback/NodeProducer.h \
+    playback/NodeListener.h
 
 unix:!symbian {
     maemo5 {

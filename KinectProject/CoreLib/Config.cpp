@@ -1,4 +1,5 @@
 #include "Config.h"
+#include <QThreadPool>
 
 namespace dai {
 
@@ -19,6 +20,7 @@ Config* Config::getInstance()
 Config::Config()
 {
     m_filters_enabled = true;
+    QThreadPool::globalInstance()->setMaxThreadCount(20);
 }
 
 void Config::enableFilters()

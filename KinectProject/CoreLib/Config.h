@@ -8,8 +8,7 @@ namespace dai {
 class Config
 {
 public:
-    static Config* getInstance();
-
+    static Config* getInstance();  
     void enableFilters();
     void disableFilters();
     bool isFiltersEnabled() const;

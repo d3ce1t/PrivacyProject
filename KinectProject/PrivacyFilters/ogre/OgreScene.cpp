@@ -127,67 +127,64 @@ void OgreScene::destroyScene(void)
     }
 }
 
-void OgreScene::newFrames(const dai::QHashDataFrames frames, const qint64 frameId)
+void OgreScene::newFrames(const dai::QHashDataFrames frames)
 {
     qint64 time_ms = m_timer.elapsed();
 
     if (!m_initialised || time_ms == m_lastTime)
         return;
 
-    if (playbackHandler()->isValidFrame(frameId))
-    {
-        // Copy frames (1 ms)
-        dai::QHashDataFrames copyFrames;
+    // Copy frames (1 ms)
+    dai::QHashDataFrames copyFrames;
 
-        foreach (dai::DataFrame::FrameType key, frames.keys()) {
-            shared_ptr<dai::DataFrame> frame = frames.value(key);
-            copyFrames.insert(key, frame->clone());
+    foreach (dai::DataFrame::FrameType key, frames.keys()) {
+        shared_ptr<dai::DataFrame> frame = frames.value(key);
+        copyFrames.insert(key, frame->clone());
+    }
+
+    // Check if the frames has been copied correctly
+    if (!hasExpired())
+    {
+        // Load Depth
+        if (m_pointCloud && copyFrames.contains(dai::DataFrame::Depth)) {
+            shared_ptr<dai::DepthFrame> depthFrame = static_pointer_cast<dai::DepthFrame>(copyFrames.value(dai::DataFrame::Depth));
+            loadDepthData(depthFrame);
         }
 
-        // Check if the frames has been copied correctly
-        if (playbackHandler()->isValidFrame(frameId))
+        // Load Color
+        if (m_pointCloud && copyFrames.contains(dai::DataFrame::Color)) {
+            shared_ptr<dai::ColorFrame> colorFrame = static_pointer_cast<dai::ColorFrame>(copyFrames.value(dai::DataFrame::Color));
+            loadColorData(colorFrame);
+        }
+
+        // Load Skeleton
+        if (copyFrames.contains(dai::DataFrame::Skeleton))
         {
-            // Load Depth
-            if (m_pointCloud && copyFrames.contains(dai::DataFrame::Depth)) {
-                shared_ptr<dai::DepthFrame> depthFrame = static_pointer_cast<dai::DepthFrame>(copyFrames.value(dai::DataFrame::Depth));
-                loadDepthData(depthFrame);
+            shared_ptr<dai::SkeletonFrame> skeletonFrame = static_pointer_cast<dai::SkeletonFrame>( copyFrames.value(dai::DataFrame::Skeleton) );
+            int userId = skeletonFrame->getAllUsersId().isEmpty() ? 0 : skeletonFrame->getAllUsersId().at(0);
+
+            if (userId > 0 && m_userId == -1) {
+                // New user
+                m_userId = userId;
+                shared_ptr<dai::Skeleton> skeleton = skeletonFrame->getSkeleton(userId);
+                m_chara->setSkeleton(skeleton);
+                m_chara->newUser(userId);
             }
-
-            // Load Color
-            if (m_pointCloud && copyFrames.contains(dai::DataFrame::Color)) {
-                shared_ptr<dai::ColorFrame> colorFrame = static_pointer_cast<dai::ColorFrame>(copyFrames.value(dai::DataFrame::Color));
-                loadColorData(colorFrame);
+            else if (userId > 0 && m_userId == userId) {
+                // Same user
+                shared_ptr<dai::Skeleton> skeleton = skeletonFrame->getSkeleton(userId);
+                m_chara->setSkeleton(skeleton);
+                Ogre::Real deltaTime = (time_ms - m_lastTime) / 1000.0f;
+                m_chara->addTime(deltaTime);
+                m_lastTime = time_ms;
             }
-
-            // Load Skeleton
-            if (copyFrames.contains(dai::DataFrame::Skeleton))
-            {
-                shared_ptr<dai::SkeletonFrame> skeletonFrame = static_pointer_cast<dai::SkeletonFrame>( copyFrames.value(dai::DataFrame::Skeleton) );
-                int userId = skeletonFrame->getAllUsersId().isEmpty() ? 0 : skeletonFrame->getAllUsersId().at(0);
-
-                if (userId > 0 && m_userId == -1) {
-                    // New user
-                    m_userId = userId;
-                    shared_ptr<dai::Skeleton> skeleton = skeletonFrame->getSkeleton(userId);
-                    m_chara->setSkeleton(skeleton);
-                    m_chara->newUser(userId);
-                }
-                else if (userId > 0 && m_userId == userId) {
-                    // Same user
-                    shared_ptr<dai::Skeleton> skeleton = skeletonFrame->getSkeleton(userId);
-                    m_chara->setSkeleton(skeleton);
-                    Ogre::Real deltaTime = (time_ms - m_lastTime) / 1000.0f;
-                    m_chara->addTime(deltaTime);
-                    m_lastTime = time_ms;
-                }
-                else if (userId > 0) {
-                    qDebug() << "No debería llegar";
-                }
-                else if (userId == 0 && m_userId > 0) {
-                    m_chara->setSkeleton(nullptr);
-                    m_chara->lostUser(m_userId);
-                    m_userId = -1;
-                }
+            else if (userId > 0) {
+                qDebug() << "No debería llegar";
+            }
+            else if (userId == 0 && m_userId > 0) {
+                m_chara->setSkeleton(nullptr);
+                m_chara->lostUser(m_userId);
+                m_userId = -1;
             }
         }
     }

@@ -119,43 +119,36 @@ void InstanceViewerWindow::setDelay(qint64 milliseconds)
     m_delayInMs = milliseconds;
 }
 
-void InstanceViewerWindow::newFrames(const QHashDataFrames dataFrames, const qint64 frameId)
+void InstanceViewerWindow::newFrames(const QHashDataFrames dataFrames)
 {
-    // Check the received frames are valid because we could have been called out of time
-    if (playbackHandler()->isValidFrame(frameId))
+    // Copy frames (1 ms)
+    QHashDataFrames copyFrames;
+
+    foreach (DataFrame::FrameType key, dataFrames.keys()) {
+        shared_ptr<DataFrame> frame = dataFrames.value(key);
+        copyFrames.insert(key, frame->clone());
+    }
+
+    // Check if the frames has been copied correctly
+    if (!hasExpired())
     {
-        // Copy frames (1 ms)
-        QHashDataFrames copyFrames;
+        // Do task
+        m_viewerEngine.prepareScene(copyFrames);
 
-        foreach (DataFrame::FrameType key, dataFrames.keys()) {
-            shared_ptr<DataFrame> frame = dataFrames.value(key);
-            copyFrames.insert(key, frame->clone());
+        // Feed skeleton data models
+        if (copyFrames.contains(DataFrame::Skeleton)) {
+            shared_ptr<SkeletonFrame> skeleton = static_pointer_cast<SkeletonFrame>( copyFrames.value(DataFrame::Skeleton) );
+            feedDataModels(skeleton);
         }
 
-        // Check if the frames has been copied correctly
-        if (playbackHandler()->isValidFrame(frameId))
-        {
-            // Do task
-            m_viewerEngine.prepareScene(copyFrames);
-
-            // Feed skeleton data models
-            if (copyFrames.contains(DataFrame::Skeleton)) {
-                shared_ptr<SkeletonFrame> skeleton = static_pointer_cast<SkeletonFrame>( copyFrames.value(DataFrame::Skeleton) );
-                feedDataModels(skeleton);
-            }
-
-            if (m_delayInMs > 0)
-                QThread::currentThread()->msleep(m_delayInMs);
-        }
-        else {
-            qDebug() << "Frame Id:" << frameId << "Read but Not Valid";
-        }
+        if (m_delayInMs > 0)
+            QThread::currentThread()->msleep(m_delayInMs);
     }
     else {
-        qDebug() << "Frame Id:" << frameId << "Skipped";
+        qDebug() << "Frame Read but Not Valid";
     }
 
-    m_fps = playbackHandler()->getFPS();
+    m_fps = producerHandler()->getProductionRate();
     emit changeOfStatus();
 }
 
@@ -451,7 +444,7 @@ void InstanceViewerWindow::measureTime(qint64 initialTime)
     static qint64 max = 0;
     static qint64 min = 99999999999999999;
 
-    qint64 timeReceived = playbackHandler()->superTimer.nsecsElapsed();
+    qint64 timeReceived = producerHandler()->superTimer.nsecsElapsed();
     qint64 diff = timeReceived - initialTime;
     total += diff;
     counter++;

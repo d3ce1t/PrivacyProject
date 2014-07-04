@@ -11,12 +11,12 @@
 #include <QListWidget>
 #include <QMutexLocker>
 #include "playback/PlaybackControl.h"
-#include "playback/PlaybackListener.h"
+#include "playback/NodeListener.h"
 #include "viewer/ViewerEngine.h"
 
 namespace dai {
 
-class InstanceViewerWindow : public QObject, public PlaybackListener
+class InstanceViewerWindow : public QObject, public NodeListener
 {
     Q_OBJECT
 
@@ -31,7 +31,7 @@ public:
     void show();
     QQmlApplicationEngine& qmlEngine();
     QQuickWindow* quickWindow();
-    void newFrames(const QHashDataFrames dataFrames, const qint64 frameId) override;
+    void newFrames(const QHashDataFrames dataFrames) override;
     void setDelay(qint64 milliseconds);
 
 signals:
