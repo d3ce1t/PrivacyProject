@@ -3,8 +3,13 @@
 
 #include <QObject>
 #include <QQuickWindow>
-#include "viewer/ScenePainter.h"
+#include "viewer/Scene3DPainter.h"
 #include "types/MaskFrame.h"
+#include "types/ColorFrame.h"
+#include <QOpenGLFunctions>
+#include <QOpenGLShaderProgram>
+#include <QOpenGLVertexArrayObject>
+#include <QOpenGLBuffer>
 
 namespace dai {
 
@@ -16,7 +21,9 @@ namespace dai {
 
 using namespace dai;
 
-class ViewerEngine : public QObject
+class InstanceViewer;
+
+class ViewerEngine : public QObject, public QOpenGLFunctions
 {
     Q_OBJECT
 
@@ -27,9 +34,10 @@ public:
     bool running() const;
     shared_ptr<dai::ScenePainter> scene();
     void renderOpenGLScene(QOpenGLFramebufferObject *fbo);
+    void setInstanceViewer(InstanceViewer* viewer);
+    InstanceViewer* viewer();
 
 signals:
-    void frameRendered();
     void plusKeyPressed();
     void minusKeyPressed();
     void spaceKeyPressed();
@@ -49,11 +57,33 @@ public slots:
     void translateAxisZ(float value);
 
 private:
-    QQuickWindow*                                             m_quickWindow;
-    shared_ptr<ScenePainter>                                  m_scene;
-    ViewerMode                                                m_mode;
-    bool                                                      m_running;
-    QSize                                                     m_size;
+    void initialise();
+    void prepareShaderProgram();
+    void prepareVertexBuffer();
+    void render2D(QOpenGLFramebufferObject* fboDisplay);
+
+    QQuickWindow*            m_quickWindow;
+    shared_ptr<Scene3DPainter> m_scene;
+    QMutex                   m_dataLock;
+    ViewerMode               m_mode;
+    bool                     m_running;
+    QSize                    m_size;
+    bool                     m_initialised;
+    shared_ptr<ColorFrame>   m_colorFrame;
+    bool                     m_needLoading;
+    QOpenGLShaderProgram*    m_shaderProgram;
+    QOpenGLVertexArrayObject m_vao;
+    QOpenGLBuffer            m_positionsBuffer;
+    QOpenGLBuffer            m_texCoordBuffer;
+    QMatrix4x4               m_matrix;
+    InstanceViewer*          m_viewer;
+
+    // Shader identifiers
+    GLuint                   m_colorTextureId;
+    GLuint                   m_perspectiveMatrixUniform;
+    GLuint                   m_posAttr;
+    GLuint                   m_textCoordAttr;
+    GLuint                   m_texColorFrameSampler;
 };
 
 #endif // VIEWERENGINE_H

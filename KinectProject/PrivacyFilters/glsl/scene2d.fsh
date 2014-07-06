@@ -7,9 +7,6 @@ uniform sampler2D texBackground;
 
 vec4 computeBG(float mask);
 
-const vec2 textureSize = vec2(640, 480);
-
-
 void main()
 {
     float mask = texture2D(texMask, v_texCoord).r;

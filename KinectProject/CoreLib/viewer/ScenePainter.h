@@ -53,23 +53,14 @@ protected:
     int                              m_scene_width;
     int                              m_scene_height;
     shared_ptr<DataFrame>            m_bg;
-
-#if (!defined _MSC_VER || _MSC_VER > 1600)
     atomic<int>                      m_needLoading;
-#else
-    QAtomicInt                       m_needLoading;
-#endif
-
     QMatrix4x4                       m_matrix;
     QList<shared_ptr<SceneItem>>     m_items;
 
 private: 
     bool                             m_initialised;
-#if (!defined _MSC_VER || _MSC_VER > 1600)
     atomic<int>                      m_dirty;
-#else
-    QAtomicInt                       m_dirty;
-#endif
+
 };
 
 } // End Namespace

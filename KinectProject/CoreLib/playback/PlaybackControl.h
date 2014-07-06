@@ -9,7 +9,7 @@ using namespace std;
 
 namespace dai {
 
-class NodeListener;
+class FrameListener;
 class PlaybackWorker;
 
 class PlaybackControl
@@ -17,8 +17,8 @@ class PlaybackControl
 public:
     PlaybackControl();
     virtual ~PlaybackControl();
-    void addListener(NodeListener* listener);
-    void removeListener(NodeListener* listener);
+    void addListener(FrameListener* listener);
+    void removeListener(FrameListener* listener);
     bool addInstance(shared_ptr<StreamInstance> instance);
     void removeInstance(shared_ptr<StreamInstance> instance);
     void clearInstances();

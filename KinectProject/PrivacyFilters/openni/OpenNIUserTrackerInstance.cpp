@@ -75,7 +75,7 @@ QList<shared_ptr<DataFrame>> OpenNIUserTrackerInstance::nextFrames()
     for (int y=0; y < userMap.getHeight(); ++y) {
         for (int x=0; x < userMap.getWidth(); ++x) {
             uint8_t label = *pLabel;
-            m_frameDepth->setItem(y, x, *pDepth);
+            m_frameDepth->setItem(y, x, *pDepth / 1000.0f);
             m_frameUser->setItem(y, x, label);
             pDepth++;
             pLabel++;

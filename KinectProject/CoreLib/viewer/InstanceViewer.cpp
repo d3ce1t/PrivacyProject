@@ -10,17 +10,19 @@ InstanceViewer::InstanceViewer()
 {
     setTextureFollowsItemSize(false);
     setSmooth(false);
-    startTimer(60);
+    m_timer = startTimer(40);
 }
 
 InstanceViewer::~InstanceViewer()
 {
+    //killTimer(m_timer);
     qDebug() << "InstanceViewer::~InstanceViewer()";
 }
 
 void InstanceViewer::setViewerEngine(ViewerEngine *viewerEngine)
 {
     Q_ASSERT(viewerEngine != nullptr);
+    viewerEngine->setInstanceViewer(this);
     m_viewerEngine = viewerEngine;
 }
 

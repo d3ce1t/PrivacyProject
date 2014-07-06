@@ -42,7 +42,6 @@ SOURCES += \
     viewer/SceneItem.cpp \
     viewer/Scene3DPainter.cpp \
     viewer/Scene2DPainter.cpp \
-    viewer/Model3DItem.cpp \
     viewer/InstanceViewerWindow.cpp \
     viewer/InstanceViewer.cpp \
     viewer/CustomItem.cpp \
@@ -55,8 +54,9 @@ SOURCES += \
     types/StreamInstance.cpp \
     dataset/DataInstance.cpp \
     types/MaskFrame.cpp \
-    playback/NodeProducer.cpp \
-    playback/NodeListener.cpp
+    playback/FrameGenerator.cpp \
+    playback/FrameListener.cpp \
+    playback/FrameNotifier.cpp
 
 HEADERS += \
     types/Vector3D.h \
@@ -92,7 +92,6 @@ HEADERS += \
     viewer/Scene3DPainter.h \
     viewer/Scene2DPainter.h \
     viewer/QMLEnumsWrapper.h \
-    viewer/Model3DItem.h \
     viewer/InstanceViewerWindow.h \
     viewer/InstanceViewer.h \
     viewer/CustomItem.h \
@@ -104,8 +103,9 @@ HEADERS += \
     viewer/ViewerRenderer.h \
     playback/PlaybackWorker.h \
     types/MaskFrame.h \
-    playback/NodeProducer.h \
-    playback/NodeListener.h
+    playback/FrameGenerator.h \
+    playback/FrameListener.h \
+    playback/FrameNotifier.h
 
 unix:!macx {
 

@@ -1,5 +1,5 @@
 #include "PlaybackControl.h"
-#include "NodeListener.h"
+#include "FrameListener.h"
 #include "PlaybackWorker.h"
 #include <QDebug>
 
@@ -42,12 +42,12 @@ void PlaybackControl::setFPS(float fps)
     m_worker->setFPS(fps);
 }
 
-void PlaybackControl::addListener(NodeListener *listener)
+void PlaybackControl::addListener(FrameListener *listener)
 {
     m_worker->addListener(listener);
 }
 
-void PlaybackControl::removeListener(NodeListener *listener)
+void PlaybackControl::removeListener(FrameListener *listener)
 {
     m_worker->removeListener(listener);
 }

@@ -2,7 +2,7 @@
 #define PLAYBACKWORKER_H
 
 #include <QObject>
-#include "NodeProducer.h"
+#include "FrameGenerator.h"
 #include <QList>
 #include <memory>
 #include "types/StreamInstance.h"
@@ -11,14 +11,14 @@ using namespace std;
 
 namespace dai {
 
-class NodeListener;
+class FrameListener;
 
-class PlaybackWorker : public QObject, public NodeProducer
+class PlaybackWorker : public QObject, public FrameGenerator
 {
     Q_OBJECT
 
     friend class PlaybackControl;
-    friend class NodeListener;
+    friend class FrameListener;
 
 public:
     PlaybackWorker();

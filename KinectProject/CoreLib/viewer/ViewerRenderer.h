@@ -9,9 +9,10 @@ class ViewerRenderer : public QQuickFramebufferObject::Renderer
 {
 public:
     ViewerRenderer(const InstanceViewer* viewer);
-    void render();
-    QOpenGLFramebufferObject *createFramebufferObject(const QSize &size);
     void setViewerEngine(ViewerEngine* engine);
+
+protected:
+    void render() override;
 
 private:
     ViewerEngine* m_viewerEngine;

@@ -41,7 +41,6 @@ private:
     shared_ptr<MaskFrame>     m_mask;
 
     // OpenGL Buffer
-    QOpenGLContext*           m_defaultContext;
     QOpenGLFramebufferObject* m_fboFirstPass; // render-to-texture (first-pass)
     QOpenGLFramebufferObject* m_fboSecondPass; // render-to-texture (second-pass)
     QOpenGLVertexArrayObject  m_vao;

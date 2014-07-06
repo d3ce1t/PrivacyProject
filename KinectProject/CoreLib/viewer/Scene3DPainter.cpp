@@ -1,5 +1,6 @@
 #include "Scene3DPainter.h"
 #include "types/DepthFrame.h"
+#include <QDebug>
 
 namespace dai {
 

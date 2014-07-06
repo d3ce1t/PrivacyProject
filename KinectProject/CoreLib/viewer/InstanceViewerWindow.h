@@ -11,12 +11,12 @@
 #include <QListWidget>
 #include <QMutexLocker>
 #include "playback/PlaybackControl.h"
-#include "playback/NodeListener.h"
+#include "playback/FrameListener.h"
 #include "viewer/ViewerEngine.h"
 
 namespace dai {
 
-class InstanceViewerWindow : public QObject, public NodeListener
+class InstanceViewerWindow : public QObject, public FrameListener
 {
     Q_OBJECT
 
@@ -62,7 +62,7 @@ private:
     long                    m_frameCounter;
     unsigned long           m_delayInMs;
 
-    ViewerEngine            m_viewerEngine;
+    ViewerEngine*           m_viewerEngine;
     ViewerMode              m_viewerMode;
     QQmlApplicationEngine   m_qmlEngine;
     QQuickWindow*           m_quickWindow;

@@ -1,5 +1,5 @@
 #include "PlaybackWorker.h"
-#include "NodeListener.h"
+#include "FrameListener.h"
 #include <QtConcurrent/QtConcurrent>
 #include "exceptions/CannotOpenInstanceException.h"
 #include <QDebug>
@@ -94,7 +94,7 @@ void PlaybackWorker::run()
         availableTime = m_slotTime + offsetTime;
 
         // Do something
-        bool hasProduced = produce();
+        bool hasProduced = generate();
 
         if (!hasProduced || subscribersCount() == 0)
             m_running = false;

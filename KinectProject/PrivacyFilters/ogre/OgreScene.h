@@ -8,12 +8,12 @@
 #include "ogre/OgrePointCloud.h"
 #include <QObject>
 #include "playback/PlaybackControl.h"
-#include "playback/NodeListener.h"
+#include "playback/FrameListener.h"
 #include "types/DepthFrame.h"
 #include "types/ColorFrame.h"
 #include <QReadWriteLock>
 
-class OgreScene : public QObject, public dai::NodeListener
+class OgreScene : public QObject, public dai::FrameListener
 {
     Q_OBJECT
 

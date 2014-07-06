@@ -8,22 +8,25 @@
 #include "CustomItem.h"
 #include <QMetaEnum>
 #include <QDebug>
+#include "InstanceViewer.h"
 
 namespace dai {
 
 InstanceViewerWindow::InstanceViewerWindow(ViewerMode mode)
     : m_initialised(false)
     , m_fps(0)
-    , m_viewerEngine(ViewerEngine(mode))
+    , m_viewerEngine(nullptr)
     , m_viewerMode(mode)
     , m_quickWindow(nullptr)
     , m_frameCounter(0)
     , m_delayInMs(0)
     , m_modelsInitialised(false)
 {
+    m_viewerEngine = new ViewerEngine(mode);
+
     // expose objects as QML globals
     m_qmlEngine.rootContext()->setContextProperty("Window", this);
-    m_qmlEngine.rootContext()->setContextProperty("ViewerEngine", &m_viewerEngine);
+    m_qmlEngine.rootContext()->setContextProperty("ViewerEngine", m_viewerEngine);
 }
 
 InstanceViewerWindow::~InstanceViewerWindow()
@@ -81,7 +84,7 @@ void InstanceViewerWindow::initialise()
     }
 
     m_quickWindow->setTitle("Instance Viewer");
-    m_viewerEngine.startEngine(m_quickWindow);
+    m_viewerEngine->startEngine(m_quickWindow);
 
     // Windows setup
     connect(m_quickWindow, SIGNAL(closing(QQuickCloseEvent*)), this, SLOT(deleteLater()));
@@ -133,7 +136,7 @@ void InstanceViewerWindow::newFrames(const QHashDataFrames dataFrames)
     if (!hasExpired())
     {
         // Do task
-        m_viewerEngine.prepareScene(copyFrames);
+        m_viewerEngine->prepareScene(copyFrames);
 
         // Feed skeleton data models
         if (copyFrames.contains(DataFrame::Skeleton)) {
@@ -148,7 +151,7 @@ void InstanceViewerWindow::newFrames(const QHashDataFrames dataFrames)
         qDebug() << "Frame Read but Not Valid";
     }
 
-    m_fps = producerHandler()->getProductionRate();
+    m_fps = producerHandler()->getFrameRate();
     emit changeOfStatus();
 }
 
@@ -159,7 +162,7 @@ float InstanceViewerWindow::getFPS() const
 
 const ViewerEngine* InstanceViewerWindow::viewerEngine() const
 {
-    return &m_viewerEngine;
+    return m_viewerEngine;
 }
 
 void InstanceViewerWindow::showJointsWindow()

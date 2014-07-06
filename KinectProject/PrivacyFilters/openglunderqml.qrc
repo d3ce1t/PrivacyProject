@@ -8,6 +8,8 @@
         <file>glsl/silhouette.vsh</file>
         <file>glsl/skeleton.fsh</file>
         <file>glsl/skeleton.vsh</file>
+        <file>glsl/viewer.fsh</file>
+        <file>glsl/viewer.vsh</file>
     </qresource>
     <qresource prefix="/icons">
         <file>kinect.png</file>

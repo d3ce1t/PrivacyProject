@@ -133,6 +133,8 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
 
         InstanceViewerWindow* windowViewer = new InstanceViewerWindow(mode);
         windowViewer->initialise();
+
+        m_playback.stop();
         m_playback.clearInstances();
         m_playback.addInstance(instance);
         m_playback.addListener(windowViewer);

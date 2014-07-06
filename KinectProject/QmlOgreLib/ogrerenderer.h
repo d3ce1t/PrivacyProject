@@ -16,9 +16,9 @@ public:
     void setCamera(Ogre::Camera* camera);
 
 protected:
-    QOpenGLFramebufferObject *createFramebufferObject(const QSize &size);
-    void render();
-    void synchronize(QQuickFramebufferObject * item);
+    QOpenGLFramebufferObject *createFramebufferObject(const QSize &size) override;
+    void render() override;
+    void synchronize(QQuickFramebufferObject * item) override;
     void prepareShaderProgram();
 
 private:

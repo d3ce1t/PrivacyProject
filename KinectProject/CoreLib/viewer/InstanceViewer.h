@@ -24,6 +24,7 @@ protected:
 
 private:
     ViewerEngine*  m_viewerEngine;
+    int m_timer;
 };
 
 #endif // INSTANCE_VIEWER_H

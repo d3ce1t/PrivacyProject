@@ -1,21 +1,91 @@
 #include "PrivacyFilter.h"
 #include "types/MaskFrame.h"
 #include <opencv2/opencv.hpp>
+#include "viewer/SilhouetteItem.h"
+#include "viewer/SkeletonItem.h"
+#include <QImage>
+#include <QColor>
+#include <QDebug>
 
 namespace dai {
 
 PrivacyFilter::PrivacyFilter()
+    : m_glContext(nullptr)
+    , m_gles(nullptr)
+    , m_initialised(false)
+    , m_fboDisplay(nullptr)
 {
+    QSurfaceFormat format;
+    format.setMajorVersion(2);
+    format.setMinorVersion(0);
+    format.setDepthBufferSize(24);
+    format.setStencilBufferSize(8);
+    format.setSwapBehavior(QSurfaceFormat::SingleBuffer);
+
+    m_surface.setFormat(format);
+    m_surface.create();
+
+    if (!m_surface.isValid()) {
+        qDebug() << "The surface could not be created";
+        throw 1;
+    }
 }
 
 PrivacyFilter::~PrivacyFilter()
 {
    stopListener();
+
+   if (m_fboDisplay) {
+       delete m_fboDisplay;
+       m_fboDisplay = nullptr;
+   }
+
+   if (m_glContext) {
+       delete m_glContext;
+       m_glContext = nullptr;
+   }
+
+   m_gles = nullptr;
+}
+
+void PrivacyFilter::initialise()
+{
+    m_glContext = new QOpenGLContext;
+    m_glContext->setFormat(m_surface.format());
+
+    if (!m_glContext->create()) {
+        qDebug() << "Could not create the OpenGL context";
+        throw 1;
+    }
+
+    m_glContext->makeCurrent(&m_surface);
+    m_gles = m_glContext->functions();
+
+    // Create frame buffer Object
+    QOpenGLFramebufferObjectFormat format;
+    format.setInternalTextureFormat(GL_RGB);
+    format.setTextureTarget(GL_TEXTURE_2D);
+    format.setSamples(0);
+    format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
+
+    m_fboDisplay = new QOpenGLFramebufferObject(QSize(640, 480), format);
+
+    if (!m_fboDisplay->isValid()) {
+        qDebug() << "FBO Error";
+        throw 2;
+    }
+
+    m_glContext->doneCurrent();
+    m_initialised = true;
 }
 
 // This method is called from a thread from the PlaybackControl
 void PrivacyFilter::newFrames(const QHashDataFrames dataFrames)
 {
+    if (!m_initialised) {
+        initialise();
+    }
+
     // Copy frames (1 ms)
     m_frames.clear();
 
@@ -26,7 +96,7 @@ void PrivacyFilter::newFrames(const QHashDataFrames dataFrames)
 
     // Check if the frames has been copied correctly
     if (!hasExpired()) {
-        if (!produce()) {
+        if (!generate()) {
             qDebug() << "PrivacyFilter: Nothing produced";
         }
     }
@@ -37,7 +107,9 @@ void PrivacyFilter::newFrames(const QHashDataFrames dataFrames)
 
 QHashDataFrames PrivacyFilter::produceFrames()
 {
+    //
     // Dilate mask to create a wide border (value = 255)
+    //
     if (m_frames.contains(DataFrame::Mask))
     {
          shared_ptr<MaskFrame> inputMask = static_pointer_cast<MaskFrame>(m_frames.value(DataFrame::Mask));
@@ -56,6 +128,61 @@ QHashDataFrames PrivacyFilter::produceFrames()
                  }
              }
          }
+    }
+
+    //
+    // Prepare Scene
+    //
+    shared_ptr<SilhouetteItem> silhouetteItem = static_pointer_cast<SilhouetteItem>(m_scene.getFirstItem(ITEM_SILHOUETTE));
+    shared_ptr<SkeletonItem> skeletonItem = static_pointer_cast<SkeletonItem>(m_scene.getFirstItem(ITEM_SKELETON));
+
+    // Clear items of the scene
+    m_scene.clearItems();
+
+    // Background of Scene
+    if (m_frames.contains(DataFrame::Color))
+    {
+        if (m_frames.contains(DataFrame::Mask))
+        {
+            m_scene.setMask(static_pointer_cast<MaskFrame>(m_frames.value(DataFrame::Mask)));
+
+            // Add silhuette item to the scene
+            if (!silhouetteItem)
+                silhouetteItem.reset(new SilhouetteItem);
+
+            //silhouetteItem->setDrawingEffect(SilhouetteItem::EFFECT_BLUR);
+            silhouetteItem->setUser( static_pointer_cast<MaskFrame>(m_frames.value(DataFrame::Mask)) );
+            m_scene.addItem(silhouetteItem);
+        }
+
+        m_scene.setBackground(m_frames.value(DataFrame::Color));
+    }
+
+    // Add skeleton item to the scene
+    if (m_frames.contains(DataFrame::Skeleton))
+    {
+        if (!skeletonItem)
+            skeletonItem.reset(new SkeletonItem);
+
+        skeletonItem->setSkeleton( static_pointer_cast<SkeletonFrame>(m_frames.value(DataFrame::Skeleton)) );
+        m_scene.addItem(skeletonItem);
+    }
+
+    m_scene.enableFilter(QMLEnumsWrapper::FILTER_SKELETON);
+    m_scene.markAsDirty();
+
+    //
+    // Render scene offscreen
+    //
+    if (m_frames.contains(DataFrame::Color))
+    {
+        shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(m_frames.value(DataFrame::Color));
+        m_glContext->makeCurrent(&m_surface);
+        m_scene.setSize(640, 480);
+        m_scene.renderScene(m_fboDisplay);
+        // Copy data back to ColorFrame
+        m_gles->glReadPixels(0,0, 640, 480, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*) colorFrame->getDataPtr());
+        m_glContext->doneCurrent();
     }
 
     return m_frames;

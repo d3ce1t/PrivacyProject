@@ -29,8 +29,6 @@ void Scene2DPainter::setMask(shared_ptr<MaskFrame> mask)
 
 void Scene2DPainter::initialise()
 {
-    m_defaultContext = QOpenGLContext::currentContext();
-
     // Load, compile and link the shader program
     prepareShaderProgram();
 
@@ -85,7 +83,12 @@ void Scene2DPainter::render(QOpenGLFramebufferObject *fboDisplay)
     renderItems(); // items first-pass rendering (fboFirstPass)
 
     // Stage 4
-    fboDisplay->bind();
+    if (fboDisplay) {
+        fboDisplay->bind();
+    } else {
+        QOpenGLFramebufferObject::bindDefault();
+    }
+
     displayRenderedTexture(); // here framebuffer (display) and second-pass rendering
 
     m_shaderProgram->release();
