@@ -17,11 +17,13 @@ void Scene3DPainter::initialise()
     prepareVertexBuffer();
 }
 
-void Scene3DPainter::render(QOpenGLFramebufferObject *fbo)
+void Scene3DPainter::render(QOpenGLFramebufferObject *fboDisplay)
 {
-    Q_UNUSED(fbo)
-
     Q_ASSERT( (m_bg != nullptr && m_bg->getType() == DataFrame::Depth) || m_bg == nullptr);
+
+    if (fboDisplay) {
+        fboDisplay->bind();
+    }
 
     // Init Each Frame (because QtQuick could change it)
     glDepthRange(0.0f, 1.0f);

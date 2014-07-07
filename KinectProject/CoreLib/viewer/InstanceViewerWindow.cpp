@@ -12,17 +12,16 @@
 
 namespace dai {
 
-InstanceViewerWindow::InstanceViewerWindow(ViewerMode mode)
+InstanceViewerWindow::InstanceViewerWindow()
     : m_initialised(false)
     , m_fps(0)
     , m_viewerEngine(nullptr)
-    , m_viewerMode(mode)
     , m_quickWindow(nullptr)
     , m_frameCounter(0)
     , m_delayInMs(0)
     , m_modelsInitialised(false)
 {
-    m_viewerEngine = new ViewerEngine(mode);
+    m_viewerEngine = new ViewerEngine;
 
     // expose objects as QML globals
     m_qmlEngine.rootContext()->setContextProperty("Window", this);
@@ -31,8 +30,6 @@ InstanceViewerWindow::InstanceViewerWindow(ViewerMode mode)
 
 InstanceViewerWindow::~InstanceViewerWindow()
 {
-    qDebug() << "InstanceViewerWindow::~InstanceViewerWindow()";
-
     stopListener();
 
     // Close windows and clear models
@@ -48,6 +45,7 @@ InstanceViewerWindow::~InstanceViewerWindow()
     m_quaternions_model.clear();
 
     m_modelsLock.unlock();
+    qDebug() << "InstanceViewerWindow::~InstanceViewerWindow()";
 }
 
 QQmlApplicationEngine& InstanceViewerWindow::qmlEngine()

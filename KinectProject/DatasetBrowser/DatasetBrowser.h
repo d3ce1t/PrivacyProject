@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include "SettingsDialog.h"
 #include "dataset/Dataset.h"
+#include "viewer/DepthFilter.h"
 #include "playback/PlaybackControl.h"
 
 namespace Ui {
@@ -43,6 +44,7 @@ private:
     Ui::DatasetBrowser*     ui;
     dai::Dataset*           m_dataset;
     dai::PlaybackControl    m_playback;
+    dai::DepthFilter        m_depthFilter;
     SettingsDialog          m_settings;
 };
 

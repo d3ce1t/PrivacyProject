@@ -4,15 +4,27 @@
 
 namespace dai {
 
+FrameListener::FrameListener()
+    : m_worker(nullptr)
+    , m_lastFrameId(0)
+{
+}
+
 FrameListener::~FrameListener()
 {
-    qDebug() << "NodeListener::~NodeListener";
+    qDebug() << "FrameListener::~FrameListener";
     stopListener();
+    m_worker = nullptr;
 }
 
 bool FrameListener::hasExpired()
 {
-    return !m_worker->isValidFrame(m_lastFrameId);
+    bool result = true;
+
+    if (m_worker)
+        result = !m_worker->isValidFrame(m_lastFrameId);
+
+    return result;
 }
 
 FrameGenerator *FrameListener::producerHandler()
@@ -22,7 +34,8 @@ FrameGenerator *FrameListener::producerHandler()
 
 void FrameListener::stopListener()
 {
-    m_worker->removeListener(this); // Blocks until last job ends
+    if (m_worker)
+        m_worker->removeListener(this); // Blocks until last job ends
 }
 
 void FrameListener::newFrames(const QHashDataFrames dataFrames, const qint64 frameId)

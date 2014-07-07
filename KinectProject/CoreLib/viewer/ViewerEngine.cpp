@@ -5,9 +5,8 @@
 #include "viewer/SkeletonItem.h"
 #include "QMLEnumsWrapper.h"
 
-ViewerEngine::ViewerEngine(ViewerMode mode)
-    : QObject()
-    , m_quickWindow(nullptr)
+ViewerEngine::ViewerEngine()
+    : m_quickWindow(nullptr)
     , m_running(false)
     , m_initialised(false)
     , m_needLoading(false)
@@ -24,16 +23,8 @@ ViewerEngine::ViewerEngine(ViewerMode mode)
     qRegisterMetaType<QList<shared_ptr<StreamInstance>>>("QList<shared_ptr<StreamInstance>>");
     qRegisterMetaType<shared_ptr<SkeletonFrame>>("shared_ptr<SkeletonFrame>");
 
-    // Create Scene
-    if (mode == MODE_3D) {
-        m_scene = make_shared<Scene3DPainter>();
-    }
-    else {
-        m_matrix.setToIdentity();
-        m_matrix.ortho(0, 640, 480, 0, -1.0, 1.0);
-    }
-
-    m_mode = mode;
+    m_matrix.setToIdentity();
+    m_matrix.ortho(0, 640, 480, 0, -1.0, 1.0);
 }
 
 ViewerEngine::~ViewerEngine()
@@ -64,11 +55,6 @@ bool ViewerEngine::running() const
     return m_running;
 }
 
-shared_ptr<dai::ScenePainter> ViewerEngine::scene()
-{
-    return m_scene;
-}
-
 void ViewerEngine::onPlusKeyPressed()
 {
     emit plusKeyPressed();
@@ -84,65 +70,31 @@ void ViewerEngine::onSpaceKeyPressed()
     emit spaceKeyPressed();
 }
 
+// Called from notifier item
 void ViewerEngine::prepareScene(dai::QHashDataFrames dataFrames)
 {
     if (!m_running)
         return;
 
-    // Background of Scene
-    if (m_mode == MODE_2D && dataFrames.contains(DataFrame::Color))
-    {
+    if (dataFrames.contains(DataFrame::Color)) {
         m_dataLock.lock();
         m_colorFrame = static_pointer_cast<ColorFrame>(dataFrames.value(DataFrame::Color));
         m_needLoading = true;
         m_dataLock.unlock();
     }
-    else if (m_mode == MODE_3D && dataFrames.contains(DataFrame::Depth))
-    {
-        shared_ptr<SkeletonItem> skeletonItem = static_pointer_cast<SkeletonItem>(m_scene->getFirstItem(ITEM_SKELETON));
-
-        // Clear items of the scene
-        m_scene->clearItems();
-
-        // Background
-        m_scene->setBackground( dataFrames.value(DataFrame::Depth) );
-
-        // Add skeleton item to the scene
-        if (dataFrames.contains(DataFrame::Skeleton))
-        {
-            if (!skeletonItem)
-                skeletonItem.reset(new SkeletonItem);
-
-            skeletonItem->setSkeleton( static_pointer_cast<SkeletonFrame>(dataFrames.value(DataFrame::Skeleton)) );
-            m_scene->addItem(skeletonItem);
-        }
-
-        m_scene->markAsDirty();
-    }
 }
 
+// Called from rendered item
 void ViewerEngine::renderOpenGLScene(QOpenGLFramebufferObject* fbo)
 {
-    // Draw
-    if (m_running)
-    {
-        if (m_mode == MODE_2D)
-        {
-            if (!m_initialised)
-                initialise();
+    Q_UNUSED(fbo)
 
-            render2D(fbo);
-        }
-        else {
-            m_size = fbo->size();
-            m_scene->setSize(m_size.width(), m_size.height());
-            m_scene->renderScene(fbo);
-        }
-    }
-}
+    if (!m_running)
+        return;
 
-void ViewerEngine::render2D(QOpenGLFramebufferObject* fboDisplay)
-{
+    if (!m_initialised)
+        initialise();
+
     // Init Each Frame (because QtQuick could change it)
     glDepthRange(0.0f, 1.0f);
     glDepthMask(GL_TRUE);
@@ -175,12 +127,6 @@ void ViewerEngine::render2D(QOpenGLFramebufferObject* fboDisplay)
     }
 
     m_dataLock.unlock();
-
-    if (fboDisplay) {
-        fboDisplay->bind();
-    } else {
-        QOpenGLFramebufferObject::bindDefault();
-    }
 
     m_vao.bind();
 
@@ -274,43 +220,40 @@ void ViewerEngine::prepareVertexBuffer()
 
 void ViewerEngine::enableFilter(int filter)
 {
-    /*if (m_mode == MODE_2D) {
-        shared_ptr<Scene2DPainter> scene = static_pointer_cast<Scene2DPainter>(m_scene);
-        scene->enableFilter( (QMLEnumsWrapper::ColorFilter) filter);
-    }*/
+
 }
 
 void ViewerEngine::resetPerspective()
 {
-    m_scene->resetPerspective();
+    //m_scene->resetPerspective();
 }
 
 void ViewerEngine::rotateAxisX(float angle)
 {
-    m_scene->getMatrix().rotate(angle, QVector3D(1, 0, 0));
+    //m_scene->getMatrix().rotate(angle, QVector3D(1, 0, 0));
 }
 
 void ViewerEngine::rotateAxisY(float angle)
 {
-    m_scene->getMatrix().rotate(angle, QVector3D(0, 1, 0));
+    //m_scene->getMatrix().rotate(angle, QVector3D(0, 1, 0));
 }
 
 void ViewerEngine::rotateAxisZ(float angle)
 {
-    m_scene->getMatrix().rotate(angle, QVector3D(0, 0, 1));
+    //m_scene->getMatrix().rotate(angle, QVector3D(0, 0, 1));
 }
 
 void ViewerEngine::translateAxisX(float value)
 {
-    m_scene->getMatrix().translate(value, 0, 0);
+    //m_scene->getMatrix().translate(value, 0, 0);
 }
 
 void ViewerEngine::translateAxisY(float value)
 {
-    m_scene->getMatrix().translate(0, value, 0);
+    //m_scene->getMatrix().translate(0, value, 0);
 }
 
 void ViewerEngine::translateAxisZ(float value)
 {
-    m_scene->getMatrix().translate(0, 0, value);
+    //m_scene->getMatrix().translate(0, 0, value);
 }

@@ -1,10 +1,11 @@
 #include "ViewerRenderer.h"
 #include <QOpenGLFramebufferObject>
+#include "viewer/ViewerEngine.h"
+#include "viewer/InstanceViewer.h"
 
-ViewerRenderer::ViewerRenderer(const InstanceViewer *viewer)
+ViewerRenderer::ViewerRenderer()
     : m_viewerEngine(nullptr)
 {
-    m_viewer = const_cast<InstanceViewer*>(viewer);
 }
 
 void ViewerRenderer::setViewerEngine(ViewerEngine* engine)
@@ -17,5 +18,6 @@ void ViewerRenderer::render()
 {
     if (m_viewerEngine) {
         m_viewerEngine->renderOpenGLScene(this->framebufferObject());
+        //update();
     }
 }

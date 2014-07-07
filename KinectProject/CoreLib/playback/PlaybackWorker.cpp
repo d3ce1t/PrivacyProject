@@ -83,9 +83,9 @@ void PlaybackWorker::run()
     qint64 averageTime = 0;
     qint64 offsetTime = 0;
 
-    m_running = true;
-    setupListeners();
+    restartStats();
     openAllInstances();
+    m_running = true;
 
     while (m_running)
     {
@@ -102,11 +102,16 @@ void PlaybackWorker::run()
         // Time management: Do I have free time?
         remainingTime = availableTime - timer.nsecsElapsed();
 
-        if (remainingTime > 0)
+        if (remainingTime > 0) {
             QThread::currentThread()->usleep(remainingTime / 1000);
+        }
 
-        averageTime += timer.nsecsElapsed();;
+        averageTime += timer.nsecsElapsed();
         offsetTime = availableTime - timer.nsecsElapsed();
+
+        /*qDebug() << "Available Time (ms)" << availableTime / 1000000.0f <<
+                    "Remaining (ms)" << remainingTime / 1000000.0f <<
+                    "Offset (ms)" << offsetTime / 1000000.0f;*/
     }
 
     closeAllInstances();
@@ -120,12 +125,6 @@ void PlaybackWorker::run()
 void PlaybackWorker::stop()
 {
     m_running = false;
-}
-
-void PlaybackWorker::setupListeners()
-{
-    if (QThreadPool::globalInstance()->maxThreadCount() < subscribersCount())
-        QThreadPool::globalInstance()->setMaxThreadCount(subscribersCount());
 }
 
 inline void PlaybackWorker::openAllInstances()

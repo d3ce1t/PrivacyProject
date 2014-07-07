@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/glsl">
+        <file>glsl/viewer.fsh</file>
+        <file>glsl/viewer.vsh</file>
+    </qresource>
+</RCC>

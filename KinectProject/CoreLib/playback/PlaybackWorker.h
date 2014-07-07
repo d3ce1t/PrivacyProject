@@ -37,7 +37,6 @@ private:
     bool addInstance(shared_ptr<StreamInstance> instance);
     void removeInstance(shared_ptr<StreamInstance> instance);
     void clearInstances();
-    void setupListeners();
     void openAllInstances();
     void closeAllInstances();
 

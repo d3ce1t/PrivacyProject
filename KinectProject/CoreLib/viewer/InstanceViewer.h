@@ -16,6 +16,8 @@ public:
     explicit InstanceViewer();
     virtual ~InstanceViewer();
     Renderer *createRenderer() const;
+
+    // Properties
     ViewerEngine* viewerEngine() const { return m_viewerEngine; }
     void setViewerEngine(ViewerEngine *viewerEngine);
 
@@ -23,7 +25,7 @@ protected:
     void timerEvent(QTimerEvent *evt);
 
 private:
-    ViewerEngine*  m_viewerEngine;
+    ViewerEngine* m_viewerEngine;
     int m_timer;
 };
 

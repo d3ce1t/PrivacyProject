@@ -23,7 +23,10 @@ class InstanceViewerWindow : public QObject, public FrameListener
     Q_PROPERTY(float fps READ getFPS NOTIFY changeOfStatus)
 
 public:
-    InstanceViewerWindow(ViewerMode mode);
+
+    inline static void initResources() { Q_INIT_RESOURCE(corelib); }
+
+    InstanceViewerWindow();
     virtual ~InstanceViewerWindow();
     void initialise();
     const ViewerEngine* viewerEngine() const;
@@ -63,7 +66,6 @@ private:
     unsigned long           m_delayInMs;
 
     ViewerEngine*           m_viewerEngine;
-    ViewerMode              m_viewerMode;
     QQmlApplicationEngine   m_qmlEngine;
     QQuickWindow*           m_quickWindow;
 

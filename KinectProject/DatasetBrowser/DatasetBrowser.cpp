@@ -123,28 +123,21 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
 
     if (instance)
     {
-        ViewerMode mode;
-
-        if (info.getType() == DataFrame::Color || info.getType() == DataFrame::Mask) {
-            mode = MODE_2D;
-        } else if (info.getType() == DataFrame::Depth || info.getType() == DataFrame::Skeleton) {
-            mode = MODE_3D;
-        }
-
-        InstanceViewerWindow* windowViewer = new InstanceViewerWindow(mode);
+        InstanceViewerWindow* windowViewer = new InstanceViewerWindow;
         windowViewer->initialise();
 
         m_playback.stop();
         m_playback.clearInstances();
         m_playback.addInstance(instance);
-        m_playback.addListener(windowViewer);
+        m_playback.addListener(&m_depthFilter);
+        m_depthFilter.addListener(windowViewer);
 
         try {
             m_playback.play();
             windowViewer->setTitle("Instance Viewer");
             windowViewer->show();
         }
-        catch (CannotOpenInstanceException ex)
+        catch (CannotOpenInstanceException)
         {
             QMessageBox::warning(this, tr("Error reading the instance"),
                                            tr("The selected instance cannot be opened maybe\n"

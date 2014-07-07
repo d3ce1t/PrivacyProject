@@ -31,7 +31,6 @@ private:
     bool m_running;
     QWaitCondition m_sync;
     QMutex m_syncLock;
-    QMutex m_loopLock;
     bool m_workInProgress;
 
 };

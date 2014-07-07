@@ -12,13 +12,12 @@ FrameNotifier::FrameNotifier(FrameListener *listener)
 {
 }
 
-// Al destroirme, espero a que el último trabajo finalice
+// Al destruirme, espero a que el último trabajo finalice
 FrameNotifier::~FrameNotifier()
 {
     stop();
-    m_loopLock.lock();
-    m_loopLock.unlock();
     m_listener = nullptr;
+    qDebug() << "FrameNotifier::~FrameNotifier()";
 }
 
 void FrameNotifier::stop()
@@ -30,12 +29,13 @@ void FrameNotifier::stop()
         m_sync.wakeOne();
     }
     m_syncLock.unlock();
+
+    if (QThread::currentThread() != this)
+        this->wait();
 }
 
 void FrameNotifier::run()
 {
-    m_loopLock.lock();
-
     while (m_running)
     {
         if (waitingForNewOrder()) {
@@ -44,8 +44,8 @@ void FrameNotifier::run()
         done();
     }
 
-    m_loopLock.unlock();
-    qDebug() << "Notifier finished";
+    m_listener->afterStop();
+    qDebug() << "FrameNotifier::run() is over";
 }
 
 // While the notifier is working, new notifications are ignored

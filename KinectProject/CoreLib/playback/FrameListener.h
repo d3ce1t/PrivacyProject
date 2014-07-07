@@ -14,6 +14,7 @@ class FrameListener
     friend class FrameNotifier;
 
 public:
+    FrameListener();
     virtual ~FrameListener();
 
     /**
@@ -27,6 +28,7 @@ public:
     virtual void newFrames(const QHashDataFrames dataFrames) = 0;
 
 protected:
+    virtual void afterStop() {}
     FrameGenerator* producerHandler();
     bool hasExpired();
     void stopListener();

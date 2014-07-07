@@ -26,12 +26,13 @@ public:
     QElapsedTimer superTimer;
 
 protected:
+    void restartStats();
     qint64 productsCount();
     int subscribersCount() const;
     virtual QHashDataFrames produceFrames() = 0;
 
 private:
-    void notifyListeners(const QHashDataFrames dataFrames);
+    void notifyListeners(const QHashDataFrames dataFrames, qint64 frameId);
     bool isValidFrame(qint64 frameIndex);
 
     QReadWriteLock        m_listenersLock;

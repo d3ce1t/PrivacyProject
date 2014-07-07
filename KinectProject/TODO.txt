@@ -7,10 +7,27 @@ DONE:
 
 - OgreScene: Copiar los frames igual que el resto de viewers.
 
-QUEUE:
-
 - Separar la parte de procesamiento de filtros del propio viewer.
 
+QUEUE:
+
+- Cablear filtros con la interfaz.
+
 - Arreglar DatasetBrowser. Crear varios playbacks para tener la funcionalidad de antes.
+
+- (Optimización) PlaybackWorker: Implementar double buffer en la lectura de frames. Podría permitir funcionar a 30 fps (ahora mismo no se puede)
+
+Available Time (ms) 32.8086 Remaining (ms) 22.3371 Offset (ms) -0.742567
+Available Time (ms) 32.5908 Remaining (ms) 21.9985 Offset (ms) -0.101918
+Available Time (ms) 33.2314 Remaining (ms) 22.2407 Offset (ms) -1.48796
+Available Time (ms) 31.8454 Remaining (ms) 19.5186 Offset (ms) -0.560542
+Available Time (ms) 32.7728 Remaining (ms) 12.9701 Offset (ms) -0.125158
+Available Time (ms) 33.2082 Remaining (ms) 4.83089 Offset (ms) -1.00287    <---
+Available Time (ms) 32.3305 Remaining (ms) -2.89966 Offset (ms) -2.89966
+Available Time (ms) 30.4337 Remaining (ms) -9.37023 Offset (ms) -9.37023
+Available Time (ms) 23.9631 Remaining (ms) -15.2848 Offset (ms) -15.2848
+Available Time (ms) 18.0486 Remaining (ms) -22.5323 Offset (ms) -22.533
+Available Time (ms) 10.8004 Remaining (ms) -29.821 Offset (ms) -29.8216
+Available Time (ms) 3.51176 Remaining (ms) -29.8867 Offset (ms) -29.8867
 
 - (Optimización) Viewer: Tener en cuenta el límite de tipos de frames para reservar memoria donde éstos se copiarán (así evito crear y destruir memoria todo el tiempo). Sugerencia: C++11 operación de movimiento.

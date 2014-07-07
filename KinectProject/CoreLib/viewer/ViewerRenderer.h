@@ -2,13 +2,13 @@
 #define VIEWERRENDERER_H
 
 #include <QtQuick/QQuickFramebufferObject>
-#include "viewer/ViewerEngine.h"
-#include "viewer/InstanceViewer.h"
+
+class ViewerEngine;
 
 class ViewerRenderer : public QQuickFramebufferObject::Renderer
 {
 public:
-    ViewerRenderer(const InstanceViewer* viewer);
+    ViewerRenderer();
     void setViewerEngine(ViewerEngine* engine);
 
 protected:
@@ -16,7 +16,6 @@ protected:
 
 private:
     ViewerEngine* m_viewerEngine;
-    InstanceViewer* m_viewer;
 };
 
 #endif // VIEWERRENDERER_H

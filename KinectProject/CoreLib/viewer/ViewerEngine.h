@@ -3,21 +3,11 @@
 
 #include <QObject>
 #include <QQuickWindow>
-#include "viewer/Scene3DPainter.h"
-#include "types/MaskFrame.h"
 #include "types/ColorFrame.h"
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
-
-namespace dai {
-
-    enum ViewerMode {
-        MODE_2D,
-        MODE_3D
-    };
-}
 
 using namespace dai;
 
@@ -28,11 +18,10 @@ class ViewerEngine : public QObject, public QOpenGLFunctions
     Q_OBJECT
 
 public:
-    ViewerEngine(dai::ViewerMode mode = MODE_2D);
+    ViewerEngine();
     ~ViewerEngine();
     void startEngine(QQuickWindow *window);
     bool running() const;
-    shared_ptr<dai::ScenePainter> scene();
     void renderOpenGLScene(QOpenGLFramebufferObject *fbo);
     void setInstanceViewer(InstanceViewer* viewer);
     InstanceViewer* viewer();
@@ -60,14 +49,10 @@ private:
     void initialise();
     void prepareShaderProgram();
     void prepareVertexBuffer();
-    void render2D(QOpenGLFramebufferObject* fboDisplay);
 
     QQuickWindow*            m_quickWindow;
-    shared_ptr<Scene3DPainter> m_scene;
     QMutex                   m_dataLock;
-    ViewerMode               m_mode;
     bool                     m_running;
-    QSize                    m_size;
     bool                     m_initialised;
     shared_ptr<ColorFrame>   m_colorFrame;
     bool                     m_needLoading;

@@ -2,12 +2,9 @@
 #include "ui_mainwindow.h"
 #include <QDebug>
 #include <QtWidgets/QDesktopWidget>
-#include <fstream>
 #include <iostream>
 #include "openni/OpenNIColorInstance.h"
-#include "openni/OpenNIDepthInstance.h"
 #include "openni/OpenNIUserTrackerInstance.h"
-#include "filters/PrivacyFilter.h"
 
 using namespace std;
 
@@ -16,6 +13,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {   
     ui->setupUi(this);
+
+    m_playback.setFPS(15);
 
     // Show this window centered
     QDesktopWidget *desktop = QApplication::desktop();
@@ -50,37 +49,39 @@ void MainWindow::on_btnStartKinect_clicked()
     shared_ptr<dai::OpenNIUserTrackerInstance> userTrackerInstance = make_shared<dai::OpenNIUserTrackerInstance>();
 
     // Create Main Producer
-    dai::PlaybackControl* playback = new dai::PlaybackControl;
-    playback->setFPS(20);
-    playback->addInstance(colorInstance);
-    playback->addInstance(userTrackerInstance);
+    m_playback.clearInstances();
+    m_playback.addInstance(colorInstance);
+    m_playback.addInstance(userTrackerInstance);
 
     // Create PrivacyNode
-    dai::PrivacyFilter* privacyFilter = new dai::PrivacyFilter;
-    playback->addListener(privacyFilter);
+    m_playback.addListener(&m_privacyFilter);
 
     // Create viewers
-    m_viewer = new dai::InstanceViewerWindow(dai::MODE_2D);
-    m_ogreScene = new OgreScene;
+    m_viewer = new dai::InstanceViewerWindow;
+    dai::InstanceViewerWindow* viewerSrc = new dai::InstanceViewerWindow;
+    /*m_ogreScene = new OgreScene;
     connect(m_viewer, &dai::InstanceViewerWindow::destroyed, m_ogreScene, &OgreScene::deleteLater);
     m_viewer->qmlEngine().rootContext()->setContextProperty("Scene", m_ogreScene);
     m_viewer->qmlEngine().rootContext()->setContextProperty("Camera", m_ogreScene->cameraNode());
-    m_viewer->qmlEngine().rootContext()->setContextProperty("OgreEngine", m_ogreScene->engine());
+    m_viewer->qmlEngine().rootContext()->setContextProperty("OgreEngine", m_ogreScene->engine());*/
     m_viewer->initialise();
+    viewerSrc->initialise();
 
     // start Ogre once we are in the rendering thread (Ogre must live in the rendering thread)
-    connect(m_viewer->quickWindow(), &QQuickWindow::beforeSynchronizing, this, &MainWindow::initialiseOgre, Qt::DirectConnection);
-    connect(m_viewer->viewerEngine(), &ViewerEngine::plusKeyPressed, this, &MainWindow::onPlusKeyPressed);
-    connect(m_viewer->viewerEngine(), &ViewerEngine::minusKeyPressed, this, &MainWindow::onMinusKeyPressed);
-    connect(m_viewer->viewerEngine(), &ViewerEngine::spaceKeyPressed, this, &MainWindow::onSpaceKeyPressed);
+    //connect(m_viewer->quickWindow(), &QQuickWindow::beforeSynchronizing, this, &MainWindow::initialiseOgre, Qt::DirectConnection);
+    //connect(m_viewer->viewerEngine(), &ViewerEngine::plusKeyPressed, this, &MainWindow::onPlusKeyPressed);
+    //connect(m_viewer->viewerEngine(), &ViewerEngine::minusKeyPressed, this, &MainWindow::onMinusKeyPressed);
+    //connect(m_viewer->viewerEngine(), &ViewerEngine::spaceKeyPressed, this, &MainWindow::onSpaceKeyPressed);
 
-    // Connect playback with viewers
-    privacyFilter->addListener(m_viewer);
-    privacyFilter->addListener(m_ogreScene);
+    // Connect viewers
+    m_playback.addListener(viewerSrc);
+    m_privacyFilter.addListener(m_viewer);
+    //privacyFilter->addListener(m_ogreScene);
 
     // Run
     m_viewer->show();
-    playback->play();
+    viewerSrc->show();
+    m_playback.play();
 }
 
 void MainWindow::onPlusKeyPressed()

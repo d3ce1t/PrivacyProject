@@ -56,7 +56,8 @@ SOURCES += \
     types/MaskFrame.cpp \
     playback/FrameGenerator.cpp \
     playback/FrameListener.cpp \
-    playback/FrameNotifier.cpp
+    playback/FrameNotifier.cpp \
+    viewer/DepthFilter.cpp
 
 HEADERS += \
     types/Vector3D.h \
@@ -105,7 +106,8 @@ HEADERS += \
     types/MaskFrame.h \
     playback/FrameGenerator.h \
     playback/FrameListener.h \
-    playback/FrameNotifier.h
+    playback/FrameNotifier.h \
+    viewer/DepthFilter.h
 
 unix:!macx {
 
@@ -117,4 +119,5 @@ win32 {
 
 OTHER_FILES +=
 
-RESOURCES +=
+RESOURCES += \
+    corelib.qrc

@@ -1,9 +1,11 @@
 #include <QApplication>
 #include "DatasetBrowser.h"
 #include "Config.h"
+#include "viewer/InstanceViewerWindow.h"
 
 int main(int argc, char *argv[])
 {
+    InstanceViewerWindow::initResources();
     QApplication a(argc, argv);
 
     // For QSettings

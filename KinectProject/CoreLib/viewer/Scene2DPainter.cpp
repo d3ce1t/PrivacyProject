@@ -9,17 +9,32 @@
 namespace dai {
 
 Scene2DPainter::Scene2DPainter()
+    : m_shaderProgram(nullptr)
+    , m_fboFirstPass(nullptr)
+    , m_fboSecondPass(nullptr)
 {
     m_currentFilter = QMLEnumsWrapper::FILTER_DISABLED;
 }
 
 Scene2DPainter::~Scene2DPainter()
 {
-    m_fboFirstPass->release();
-    m_fboSecondPass->release();
-    delete m_fboFirstPass;
-    delete m_fboSecondPass;
-    m_shaderProgram->removeAllShaders();
+    if (m_shaderProgram) {
+        m_shaderProgram->removeAllShaders();
+        delete m_shaderProgram;
+        m_shaderProgram = nullptr;
+    }
+
+    if (m_fboFirstPass) {
+        m_fboFirstPass->release();
+        delete m_fboFirstPass;
+        m_fboFirstPass = nullptr;
+    }
+
+    if (m_fboSecondPass) {
+        m_fboSecondPass->release();
+        delete m_fboSecondPass;
+        m_fboSecondPass = nullptr;
+    }
 }
 
 void Scene2DPainter::setMask(shared_ptr<MaskFrame> mask)

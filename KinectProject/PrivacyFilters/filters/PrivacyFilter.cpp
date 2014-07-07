@@ -13,6 +13,7 @@ PrivacyFilter::PrivacyFilter()
     : m_glContext(nullptr)
     , m_gles(nullptr)
     , m_initialised(false)
+    , m_scene(nullptr)
     , m_fboDisplay(nullptr)
 {
     QSurfaceFormat format;
@@ -34,18 +35,8 @@ PrivacyFilter::PrivacyFilter()
 PrivacyFilter::~PrivacyFilter()
 {
    stopListener();
-
-   if (m_fboDisplay) {
-       delete m_fboDisplay;
-       m_fboDisplay = nullptr;
-   }
-
-   if (m_glContext) {
-       delete m_glContext;
-       m_glContext = nullptr;
-   }
-
-   m_gles = nullptr;
+   freeResources();
+   qDebug() << "PrivacyFilter::~PrivacyFilter";
 }
 
 void PrivacyFilter::initialise()
@@ -75,8 +66,37 @@ void PrivacyFilter::initialise()
         throw 2;
     }
 
+    m_scene = new Scene2DPainter;
+
     m_glContext->doneCurrent();
     m_initialised = true;
+}
+
+void PrivacyFilter::freeResources()
+{
+    if (m_glContext)
+    {
+        m_glContext->makeCurrent(&m_surface);
+
+        if (m_scene) {
+            delete m_scene;
+            m_scene = nullptr;
+        }
+
+        if (m_fboDisplay) {
+            m_fboDisplay->release();
+            delete m_fboDisplay;
+            m_fboDisplay = nullptr;
+        }
+
+        m_glContext->doneCurrent();
+
+        delete m_glContext;
+        m_glContext = nullptr;
+    }
+
+    m_gles = nullptr;
+    m_initialised = false;
 }
 
 // This method is called from a thread from the PlaybackControl
@@ -96,13 +116,20 @@ void PrivacyFilter::newFrames(const QHashDataFrames dataFrames)
 
     // Check if the frames has been copied correctly
     if (!hasExpired()) {
-        if (!generate()) {
-            qDebug() << "PrivacyFilter: Nothing produced";
+        bool newFrames = generate();
+        if (subscribersCount() == 0 || !newFrames) {
+            qDebug() << "PrivacyFilter: No listeners or Nothing produced";
+            stopListener();
         }
     }
     else {
         qDebug() << "Frame has expired!";
     }
+}
+
+void PrivacyFilter::afterStop()
+{
+    freeResources();
 }
 
 QHashDataFrames PrivacyFilter::produceFrames()
@@ -133,18 +160,18 @@ QHashDataFrames PrivacyFilter::produceFrames()
     //
     // Prepare Scene
     //
-    shared_ptr<SilhouetteItem> silhouetteItem = static_pointer_cast<SilhouetteItem>(m_scene.getFirstItem(ITEM_SILHOUETTE));
-    shared_ptr<SkeletonItem> skeletonItem = static_pointer_cast<SkeletonItem>(m_scene.getFirstItem(ITEM_SKELETON));
+    shared_ptr<SilhouetteItem> silhouetteItem = static_pointer_cast<SilhouetteItem>(m_scene->getFirstItem(ITEM_SILHOUETTE));
+    shared_ptr<SkeletonItem> skeletonItem = static_pointer_cast<SkeletonItem>(m_scene->getFirstItem(ITEM_SKELETON));
 
     // Clear items of the scene
-    m_scene.clearItems();
+    m_scene->clearItems();
 
     // Background of Scene
     if (m_frames.contains(DataFrame::Color))
     {
         if (m_frames.contains(DataFrame::Mask))
         {
-            m_scene.setMask(static_pointer_cast<MaskFrame>(m_frames.value(DataFrame::Mask)));
+            m_scene->setMask(static_pointer_cast<MaskFrame>(m_frames.value(DataFrame::Mask)));
 
             // Add silhuette item to the scene
             if (!silhouetteItem)
@@ -152,10 +179,10 @@ QHashDataFrames PrivacyFilter::produceFrames()
 
             //silhouetteItem->setDrawingEffect(SilhouetteItem::EFFECT_BLUR);
             silhouetteItem->setUser( static_pointer_cast<MaskFrame>(m_frames.value(DataFrame::Mask)) );
-            m_scene.addItem(silhouetteItem);
+            m_scene->addItem(silhouetteItem);
         }
 
-        m_scene.setBackground(m_frames.value(DataFrame::Color));
+        m_scene->setBackground(m_frames.value(DataFrame::Color));
     }
 
     // Add skeleton item to the scene
@@ -165,11 +192,11 @@ QHashDataFrames PrivacyFilter::produceFrames()
             skeletonItem.reset(new SkeletonItem);
 
         skeletonItem->setSkeleton( static_pointer_cast<SkeletonFrame>(m_frames.value(DataFrame::Skeleton)) );
-        m_scene.addItem(skeletonItem);
+        m_scene->addItem(skeletonItem);
     }
 
-    m_scene.enableFilter(QMLEnumsWrapper::FILTER_SKELETON);
-    m_scene.markAsDirty();
+    m_scene->enableFilter(QMLEnumsWrapper::FILTER_BLUR);
+    m_scene->markAsDirty();
 
     //
     // Render scene offscreen
@@ -178,8 +205,14 @@ QHashDataFrames PrivacyFilter::produceFrames()
     {
         shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(m_frames.value(DataFrame::Color));
         m_glContext->makeCurrent(&m_surface);
-        m_scene.setSize(640, 480);
-        m_scene.renderScene(m_fboDisplay);
+        m_scene->setSize(m_fboDisplay->width(), m_fboDisplay->height());
+        m_scene->renderScene(m_fboDisplay);
+
+        // We need to flush the contents to the FBO before posting
+        // the texture to the other thread, otherwise, we might
+        // get unexpected results.
+        m_gles->glFlush();
+
         // Copy data back to ColorFrame
         m_gles->glReadPixels(0,0, 640, 480, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*) colorFrame->getDataPtr());
         m_glContext->doneCurrent();

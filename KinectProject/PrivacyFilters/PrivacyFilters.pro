@@ -43,9 +43,7 @@ OTHER_FILES += \
     glsl/scene2d.fsh \
     glsl/scene2d.vsh \
     glsl/skeleton.fsh \
-    glsl/skeleton.vsh \
-    glsl/viewer.vsh \
-    glsl/viewer.fsh
+    glsl/skeleton.vsh
 
 RESOURCES += openglunderqml.qrc
 
