@@ -218,11 +218,6 @@ void ViewerEngine::prepareVertexBuffer()
     m_vao.release();
 }
 
-void ViewerEngine::enableFilter(int filter)
-{
-
-}
-
 void ViewerEngine::resetPerspective()
 {
     //m_scene->resetPerspective();

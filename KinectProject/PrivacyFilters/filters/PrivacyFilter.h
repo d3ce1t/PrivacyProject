@@ -17,6 +17,7 @@ public:
     ~PrivacyFilter();
     void initialise();
     void newFrames(const QHashDataFrames dataFrames) override;
+    void enableFilter(QMLEnumsWrapper::ColorFilter filterType);
 
 protected:
     void afterStop() override;
@@ -25,6 +26,7 @@ protected:
 
 private:
     void dilateUserMask(uint8_t *labels);
+
     QHashDataFrames m_frames;
     QOpenGLContext* m_glContext;
     QOpenGLFunctions* m_gles;
@@ -32,6 +34,7 @@ private:
     bool m_initialised;
     Scene2DPainter* m_scene;
     QOpenGLFramebufferObject* m_fboDisplay;
+    QMLEnumsWrapper::ColorFilter m_filter;
 };
 
 } // End Namespace

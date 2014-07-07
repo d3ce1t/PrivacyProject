@@ -22,6 +22,7 @@ public:
     ~ViewerEngine();
     void startEngine(QQuickWindow *window);
     bool running() const;
+    void prepareScene(QHashDataFrames dataFrames);
     void renderOpenGLScene(QOpenGLFramebufferObject *fbo);
     void setInstanceViewer(InstanceViewer* viewer);
     InstanceViewer* viewer();
@@ -35,8 +36,6 @@ public slots:
     void onPlusKeyPressed();
     void onMinusKeyPressed();
     void onSpaceKeyPressed();
-    void prepareScene(QHashDataFrames dataFrames);
-    void enableFilter(int filter);
     void resetPerspective();
     void rotateAxisX(float angle);
     void rotateAxisY(float angle);

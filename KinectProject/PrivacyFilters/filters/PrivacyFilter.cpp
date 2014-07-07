@@ -15,6 +15,7 @@ PrivacyFilter::PrivacyFilter()
     , m_initialised(false)
     , m_scene(nullptr)
     , m_fboDisplay(nullptr)
+    , m_filter(QMLEnumsWrapper::FILTER_DISABLED)
 {
     QSurfaceFormat format;
     format.setMajorVersion(2);
@@ -132,6 +133,11 @@ void PrivacyFilter::afterStop()
     freeResources();
 }
 
+void PrivacyFilter::enableFilter(QMLEnumsWrapper::ColorFilter filterType)
+{
+    m_filter = filterType;
+}
+
 QHashDataFrames PrivacyFilter::produceFrames()
 {
     //
@@ -195,7 +201,7 @@ QHashDataFrames PrivacyFilter::produceFrames()
         m_scene->addItem(skeletonItem);
     }
 
-    m_scene->enableFilter(QMLEnumsWrapper::FILTER_BLUR);
+    m_scene->enableFilter(m_filter);
     m_scene->markAsDirty();
 
     //

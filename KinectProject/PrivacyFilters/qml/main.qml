@@ -2,7 +2,7 @@ import QtQuick 2.0
 import QtQuick.Controls 1.1
 import InstanceViewer 1.0
 import edu.dai.kinect 1.0
-//import Ogre 1.0
+import Ogre 1.0
 
 ApplicationWindow {
     id: mainWindow
@@ -42,89 +42,10 @@ ApplicationWindow {
                     overlayText.text = "No Filter Enabled"
                     overlayText.opacity = 1
                     overlayTextHide.start()
-                    ViewerEngine.enableFilter(ColorFilter.FILTER_DISABLED) // GPU - No Filter
                     Scene.enableFilter(false)
                 }
             }
 
-            MenuItem {
-                text: "Invisibility"
-                checkable: true
-                exclusiveGroup: privacyFilter
-                shortcut: "Ctrl+1"
-                onTriggered: {
-                    overlayText.text = "Invisibility Filter Enabled"
-                    overlayText.opacity = 1
-                    overlayTextHide.start()
-                    ViewerEngine.enableFilter(ColorFilter.FILTER_INVISIBILITY) // GPU
-                    Scene.enableFilter(false)
-                }
-            }
-            MenuItem {
-                text: "Blur"
-                checkable: true
-                exclusiveGroup: privacyFilter
-                shortcut: "Ctrl+2"
-                onTriggered: {
-                    overlayText.text = "Blur Filter Enabled"
-                    overlayText.opacity = 1
-                    overlayTextHide.start()
-                    ViewerEngine.enableFilter(ColorFilter.FILTER_BLUR) // GPU
-                    Scene.enableFilter(false)
-                }
-            }
-            MenuItem {
-                text: "Pixelation"
-                checkable: true
-                exclusiveGroup: privacyFilter
-                shortcut: "Ctrl+3"
-                onTriggered: {
-                    overlayText.text = "Pixelation Filter Enabled"
-                    overlayText.opacity = 1
-                    overlayTextHide.start()
-                    ViewerEngine.enableFilter(ColorFilter.FILTER_PIXELATION) // GPU
-                    Scene.enableFilter(false)
-                }
-            }
-            MenuItem {
-                text: "Emboss"
-                checkable: true
-                exclusiveGroup: privacyFilter
-                shortcut: "Ctrl+4"
-                onTriggered: {
-                    overlayText.text = "Emboss Filter Enabled"
-                    overlayText.opacity = 1
-                    overlayTextHide.start()
-                    ViewerEngine.enableFilter(ColorFilter.FILTER_EMBOSS) // GPU
-                    Scene.enableFilter(false)
-                }
-            }
-            MenuItem {
-                text: "Silhouette"
-                checkable: true
-                exclusiveGroup: privacyFilter
-                shortcut: "Ctrl+5"
-                onTriggered: {
-                    overlayText.text = "Silhouette Filter Enabled"
-                    overlayText.opacity = 1
-                    overlayTextHide.start()
-                    ViewerEngine.enableFilter(ColorFilter.FILTER_SILHOUETTE) // GPU
-                    Scene.enableFilter(false)
-                }
-            }
-            MenuItem {
-                text: "Skeleton"
-                checkable: true
-                exclusiveGroup: privacyFilter
-                shortcut: "Ctrl+6"
-                onTriggered: {
-                    overlayText.text = "Skeleton Filter Enabled"
-                    overlayText.opacity = 1
-                    overlayTextHide.start()
-                    ViewerEngine.enableFilter(ColorFilter.FILTER_SKELETON) // GPU
-                    Scene.enableFilter(false)
-                }
-            }
             MenuItem {
                 text: "3D Model"
                 checkable: true
@@ -134,7 +55,6 @@ ApplicationWindow {
                     overlayText.text = "3D Model Filter Enabled"
                     overlayText.opacity = 1
                     overlayTextHide.start()
-                    ViewerEngine.enableFilter(ColorFilter.FILTER_INVISIBILITY) // GPU
                     Scene.enableFilter(true)
                 }
             }
@@ -177,13 +97,13 @@ ApplicationWindow {
         z: 2
     }
 
-    /*OgreItem {
+    OgreItem {
         id: ogreitem
         anchors.fill: parent
         camera: Camera
         ogreEngine: OgreEngine
         z: 1
-    }*/
+    }
 
     InstanceViewer {
         id: instanceViewer
