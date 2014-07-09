@@ -18,7 +18,6 @@ public:
 protected:
     QOpenGLFramebufferObject *createFramebufferObject(const QSize &size) override;
     void render() override;
-    void synchronize(QQuickFramebufferObject * item) override;
     void prepareShaderProgram();
 
 private:
@@ -32,9 +31,6 @@ private:
     QSGTexture* m_texture;
     QOpenGLFramebufferObject* m_fbo;
     QSize m_size;
-
-    // OpenGL identifiers
-    GLuint                   m_textureId;
 
     // Shader identifiers
     GLuint                   m_perspectiveMatrixUniform;

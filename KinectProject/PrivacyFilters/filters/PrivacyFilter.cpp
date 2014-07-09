@@ -13,7 +13,6 @@ PrivacyFilter::PrivacyFilter()
     : m_glContext(nullptr)
     , m_gles(nullptr)
     , m_initialised(false)
-    , m_scene(nullptr)
     , m_fboDisplay(nullptr)
     , m_filter(QMLEnumsWrapper::FILTER_DISABLED)
 {
@@ -31,6 +30,9 @@ PrivacyFilter::PrivacyFilter()
         qDebug() << "The surface could not be created";
         throw 1;
     }
+
+    m_scene = new Scene2DPainter;
+    m_ogreScene = new OgreScene;
 }
 
 PrivacyFilter::~PrivacyFilter()
@@ -67,9 +69,8 @@ void PrivacyFilter::initialise()
         throw 2;
     }
 
-    m_scene = new Scene2DPainter;
-
     m_glContext->doneCurrent();
+    m_ogreScene->initialise();
     m_initialised = true;
 }
 
@@ -78,6 +79,11 @@ void PrivacyFilter::freeResources()
     if (m_glContext)
     {
         m_glContext->makeCurrent(&m_surface);
+
+        if (m_ogreScene) {
+            delete m_ogreScene;
+            m_ogreScene = nullptr;
+        }
 
         if (m_scene) {
             delete m_scene;
@@ -202,6 +208,8 @@ QHashDataFrames PrivacyFilter::produceFrames()
     }
 
     m_scene->enableFilter(m_filter);
+    m_ogreScene->prepareData(m_frames);
+
     m_scene->markAsDirty();
 
     //
@@ -210,9 +218,12 @@ QHashDataFrames PrivacyFilter::produceFrames()
     if (m_frames.contains(DataFrame::Color))
     {
         shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(m_frames.value(DataFrame::Color));
+
         m_glContext->makeCurrent(&m_surface);
+        m_fboDisplay->bind();
+
         m_scene->setSize(m_fboDisplay->width(), m_fboDisplay->height());
-        m_scene->renderScene(m_fboDisplay);
+        m_scene->renderScene();
 
         // We need to flush the contents to the FBO before posting
         // the texture to the other thread, otherwise, we might
@@ -220,8 +231,13 @@ QHashDataFrames PrivacyFilter::produceFrames()
         m_gles->glFlush();
 
         // Copy data back to ColorFrame
-        m_gles->glReadPixels(0,0, 640, 480, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*) colorFrame->getDataPtr());
+        m_gles->glReadPixels(0,0, m_fboDisplay->width(), m_fboDisplay->height(), GL_RGB, GL_UNSIGNED_BYTE,
+                             (GLvoid*) colorFrame->getDataPtr());
+
+        m_fboDisplay->release();
         m_glContext->doneCurrent();
+
+        m_ogreScene->render();
     }
 
     return m_frames;

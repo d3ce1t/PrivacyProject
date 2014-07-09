@@ -95,7 +95,7 @@ void ScenePainter::resetPerspective()
     m_matrix.perspective(45, 4/3, 0.1f, 100.0f);
 }
 
-void ScenePainter::renderScene(QOpenGLFramebufferObject *fbo)
+void ScenePainter::renderScene(QOpenGLFramebufferObject *target)
 {
     if (!m_initialised)
     {
@@ -105,8 +105,10 @@ void ScenePainter::renderScene(QOpenGLFramebufferObject *fbo)
         m_initialised = true;
     }
 
-    render(fbo);
-    clearDirty();
+    if (isDirty()) {
+        render(target);
+        clearDirty();
+    }
 }
 
 void ScenePainter::renderItems()

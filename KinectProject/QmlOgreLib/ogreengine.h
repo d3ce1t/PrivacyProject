@@ -36,12 +36,6 @@ public:
     QOpenGLContext* ogreContext() const;
     QSGTexture* createTextureFromId(uint id, const QSize &size, QQuickWindow::CreateTextureOptions options = QQuickWindow::CreateTextureOption(0)) const;
 
-public slots:
-    void queueRenderingCommand();
-
-signals:
-    void beforeRendering(qint64 time_ms);
-
 protected:
     void createOgreOpengGLContext(QQuickWindow *window);
 

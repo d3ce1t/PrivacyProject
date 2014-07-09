@@ -7,6 +7,7 @@
 #include <QOffscreenSurface>
 #include <QOpenGLFramebufferObject>
 #include "viewer/Scene2DPainter.h"
+#include "ogre/OgreScene.h"
 
 namespace dai {
 
@@ -33,6 +34,7 @@ private:
     QOffscreenSurface m_surface;
     bool m_initialised;
     Scene2DPainter* m_scene;
+    OgreScene* m_ogreScene;
     QOpenGLFramebufferObject* m_fboDisplay;
     QMLEnumsWrapper::ColorFilter m_filter;
 };

@@ -31,10 +31,9 @@ public:
     void addItem(shared_ptr<SceneItem> item);
     shared_ptr<SceneItem> getFirstItem(ItemType type) const;
     void setBackground(shared_ptr<DataFrame> background);
-    void renderScene(QOpenGLFramebufferObject* fbo);
+    void renderScene(QOpenGLFramebufferObject* target = nullptr);
     void setMatrix(const QMatrix4x4& matrix);
     void markAsDirty();
-    bool isDirty() const;
     void clearDirty();
     QMatrix4x4& getMatrix();
     virtual void resetPerspective();
@@ -46,9 +45,10 @@ public:
     void loadMaskTexture(GLuint glTextureId, GLsizei width, GLsizei height, void *texture);
 
 protected:
+    bool isDirty() const;
     void renderItems();
     virtual void initialise() = 0;
-    virtual void render(QOpenGLFramebufferObject* fboDisplay) = 0;
+    virtual void render(QOpenGLFramebufferObject* target = nullptr) = 0;
 
     int                              m_scene_width;
     int                              m_scene_height;

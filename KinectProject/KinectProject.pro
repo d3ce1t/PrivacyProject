@@ -2,8 +2,8 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     CoreLib \
-    QmlOgreLib \
     DatasetBrowser \
     PrivacyFilters
+    #QmlOgreLib
     #OgreSinbad
     #QmlOgreSinbad 

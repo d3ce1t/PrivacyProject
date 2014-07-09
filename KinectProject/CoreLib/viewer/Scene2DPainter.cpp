@@ -58,13 +58,9 @@ void Scene2DPainter::initialise()
     glGenTextures(1, &m_maskTextureId);
 }
 
-void Scene2DPainter::render(QOpenGLFramebufferObject *fboDisplay)
+void Scene2DPainter::render(QOpenGLFramebufferObject *target)
 {
     Q_ASSERT(m_bg == nullptr || m_bg->getType() == DataFrame::Color);
-
-    if (!isDirty()) {
-        return;
-    }
 
     // Init Each Frame (because QtQuick could change it)
     glDepthRange(0.0f, 1.0f);
@@ -77,7 +73,7 @@ void Scene2DPainter::render(QOpenGLFramebufferObject *fboDisplay)
     // Configure ViewPort and Clear Screen
     glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
     glClearDepth(1.0f);
-    //glViewport(0, 0, 640, 480);
+    glViewport(0, 0, 640, 480);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Draw Background
@@ -97,14 +93,8 @@ void Scene2DPainter::render(QOpenGLFramebufferObject *fboDisplay)
     // Stage 2
     renderItems(); // items first-pass rendering (fboFirstPass)
 
-    // Stage 4
-    if (fboDisplay) {
-        fboDisplay->bind();
-    } else {
-        QOpenGLFramebufferObject::bindDefault();
-    }
-
-    displayRenderedTexture(); // here framebuffer (display) and second-pass rendering
+    // Stage 3
+    displayRenderedTexture(target); // here framebuffer (display) and second-pass rendering
 
     m_shaderProgram->release();
 
@@ -264,7 +254,7 @@ void Scene2DPainter::renderItems()
     }
 
     glFlush();
-    m_fboFirstPass->release();
+    //m_fboFirstPass->release();
 
     // Second-pass (write to fboSecondPass, read from fboFirstPass)
     m_fboSecondPass->bind();
@@ -294,11 +284,14 @@ void Scene2DPainter::renderItems()
     }
 
     glFlush();
-    m_fboSecondPass->release();
+    //m_fboSecondPass->release();
 }
 
-void Scene2DPainter::displayRenderedTexture()
+void Scene2DPainter::displayRenderedTexture(QOpenGLFramebufferObject* target)
 {
+    if (target)
+        target->bind();
+
     m_shaderProgram->bind();
     m_shaderProgram->setUniformValue(m_stageUniform, 3);
 

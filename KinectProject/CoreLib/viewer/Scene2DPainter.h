@@ -25,14 +25,14 @@ protected:
     void setupTextures();
     void renderItems();
     void initialise() override;
-    void render(QOpenGLFramebufferObject* fboDisplay) override;
+    void render(QOpenGLFramebufferObject* target) override;
 
 private:
     void createFrameBuffer();
     void enableBGRendering();
     void extractBackground();
     void renderBackground();
-    void displayRenderedTexture();
+    void displayRenderedTexture(QOpenGLFramebufferObject *target = nullptr);
     void prepareShaderProgram();
     void prepareVertexBuffer();
 

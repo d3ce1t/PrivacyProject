@@ -15,7 +15,6 @@ HEADERS += \
     openni/OpenNIColorInstance.h \
     openni/OpenNIRuntime.h \
     ogre/SinbadCharacterController.h \
-    ogre/cameranodeobject.h \
     ogre/OgreScene.h \
     openni/OpenNIUserTrackerInstance.h \
     ogre/OgrePointCloud.h \
@@ -28,7 +27,6 @@ SOURCES += \
     openni/OpenNIColorInstance.cpp \
     openni/OpenNIRuntime.cpp \
     ogre/SinbadCharacterController.cpp \
-    ogre/cameranodeobject.cpp \
     ogre/OgreScene.cpp \
     openni/OpenNIUserTrackerInstance.cpp \
     ogre/OgrePointCloud.cpp \
@@ -56,12 +54,6 @@ unix:!macx {
     PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/libCoreLib.a
     INCLUDEPATH += $$PWD/../CoreLib
     DEPENDPATH += $$PWD/../CoreLib
-
-    # QmlOgreLib
-    LIBS += -L$$OUT_PWD/../QmlOgreLib/ -lQmlOgre
-    PRE_TARGETDEPS += $$OUT_PWD/../QmlOgreLib/libQmlOgre.a
-    INCLUDEPATH += $$PWD/../QmlOgreLib
-    DEPENDPATH += $$PWD/../QmlOgreLib
 
     # Ogre
     CONFIG += link_pkgconfig
@@ -102,28 +94,30 @@ win32 {
     !win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/release/CoreLib.lib
     else:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/debug/CoreLib.lib
 
-    # QmlOgreLib
-    INCLUDEPATH += $$PWD/../QmlOgreLib
-    DEPENDPATH += $$PWD/../QmlOgreLib
-    # Link Dynamic
-    CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../QmlOgreLib/release/ -lQmlOgre
-    else:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../QmlOgreLib/debug/ -lQmlOgre
-    # Link Static
-    !win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../QmlOgreLib/release/QmlOgre.lib
-    else:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../QmlOgreLib/debug/QmlOgre.lib
-
     # Ogre
     OGREDIR = $$(OGRE_HOME)
     isEmpty(OGREDIR) {
         error(PrivacyFilters needs Ogre to be built. Please set the environment variable OGRE_HOME pointing to your Ogre root directory.)
     } else {
-        message(Using Ogre libraries in $$OGREDIR)
+        message(Using $$(OGRE_HOME))
         INCLUDEPATH += $$OGREDIR/include/OGRE
         INCLUDEPATH += $$OGREDIR/include/OGRE/RenderSystems/GL
+        CONFIG(release, debug|release) {
+            LIBS += -L$$OGREDIR/lib/release -L$$OGREDIR/lib/release/opt -lOgreMain -lRenderSystem_GL
+        } else {
+            LIBS += -L$$OGREDIR/lib/debug -L$$OGREDIR/lib/debug/opt -lOgreMain_d -lRenderSystem_GL_d
+        }
+    }
 
-        BOOSTDIR = $$OGREDIR/boost
-        !isEmpty(BOOSTDIR) {
-            INCLUDEPATH += $$BOOSTDIR
+    # Boost
+    BOOSTDIR = $$(BOOST_ROOT)
+    BOOSTLIB = $$(BOOST_LIBRARYDIR)
+    !isEmpty(BOOSTDIR) {
+        INCLUDEPATH += $$BOOSTDIR
+        CONFIG(release, debug|release) {
+            LIBS += -L$$BOOSTLIB -lboost_date_time-vc110-mt-1_55 -lboost_thread-vc110-mt-1_55
+        } else {
+            LIBS += -L$$BOOSTLIB -lboost_date_time-vc110-mt-gd-1_55 -lboost_thread-vc110-mt-gd-1_55
         }
     }
 
@@ -187,8 +181,8 @@ win32:OpenCV.path = $$DESTDIR
 win32:OpenCV.files = $$OPENCV_DIR/opencv_core249.dll $$OPENCV_DIR/opencv_imgproc249.dll
 
 # Copy Ogre dll
-win32:CONFIG(release, debug|release): OGRE_DIR = C:\opt\OgreSDK_vc11_v1-9-0\bin\Release
-win32:CONFIG(debug, debug|release): OGRE_DIR = C:\opt\OgreSDK_vc11_v1-9-0\bin\debug
+win32:CONFIG(release, debug|release): OGRE_DIR = $$OGREDIR\bin\release
+win32:CONFIG(debug, debug|release): OGRE_DIR = $$OGREDIR\bin\debug
 win32:Ogre.path = $$DESTDIR
 win32:Ogre.files = $$OGRE_DIR/OgreMain_d.dll $$OGRE_DIR/RenderSystem_GL_d.dll $$OGRE_DIR/OgreMain.dll $$OGRE_DIR/RenderSystem_GL.dll
 

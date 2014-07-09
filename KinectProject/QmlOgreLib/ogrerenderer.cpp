@@ -85,12 +85,6 @@ void OgreRenderer::render()
     glDisable(GL_TEXTURE_2D);
 }
 
-void OgreRenderer::synchronize(QQuickFramebufferObject * item)
-{
-    Q_UNUSED(item);
-    m_engine->queueRenderingCommand();
-}
-
 QOpenGLFramebufferObject* OgreRenderer::createFramebufferObject(const QSize &size)
 {
     m_size = size;

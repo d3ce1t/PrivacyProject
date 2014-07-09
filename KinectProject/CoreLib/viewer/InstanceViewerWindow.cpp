@@ -26,6 +26,25 @@ InstanceViewerWindow::InstanceViewerWindow()
     // expose objects as QML globals
     m_qmlEngine.rootContext()->setContextProperty("Window", this);
     m_qmlEngine.rootContext()->setContextProperty("ViewerEngine", m_viewerEngine);
+
+    // Load QML app
+    m_qmlEngine.load(QUrl("qrc:///qml/qml/main.qml"));
+
+    // Get Window
+    QObject *topLevel = m_qmlEngine.rootObjects().value(0);
+    m_quickWindow = qobject_cast<QQuickWindow *>(topLevel);
+
+    if ( !m_quickWindow ) {
+        qWarning("Error: Your root item has to be a Window.");
+        return;
+    }
+
+    m_quickWindow->setTitle("Instance Viewer");
+    m_viewerEngine->startEngine(m_quickWindow);
+
+    // Windows setup
+    connect(m_quickWindow, SIGNAL(closing(QQuickCloseEvent*)), this, SLOT(deleteLater()));
+    m_initialised = true;
 }
 
 InstanceViewerWindow::~InstanceViewerWindow()
@@ -62,32 +81,6 @@ void InstanceViewerWindow::setTitle(const QString& title)
 {
     if (m_quickWindow)
         m_quickWindow->setTitle(title);
-}
-
-void InstanceViewerWindow::initialise()
-{
-    if (m_initialised)
-        return;
-
-    // Load QML app
-    m_qmlEngine.load(QUrl("qrc:///qml/qml/main.qml"));
-
-    // Get Window
-    QObject *topLevel = m_qmlEngine.rootObjects().value(0);
-    m_quickWindow = qobject_cast<QQuickWindow *>(topLevel);
-
-    if ( !m_quickWindow ) {
-        qWarning("Error: Your root item has to be a Window.");
-        return;
-    }
-
-    m_quickWindow->setTitle("Instance Viewer");
-    m_viewerEngine->startEngine(m_quickWindow);
-
-    // Windows setup
-    connect(m_quickWindow, SIGNAL(closing(QQuickCloseEvent*)), this, SLOT(deleteLater()));
-    //connect(m_viewerEngine, &ViewerEngine::frameRendered, this, &InstanceViewerWindow::completeAsyncTask);
-    m_initialised = true;
 }
 
 void InstanceViewerWindow::show()

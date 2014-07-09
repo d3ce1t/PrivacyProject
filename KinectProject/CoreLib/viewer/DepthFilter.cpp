@@ -161,7 +161,9 @@ QHashDataFrames DepthFilter::produceFrames()
 
     m_glContext->makeCurrent(&m_surface);
     m_scene->setSize(m_fboDisplay->width(), m_fboDisplay->height());
-    m_scene->renderScene(m_fboDisplay);
+    m_fboDisplay->bind();
+    m_scene->renderScene();
+    m_fboDisplay->release();
 
     // We need to flush the contents to the FBO before posting
     // the texture to the other thread, otherwise, we might

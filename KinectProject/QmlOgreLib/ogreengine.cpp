@@ -152,8 +152,3 @@ void OgreEngine::setupResources(void)
 
     Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
 }
-
-void OgreEngine::queueRenderingCommand()
-{
-   emit beforeRendering(m_timer.elapsed());
-}

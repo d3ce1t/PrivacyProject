@@ -6,7 +6,6 @@
 #include "viewer/InstanceViewerWindow.h"
 #include "InstanceWidgetItem.h"
 #include "DatasetSelector.h"
-#include <QGuiApplication>
 #include <QtWidgets/QDesktopWidget>
 #include <QTimer>
 #include <QMessageBox>
@@ -124,7 +123,6 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
     if (instance)
     {
         InstanceViewerWindow* windowViewer = new InstanceViewerWindow;
-        windowViewer->initialise();
 
         m_playback.stop();
         m_playback.clearInstances();

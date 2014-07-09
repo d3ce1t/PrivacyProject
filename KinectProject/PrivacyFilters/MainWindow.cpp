@@ -5,6 +5,7 @@
 #include <iostream>
 #include "openni/OpenNIColorInstance.h"
 #include "openni/OpenNIUserTrackerInstance.h"
+#include "ogre/OgreScene.h"
 
 using namespace std;
 
@@ -56,25 +57,17 @@ void MainWindow::on_btnStartKinect_clicked()
 
     // Create viewers
     m_viewer = new dai::InstanceViewerWindow;
-    m_ogreScene = new OgreScene;
-    connect(m_viewer, &dai::InstanceViewerWindow::destroyed, m_ogreScene, &OgreScene::deleteLater);
-    m_viewer->qmlEngine().rootContext()->setContextProperty("Scene", m_ogreScene);
-    m_viewer->qmlEngine().rootContext()->setContextProperty("Camera", m_ogreScene->cameraNode());
-    m_viewer->qmlEngine().rootContext()->setContextProperty("OgreEngine", m_ogreScene->engine());
-    m_viewer->initialise();
-
-    // start Ogre once we are in the rendering thread (Ogre must live in the rendering thread)
-    connect(m_viewer->quickWindow(), &QQuickWindow::beforeSynchronizing, this, &MainWindow::initialiseOgre, Qt::DirectConnection);
-    connect(m_viewer->viewerEngine(), &ViewerEngine::plusKeyPressed, this, &MainWindow::onPlusKeyPressed);
-    connect(m_viewer->viewerEngine(), &ViewerEngine::minusKeyPressed, this, &MainWindow::onMinusKeyPressed);
-    connect(m_viewer->viewerEngine(), &ViewerEngine::spaceKeyPressed, this, &MainWindow::onSpaceKeyPressed);
+    //OgreScene* ogreViewer = new OgreScene;
 
     // Connect viewers
     m_privacyFilter.addListener(m_viewer);
-    m_playback.addListener(m_ogreScene);
+    //m_playback.addListener(ogreViewer);
+    //connect(m_viewer->viewerEngine(), &ViewerEngine::plusKeyPressed, this, &MainWindow::onPlusKeyPressed);
+    //connect(m_viewer->viewerEngine(), &ViewerEngine::minusKeyPressed, this, &MainWindow::onMinusKeyPressed);
+    //connect(m_viewer->viewerEngine(), &ViewerEngine::spaceKeyPressed, this, &MainWindow::onSpaceKeyPressed);
 
     // Run
-    m_privacyFilter.enableFilter(QMLEnumsWrapper::FILTER_PIXELATION);
+    m_privacyFilter.enableFilter(QMLEnumsWrapper::FILTER_SKELETON);
     m_viewer->show();
     m_playback.play();
 }
@@ -106,17 +99,4 @@ void MainWindow::on_btnQuit_clicked()
 {
     //m_playback.stop();
     QApplication::exit(0);
-}
-
-void MainWindow::initialiseOgre()
-{
-    // we only want to initialize once
-    disconnect(m_viewer->quickWindow(), &QQuickWindow::beforeSynchronizing, this, &MainWindow::initialiseOgre);
-    connect(m_viewer->quickWindow(), &QQuickWindow::beforeSynchronizing, this, &MainWindow::renderScreen, Qt::DirectConnection);
-    m_ogreScene->initialiseOgre(m_viewer->quickWindow());
-}
-
-void MainWindow::renderScreen()
-{
-    m_ogreScene->renderOgre();
 }

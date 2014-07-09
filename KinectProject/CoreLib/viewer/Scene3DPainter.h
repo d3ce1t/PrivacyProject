@@ -15,7 +15,7 @@ public:
 
 protected:
     void initialise() override;
-    void render(QOpenGLFramebufferObject* fbo) override;
+    void render(QOpenGLFramebufferObject* target = nullptr) override;
 
 private:
     void prepareShaderProgram();

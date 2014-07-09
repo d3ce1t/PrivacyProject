@@ -1,50 +1,53 @@
 #ifndef OGRESCENE_H
 #define OGRESCENE_H
 
-#include "ogreitem.h"
-#include "ogreengine.h"
-#include "cameranodeobject.h"
+#include "playback/FrameListener.h"
 #include "ogre/SinbadCharacterController.h"
 #include "ogre/OgrePointCloud.h"
-#include <QObject>
-#include "playback/PlaybackControl.h"
-#include "playback/FrameListener.h"
 #include "types/DepthFrame.h"
 #include "types/ColorFrame.h"
+#include <QOpenGLContext>
+#include <QWindow>
+#include <QElapsedTimer>
 #include <QReadWriteLock>
 
-class OgreScene : public QObject, public dai::FrameListener
+class OgreScene : public dai::FrameListener
 {
-    Q_OBJECT
-
 public:
     OgreScene();
     virtual ~OgreScene();
-    CameraNodeObject* cameraNode();
-    OgreEngine* engine();
-    void initialiseOgre(QQuickWindow* quickWindow);
-    void renderOgre();
-    void newFrames(const dai::QHashDataFrames frames) override;
-
-public slots:
+    void initialise();
+    void newFrames(const dai::QHashDataFrames dataFrames);
+    void prepareData(const dai::QHashDataFrames frames);
+    void render();
     void enableFilter(bool flag);
 
 protected:
+    void setupResources();
     void createPointCloud();
     void loadDepthData(shared_ptr<dai::DepthFrame> depthFrame);
     void loadColorData(shared_ptr<dai::ColorFrame> colorFrame);
-    void createCamera(void);
-    void createScene(void);
-    void destroyScene(void);
+    void createCamera();
+    void createScene();
     void convertDepthToRealWorld(int x, int y, float distance, float &outX, float &outY) const;
 
 private:
-    QQuickWindow*           m_quickWindow;
-    CameraNodeObject*       m_cameraObject;
-    OgreEngine*             m_ogreEngine;
+    void createOpenGLContext();
+    void activateOgreContext();
+    void doneOgreContext();
+
+    Ogre::String            m_resources_cfg;
+    Ogre::String            m_plugins_cfg;
+    QOpenGLContext*         m_glContext;
+    QOpenGLFunctions*       m_gles;
+    QWindow                 m_surface;
     Ogre::Root*             m_root;
+    Ogre::RenderWindow*     m_ogreWindow;
     Ogre::Camera*           m_camera;
     Ogre::SceneManager*     m_sceneManager;
+    //Ogre::RenderTexture*    m_renderTarget;
+    //Ogre::TexturePtr        m_rttTexture;
+    Ogre::Viewport*         m_viewport;
     SinbadCharacterController* m_chara;
     QReadWriteLock          m_lock;
     dai::OgrePointCloud*    m_pointCloud;
@@ -54,7 +57,7 @@ private:
     bool                    m_initialised;
 
     qint64 m_lastTime;
-    QElapsedTimer   m_timer;
+    QElapsedTimer m_timer;
     int m_userId;
 };
 

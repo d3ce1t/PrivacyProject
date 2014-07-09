@@ -28,7 +28,6 @@ public:
 
     InstanceViewerWindow();
     virtual ~InstanceViewerWindow();
-    void initialise();
     const ViewerEngine* viewerEngine() const;
     void setTitle(const QString& title);
     void show();
