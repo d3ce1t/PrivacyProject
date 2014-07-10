@@ -39,7 +39,7 @@ void MainWindow::on_btnStartKinect_clicked()
     m_privacyFilter.addListener(m_viewer);
 
     // Run
-    m_privacyFilter.enableFilter(QMLEnumsWrapper::FILTER_SKELETON);
+    m_privacyFilter.enableFilter(FILTER_DISABLED);
     m_viewer->show();
     m_playback.play();
 }

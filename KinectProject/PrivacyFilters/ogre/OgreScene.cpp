@@ -60,11 +60,12 @@ OgreScene::~OgreScene()
         m_pointCloud = nullptr;
     }
 
-    /*Ver después, porque puede que lo tenga que ejecutar desde el contexto OGL
-     * if (m_root) {
+    if (m_root) {
+        activateOgreContext();
         delete m_root;
         m_root = nullptr;
-    }*/
+        doneOgreContext();
+    }
 }
 
 void OgreScene::initialise()
@@ -194,7 +195,6 @@ void OgreScene::createScene()
 
     // Create our character controller
     m_chara = new SinbadCharacterController(m_camera);
-    m_chara->setVisible(true);
 }
 
 void OgreScene::createPointCloud()

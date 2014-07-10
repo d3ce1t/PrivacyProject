@@ -18,7 +18,7 @@ public:
     ~PrivacyFilter();
     void initialise();
     void newFrames(const QHashDataFrames dataFrames) override;
-    void enableFilter(QMLEnumsWrapper::ColorFilter filterType);
+    void enableFilter(ColorFilter filterType);
 
 protected:
     void afterStop() override;
@@ -36,7 +36,7 @@ private:
     Scene2DPainter* m_scene;
     OgreScene* m_ogreScene;
     QOpenGLFramebufferObject* m_fboDisplay;
-    QMLEnumsWrapper::ColorFilter m_filter;
+    ColorFilter m_filter;
 };
 
 } // End Namespace

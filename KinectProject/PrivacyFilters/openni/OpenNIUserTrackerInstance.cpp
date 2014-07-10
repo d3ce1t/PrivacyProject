@@ -93,6 +93,11 @@ QList<shared_ptr<DataFrame>> OpenNIUserTrackerInstance::nextFrames()
     {
         const nite::UserData& user = users[i];
 
+        const nite::BoundingBox boundingBox = user.getBoundingBox();
+
+
+
+
         if (user.isNew()) {
             oniUserTracker.startSkeletonTracking(user.getId());
         }

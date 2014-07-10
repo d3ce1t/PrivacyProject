@@ -3,7 +3,6 @@
 #include "playback/PlaybackControl.h"
 #include "viewer/InstanceViewer.h"
 #include "viewer/SkeletonItem.h"
-#include "QMLEnumsWrapper.h"
 
 ViewerEngine::ViewerEngine()
     : m_quickWindow(nullptr)
@@ -15,7 +14,6 @@ ViewerEngine::ViewerEngine()
 {
     qmlRegisterType<ViewerEngine>("ViewerEngine", 1, 0, "ViewerEngine");
     qmlRegisterType<InstanceViewer>("InstanceViewer", 1, 0, "InstanceViewer");
-    qmlRegisterUncreatableType<QMLEnumsWrapper>("edu.dai.kinect", 1, 0, "ColorFilter", "This exports SomeState enums to QML");
 
     qRegisterMetaType<QHashDataFrames>("QHashDataFrames");
     qRegisterMetaType<PlaybackControl*>("PlaybackControl*");

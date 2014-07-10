@@ -3,8 +3,6 @@
 #include <opencv2/opencv.hpp>
 #include "viewer/SilhouetteItem.h"
 #include "viewer/SkeletonItem.h"
-#include <QImage>
-#include <QColor>
 #include <QDebug>
 
 namespace dai {
@@ -14,7 +12,7 @@ PrivacyFilter::PrivacyFilter()
     , m_gles(nullptr)
     , m_initialised(false)
     , m_fboDisplay(nullptr)
-    , m_filter(QMLEnumsWrapper::FILTER_DISABLED)
+    , m_filter(FILTER_DISABLED)
 {
     QSurfaceFormat format;
     format.setMajorVersion(2);
@@ -140,7 +138,7 @@ void PrivacyFilter::afterStop()
     freeResources();
 }
 
-void PrivacyFilter::enableFilter(QMLEnumsWrapper::ColorFilter filterType)
+void PrivacyFilter::enableFilter(ColorFilter filterType)
 {
     m_filter = filterType;
 }
@@ -209,6 +207,11 @@ QHashDataFrames PrivacyFilter::produceFrames()
     }
 
     m_scene->enableFilter(m_filter);
+    if (m_filter == FILTER_3DMODEL)
+        m_ogreScene->enableFilter(true);
+    else
+        m_ogreScene->enableFilter(false);
+
     m_ogreScene->prepareData(m_frames);
 
     m_scene->markAsDirty();

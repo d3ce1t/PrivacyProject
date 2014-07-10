@@ -13,7 +13,7 @@ Scene2DPainter::Scene2DPainter()
     , m_fboFirstPass(nullptr)
     , m_fboSecondPass(nullptr)
 {
-    m_currentFilter = QMLEnumsWrapper::FILTER_DISABLED;
+    m_currentFilter = FILTER_DISABLED;
 }
 
 Scene2DPainter::~Scene2DPainter()
@@ -192,9 +192,10 @@ void Scene2DPainter::renderBackground()
     glActiveTexture(GL_TEXTURE0 + 0);
 
     // Enable BG
-    if (m_currentFilter == QMLEnumsWrapper::FILTER_INVISIBILITY
-            || m_currentFilter == QMLEnumsWrapper::FILTER_SKELETON
-            || m_currentFilter == QMLEnumsWrapper::FILTER_SILHOUETTE)
+    if (m_currentFilter == FILTER_INVISIBILITY
+            || m_currentFilter == FILTER_SKELETON
+            || m_currentFilter == FILTER_SILHOUETTE
+            || m_currentFilter == FILTER_3DMODEL)
     {
         glBindTexture(GL_TEXTURE_2D, m_bgTextureId);
     }
@@ -217,7 +218,7 @@ void Scene2DPainter::renderItems()
     GLuint bg;
 
     // Take filters in account
-    if (m_currentFilter == QMLEnumsWrapper::FILTER_INVISIBILITY) {
+    if (m_currentFilter == FILTER_INVISIBILITY) {
         bg = m_bgTextureId;
     } else {
         bg = m_fgTextureId;
@@ -228,7 +229,7 @@ void Scene2DPainter::renderItems()
 
     if (skeletonItem) {
         if (Config::getInstance()->isFiltersEnabled()) {
-            skeletonItem->setVisible( m_currentFilter == QMLEnumsWrapper::FILTER_SKELETON ? true : false );
+            skeletonItem->setVisible( m_currentFilter == FILTER_SKELETON ? true : false );
         }
         skeletonItem->setMode3D(false);
     }
@@ -238,19 +239,19 @@ void Scene2DPainter::renderItems()
 
     if (silhouetteItem) {
         switch (m_currentFilter) {
-        case QMLEnumsWrapper::FILTER_BLUR:
+        case FILTER_BLUR:
             silhouetteItem->setDrawingEffect(SilhouetteItem::EFFECT_BLUR);
             silhouetteItem->setVisible( true );
             break;
-        case QMLEnumsWrapper::FILTER_EMBOSS:
+        case FILTER_EMBOSS:
             silhouetteItem->setDrawingEffect(SilhouetteItem::EFFECT_EMBOSS);
             silhouetteItem->setVisible( true );
             break;
-        case QMLEnumsWrapper::FILTER_PIXELATION:
+        case FILTER_PIXELATION:
             silhouetteItem->setDrawingEffect(SilhouetteItem::EFFECT_PIXELATION);
             silhouetteItem->setVisible( true );
             break;
-        case QMLEnumsWrapper::FILTER_SILHOUETTE:
+        case FILTER_SILHOUETTE:
             silhouetteItem->setDrawingEffect(SilhouetteItem::EFFECT_NORMAL);
             silhouetteItem->setVisible( true );
             break;
@@ -444,12 +445,12 @@ void Scene2DPainter::prepareVertexBuffer()
     m_vao.release();
 }
 
-void Scene2DPainter::enableFilter(QMLEnumsWrapper::ColorFilter type)
+void Scene2DPainter::enableFilter(ColorFilter type)
 {
     m_currentFilter = type;
 }
 
-QMLEnumsWrapper::ColorFilter Scene2DPainter::currentFilter() const
+ColorFilter Scene2DPainter::currentFilter() const
 {
     return m_currentFilter;
 }

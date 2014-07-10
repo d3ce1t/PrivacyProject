@@ -7,7 +7,7 @@
 #include <QOpenGLVertexArrayObject>
 #include "viewer/ScenePainter.h"
 #include "types/MaskFrame.h"
-#include "QMLEnumsWrapper.h"
+#include "types.h"
 
 namespace dai {
 
@@ -18,8 +18,8 @@ public:
     ~Scene2DPainter();
     void setMask(shared_ptr<MaskFrame> mask);
     void setAvatarTexture(GLuint avatarTexture);
-    void enableFilter(QMLEnumsWrapper::ColorFilter type);
-    QMLEnumsWrapper::ColorFilter currentFilter() const;
+    void enableFilter(ColorFilter type);
+    ColorFilter currentFilter() const;
     void resetPerspective() override;
 
 protected:
@@ -38,7 +38,7 @@ private:
     void prepareShaderProgram();
     void prepareVertexBuffer();
 
-    QMLEnumsWrapper::ColorFilter m_currentFilter;
+    ColorFilter               m_currentFilter;
     QOpenGLShaderProgram*     m_shaderProgram;
     shared_ptr<MaskFrame>     m_mask;
 

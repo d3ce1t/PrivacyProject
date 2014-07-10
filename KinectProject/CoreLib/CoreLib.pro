@@ -92,7 +92,6 @@ HEADERS += \
     viewer/SceneItem.h \
     viewer/Scene3DPainter.h \
     viewer/Scene2DPainter.h \
-    viewer/QMLEnumsWrapper.h \
     viewer/InstanceViewerWindow.h \
     viewer/InstanceViewer.h \
     viewer/CustomItem.h \
@@ -107,7 +106,8 @@ HEADERS += \
     playback/FrameGenerator.h \
     playback/FrameListener.h \
     playback/FrameNotifier.h \
-    viewer/DepthFilter.h
+    viewer/DepthFilter.h \
+    viewer/types.h
 
 unix:!macx {
 
