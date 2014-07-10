@@ -21,6 +21,9 @@ void Scene3DPainter::render(QOpenGLFramebufferObject *target)
 {
     Q_ASSERT(m_bg == nullptr || m_bg->getType() == DataFrame::Depth);
 
+    if (target)
+        target->bind();
+
     // Init Each Frame (because QtQuick could change it)
     glDepthRange(0.0f, 1.0f);
     glDepthMask(GL_TRUE);
@@ -66,6 +69,9 @@ void Scene3DPainter::render(QOpenGLFramebufferObject *target)
     glDisable(GL_BLEND);
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_DEPTH_TEST);
+
+    if (target)
+        target->release();
 }
 
 void Scene3DPainter::prepareShaderProgram()

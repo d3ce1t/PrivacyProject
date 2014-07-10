@@ -161,17 +161,14 @@ QHashDataFrames DepthFilter::produceFrames()
 
     m_glContext->makeCurrent(&m_surface);
     m_scene->setSize(m_fboDisplay->width(), m_fboDisplay->height());
-    m_fboDisplay->bind();
-    m_scene->renderScene();
-    m_fboDisplay->release();
+    m_scene->renderScene(m_fboDisplay);
 
-    // We need to flush the contents to the FBO before posting
-    // the texture to the other thread, otherwise, we might
-    // get unexpected results.
+    m_fboDisplay->bind();
     m_gles->glFlush();
 
     // Copy data back to ColorFrame
     m_gles->glReadPixels(0,0, 640, 480, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*) colorFrame->getDataPtr());
+    m_fboDisplay->release();
     m_glContext->doneCurrent();
 
     return m_frames;
