@@ -27,11 +27,6 @@ public:
     DataFrame(FrameType type);
     DataFrame(const DataFrame& other);
 
-    // Destructor
-#if (!defined _MSC_VER)
-    ~DataFrame() = default;
-#endif
-
     virtual shared_ptr<DataFrame> clone() const = 0;
     void setIndex(unsigned int index);
     unsigned int getIndex() const;

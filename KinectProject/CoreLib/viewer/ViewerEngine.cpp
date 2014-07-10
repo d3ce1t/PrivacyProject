@@ -8,18 +8,20 @@ ViewerEngine::ViewerEngine()
     : m_quickWindow(nullptr)
     , m_running(false)
     , m_initialised(false)
-    , m_needLoading(false)
     , m_colorFrame(nullptr)
+    , m_metadataFrame(nullptr)
     , m_viewer(nullptr)
 {
     qmlRegisterType<ViewerEngine>("ViewerEngine", 1, 0, "ViewerEngine");
     qmlRegisterType<InstanceViewer>("InstanceViewer", 1, 0, "InstanceViewer");
 
-    qRegisterMetaType<QHashDataFrames>("QHashDataFrames");
     qRegisterMetaType<PlaybackControl*>("PlaybackControl*");
     qRegisterMetaType<const PlaybackControl*>("const PlaybackControl*");
     qRegisterMetaType<QList<shared_ptr<StreamInstance>>>("QList<shared_ptr<StreamInstance>>");
     qRegisterMetaType<shared_ptr<SkeletonFrame>>("shared_ptr<SkeletonFrame>");
+
+    m_needLoading[0] = false;
+    m_needLoading[1] = false;
 
     m_matrix.setToIdentity();
     m_matrix.ortho(0, 640, 480, 0, -1.0, 1.0);
@@ -53,33 +55,24 @@ bool ViewerEngine::running() const
     return m_running;
 }
 
-void ViewerEngine::onPlusKeyPressed()
-{
-    emit plusKeyPressed();
-}
-
-void ViewerEngine::onMinusKeyPressed()
-{
-    emit minusKeyPressed();
-}
-
-void ViewerEngine::onSpaceKeyPressed()
-{
-    emit spaceKeyPressed();
-}
-
 // Called from notifier item
 void ViewerEngine::prepareScene(dai::QHashDataFrames dataFrames)
 {
     if (!m_running)
         return;
 
+    m_dataLock.lock();
     if (dataFrames.contains(DataFrame::Color)) {
-        m_dataLock.lock();
         m_colorFrame = static_pointer_cast<ColorFrame>(dataFrames.value(DataFrame::Color));
-        m_needLoading = true;
-        m_dataLock.unlock();
+        m_needLoading[0] = true;
     }
+
+    if (dataFrames.contains(DataFrame::Metadata)) {
+        m_metadataFrame = static_pointer_cast<MetadataFrame>(dataFrames.value(DataFrame::Metadata));
+        m_needLoading[1] = true;
+    }
+
+    m_dataLock.unlock();
 }
 
 // Called from rendered item
@@ -109,10 +102,11 @@ void ViewerEngine::renderOpenGLScene(QOpenGLFramebufferObject* fbo)
 
     m_shaderProgram->bind();
     m_shaderProgram->setUniformValue(m_perspectiveMatrixUniform, m_matrix);
+    m_shaderProgram->setUniformValue(m_noTextureUniform, 0);
 
     m_dataLock.lock();
 
-    if (m_needLoading) {
+    if (m_needLoading[0]) {
         // Load Frame
         glBindTexture(GL_TEXTURE_2D, m_colorTextureId);
         glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
@@ -121,7 +115,7 @@ void ViewerEngine::renderOpenGLScene(QOpenGLFramebufferObject* fbo)
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_colorFrame->getWidth(),  m_colorFrame->getHeight(),
                      0, GL_RGB, GL_UNSIGNED_BYTE, (void *) m_colorFrame->getDataPtr());
         glBindTexture(GL_TEXTURE_2D, 0);
-        m_needLoading = false;
+        m_needLoading[0] = false;
     }
 
     m_dataLock.unlock();
@@ -136,10 +130,43 @@ void ViewerEngine::renderOpenGLScene(QOpenGLFramebufferObject* fbo)
     m_vao.release();
     m_shaderProgram->release();
 
+    if (m_metadataFrame)
+        renderBoundingBoxes();
+
     // Restore
     glDisable(GL_BLEND);
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_DEPTH_TEST);
+}
+
+void ViewerEngine::renderBoundingBoxes()
+{
+    m_dataLock.lock();
+
+    m_shaderProgram->bind();
+    m_shaderProgram->setUniformValue(m_noTextureUniform, 1);
+
+    foreach (dai::BoundingBox bb, m_metadataFrame->boundingBoxes())
+    {
+        // OpenGL coordinates system has y-axis inverted (0 is bottom, instead of top)
+        float vertexData[] = {
+            bb.getMax().x(), 480 - bb.getMax().y(),
+            bb.getMax().x(), 480 - bb.getMin().y(),
+            bb.getMin().x(), 480 - bb.getMin().y(),
+            bb.getMin().x(), 480 - bb.getMax().y()
+        };
+
+        m_shaderProgram->enableAttributeArray(m_posAttr);
+        m_shaderProgram->setAttributeArray(m_posAttr, GL_FLOAT, vertexData, 2);
+
+        glDrawArrays(GL_LINE_LOOP, m_posAttr, 4);
+
+        m_shaderProgram->disableAttributeArray(m_posAttr);
+    }
+
+    m_shaderProgram->release();
+
+    m_dataLock.unlock();
 }
 
 void ViewerEngine::initialise()
@@ -171,8 +198,10 @@ void ViewerEngine::prepareShaderProgram()
     m_textCoordAttr = m_shaderProgram->attributeLocation("texCoord");
     m_perspectiveMatrixUniform = m_shaderProgram->uniformLocation("perspectiveMatrix");
     m_texColorFrameSampler = m_shaderProgram->uniformLocation("texColorFrame");
+    m_noTextureUniform = m_shaderProgram->uniformLocation("notexture");
 
     m_shaderProgram->bind();
+    m_shaderProgram->setUniformValue(m_noTextureUniform, 0);
     m_shaderProgram->setUniformValue(m_texColorFrameSampler, 0);
     m_shaderProgram->setUniformValue(m_perspectiveMatrixUniform, m_matrix);
     m_shaderProgram->release();

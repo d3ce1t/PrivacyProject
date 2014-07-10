@@ -2,6 +2,7 @@
 #include <QOpenGLContext>
 #include <OgreStringConverter.h>
 #include <QOpenGLFramebufferObjectFormat>
+#include <QDebug>
 
 OgreScene::OgreScene()
     : m_resources_cfg("resources.cfg")

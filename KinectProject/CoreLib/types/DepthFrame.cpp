@@ -6,20 +6,19 @@
 namespace dai {
 
 DepthFrame::DepthFrame()
-    : GenericFrame<float>(DataFrame::Depth)
 {
     m_units = METERS;
     m_nNonZeroOfPoints = 0;
 }
 
 DepthFrame::DepthFrame(int width, int height)
-    : GenericFrame<float>(width, height, DataFrame::Depth)
+    : GenericFrame<float,DataFrame::Depth>(width, height)
 {
     m_nNonZeroOfPoints = 0;
 }
 
 DepthFrame::DepthFrame(int width, int height, float *pData)
-    : GenericFrame<float>(width, height, pData, DataFrame::Depth)
+    : GenericFrame<float,DataFrame::Depth>(width, height, pData)
 {
      m_nNonZeroOfPoints = 0;
 }
@@ -30,7 +29,7 @@ DepthFrame::~DepthFrame()
 }
 
 DepthFrame::DepthFrame(const DepthFrame& other)
-    : GenericFrame<float>(other)
+    : GenericFrame<float,DataFrame::Depth>(other)
 {
     m_nNonZeroOfPoints = other.m_nNonZeroOfPoints;
 }
@@ -42,7 +41,7 @@ shared_ptr<DataFrame> DepthFrame::clone() const
 
 DepthFrame& DepthFrame::operator=(const DepthFrame& other)
 {
-    GenericFrame<float>::operator=(other);
+    GenericFrame<float,DataFrame::Depth>::operator=(other);
     m_nNonZeroOfPoints = other.m_nNonZeroOfPoints;
     return *this;
 }
@@ -59,8 +58,8 @@ DepthFrame::DistanceUnits DepthFrame::distanceUnits() const
 
 void DepthFrame::setItem(int row, int column, float value)
 {
-    uint16_t current_value = GenericFrame<float>::getItem(row, column);
-    GenericFrame<float>::setItem(row, column, value);
+    uint16_t current_value = GenericFrame<float,DataFrame::Depth>::getItem(row, column);
+    GenericFrame<float,DataFrame::Depth>::setItem(row, column, value);
 
     if (value != 0 && current_value == 0) {
         m_nNonZeroOfPoints++;

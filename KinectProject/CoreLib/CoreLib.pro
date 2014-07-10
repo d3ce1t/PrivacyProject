@@ -25,7 +25,6 @@ SOURCES += \
     types/Point3f.cpp \
     types/DepthFrame.cpp \
     types/DataFrame.cpp \
-    types/ColorFrame.cpp \
     dataset/InstanceInfo.cpp \
     dataset/DatasetMetadata.cpp \
     dataset/Dataset.cpp \
@@ -53,11 +52,12 @@ SOURCES += \
     playback/PlaybackWorker.cpp \
     types/StreamInstance.cpp \
     dataset/DataInstance.cpp \
-    types/MaskFrame.cpp \
     playback/FrameGenerator.cpp \
     playback/FrameListener.cpp \
     playback/FrameNotifier.cpp \
-    viewer/DepthFilter.cpp
+    viewer/DepthFilter.cpp \
+    types/MetadataFrame.cpp \
+    types/BoundingBox.cpp
 
 HEADERS += \
     types/Vector3D.h \
@@ -107,7 +107,9 @@ HEADERS += \
     playback/FrameListener.h \
     playback/FrameNotifier.h \
     viewer/DepthFilter.h \
-    viewer/types.h
+    viewer/types.h \
+    types/MetadataFrame.h \
+    types/BoundingBox.h
 
 unix:!macx {
 

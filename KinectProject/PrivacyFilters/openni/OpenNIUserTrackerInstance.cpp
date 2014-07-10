@@ -1,17 +1,19 @@
 #include "OpenNIUserTrackerInstance.h"
 #include <exception>
 #include <iostream>
+#include <QDebug>
 
 using namespace std;
 
 namespace dai {
 
 OpenNIUserTrackerInstance::OpenNIUserTrackerInstance()
-    : StreamInstance(DataFrame::Depth | DataFrame::Mask | DataFrame::Skeleton)
+    : StreamInstance(DataFrame::Depth | DataFrame::Mask | DataFrame::Skeleton | DataFrame::Metadata)
 {
     m_frameDepth = make_shared<DepthFrame>(640, 480);
     m_frameUser = make_shared<MaskFrame>(640, 480);
     m_frameSkeleton = make_shared<SkeletonFrame>();
+    m_frameMetadata = make_shared<MetadataFrame>();
     m_openni = nullptr;
 }
 
@@ -82,27 +84,33 @@ QList<shared_ptr<DataFrame>> OpenNIUserTrackerInstance::nextFrames()
         }
     }
 
-    // Load Skeleton
-    nite::UserTracker& oniUserTracker = m_openni->getUserTracker();
-    const nite::Array<nite::UserData>& users = oniUserTrackerFrame.getUsers();
-
+    // Process Users
     m_frameSkeleton->clear();
     m_frameSkeleton->setIndex(oniUserTrackerFrame.getFrameIndex());
+    m_frameMetadata->boundingBoxes().clear();
+    m_frameMetadata->setIndex(oniUserTrackerFrame.getFrameIndex());
+
+    nite::UserTracker& oniUserTracker = m_openni->getUserTracker();
+    const nite::Array<nite::UserData>& users = oniUserTrackerFrame.getUsers();
 
     for (int i=0; i<users.getSize(); ++i)
     {
         const nite::UserData& user = users[i];
 
-        const nite::BoundingBox boundingBox = user.getBoundingBox();
-
-
-
-
         if (user.isNew()) {
             oniUserTracker.startSkeletonTracking(user.getId());
         }
-        else if (!user.isLost())
+        else if (user.isVisible())
         {
+            // Get Boundingbox
+            const nite::BoundingBox niteBoundingBox = user.getBoundingBox();
+            const NitePoint3f bbMin = niteBoundingBox.min;
+            const NitePoint3f bbMax = niteBoundingBox.max;
+            dai::BoundingBox boundingBox(dai::Point3f(bbMin.x, bbMin.y, bbMin.z),
+                                         dai::Point3f(bbMax.x, bbMax.y, bbMax.z));
+            m_frameMetadata->boundingBoxes().append(boundingBox);
+
+            // Get Skeleton
             const nite::Skeleton& oniSkeleton = user.getSkeleton();
             const nite::SkeletonJoint& head = user.getSkeleton().getJoint(nite::JOINT_HEAD);
 
@@ -119,12 +127,16 @@ QList<shared_ptr<DataFrame>> OpenNIUserTrackerInstance::nextFrames()
                 daiSkeleton->computeQuaternions();
             }
         }
+        else if (user.isLost()) {
+            oniUserTracker.stopSkeletonTracking(user.getId());
+        }
     } // End for
 
     oniUserTrackerFrame.release();
     result.append(m_frameDepth);
     result.append(m_frameUser);
     result.append(m_frameSkeleton);
+    result.append(m_frameMetadata);
     return result;
 }
 

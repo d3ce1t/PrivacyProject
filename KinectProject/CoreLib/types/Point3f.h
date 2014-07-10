@@ -16,7 +16,6 @@ public:
     Point3f();
     explicit Point3f(double x, double y, double z);
     Point3f(const Point3f& other);
-    void set(double x, double y, double z);
     const double* dataPtr() const;
     Point3f& operator=(const Point3f& other);
     bool operator==(const Point3f& other) const;
@@ -28,6 +27,7 @@ public:
 
 private:    
     static double euclideanDistance(const Point3f& point1, const Point3f& point2);
+    void set(double x, double y, double z);
 
     double m_pos[3]; // x, y, z
 };

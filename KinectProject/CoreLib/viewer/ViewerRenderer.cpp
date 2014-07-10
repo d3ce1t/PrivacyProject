@@ -18,6 +18,5 @@ void ViewerRenderer::render()
 {
     if (m_viewerEngine) {
         m_viewerEngine->renderOpenGLScene(this->framebufferObject());
-        //update();
     }
 }

@@ -11,7 +11,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {   
     ui->setupUi(this);
-    m_playback.setFPS(20);
+    m_playback.setFPS(15);
 }
 
 MainWindow::~MainWindow()

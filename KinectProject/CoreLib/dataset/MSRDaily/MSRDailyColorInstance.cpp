@@ -1,6 +1,7 @@
 #include "MSRDailyColorInstance.h"
 #include "dataset/DatasetMetadata.h"
 #include <QThread>
+#include <QFile>
 
 namespace dai {
 

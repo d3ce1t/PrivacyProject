@@ -13,18 +13,7 @@ struct RGBColor {
     //u_int8_t alpha; // padding
 };
 
-class ColorFrame : public GenericFrame<RGBColor>
-{
-public:
-    // Constructors
-    ColorFrame();
-    ColorFrame(int width, int height);
-    ColorFrame(const ColorFrame& other);
-    ColorFrame(int width, int height, RGBColor *pData);
-
-    // Overriden operators
-    ColorFrame& operator=(const ColorFrame& other);
-};
+typedef GenericFrame<RGBColor, DataFrame::Color> ColorFrame;
 
 } // End Namespace
 

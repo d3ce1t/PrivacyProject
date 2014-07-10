@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QQuickWindow>
 #include "types/ColorFrame.h"
+#include "types/MetadataFrame.h"
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLVertexArrayObject>
@@ -27,15 +28,7 @@ public:
     void setInstanceViewer(InstanceViewer* viewer);
     InstanceViewer* viewer();
 
-signals:
-    void plusKeyPressed();
-    void minusKeyPressed();
-    void spaceKeyPressed();
-
 public slots:
-    void onPlusKeyPressed();
-    void onMinusKeyPressed();
-    void onSpaceKeyPressed();
     void resetPerspective();
     void rotateAxisX(float angle);
     void rotateAxisY(float angle);
@@ -48,13 +41,15 @@ private:
     void initialise();
     void prepareShaderProgram();
     void prepareVertexBuffer();
+    void renderBoundingBoxes();
 
     QQuickWindow*            m_quickWindow;
     QMutex                   m_dataLock;
     bool                     m_running;
     bool                     m_initialised;
     shared_ptr<ColorFrame>   m_colorFrame;
-    bool                     m_needLoading;
+    shared_ptr<MetadataFrame>m_metadataFrame;
+    bool                     m_needLoading[2];
     QOpenGLShaderProgram*    m_shaderProgram;
     QOpenGLVertexArrayObject m_vao;
     QOpenGLBuffer            m_positionsBuffer;
@@ -65,6 +60,7 @@ private:
     // Shader identifiers
     GLuint                   m_colorTextureId;
     GLuint                   m_perspectiveMatrixUniform;
+    GLuint                   m_noTextureUniform;
     GLuint                   m_posAttr;
     GLuint                   m_textCoordAttr;
     GLuint                   m_texColorFrameSampler;

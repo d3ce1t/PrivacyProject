@@ -15,7 +15,7 @@ namespace dai {
  * distance must be provided in meters.
  */
 
-class DepthFrame : public GenericFrame<float>
+class DepthFrame : public GenericFrame<float, DataFrame::Depth>
 {
 public:
 

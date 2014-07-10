@@ -6,6 +6,7 @@
 #include "types/SkeletonFrame.h"
 #include "types/MaskFrame.h"
 #include "types/DepthFrame.h"
+#include "types/MetadataFrame.h"
 
 namespace dai {
 
@@ -27,6 +28,7 @@ private:
     shared_ptr<DepthFrame> m_frameDepth;
     shared_ptr<MaskFrame> m_frameUser;
     shared_ptr<SkeletonFrame> m_frameSkeleton;
+    shared_ptr<MetadataFrame> m_frameMetadata;
 };
 
 } // End Namespace

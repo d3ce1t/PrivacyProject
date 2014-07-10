@@ -1,23 +1,13 @@
-#ifndef USERFRAME_H
-#define USERFRAME_H
+#ifndef MASK_FRAME_H
+#define MASK_FRAME_H
 
 #include "GenericFrame.h"
 
 namespace dai {
 
-class MaskFrame : public GenericFrame<uint8_t>
-{
-public:
-    // Constructors
-    MaskFrame();
-    MaskFrame(int width, int height);
-    virtual ~MaskFrame();
-    MaskFrame(const MaskFrame& other);
+typedef GenericFrame<uint8_t, DataFrame::Mask> MaskFrame;
 
-    // Overriden operators
-    MaskFrame& operator=(const MaskFrame& other);
-};
 
 } // End Namespace
 
-#endif // USERFRAME_H
+#endif // MASK_FRAME_H

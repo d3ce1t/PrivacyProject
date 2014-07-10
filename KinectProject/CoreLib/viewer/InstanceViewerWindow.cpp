@@ -9,6 +9,7 @@
 #include <QMetaEnum>
 #include <QDebug>
 #include "InstanceViewer.h"
+#include "types/MetadataFrame.h"
 
 namespace dai {
 
