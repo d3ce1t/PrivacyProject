@@ -2,7 +2,6 @@ import QtQuick 2.0
 import QtQuick.Controls 1.1
 import InstanceViewer 1.0
 import edu.dai.kinect 1.0
-//import Ogre 1.0
 
 ApplicationWindow {
     id: mainWindow
@@ -28,35 +27,6 @@ ApplicationWindow {
                 text: "Close"
                 shortcut: "Ctrl+Q"
                 onTriggered: mainWindow.close()
-            }
-        }
-        Menu {
-            title: "&Privacy Filters"
-            MenuItem {
-                text: "No Filter"
-                checkable: true
-                checked: true
-                exclusiveGroup: privacyFilter
-                shortcut: "Ctrl+0"
-                onTriggered: {
-                    overlayText.text = "No Filter Enabled"
-                    overlayText.opacity = 1
-                    overlayTextHide.start()
-                    Scene.enableFilter(false)
-                }
-            }
-
-            MenuItem {
-                text: "3D Model"
-                checkable: true
-                exclusiveGroup: privacyFilter
-                shortcut: "Ctrl+7"
-                onTriggered: {
-                    overlayText.text = "3D Model Filter Enabled"
-                    overlayText.opacity = 1
-                    overlayTextHide.start()
-                    Scene.enableFilter(true)
-                }
             }
         }
         Menu {
@@ -96,14 +66,6 @@ ApplicationWindow {
         anchors.margins: 20
         z: 2
     }
-
-    /*OgreItem {
-        id: ogreitem
-        anchors.fill: parent
-        camera: Camera
-        ogreEngine: OgreEngine
-        z: 1
-    }*/
 
     InstanceViewer {
         id: instanceViewer

@@ -1,15 +1,20 @@
 #include "OgreScene.h"
+#include <QOpenGLContext>
 #include <OgreStringConverter.h>
+#include <QOpenGLFramebufferObjectFormat>
 
 OgreScene::OgreScene()
     : m_resources_cfg("resources.cfg")
     , m_plugins_cfg("plugins.cfg")
+    , m_qtContext(nullptr)
     , m_glContext(nullptr)
-    , m_gles(nullptr)
+    , m_qtSurface(nullptr)
     , m_root(nullptr)
     , m_ogreWindow(nullptr)
     , m_camera(nullptr)
     , m_sceneManager(nullptr)
+    , m_renderTarget(nullptr)
+    , m_nativeTexture(nullptr)
     , m_viewport(nullptr)
     , m_chara(nullptr)
     , m_lastTime(0)
@@ -27,11 +32,10 @@ OgreScene::OgreScene()
     format.setStencilBufferSize(8);
     format.setSwapBehavior(QSurfaceFormat::SingleBuffer);
 
+    m_surface.setTitle("Ogre Scene");
     m_surface.setSurfaceType(QSurface::OpenGLSurface);
     m_surface.setFormat(format);
     m_surface.create();
-    m_surface.resize(640, 480);
-    m_surface.show();
 }
 
 OgreScene::~OgreScene()
@@ -67,6 +71,7 @@ void OgreScene::initialise()
 {
     createOpenGLContext();
     activateOgreContext();
+    initializeOpenGLFunctions();
 
     // Setup and Start up Ogre
     m_root = new Ogre::Root(m_plugins_cfg);
@@ -93,22 +98,16 @@ void OgreScene::initialise()
     m_sceneManager = m_root->createSceneManager(Ogre::ST_GENERIC, "mySceneManager");
 
     // First create Ogre RTT texture
-    //int samples = 4;
-    /*m_rttTexture = Ogre::TextureManager::getSingleton().createManual("RttTex",
-                                                                    Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-                                                                    Ogre::TEX_TYPE_2D,
-                                                                    640,
-                                                                    480,
-                                                                    0,
-                                                                    Ogre::PF_R8G8B8A8,
-                                                                    Ogre::TU_RENDERTARGET, 0, false,
-                                                                    samples);
-
-    m_renderTarget = m_rttTexture->getBuffer()->getRenderTarget();*/
+    Ogre::TexturePtr rttTexture = Ogre::TextureManager::getSingleton().createManual("RttTex",
+                                                                     Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+                                                                     Ogre::TEX_TYPE_2D, 640, 480, 0, Ogre::PF_R8G8B8A8,
+                                                                     Ogre::TU_RENDERTARGET, 0, false, 4);
+    m_renderTarget = rttTexture->getBuffer()->getRenderTarget();
+    m_nativeTexture = static_cast<Ogre::GLTexture *>(rttTexture.get());
 
     createCamera();
 
-    m_viewport = m_ogreWindow->addViewport(m_camera);
+    m_viewport = m_renderTarget->addViewport(m_camera);
     m_viewport->setDepthClear(1.0f);
     m_viewport->setBackgroundColour(Ogre::ColourValue(0.0f, 0.0f, 0.0f, 0.0f));
     m_viewport->setClearEveryFrame(true);
@@ -120,10 +119,15 @@ void OgreScene::initialise()
     Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
     createScene();
 
-    m_timer.start();
-
     doneOgreContext();
+
+    m_timer.start();
     m_initialised = true;
+}
+
+GLuint OgreScene::texture() const
+{
+    return m_nativeTexture->getGLID();
 }
 
 void OgreScene::setupResources()
@@ -210,32 +214,6 @@ void OgreScene::createPointCloud()
     node->attachObject(entity);
 }
 
-void OgreScene::newFrames(const dai::QHashDataFrames dataFrames)
-{
-    if (!m_initialised) {
-        initialise();
-    }
-
-    // Copy frames (1 ms)
-    dai::QHashDataFrames copyFrames;
-
-    foreach (dai::DataFrame::FrameType key, dataFrames.keys()) {
-        shared_ptr<dai::DataFrame> frame = dataFrames.value(key);
-        copyFrames.insert(key, frame->clone());
-    }
-
-    // Check if the frames has been copied correctly
-    if (!hasExpired())
-    {
-        // Do task
-        this->prepareData(copyFrames);
-        this->render();
-    }
-    else {
-        qDebug() << "Frame Read but Not Valid";
-    }
-}
-
 void OgreScene::prepareData(const dai::QHashDataFrames frames)
 {
     qint64 time_ms = m_timer.elapsed();
@@ -295,11 +273,10 @@ void OgreScene::render()
         QReadLocker locker(&m_lock);
         m_pointCloud->updateVertexPositions(m_pDepthData, m_numPoints);
         m_pointCloud->updateVertexColours(m_pColorData, 640*480);
-        //m_ogreEngine->doneOgreContext();
     }
 
-    if (m_ogreWindow) {
-        m_ogreWindow->update(true);
+    if (m_ogreWindow && m_renderTarget) {
+        m_renderTarget->update(true);
     }
 
     doneOgreContext();
@@ -380,55 +357,37 @@ void OgreScene::enableFilter(bool flag)
 
 void OgreScene::createOpenGLContext()
 {
+    m_qtContext = QOpenGLContext::currentContext();
     m_glContext = new QOpenGLContext;
     m_glContext->setFormat(m_surface.format());
+
+    if (m_qtContext) {
+        m_qtSurface = m_qtContext->surface();
+        m_glContext->setShareContext(m_qtContext);
+    } else {
+        qDebug() << "WARNING: Could not create a shared context!";
+    }
 
     if (!m_glContext->create()) {
         qDebug() << "Could not create the OpenGL context";
         throw 1;
     }
-
-    /*m_glContext->makeCurrent(&m_surface);
-    m_gles = m_glContext->functions();
-    */
 }
 
 void OgreScene::activateOgreContext()
 {
-    //glPopAttrib();
-    //glPopClientAttrib();
-
-    //m_qtContext->functions()->glUseProgram(0);
-    //m_qtContext->doneCurrent();
+    if (m_qtContext) {
+        m_qtContext->doneCurrent();
+    }
 
     m_glContext->makeCurrent(&m_surface);
 }
 
 void OgreScene::doneOgreContext()
 {
-    /*m_ogreContext->functions()->glBindBuffer(GL_ARRAY_BUFFER, 0);
-    m_ogreContext->functions()->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    m_ogreContext->functions()->glBindRenderbuffer(GL_RENDERBUFFER, 0);
-    m_ogreContext->functions()->glBindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
-
-    // unbind all possible remaining buffers; just to be on safe side
-    m_ogreContext->functions()->glBindBuffer(GL_ARRAY_BUFFER, 0);
-    m_ogreContext->functions()->glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
-    m_ogreContext->functions()->glBindBuffer(GL_COPY_READ_BUFFER, 0);
-    m_ogreContext->functions()->glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
-    m_ogreContext->functions()->glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
-//    m_ogreContext->functions()->glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, 0);
-    m_ogreContext->functions()->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    m_ogreContext->functions()->glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
-    m_ogreContext->functions()->glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
-//    m_ogreContext->functions()->glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-    m_ogreContext->functions()->glBindBuffer(GL_TEXTURE_BUFFER, 0);
-    m_ogreContext->functions()->glBindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, 0);
-    m_ogreContext->functions()->glBindBuffer(GL_UNIFORM_BUFFER, 0);
-*/
     m_glContext->doneCurrent();
 
-    //m_qtContext->makeCurrent(m_quickWindow);
-    //glPushAttrib(GL_ALL_ATTRIB_BITS);
-    //glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
+    if (m_qtContext) {
+        m_qtContext->makeCurrent(m_qtSurface);
+    }
 }

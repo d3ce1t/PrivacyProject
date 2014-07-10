@@ -17,6 +17,7 @@ public:
     Scene2DPainter();
     ~Scene2DPainter();
     void setMask(shared_ptr<MaskFrame> mask);
+    void setAvatarTexture(GLuint avatarTexture);
     void enableFilter(QMLEnumsWrapper::ColorFilter type);
     QMLEnumsWrapper::ColorFilter currentFilter() const;
     void resetPerspective() override;
@@ -33,6 +34,7 @@ private:
     void extractBackground();
     void renderBackground();
     void displayRenderedTexture(QOpenGLFramebufferObject *target = nullptr);
+    void renderComposite(QOpenGLFramebufferObject* target = nullptr);
     void prepareShaderProgram();
     void prepareVertexBuffer();
 
@@ -51,6 +53,7 @@ private:
     GLuint                   m_bgTextureId;
     GLuint                   m_fgTextureId;
     GLuint                   m_maskTextureId;
+    GLuint                   m_avatarTextureId;
 
     // Shader identifiers
     GLuint                   m_perspectiveMatrixUniform;

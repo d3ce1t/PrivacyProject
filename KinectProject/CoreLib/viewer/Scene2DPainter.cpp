@@ -42,6 +42,11 @@ void Scene2DPainter::setMask(shared_ptr<MaskFrame> mask)
     m_mask = mask;
 }
 
+void Scene2DPainter::setAvatarTexture(GLuint avatarTexture)
+{
+    m_avatarTextureId = avatarTexture;
+}
+
 void Scene2DPainter::initialise()
 {
     // Load, compile and link the shader program
@@ -62,6 +67,9 @@ void Scene2DPainter::render(QOpenGLFramebufferObject *target)
 {
     Q_ASSERT(m_bg == nullptr || m_bg->getType() == DataFrame::Color);
 
+    if (target)
+        target->bind();
+
     // Init Each Frame (because QtQuick could change it)
     glDepthRange(0.0f, 1.0f);
     glDepthMask(GL_TRUE);
@@ -69,6 +77,7 @@ void Scene2DPainter::render(QOpenGLFramebufferObject *target)
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
+    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Configure ViewPort and Clear Screen
     glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
@@ -96,12 +105,18 @@ void Scene2DPainter::render(QOpenGLFramebufferObject *target)
     // Stage 3
     displayRenderedTexture(target); // here framebuffer (display) and second-pass rendering
 
+    // Stage 4
+    renderComposite(target);
+
     m_shaderProgram->release();
 
     // Restore
     glDisable(GL_BLEND);
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_DEPTH_TEST);
+
+    if (target)
+        target->release();
 }
 
 void Scene2DPainter::setupTextures()
@@ -254,7 +269,6 @@ void Scene2DPainter::renderItems()
     }
 
     glFlush();
-    //m_fboFirstPass->release();
 
     // Second-pass (write to fboSecondPass, read from fboFirstPass)
     m_fboSecondPass->bind();
@@ -284,7 +298,7 @@ void Scene2DPainter::renderItems()
     }
 
     glFlush();
-    //m_fboSecondPass->release();
+    m_fboSecondPass->release();
 }
 
 void Scene2DPainter::displayRenderedTexture(QOpenGLFramebufferObject* target)
@@ -307,6 +321,35 @@ void Scene2DPainter::displayRenderedTexture(QOpenGLFramebufferObject* target)
 
     // Unbind FG
     glBindTexture(GL_TEXTURE_2D, 0);
+
+    glFlush();
+
+    m_shaderProgram->release();
+    m_vao.release();
+}
+
+void Scene2DPainter::renderComposite(QOpenGLFramebufferObject* target)
+{
+    if (target)
+        target->bind();
+
+    m_shaderProgram->bind();
+    m_shaderProgram->setUniformValue(m_stageUniform, 3);
+
+    // Configure Viewport
+    glViewport(0, 0, m_scene_width, m_scene_height);
+    m_vao.bind();
+
+    // Enabe FG
+    glActiveTexture(GL_TEXTURE0 + 0);
+    glBindTexture(GL_TEXTURE_2D, m_avatarTextureId);
+
+    glDrawArrays(GL_TRIANGLE_FAN, m_posAttr, 4);
+
+    // Unbind FG
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glFlush();
 
     m_shaderProgram->release();
     m_vao.release();

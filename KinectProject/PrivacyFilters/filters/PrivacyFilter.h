@@ -3,11 +3,11 @@
 
 #include "playback/FrameListener.h"
 #include "playback/FrameGenerator.h"
-#include <QOpenGLContext>
+#include "ogre/OgreScene.h"
+#include "viewer/Scene2DPainter.h"
 #include <QOffscreenSurface>
 #include <QOpenGLFramebufferObject>
-#include "viewer/Scene2DPainter.h"
-#include "ogre/OgreScene.h"
+#include <QOpenGLContext>
 
 namespace dai {
 

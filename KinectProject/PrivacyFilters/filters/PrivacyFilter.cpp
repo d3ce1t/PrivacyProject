@@ -54,6 +54,8 @@ void PrivacyFilter::initialise()
 
     m_glContext->makeCurrent(&m_surface);
     m_gles = m_glContext->functions();
+    m_ogreScene->initialise();
+    m_scene->setAvatarTexture(m_ogreScene->texture());
 
     // Create frame buffer Object
     QOpenGLFramebufferObjectFormat format;
@@ -70,7 +72,6 @@ void PrivacyFilter::initialise()
     }
 
     m_glContext->doneCurrent();
-    m_ogreScene->initialise();
     m_initialised = true;
 }
 
@@ -219,16 +220,15 @@ QHashDataFrames PrivacyFilter::produceFrames()
     {
         shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(m_frames.value(DataFrame::Color));
 
+        // Render Avatar
+        m_ogreScene->render();
+
+        // Render and compose rest of the scene
         m_glContext->makeCurrent(&m_surface);
-        m_fboDisplay->bind();
-
         m_scene->setSize(m_fboDisplay->width(), m_fboDisplay->height());
-        m_scene->renderScene();
+        m_scene->renderScene(m_fboDisplay);
 
-        // We need to flush the contents to the FBO before posting
-        // the texture to the other thread, otherwise, we might
-        // get unexpected results.
-        m_gles->glFlush();
+        m_fboDisplay->bind();
 
         // Copy data back to ColorFrame
         m_gles->glReadPixels(0,0, m_fboDisplay->width(), m_fboDisplay->height(), GL_RGB, GL_UNSIGNED_BYTE,
@@ -236,8 +236,6 @@ QHashDataFrames PrivacyFilter::produceFrames()
 
         m_fboDisplay->release();
         m_glContext->doneCurrent();
-
-        m_ogreScene->render();
     }
 
     return m_frames;
