@@ -1,7 +1,6 @@
 #ifndef OGRESCENE_H
 #define OGRESCENE_H
 
-#include <RenderSystems/GL/OgreGLTexture.h>
 #include "ogre/SinbadCharacterController.h"
 #include "ogre/OgrePointCloud.h"
 #include "types/DepthFrame.h"
@@ -50,7 +49,7 @@ private:
     Ogre::Camera*           m_camera;
     Ogre::SceneManager*     m_sceneManager;
     Ogre::RenderTexture*    m_renderTarget;
-    Ogre::GLTexture*        m_nativeTexture;
+    GLuint                  m_nativeTextureId;
     Ogre::Viewport*         m_viewport;
 
     // Character and other items

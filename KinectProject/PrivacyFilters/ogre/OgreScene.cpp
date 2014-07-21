@@ -1,30 +1,29 @@
+#include <RenderSystems/GL/OgreGLTexture.h>
 #include "OgreScene.h"
 #include <QOpenGLContext>
 #include <OgreStringConverter.h>
-#include <QOpenGLFramebufferObjectFormat>
 #include <QDebug>
 
 OgreScene::OgreScene()
-    : m_resources_cfg("resources.cfg")
-    , m_plugins_cfg("plugins.cfg")
-    , m_qtContext(nullptr)
+    : m_qtContext(nullptr)
     , m_glContext(nullptr)
     , m_qtSurface(nullptr)
+    , m_resources_cfg("resources.cfg")
+    , m_plugins_cfg("plugins.cfg")
     , m_root(nullptr)
     , m_ogreWindow(nullptr)
     , m_camera(nullptr)
     , m_sceneManager(nullptr)
     , m_renderTarget(nullptr)
-    , m_nativeTexture(nullptr)
     , m_viewport(nullptr)
     , m_chara(nullptr)
-    , m_lastTime(0)
-    , m_userId(-1)
     , m_pointCloud(nullptr)
     , m_pDepthData(nullptr)
     , m_pColorData(nullptr)
     , m_numPoints(640*480)
     , m_initialised(false)
+    , m_lastTime(0)
+    , m_userId(-1)
 {
     QSurfaceFormat format;
     format.setMajorVersion(2);
@@ -105,7 +104,9 @@ void OgreScene::initialise()
                                                                      Ogre::TEX_TYPE_2D, 640, 480, 0, Ogre::PF_R8G8B8A8,
                                                                      Ogre::TU_RENDERTARGET, 0, false, 4);
     m_renderTarget = rttTexture->getBuffer()->getRenderTarget();
-    m_nativeTexture = static_cast<Ogre::GLTexture *>(rttTexture.get());
+
+    Ogre::GLTexture* nativeTexture = static_cast<Ogre::GLTexture *>(rttTexture.get());
+    m_nativeTextureId = nativeTexture->getGLID();
 
     createCamera();
 
@@ -129,7 +130,7 @@ void OgreScene::initialise()
 
 GLuint OgreScene::texture() const
 {
-    return m_nativeTexture->getGLID();
+    return m_nativeTextureId;
 }
 
 void OgreScene::setupResources()
