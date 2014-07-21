@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QQuickWindow>
+#include <QMutex>
 #include "types/ColorFrame.h"
 #include "types/MetadataFrame.h"
 #include <QOpenGLFunctions>
@@ -27,15 +28,6 @@ public:
     void renderOpenGLScene(QOpenGLFramebufferObject *fbo);
     void setInstanceViewer(InstanceViewer* viewer);
     InstanceViewer* viewer();
-
-public slots:
-    void resetPerspective();
-    void rotateAxisX(float angle);
-    void rotateAxisY(float angle);
-    void rotateAxisZ(float angle);
-    void translateAxisX(float value);
-    void translateAxisY(float value);
-    void translateAxisZ(float value);
 
 private:
     void initialise();

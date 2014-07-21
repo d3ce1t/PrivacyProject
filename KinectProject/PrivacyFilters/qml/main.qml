@@ -117,11 +117,6 @@ ApplicationWindow {
             }
         }
 
-        // Input
-        Keys.onReturnPressed: {
-            console.log(instanceViewer.width + " " + instanceViewer.height)
-        }
-
         Keys.onPressed: {
 
             event.accepted = true;

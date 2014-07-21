@@ -244,38 +244,3 @@ void ViewerEngine::prepareVertexBuffer()
 
     m_vao.release();
 }
-
-void ViewerEngine::resetPerspective()
-{
-    //m_scene->resetPerspective();
-}
-
-void ViewerEngine::rotateAxisX(float angle)
-{
-    //m_scene->getMatrix().rotate(angle, QVector3D(1, 0, 0));
-}
-
-void ViewerEngine::rotateAxisY(float angle)
-{
-    //m_scene->getMatrix().rotate(angle, QVector3D(0, 1, 0));
-}
-
-void ViewerEngine::rotateAxisZ(float angle)
-{
-    //m_scene->getMatrix().rotate(angle, QVector3D(0, 0, 1));
-}
-
-void ViewerEngine::translateAxisX(float value)
-{
-    //m_scene->getMatrix().translate(value, 0, 0);
-}
-
-void ViewerEngine::translateAxisY(float value)
-{
-    //m_scene->getMatrix().translate(0, value, 0);
-}
-
-void ViewerEngine::translateAxisZ(float value)
-{
-    //m_scene->getMatrix().translate(0, 0, value);
-}

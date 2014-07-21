@@ -6,13 +6,13 @@
 #include <QQmlContext>
 #include "types/SkeletonFrame.h"
 #include <QObject>
-#include <QTableView>
 #include <QStandardItemModel>
-#include <QListWidget>
 #include <QMutexLocker>
 #include "playback/PlaybackControl.h"
 #include "playback/FrameListener.h"
 #include "viewer/ViewerEngine.h"
+#include <QListWidget>
+#include <QTableView>
 
 namespace dai {
 
@@ -23,9 +23,6 @@ class InstanceViewerWindow : public QObject, public FrameListener
     Q_PROPERTY(float fps READ getFPS NOTIFY changeOfStatus)
 
 public:
-
-    inline static void initResources() { Q_INIT_RESOURCE(corelib); }
-
     InstanceViewerWindow();
     virtual ~InstanceViewerWindow();
     const ViewerEngine* viewerEngine() const;

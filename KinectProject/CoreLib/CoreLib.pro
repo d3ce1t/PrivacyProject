@@ -111,15 +111,12 @@ HEADERS += \
     types/MetadataFrame.h \
     types/BoundingBox.h
 
-unix:!macx {
-
-}
-
-win32 {
-    INCLUDEPATH += $$PWD
-}
-
 OTHER_FILES +=
 
 RESOURCES += \
     corelib.qrc
+
+win32 {
+    load(moc)
+    INCLUDEPATH += $$PWD
+}

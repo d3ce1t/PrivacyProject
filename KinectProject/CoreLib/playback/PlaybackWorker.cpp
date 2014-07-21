@@ -162,7 +162,7 @@ inline void PlaybackWorker::closeAllInstances()
 
 // Debug:   20 ms
 // Release: 10 ms
-inline QHashDataFrames PlaybackWorker::produceFrames()
+QHashDataFrames PlaybackWorker::produceFrames()
 {
     QList<shared_ptr<StreamInstance>> instances = m_instances; // implicit sharing
     QHashDataFrames readFrames;

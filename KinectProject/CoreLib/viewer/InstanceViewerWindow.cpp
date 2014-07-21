@@ -16,10 +16,10 @@ namespace dai {
 InstanceViewerWindow::InstanceViewerWindow()
     : m_initialised(false)
     , m_fps(0)
-    , m_viewerEngine(nullptr)
-    , m_quickWindow(nullptr)
     , m_frameCounter(0)
     , m_delayInMs(0)
+    , m_viewerEngine(nullptr)
+    , m_quickWindow(nullptr)
     , m_modelsInitialised(false)
 {
     m_viewerEngine = new ViewerEngine;

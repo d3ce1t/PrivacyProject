@@ -1,6 +1,11 @@
 #include "Config.h"
 #include <QThreadPool>
 
+void CoreLib_InitResources()
+{
+    Q_INIT_RESOURCE(corelib);
+}
+
 namespace dai {
 
 Config* Config::_instance = nullptr;

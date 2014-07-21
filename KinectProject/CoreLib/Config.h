@@ -3,6 +3,8 @@
 
 #include <QMutex>
 
+extern void CoreLib_InitResources();
+
 namespace dai {
 
 class Config

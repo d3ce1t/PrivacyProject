@@ -11,7 +11,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {   
     ui->setupUi(this);
-    m_playback.setFPS(15);
+    m_playback.setFPS(10);
 }
 
 MainWindow::~MainWindow()
@@ -25,6 +25,8 @@ void MainWindow::on_btnStartKinect_clicked()
     // Create instance
     shared_ptr<dai::OpenNIColorInstance> colorInstance = make_shared<dai::OpenNIColorInstance>();
     shared_ptr<dai::OpenNIUserTrackerInstance> userTrackerInstance = make_shared<dai::OpenNIUserTrackerInstance>();
+    openni::PlaybackControl* oniPlayback = OpenNIRuntime::getInstance()->playbackControl();
+    oniPlayback->setSpeed(0.5);
 
     // Create Main Producer
     m_playback.clearInstances();

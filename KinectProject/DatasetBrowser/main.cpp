@@ -5,7 +5,7 @@
 
 int main(int argc, char *argv[])
 {
-    InstanceViewerWindow::initResources();
+    CoreLib_InitResources();
     QApplication a(argc, argv);
 
     // For QSettings

@@ -249,6 +249,7 @@ void OpenNIRuntime::copySkeleton(const nite::Skeleton& srcSkeleton, dai::Skeleto
         joint.setOrientation(Quaternion(niteOrientation.w, niteOrientation.x,
                                                            niteOrientation.y,
                                                            niteOrientation.z));
+
         joint.setPositionConfidence(niteJoint.getPositionConfidence());
         joint.setOrientationConfidence(niteJoint.getOrientationConfidence());
         dstSkeleton.setJoint(staticMap[j], joint);
