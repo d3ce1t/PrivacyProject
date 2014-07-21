@@ -169,39 +169,6 @@ QHashDataFrames PrivacyFilter::produceFrames()
          }
     }
 
-    // Test 2
-    if (m_frames.contains(DataFrame::Color) &&
-            m_frames.contains(DataFrame::Metadata) &&
-            m_frames.contains(DataFrame::Mask))
-    {
-        shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(m_frames.value(DataFrame::Color));
-        shared_ptr<MetadataFrame> metadataFrame = static_pointer_cast<MetadataFrame>(m_frames.value(DataFrame::Metadata));
-        shared_ptr<MaskFrame> maskFrame = static_pointer_cast<MaskFrame>(m_frames.value(DataFrame::Mask));
-
-        if (!metadataFrame->boundingBoxes().isEmpty())
-        {
-            BoundingBox bb = metadataFrame->boundingBoxes().first();
-
-            shared_ptr<ColorFrame> subColorFrame = colorFrame->subFrame(bb.getMin().y(),bb.getMin().x(),
-                                                       bb.size().width(), bb.size().height());
-
-            shared_ptr<MaskFrame> subMaskFrame = maskFrame->subFrame(bb.getMin().y(),bb.getMin().x(),
-                                                       bb.size().width(), bb.size().height());
-
-            for (int i=0; i < subColorFrame->getHeight(); ++i) {
-                for (int j=0; j<subColorFrame->getWidth(); ++j)
-                {
-                    uint8_t mask = subMaskFrame->getItem(i,j);
-
-                    if (mask != 0 && mask != 255) {
-                        RGBColor color; color.red=0; color.green=0; color.blue=0;
-                        subColorFrame->setItem(i, j, color);
-                    }
-                }
-            }
-        }
-    }
-
     //
     // Prepare Scene
     //
