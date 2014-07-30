@@ -12,7 +12,6 @@ using namespace std;
 
 namespace dai {
 
-typedef QList<InstanceInfo*> InstanceInfoList;
 class Dataset;
 
 class DatasetMetadata
@@ -21,6 +20,8 @@ class DatasetMetadata
 
 public:
     static shared_ptr<DatasetMetadata> load(QString xmlPath);
+    static shared_ptr<DatasetMetadata> load_version1(QString xmlPath);
+    static shared_ptr<DatasetMetadata> load_version2(QString xmlPath);
 
     virtual ~DatasetMetadata();
     const QString getName() const;
@@ -29,13 +30,15 @@ public:
     int getNumberOfActivities() const;
     int getNumberOfActors() const;
     int getNumberOfSampleTypes() const;
-    const InstanceInfoList* instances(DataFrame::FrameType type, const QList<int> *activities = 0, const QList<int> *actors = 0, const QList<int> *samples = 0) const;
-    const InstanceInfo instance(DataFrame::FrameType type, int activity, int actor, int sample);
+    const InstanceInfoList instances(DataFrame::FrameType type, const QList<int> *activities = 0, const QList<int> *actors = 0, const QList<int> *samples = 0) const;
+    const InstanceInfo *instance(DataFrame::FrameType type, int activity, int actor, int sample);
+    const InstanceInfo* instance(int activity, int actor, int sample);
     const QString& getActivityName(int key) const;
     const QString& getActorName(int key) const;
     const QString& getSampleName(int key) const;
     const Dataset& dataset() const;
     const DataFrame::SupportedFrames availableInstanceTypes() const;
+    const QList<int> actors() const;
 
 private:
     void setDataset(Dataset* dataset);
@@ -50,19 +53,14 @@ private:
     int                          m_numberOfActivities;
     int                          m_numberOfActors;
     int                          m_numberOfSampleTypes;
-    QHash<int, QString*>         m_activities;
-    QHash<int, QString*>         m_actors;
-    QHash<int, QString*>         m_sampleTypes;
+    QMap<int, QString*>          m_activities;
+    QMap<int, QString*>          m_actors;
+    QMap<int, QString*>          m_sampleTypes;
     Dataset*                     m_dataset;
     DataFrame::SupportedFrames   m_availableInstanceTypes;
 
-    /**
-     * @brief m_instances
-     *
-     * Each instance type (depth, color, skeleton) has a hash of InstanceInfo* elements
-     * indexed by activity keys. Each instanceInfo must match the given key.
-     */
-    QHash<DataFrame::FrameType, QHash<int, InstanceInfoList*>* > m_instances;
+    // List of instances
+    InstanceInfoList             m_instances;
 };
 
 } // End Namespace

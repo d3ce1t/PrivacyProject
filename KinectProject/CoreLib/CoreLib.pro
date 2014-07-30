@@ -57,7 +57,12 @@ SOURCES += \
     playback/FrameNotifier.cpp \
     viewer/DepthFilter.cpp \
     types/MetadataFrame.cpp \
-    types/BoundingBox.cpp
+    types/BoundingBox.cpp \
+    dataset/HuDaAct/HuDaAct.cpp \
+    openni/OpenNIColorInstance.cpp \
+    openni/OpenNIDepthInstance.cpp \
+    openni/OpenNIRuntime.cpp \
+    openni/OpenNIUserTrackerInstance.cpp
 
 HEADERS += \
     types/Vector3D.h \
@@ -109,14 +114,41 @@ HEADERS += \
     viewer/DepthFilter.h \
     viewer/types.h \
     types/MetadataFrame.h \
-    types/BoundingBox.h
+    types/BoundingBox.h \
+    dataset/HuDaAct/HuDaAct.h \
+    openni/OpenNIColorInstance.h \
+    openni/OpenNIDepthInstance.h \
+    openni/OpenNIRuntime.h \
+    openni/OpenNIUserTrackerInstance.h
 
 OTHER_FILES +=
 
 RESOURCES += \
     corelib.qrc
 
+unix:!macx {
+    # OpenNI2
+    LIBS += -L/opt/OpenNI-Linux-x64-2.2/Tools/ -lOpenNI2
+    INCLUDEPATH += /opt/OpenNI-Linux-x64-2.2/Include
+    DEPENDPATH += /opt/OpenNI-Linux-x64-2.2/Include
+
+    # NiTE2
+    LIBS += -L/opt/NiTE-Linux-x64-2.2/Redist/ -lNiTE2
+    INCLUDEPATH += /opt/NiTE-Linux-x64-2.2/Include
+    DEPENDPATH += /opt/NiTE-Linux-x64-2.2/Include
+}
+
 win32 {
     load(moc)
     INCLUDEPATH += $$PWD
+
+    # OpenNI2
+    LIBS += -L$$(OPENNI2_LIB) -lOpenNI2
+    INCLUDEPATH += $$(OPENNI2_INCLUDE)
+    DEPENDPATH += $$(OPENNI2_INCLUDE)
+
+    # NiTE2
+    LIBS += -L$$(NITE2_LIB) -lNiTE2
+    INCLUDEPATH += $$(NITE2_INCLUDE)
+    DEPENDPATH += $$(NITE2_INCLUDE)
 }

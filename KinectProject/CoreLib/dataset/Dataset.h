@@ -20,21 +20,16 @@ public:
 
     enum DatasetType {
         Dataset_MSRDailyActivity3D = 0,
-        Dataset_MSRAction3D
+        Dataset_MSRAction3D,
+        Dataset_HuDaAct
     };
 
     explicit Dataset(const QString& xmlDescriptor);
     void open(const QString& xmlDescriptor);
     void setPath(const QString& path);
-
-#if (!defined _MSC_VER)
-    virtual ~Dataset() = default;
-#endif
-
     const DatasetMetadata& getMetadata() const;
-
     shared_ptr<StreamInstance> getInstance(int activity, int actor, int sample, DataFrame::FrameType type) const;
-    shared_ptr<StreamInstance> getInstance(const InstanceInfo &info) const;
+    shared_ptr<StreamInstance> getInstance(const InstanceInfo &info, DataFrame::FrameType type) const;
 
 protected:
     virtual shared_ptr<StreamInstance> instance(int activity, int actor, int sample, DataFrame::FrameType type) const = 0;

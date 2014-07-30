@@ -10,8 +10,6 @@
 
 namespace dai {
 
-#define MAX_USERS 10
-
 // Class Declaration
 class OpenNIRuntime
 {

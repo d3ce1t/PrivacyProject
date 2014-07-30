@@ -46,6 +46,7 @@ private:
     dai::PlaybackControl    m_playback;
     dai::DepthFilter        m_depthFilter;
     SettingsDialog          m_settings;
+    dai::DataFrame::FrameType m_showType;
 };
 
 #endif // DATASETBROWSER_H

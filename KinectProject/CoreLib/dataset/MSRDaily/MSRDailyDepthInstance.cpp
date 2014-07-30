@@ -33,7 +33,7 @@ bool MSRDailyDepthInstance::is_open() const
 bool MSRDailyDepthInstance::openInstance()
 {
     bool result = false;
-    QString instancePath = m_info.parent().getPath() + "/" + m_info.getFileName();
+    QString instancePath = m_info.parent().getPath() + "/" + m_info.getFileName(DataFrame::Depth);
 
     if (!m_file.is_open())
     {

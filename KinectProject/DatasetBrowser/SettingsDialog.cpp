@@ -16,6 +16,7 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     // load settings
     ui->lineEdit1->setText( m_settings->value("MSRAction3D/path").toString() );
     ui->lineEdit2->setText( m_settings->value("MSRDailyActivity3D/path").toString() );
+    ui->lineEdit3->setText( m_settings->value("HuDaAct/path").toString() );
 }
 
 SettingsDialog::~SettingsDialog()
@@ -32,6 +33,11 @@ const QString SettingsDialog::getMSRDailyActivity3D() const
 const QString SettingsDialog::getMSRAction3D() const
 {
     return m_settings->value("MSRAction3D/path").toString();
+}
+
+const QString SettingsDialog::getHuDaAct() const
+{
+    return m_settings->value("HuDaAct/path").toString();
 }
 
 void SettingsDialog::on_pushButton1_clicked()
@@ -52,6 +58,15 @@ void SettingsDialog::on_pushButton2_clicked()
         ui->lineEdit2->setText(dirName);
 }
 
+void SettingsDialog::on_pushButton3_clicked()
+{
+    QString dirName = QFileDialog::getExistingDirectory(this,
+                                                        tr("Select HuDaAct dataset directory"),
+                                                        QDir::currentPath());
+    if (!dirName.isEmpty())
+        ui->lineEdit3->setText(dirName);
+}
+
 void SettingsDialog::on_buttonBox_accepted()
 {
     m_settings->beginGroup("MSRAction3D");
@@ -59,5 +74,8 @@ void SettingsDialog::on_buttonBox_accepted()
     m_settings->endGroup();
     m_settings->beginGroup("MSRDailyActivity3D");
     m_settings->setValue("path", ui->lineEdit2->text());
+    m_settings->endGroup();
+    m_settings->beginGroup("HuDaAct");
+    m_settings->setValue("path", ui->lineEdit3->text());
     m_settings->endGroup();
 }

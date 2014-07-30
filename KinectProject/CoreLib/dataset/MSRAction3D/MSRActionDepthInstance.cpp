@@ -29,7 +29,7 @@ bool MSRActionDepthInstance::openInstance()
 {
     bool result = false;
     QString datasetPath = m_info.parent().getPath();
-    QString instancePath = datasetPath + "/" + m_info.getFileName();
+    QString instancePath = datasetPath + "/" + m_info.getFileName(DataFrame::Depth);
 
     if (!m_file.is_open())
     {

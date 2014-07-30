@@ -1,4 +1,4 @@
-<dataset name="MSRAction3D">
+<dataset name="MSRAction3D" need-version="1">
 
 	<description>20 action types, 10 subjects, each subject performs each action 2 or 3 times. There are 567 depth map sequences in total. The resolution is 320x240. The data was recorded with a depth sensor similar to the Kinect device.</description>
 

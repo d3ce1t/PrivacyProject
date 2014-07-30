@@ -34,7 +34,7 @@ bool MSRDailyColorInstance::hasNext() const
 bool MSRDailyColorInstance::openInstance()
 {
     bool result = false;
-    QString instancePath = m_info.parent().getPath() + "/" + m_info.getFileName();
+    QString instancePath = m_info.parent().getPath() + "/" + m_info.getFileName(DataFrame::Color);
     QFile file(instancePath);
 
     if (file.exists()) {

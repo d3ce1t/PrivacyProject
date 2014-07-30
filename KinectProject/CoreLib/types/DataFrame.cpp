@@ -36,4 +36,25 @@ void DataFrame::setIndex(unsigned int index)
     m_index = index;
 }
 
+DataFrame::FrameType DataFrame::getType(DataFrame::SupportedFrames type)
+{
+    FrameType all_types[] = {Color, Depth, Skeleton, Mask, Metadata};
+    FrameType result = Unknown;
+
+    int matches = 0;
+
+    for (int i=0; i<5; ++i) {
+        if (type.testFlag(all_types[i])) {
+            result = all_types[i];
+            matches++;
+        }
+    }
+
+    if (matches > 1) {
+        result = Unknown;
+    }
+
+    return result;
+}
+
 } // End Namespace

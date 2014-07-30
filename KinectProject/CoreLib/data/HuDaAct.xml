@@ -1,0 +1,781 @@
+<dataset name="HuDaAct">
+
+	<description>Write a description of the dataset.</description>
+
+	<activities size="16">
+		<activity key="1">Enter room</activity>
+		<activity key="2">Exit the room</activity>
+		<activity key="3">Make a phone call</activity>
+		<activity key="4">Go to bed</activity>
+		<activity key="5">Get up from bed</activity>
+		<activity key="6">Sit down</activity>
+		<activity key="7">Stand up</activity>
+		<activity key="8">Mop floor</activity>
+		<activity key="9">Eat meal</activity>
+		<activity key="10">Put on jacket</activity>
+		<activity key="11">Take off jacket</activity>
+		<activity key="12">Drink water</activity>
+		<activity key="13">Background activity BG</activity>
+		<activity key="14">Background activity SBG</activity>
+		<activity key="15">Background activity CB</activity>
+		<activity key="16">Background activity SCB</activity>
+	</activities>
+
+	<actors size="3">
+		<actor key="10">10</actor>
+		<actor key="16">16</actor>
+		<actor key="30">30</actor>
+	</actors>
+
+	<samples size="4">
+		<sample key="1">First repetition</sample>
+		<sample key="2">Second repetition</sample>
+		<sample key="3">Third repetition</sample>
+		<sample key="4">Fourth repetition</sample>
+	</samples>
+
+	<instances>
+		<instance activity="1" actor="10" sample="1">
+			<file id="1">S5_C4_U10_L1.oni</file>
+			<data type="color" file-ref="1" />
+			<data type="depth" file-ref="1" />
+			<data type="skeleton" file-ref="1" />
+			<data type="mask" file-ref="1" />
+		</instance>
+		<instance activity="1" actor="10" sample="2">
+			<file id="2">S5_C4_U10_L2.oni</file>
+			<data type="color" file-ref="2" />
+			<data type="depth" file-ref="2" />
+			<data type="skeleton" file-ref="2" />
+			<data type="mask" file-ref="2" />
+		</instance>
+		<instance activity="1" actor="10" sample="3">
+			<file id="3">S5_C4_U10_L3.oni</file>
+			<data type="color" file-ref="3" />
+			<data type="depth" file-ref="3" />
+			<data type="skeleton" file-ref="3" />
+			<data type="mask" file-ref="3" />
+		</instance>
+		<instance activity="1" actor="16" sample="1">
+			<file id="4">S7_C6_U16_L1.oni</file>
+			<data type="color" file-ref="4" />
+			<data type="depth" file-ref="4" />
+			<data type="skeleton" file-ref="4" />
+			<data type="mask" file-ref="4" />
+		</instance>
+		<instance activity="1" actor="16" sample="2">
+			<file id="5">S7_C6_U16_L2.oni</file>
+			<data type="color" file-ref="5" />
+			<data type="depth" file-ref="5" />
+			<data type="skeleton" file-ref="5" />
+			<data type="mask" file-ref="5" />
+		</instance>
+		<instance activity="1" actor="16" sample="3">
+			<file id="6">S7_C6_U16_L3.oni</file>
+			<data type="color" file-ref="6" />
+			<data type="depth" file-ref="6" />
+			<data type="skeleton" file-ref="6" />
+			<data type="mask" file-ref="6" />
+		</instance>
+		<instance activity="1" actor="30" sample="1">
+			<file id="7">S14_C12_U30_L1.oni</file>
+			<data type="color" file-ref="7" />
+			<data type="depth" file-ref="7" />
+			<data type="skeleton" file-ref="7" />
+			<data type="mask" file-ref="7" />
+		</instance>
+		<instance activity="1" actor="30" sample="2">
+			<file id="8">S14_C12_U30_L2.oni</file>
+			<data type="color" file-ref="8" />
+			<data type="depth" file-ref="8" />
+			<data type="skeleton" file-ref="8" />
+			<data type="mask" file-ref="8" />
+		</instance>
+		<instance activity="1" actor="30" sample="3">
+			<file id="9">S14_C12_U30_L3.oni</file>
+			<data type="color" file-ref="9" />
+			<data type="depth" file-ref="9" />
+			<data type="skeleton" file-ref="9" />
+			<data type="mask" file-ref="9" />
+		</instance>
+		<instance activity="2" actor="10" sample="1">
+			<file id="10">S5_C4_U10_E1.oni</file>
+			<data type="color" file-ref="10" />
+			<data type="depth" file-ref="10" />
+			<data type="skeleton" file-ref="10" />
+			<data type="mask" file-ref="10" />
+		</instance>
+		<instance activity="2" actor="10" sample="2">
+			<file id="11">S5_C4_U10_E2.oni</file>
+			<data type="color" file-ref="11" />
+			<data type="depth" file-ref="11" />
+			<data type="skeleton" file-ref="11" />
+			<data type="mask" file-ref="11" />
+		</instance>
+		<instance activity="2" actor="10" sample="3">
+			<file id="12">S5_C4_U10_E3.oni</file>
+			<data type="color" file-ref="12" />
+			<data type="depth" file-ref="12" />
+			<data type="skeleton" file-ref="12" />
+			<data type="mask" file-ref="12" />
+		</instance>
+		<instance activity="2" actor="16" sample="1">
+			<file id="13">S7_C6_U16_E1.oni</file>
+			<data type="color" file-ref="13" />
+			<data type="depth" file-ref="13" />
+			<data type="skeleton" file-ref="13" />
+			<data type="mask" file-ref="13" />
+		</instance>
+		<instance activity="2" actor="16" sample="2">
+			<file id="14">S7_C6_U16_E2.oni</file>
+			<data type="color" file-ref="14" />
+			<data type="depth" file-ref="14" />
+			<data type="skeleton" file-ref="14" />
+			<data type="mask" file-ref="14" />
+		</instance>
+		<instance activity="2" actor="16" sample="3">
+			<file id="15">S7_C6_U16_E3.oni</file>
+			<data type="color" file-ref="15" />
+			<data type="depth" file-ref="15" />
+			<data type="skeleton" file-ref="15" />
+			<data type="mask" file-ref="15" />
+		</instance>
+		<instance activity="2" actor="30" sample="1">
+			<file id="16">S14_C12_U30_E1.oni</file>
+			<data type="color" file-ref="16" />
+			<data type="depth" file-ref="16" />
+			<data type="skeleton" file-ref="16" />
+			<data type="mask" file-ref="16" />
+		</instance>
+		<instance activity="2" actor="30" sample="2">
+			<file id="17">S14_C12_U30_E2.oni</file>
+			<data type="color" file-ref="17" />
+			<data type="depth" file-ref="17" />
+			<data type="skeleton" file-ref="17" />
+			<data type="mask" file-ref="17" />
+		</instance>
+		<instance activity="2" actor="30" sample="3">
+			<file id="18">S14_C12_U30_E3.oni</file>
+			<data type="color" file-ref="18" />
+			<data type="depth" file-ref="18" />
+			<data type="skeleton" file-ref="18" />
+			<data type="mask" file-ref="18" />
+		</instance>
+		<instance activity="3" actor="10" sample="1">
+			<file id="19">S5_C4_U10_P1.oni</file>
+			<data type="color" file-ref="19" />
+			<data type="depth" file-ref="19" />
+			<data type="skeleton" file-ref="19" />
+			<data type="mask" file-ref="19" />
+		</instance>
+		<instance activity="3" actor="10" sample="2">
+			<file id="20">S5_C4_U10_P2.oni</file>
+			<data type="color" file-ref="20" />
+			<data type="depth" file-ref="20" />
+			<data type="skeleton" file-ref="20" />
+			<data type="mask" file-ref="20" />
+		</instance>
+		<instance activity="3" actor="10" sample="3">
+			<file id="21">S5_C4_U10_P3.oni</file>
+			<data type="color" file-ref="21" />
+			<data type="depth" file-ref="21" />
+			<data type="skeleton" file-ref="21" />
+			<data type="mask" file-ref="21" />
+		</instance>
+		<instance activity="3" actor="10" sample="4">
+			<file id="22">S5_C4_U10_P4.oni</file>
+			<data type="color" file-ref="22" />
+			<data type="depth" file-ref="22" />
+			<data type="skeleton" file-ref="22" />
+			<data type="mask" file-ref="22" />
+		</instance>
+		<instance activity="3" actor="16" sample="1">
+			<file id="23">S7_C6_U16_P1.oni</file>
+			<data type="color" file-ref="23" />
+			<data type="depth" file-ref="23" />
+			<data type="skeleton" file-ref="23" />
+			<data type="mask" file-ref="23" />
+		</instance>
+		<instance activity="3" actor="16" sample="2">
+			<file id="24">S7_C6_U16_P2.oni</file>
+			<data type="color" file-ref="24" />
+			<data type="depth" file-ref="24" />
+			<data type="skeleton" file-ref="24" />
+			<data type="mask" file-ref="24" />
+		</instance>
+		<instance activity="3" actor="16" sample="3">
+			<file id="25">S7_C6_U16_P3.oni</file>
+			<data type="color" file-ref="25" />
+			<data type="depth" file-ref="25" />
+			<data type="skeleton" file-ref="25" />
+			<data type="mask" file-ref="25" />
+		</instance>
+		<instance activity="3" actor="16" sample="4">
+			<file id="26">S7_C6_U16_P4.oni</file>
+			<data type="color" file-ref="26" />
+			<data type="depth" file-ref="26" />
+			<data type="skeleton" file-ref="26" />
+			<data type="mask" file-ref="26" />
+		</instance>
+		<instance activity="3" actor="30" sample="1">
+			<file id="27">S14_C12_U30_P1.oni</file>
+			<data type="color" file-ref="27" />
+			<data type="depth" file-ref="27" />
+			<data type="skeleton" file-ref="27" />
+			<data type="mask" file-ref="27" />
+		</instance>
+		<instance activity="3" actor="30" sample="2">
+			<file id="28">S14_C12_U30_P2.oni</file>
+			<data type="color" file-ref="28" />
+			<data type="depth" file-ref="28" />
+			<data type="skeleton" file-ref="28" />
+			<data type="mask" file-ref="28" />
+		</instance>
+		<instance activity="3" actor="30" sample="3">
+			<file id="29">S14_C12_U30_P3.oni</file>
+			<data type="color" file-ref="29" />
+			<data type="depth" file-ref="29" />
+			<data type="skeleton" file-ref="29" />
+			<data type="mask" file-ref="29" />
+		</instance>
+		<instance activity="3" actor="30" sample="4">
+			<file id="30">S14_C12_U30_P4.oni</file>
+			<data type="color" file-ref="30" />
+			<data type="depth" file-ref="30" />
+			<data type="skeleton" file-ref="30" />
+			<data type="mask" file-ref="30" />
+		</instance>
+		<instance activity="4" actor="10" sample="1">
+			<file id="31">S15_C13_U10_B1.oni</file>
+			<data type="color" file-ref="31" />
+			<data type="depth" file-ref="31" />
+			<data type="skeleton" file-ref="31" />
+			<data type="mask" file-ref="31" />
+		</instance>
+		<instance activity="4" actor="10" sample="2">
+			<file id="32">S15_C13_U10_B2.oni</file>
+			<data type="color" file-ref="32" />
+			<data type="depth" file-ref="32" />
+			<data type="skeleton" file-ref="32" />
+			<data type="mask" file-ref="32" />
+		</instance>
+		<instance activity="4" actor="10" sample="3">
+			<file id="33">S15_C13_U10_B3.oni</file>
+			<data type="color" file-ref="33" />
+			<data type="depth" file-ref="33" />
+			<data type="skeleton" file-ref="33" />
+			<data type="mask" file-ref="33" />
+		</instance>
+		<instance activity="5" actor="10" sample="1">
+			<file id="34">S15_C13_U10_G1.oni</file>
+			<data type="color" file-ref="34" />
+			<data type="depth" file-ref="34" />
+			<data type="skeleton" file-ref="34" />
+			<data type="mask" file-ref="34" />
+		</instance>
+		<instance activity="5" actor="10" sample="2">
+			<file id="35">S15_C13_U10_G2.oni</file>
+			<data type="color" file-ref="35" />
+			<data type="depth" file-ref="35" />
+			<data type="skeleton" file-ref="35" />
+			<data type="mask" file-ref="35" />
+		</instance>
+		<instance activity="5" actor="10" sample="3">
+			<file id="36">S15_C13_U10_G3.oni</file>
+			<data type="color" file-ref="36" />
+			<data type="depth" file-ref="36" />
+			<data type="skeleton" file-ref="36" />
+			<data type="mask" file-ref="36" />
+		</instance>
+		<instance activity="6" actor="10" sample="1">
+			<file id="37">S5_C4_U10_I1.oni</file>
+			<data type="color" file-ref="37" />
+			<data type="depth" file-ref="37" />
+			<data type="skeleton" file-ref="37" />
+			<data type="mask" file-ref="37" />
+		</instance>
+		<instance activity="6" actor="10" sample="2">
+			<file id="38">S5_C4_U10_I2.oni</file>
+			<data type="color" file-ref="38" />
+			<data type="depth" file-ref="38" />
+			<data type="skeleton" file-ref="38" />
+			<data type="mask" file-ref="38" />
+		</instance>
+		<instance activity="6" actor="10" sample="3">
+			<file id="39">S5_C4_U10_I3.oni</file>
+			<data type="color" file-ref="39" />
+			<data type="depth" file-ref="39" />
+			<data type="skeleton" file-ref="39" />
+			<data type="mask" file-ref="39" />
+		</instance>
+		<instance activity="6" actor="16" sample="1">
+			<file id="40">S7_C6_U16_I1.oni</file>
+			<data type="color" file-ref="40" />
+			<data type="depth" file-ref="40" />
+			<data type="skeleton" file-ref="40" />
+			<data type="mask" file-ref="40" />
+		</instance>
+		<instance activity="6" actor="16" sample="2">
+			<file id="41">S7_C6_U16_I2.oni</file>
+			<data type="color" file-ref="41" />
+			<data type="depth" file-ref="41" />
+			<data type="skeleton" file-ref="41" />
+			<data type="mask" file-ref="41" />
+		</instance>
+		<instance activity="6" actor="16" sample="3">
+			<file id="42">S7_C6_U16_I3.oni</file>
+			<data type="color" file-ref="42" />
+			<data type="depth" file-ref="42" />
+			<data type="skeleton" file-ref="42" />
+			<data type="mask" file-ref="42" />
+		</instance>
+		<instance activity="6" actor="30" sample="1">
+			<file id="43">S14_C12_U30_I1.oni</file>
+			<data type="color" file-ref="43" />
+			<data type="depth" file-ref="43" />
+			<data type="skeleton" file-ref="43" />
+			<data type="mask" file-ref="43" />
+		</instance>
+		<instance activity="6" actor="30" sample="2">
+			<file id="44">S14_C12_U30_I2.oni</file>
+			<data type="color" file-ref="44" />
+			<data type="depth" file-ref="44" />
+			<data type="skeleton" file-ref="44" />
+			<data type="mask" file-ref="44" />
+		</instance>
+		<instance activity="6" actor="30" sample="3">
+			<file id="45">S14_C12_U30_I3.oni</file>
+			<data type="color" file-ref="45" />
+			<data type="depth" file-ref="45" />
+			<data type="skeleton" file-ref="45" />
+			<data type="mask" file-ref="45" />
+		</instance>
+		<instance activity="7" actor="10" sample="1">
+			<file id="46">S5_C4_U10_T1.oni</file>
+			<data type="color" file-ref="46" />
+			<data type="depth" file-ref="46" />
+			<data type="skeleton" file-ref="46" />
+			<data type="mask" file-ref="46" />
+		</instance>
+		<instance activity="7" actor="10" sample="2">
+			<file id="47">S5_C4_U10_T2.oni</file>
+			<data type="color" file-ref="47" />
+			<data type="depth" file-ref="47" />
+			<data type="skeleton" file-ref="47" />
+			<data type="mask" file-ref="47" />
+		</instance>
+		<instance activity="7" actor="10" sample="3">
+			<file id="48">S5_C4_U10_T3.oni</file>
+			<data type="color" file-ref="48" />
+			<data type="depth" file-ref="48" />
+			<data type="skeleton" file-ref="48" />
+			<data type="mask" file-ref="48" />
+		</instance>
+		<instance activity="7" actor="16" sample="1">
+			<file id="49">S7_C6_U16_T1.oni</file>
+			<data type="color" file-ref="49" />
+			<data type="depth" file-ref="49" />
+			<data type="skeleton" file-ref="49" />
+			<data type="mask" file-ref="49" />
+		</instance>
+		<instance activity="7" actor="16" sample="2">
+			<file id="50">S7_C6_U16_T2.oni</file>
+			<data type="color" file-ref="50" />
+			<data type="depth" file-ref="50" />
+			<data type="skeleton" file-ref="50" />
+			<data type="mask" file-ref="50" />
+		</instance>
+		<instance activity="7" actor="16" sample="3">
+			<file id="51">S7_C6_U16_T3.oni</file>
+			<data type="color" file-ref="51" />
+			<data type="depth" file-ref="51" />
+			<data type="skeleton" file-ref="51" />
+			<data type="mask" file-ref="51" />
+		</instance>
+		<instance activity="7" actor="30" sample="1">
+			<file id="52">S14_C12_U30_T1.oni</file>
+			<data type="color" file-ref="52" />
+			<data type="depth" file-ref="52" />
+			<data type="skeleton" file-ref="52" />
+			<data type="mask" file-ref="52" />
+		</instance>
+		<instance activity="7" actor="30" sample="2">
+			<file id="53">S14_C12_U30_T2.oni</file>
+			<data type="color" file-ref="53" />
+			<data type="depth" file-ref="53" />
+			<data type="skeleton" file-ref="53" />
+			<data type="mask" file-ref="53" />
+		</instance>
+		<instance activity="8" actor="10" sample="1">
+			<file id="54">S5_C4_U10_O1.oni</file>
+			<data type="color" file-ref="54" />
+			<data type="depth" file-ref="54" />
+			<data type="skeleton" file-ref="54" />
+			<data type="mask" file-ref="54" />
+		</instance>
+		<instance activity="8" actor="10" sample="2">
+			<file id="55">S5_C4_U10_O2.oni</file>
+			<data type="color" file-ref="55" />
+			<data type="depth" file-ref="55" />
+			<data type="skeleton" file-ref="55" />
+			<data type="mask" file-ref="55" />
+		</instance>
+		<instance activity="8" actor="10" sample="3">
+			<file id="56">S5_C4_U10_O3.oni</file>
+			<data type="color" file-ref="56" />
+			<data type="depth" file-ref="56" />
+			<data type="skeleton" file-ref="56" />
+			<data type="mask" file-ref="56" />
+		</instance>
+		<instance activity="8" actor="16" sample="1">
+			<file id="57">S7_C6_U16_O1.oni</file>
+			<data type="color" file-ref="57" />
+			<data type="depth" file-ref="57" />
+			<data type="skeleton" file-ref="57" />
+			<data type="mask" file-ref="57" />
+		</instance>
+		<instance activity="8" actor="16" sample="2">
+			<file id="58">S7_C6_U16_O2.oni</file>
+			<data type="color" file-ref="58" />
+			<data type="depth" file-ref="58" />
+			<data type="skeleton" file-ref="58" />
+			<data type="mask" file-ref="58" />
+		</instance>
+		<instance activity="8" actor="16" sample="3">
+			<file id="59">S7_C6_U16_O3.oni</file>
+			<data type="color" file-ref="59" />
+			<data type="depth" file-ref="59" />
+			<data type="skeleton" file-ref="59" />
+			<data type="mask" file-ref="59" />
+		</instance>
+		<instance activity="8" actor="30" sample="1">
+			<file id="60">S14_C12_U30_O1.oni</file>
+			<data type="color" file-ref="60" />
+			<data type="depth" file-ref="60" />
+			<data type="skeleton" file-ref="60" />
+			<data type="mask" file-ref="60" />
+		</instance>
+		<instance activity="8" actor="30" sample="2">
+			<file id="61">S14_C12_U30_O2.oni</file>
+			<data type="color" file-ref="61" />
+			<data type="depth" file-ref="61" />
+			<data type="skeleton" file-ref="61" />
+			<data type="mask" file-ref="61" />
+		</instance>
+		<instance activity="8" actor="30" sample="3">
+			<file id="62">S14_C12_U30_O3.oni</file>
+			<data type="color" file-ref="62" />
+			<data type="depth" file-ref="62" />
+			<data type="skeleton" file-ref="62" />
+			<data type="mask" file-ref="62" />
+		</instance>
+		<instance activity="9" actor="10" sample="1">
+			<file id="63">S5_C4_U10_M1.oni</file>
+			<data type="color" file-ref="63" />
+			<data type="depth" file-ref="63" />
+			<data type="skeleton" file-ref="63" />
+			<data type="mask" file-ref="63" />
+		</instance>
+		<instance activity="9" actor="10" sample="2">
+			<file id="64">S5_C4_U10_M2.oni</file>
+			<data type="color" file-ref="64" />
+			<data type="depth" file-ref="64" />
+			<data type="skeleton" file-ref="64" />
+			<data type="mask" file-ref="64" />
+		</instance>
+		<instance activity="9" actor="10" sample="3">
+			<file id="65">S5_C4_U10_M3.oni</file>
+			<data type="color" file-ref="65" />
+			<data type="depth" file-ref="65" />
+			<data type="skeleton" file-ref="65" />
+			<data type="mask" file-ref="65" />
+		</instance>
+		<instance activity="9" actor="16" sample="1">
+			<file id="66">S7_C6_U16_M1.oni</file>
+			<data type="color" file-ref="66" />
+			<data type="depth" file-ref="66" />
+			<data type="skeleton" file-ref="66" />
+			<data type="mask" file-ref="66" />
+		</instance>
+		<instance activity="9" actor="16" sample="2">
+			<file id="67">S7_C6_U16_M2.oni</file>
+			<data type="color" file-ref="67" />
+			<data type="depth" file-ref="67" />
+			<data type="skeleton" file-ref="67" />
+			<data type="mask" file-ref="67" />
+		</instance>
+		<instance activity="9" actor="16" sample="3">
+			<file id="68">S7_C6_U16_M3.oni</file>
+			<data type="color" file-ref="68" />
+			<data type="depth" file-ref="68" />
+			<data type="skeleton" file-ref="68" />
+			<data type="mask" file-ref="68" />
+		</instance>
+		<instance activity="9" actor="30" sample="1">
+			<file id="69">S14_C12_U30_M1.oni</file>
+			<data type="color" file-ref="69" />
+			<data type="depth" file-ref="69" />
+			<data type="skeleton" file-ref="69" />
+			<data type="mask" file-ref="69" />
+		</instance>
+		<instance activity="9" actor="30" sample="2">
+			<file id="70">S14_C12_U30_M2.oni</file>
+			<data type="color" file-ref="70" />
+			<data type="depth" file-ref="70" />
+			<data type="skeleton" file-ref="70" />
+			<data type="mask" file-ref="70" />
+		</instance>
+		<instance activity="9" actor="30" sample="3">
+			<file id="71">S14_C12_U30_M3.oni</file>
+			<data type="color" file-ref="71" />
+			<data type="depth" file-ref="71" />
+			<data type="skeleton" file-ref="71" />
+			<data type="mask" file-ref="71" />
+		</instance>
+		<instance activity="10" actor="10" sample="1">
+			<file id="72">S5_C4_U10_D1.oni</file>
+			<data type="color" file-ref="72" />
+			<data type="depth" file-ref="72" />
+			<data type="skeleton" file-ref="72" />
+			<data type="mask" file-ref="72" />
+		</instance>
+		<instance activity="10" actor="10" sample="2">
+			<file id="73">S5_C4_U10_D2.oni</file>
+			<data type="color" file-ref="73" />
+			<data type="depth" file-ref="73" />
+			<data type="skeleton" file-ref="73" />
+			<data type="mask" file-ref="73" />
+		</instance>
+		<instance activity="10" actor="10" sample="3">
+			<file id="74">S5_C4_U10_D3.oni</file>
+			<data type="color" file-ref="74" />
+			<data type="depth" file-ref="74" />
+			<data type="skeleton" file-ref="74" />
+			<data type="mask" file-ref="74" />
+		</instance>
+		<instance activity="10" actor="16" sample="1">
+			<file id="75">S7_C6_U16_D1.oni</file>
+			<data type="color" file-ref="75" />
+			<data type="depth" file-ref="75" />
+			<data type="skeleton" file-ref="75" />
+			<data type="mask" file-ref="75" />
+		</instance>
+		<instance activity="10" actor="16" sample="2">
+			<file id="76">S7_C6_U16_D2.oni</file>
+			<data type="color" file-ref="76" />
+			<data type="depth" file-ref="76" />
+			<data type="skeleton" file-ref="76" />
+			<data type="mask" file-ref="76" />
+		</instance>
+		<instance activity="10" actor="16" sample="3">
+			<file id="77">S7_C6_U16_D3.oni</file>
+			<data type="color" file-ref="77" />
+			<data type="depth" file-ref="77" />
+			<data type="skeleton" file-ref="77" />
+			<data type="mask" file-ref="77" />
+		</instance>
+		<instance activity="10" actor="30" sample="1">
+			<file id="78">S14_C12_U30_D1.oni</file>
+			<data type="color" file-ref="78" />
+			<data type="depth" file-ref="78" />
+			<data type="skeleton" file-ref="78" />
+			<data type="mask" file-ref="78" />
+		</instance>
+		<instance activity="10" actor="30" sample="2">
+			<file id="79">S14_C12_U30_D2.oni</file>
+			<data type="color" file-ref="79" />
+			<data type="depth" file-ref="79" />
+			<data type="skeleton" file-ref="79" />
+			<data type="mask" file-ref="79" />
+		</instance>
+		<instance activity="10" actor="30" sample="3">
+			<file id="80">S14_C12_U30_D3.oni</file>
+			<data type="color" file-ref="80" />
+			<data type="depth" file-ref="80" />
+			<data type="skeleton" file-ref="80" />
+			<data type="mask" file-ref="80" />
+		</instance>
+		<instance activity="11" actor="10" sample="1">
+			<file id="81">S5_C4_U10_N1.oni</file>
+			<data type="color" file-ref="81" />
+			<data type="depth" file-ref="81" />
+			<data type="skeleton" file-ref="81" />
+			<data type="mask" file-ref="81" />
+		</instance>
+		<instance activity="11" actor="10" sample="2">
+			<file id="82">S5_C4_U10_N2.oni</file>
+			<data type="color" file-ref="82" />
+			<data type="depth" file-ref="82" />
+			<data type="skeleton" file-ref="82" />
+			<data type="mask" file-ref="82" />
+		</instance>
+		<instance activity="11" actor="10" sample="3">
+			<file id="83">S5_C4_U10_N3.oni</file>
+			<data type="color" file-ref="83" />
+			<data type="depth" file-ref="83" />
+			<data type="skeleton" file-ref="83" />
+			<data type="mask" file-ref="83" />
+		</instance>
+		<instance activity="11" actor="16" sample="1">
+			<file id="84">S7_C6_U16_N1.oni</file>
+			<data type="color" file-ref="84" />
+			<data type="depth" file-ref="84" />
+			<data type="skeleton" file-ref="84" />
+			<data type="mask" file-ref="84" />
+		</instance>
+		<instance activity="11" actor="16" sample="2">
+			<file id="85">S7_C6_U16_N2.oni</file>
+			<data type="color" file-ref="85" />
+			<data type="depth" file-ref="85" />
+			<data type="skeleton" file-ref="85" />
+			<data type="mask" file-ref="85" />
+		</instance>
+		<instance activity="11" actor="16" sample="3">
+			<file id="86">S7_C6_U16_N3.oni</file>
+			<data type="color" file-ref="86" />
+			<data type="depth" file-ref="86" />
+			<data type="skeleton" file-ref="86" />
+			<data type="mask" file-ref="86" />
+		</instance>
+		<instance activity="11" actor="30" sample="1">
+			<file id="87">S14_C12_U30_N1.oni</file>
+			<data type="color" file-ref="87" />
+			<data type="depth" file-ref="87" />
+			<data type="skeleton" file-ref="87" />
+			<data type="mask" file-ref="87" />
+		</instance>
+		<instance activity="11" actor="30" sample="2">
+			<file id="88">S14_C12_U30_N2.oni</file>
+			<data type="color" file-ref="88" />
+			<data type="depth" file-ref="88" />
+			<data type="skeleton" file-ref="88" />
+			<data type="mask" file-ref="88" />
+		</instance>
+		<instance activity="11" actor="30" sample="3">
+			<file id="89">S14_C12_U30_N3.oni</file>
+			<data type="color" file-ref="89" />
+			<data type="depth" file-ref="89" />
+			<data type="skeleton" file-ref="89" />
+			<data type="mask" file-ref="89" />
+		</instance>
+		<instance activity="12" actor="10" sample="1">
+			<file id="90">S5_C4_U10_K1.oni</file>
+			<data type="color" file-ref="90" />
+			<data type="depth" file-ref="90" />
+			<data type="skeleton" file-ref="90" />
+			<data type="mask" file-ref="90" />
+		</instance>
+		<instance activity="12" actor="10" sample="2">
+			<file id="91">S5_C4_U10_K2.oni</file>
+			<data type="color" file-ref="91" />
+			<data type="depth" file-ref="91" />
+			<data type="skeleton" file-ref="91" />
+			<data type="mask" file-ref="91" />
+		</instance>
+		<instance activity="12" actor="10" sample="3">
+			<file id="92">S5_C4_U10_K3.oni</file>
+			<data type="color" file-ref="92" />
+			<data type="depth" file-ref="92" />
+			<data type="skeleton" file-ref="92" />
+			<data type="mask" file-ref="92" />
+		</instance>
+		<instance activity="12" actor="10" sample="4">
+			<file id="93">S5_C4_U10_K4.oni</file>
+			<data type="color" file-ref="93" />
+			<data type="depth" file-ref="93" />
+			<data type="skeleton" file-ref="93" />
+			<data type="mask" file-ref="93" />
+		</instance>
+		<instance activity="12" actor="16" sample="1">
+			<file id="94">S7_C6_U16_K1.oni</file>
+			<data type="color" file-ref="94" />
+			<data type="depth" file-ref="94" />
+			<data type="skeleton" file-ref="94" />
+			<data type="mask" file-ref="94" />
+		</instance>
+		<instance activity="12" actor="16" sample="2">
+			<file id="95">S7_C6_U16_K2.oni</file>
+			<data type="color" file-ref="95" />
+			<data type="depth" file-ref="95" />
+			<data type="skeleton" file-ref="95" />
+			<data type="mask" file-ref="95" />
+		</instance>
+		<instance activity="12" actor="16" sample="3">
+			<file id="96">S7_C6_U16_K3.oni</file>
+			<data type="color" file-ref="96" />
+			<data type="depth" file-ref="96" />
+			<data type="skeleton" file-ref="96" />
+			<data type="mask" file-ref="96" />
+		</instance>
+		<instance activity="12" actor="16" sample="4">
+			<file id="97">S7_C6_U16_K4.oni</file>
+			<data type="color" file-ref="97" />
+			<data type="depth" file-ref="97" />
+			<data type="skeleton" file-ref="97" />
+			<data type="mask" file-ref="97" />
+		</instance>
+		<instance activity="12" actor="30" sample="1">
+			<file id="98">S14_C12_U30_K1.oni</file>
+			<data type="color" file-ref="98" />
+			<data type="depth" file-ref="98" />
+			<data type="skeleton" file-ref="98" />
+			<data type="mask" file-ref="98" />
+		</instance>
+		<instance activity="12" actor="30" sample="2">
+			<file id="99">S14_C12_U30_K2.oni</file>
+			<data type="color" file-ref="99" />
+			<data type="depth" file-ref="99" />
+			<data type="skeleton" file-ref="99" />
+			<data type="mask" file-ref="99" />
+		</instance>
+		<instance activity="12" actor="30" sample="3">
+			<file id="100">S14_C12_U30_K3.oni</file>
+			<data type="color" file-ref="100" />
+			<data type="depth" file-ref="100" />
+			<data type="skeleton" file-ref="100" />
+			<data type="mask" file-ref="100" />
+		</instance>
+		<instance activity="12" actor="30" sample="4">
+			<file id="101">S14_C12_U30_K4.oni</file>
+			<data type="color" file-ref="101" />
+			<data type="depth" file-ref="101" />
+			<data type="skeleton" file-ref="101" />
+			<data type="mask" file-ref="101" />
+		</instance>
+		<instance activity="13" actor="10" sample="1">
+			<file id="102">S5_C4_U10_BG.oni</file>
+			<data type="color" file-ref="102" />
+			<data type="depth" file-ref="102" />
+			<data type="skeleton" file-ref="102" />
+			<data type="mask" file-ref="102" />
+		</instance>
+		<instance activity="13" actor="16" sample="1">
+			<file id="103">S7_C6_U16_BG.oni</file>
+			<data type="color" file-ref="103" />
+			<data type="depth" file-ref="103" />
+			<data type="skeleton" file-ref="103" />
+			<data type="mask" file-ref="103" />
+		</instance>
+		<instance activity="13" actor="30" sample="1">
+			<file id="104">S14_C12_U30_BG.oni</file>
+			<data type="color" file-ref="104" />
+			<data type="depth" file-ref="104" />
+			<data type="skeleton" file-ref="104" />
+			<data type="mask" file-ref="104" />
+		</instance>
+		<instance activity="15" actor="16" sample="1">
+			<file id="105">S7_C6_U16_CB.oni</file>
+			<data type="color" file-ref="105" />
+			<data type="depth" file-ref="105" />
+			<data type="skeleton" file-ref="105" />
+			<data type="mask" file-ref="105" />
+		</instance>
+		<instance activity="15" actor="30" sample="1">
+			<file id="106">S14_C12_U30_CB.oni</file>
+			<data type="color" file-ref="106" />
+			<data type="depth" file-ref="106" />
+			<data type="skeleton" file-ref="106" />
+			<data type="mask" file-ref="106" />
+		</instance>
+	</instances>
+</dataset>

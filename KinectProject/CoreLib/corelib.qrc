@@ -3,4 +3,9 @@
         <file>glsl/viewer.fsh</file>
         <file>glsl/viewer.vsh</file>
     </qresource>
+    <qresource prefix="/">
+        <file>data/HuDaAct.xml</file>
+        <file>data/MSRAction3D.xml</file>
+        <file>data/MSRDailyActivity3D.xml</file>
+    </qresource>
 </RCC>

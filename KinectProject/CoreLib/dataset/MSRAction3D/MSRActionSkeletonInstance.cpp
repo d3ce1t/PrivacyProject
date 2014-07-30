@@ -51,7 +51,7 @@ bool MSRActionSkeletonInstance::openInstance()
 {
     bool result = false;
     QString datasetPath = m_info.parent().getPath();
-    QString instancePath = datasetPath + "/" + m_info.getFileName();
+    QString instancePath = datasetPath + "/" + m_info.getFileName(DataFrame::Skeleton);
 
     if (!m_file.is_open())
     {
@@ -62,7 +62,7 @@ bool MSRActionSkeletonInstance::openInstance()
             m_file.seekg(0, ios_base::beg);
 
             // Read Number of Frames from Depth File
-            QString fileName = m_info.getFileName().replace("skeleton3D.txt", "sdepth.bin");
+            QString fileName = m_info.getFileName(DataFrame::Skeleton).replace("skeleton3D.txt", "sdepth.bin");
             QString depthPath = datasetPath + "/" + fileName;
             ifstream depthFile;
             depthFile.open(depthPath.toStdString().c_str(), ios::in|ios::binary);

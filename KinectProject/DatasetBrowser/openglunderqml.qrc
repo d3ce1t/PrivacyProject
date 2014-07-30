@@ -12,8 +12,4 @@
         <file>glsl/skeleton.fsh</file>
         <file>glsl/skeleton.vsh</file>
     </qresource>
-    <qresource prefix="/">
-        <file>data/MSRAction3D.xml</file>
-        <file>data/MSRDailyActivity3D.xml</file>
-    </qresource>
 </RCC>

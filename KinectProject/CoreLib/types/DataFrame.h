@@ -23,6 +23,8 @@ public:
     };
     Q_DECLARE_FLAGS(SupportedFrames, FrameType)
 
+    static FrameType getType(SupportedFrames type);
+
     // Constructor
     DataFrame(FrameType type);
     DataFrame(const DataFrame& other);

@@ -10,28 +10,14 @@ InstanceInfo::InstanceInfo(shared_ptr<DatasetMetadata> parent)
     m_parent = parent;
 }
 
-InstanceInfo::InstanceInfo(DataFrame::FrameType type, shared_ptr<DatasetMetadata> parent)
-{
-    if (type == DataFrame::Unknown)
-        throw NotImplementedException();
-
-    m_type = type;
-    m_parent = parent;
-}
-
 InstanceInfo::InstanceInfo(const InstanceInfo& other)
 {
     m_type = other.m_type;
     m_activity = other.m_activity;
     m_actor = other.m_actor;
     m_sample = other.m_sample;
-    m_file = other.m_file;
+    m_files = other.m_files; // Implicit sharing
     m_parent = other.m_parent;
-}
-
-InstanceInfo::~InstanceInfo()
-{
-
 }
 
 InstanceInfo& InstanceInfo::operator=(const InstanceInfo& other)
@@ -40,12 +26,12 @@ InstanceInfo& InstanceInfo::operator=(const InstanceInfo& other)
     m_activity = other.m_activity;
     m_actor = other.m_actor;
     m_sample = other.m_sample;
-    m_file = other.m_file;
+    m_files = other.m_files;
     m_parent = other.m_parent;
     return *this;
 }
 
-DataFrame::FrameType InstanceInfo::getType() const
+DataFrame::SupportedFrames InstanceInfo::getType() const
 {
     return m_type;
 }
@@ -65,9 +51,9 @@ int InstanceInfo::getSample() const
     return m_sample;
 }
 
-QString InstanceInfo::getFileName() const
+QString InstanceInfo::getFileName(DataFrame::FrameType frameType) const
 {
-    return m_file;
+    return m_files.value(frameType);
 }
 
 const DatasetMetadata &InstanceInfo::parent() const
@@ -75,9 +61,9 @@ const DatasetMetadata &InstanceInfo::parent() const
     return *m_parent;
 }
 
-void InstanceInfo::setType(DataFrame::FrameType type)
+void InstanceInfo::addType(DataFrame::FrameType type)
 {
-    m_type = type;
+    m_type |= type;
 }
 
 void InstanceInfo::setActivity(int activity)
@@ -95,7 +81,7 @@ void InstanceInfo::setSample(int sample)
     m_sample = sample;
 }
 
-void InstanceInfo::setFileName(QString file)
+void InstanceInfo::addFileName(DataFrame::FrameType frameType, QString file)
 {
-    m_file = file;
+    m_files.insert(frameType, file);
 }

@@ -3,6 +3,7 @@
 #include <QFile>
 #include <QXmlStreamReader>
 #include <iostream>
+#include <QDebug>
 
 using namespace dai;
 using namespace std;
@@ -28,35 +29,12 @@ DatasetMetadata::~DatasetMetadata()
     }
     m_sampleTypes.clear();
 
-
-    QHashIterator<DataFrame::FrameType, QHash<int, InstanceInfoList*>* > it(m_instances);
-
-    while (it.hasNext())
-    {
-        it.next();
-        QHash<int, InstanceInfoList*>* activities = it.value();
-        QHashIterator<int, InstanceInfoList*> it2(*activities);
-
-        while (it2.hasNext()) {
-            it2.next();
-            InstanceInfoList* list = it2.value();
-
-            for (int i=0; i<list->count(); ++i) {
-                InstanceInfo* instance = list->at(i);
-                delete instance;
-            }
-
-            list->clear(); // InstanceInfo stored still exists
-            delete list;
-        }
-
-        activities->clear(); // Remove all pointers to InstanceInfoList
-        delete activities;
+    // Free Memory
+    foreach (InstanceInfo* instance, m_instances) {
+        delete instance;
     }
 
     m_instances.clear();
-
-    // InstanceInfo will be deleted when DatasetMetadata is deleted
 }
 
 const QString DatasetMetadata::getName() const
@@ -89,70 +67,79 @@ int DatasetMetadata::getNumberOfSampleTypes() const
     return m_numberOfSampleTypes;
 }
 
-const InstanceInfo DatasetMetadata::instance(DataFrame::FrameType type, int activity, int actor, int sample)
+const InstanceInfo* DatasetMetadata::instance(DataFrame::FrameType type, int activity, int actor, int sample)
 {
-    InstanceInfo* result = 0;
-    QHash<int, InstanceInfoList*>& hashInstances = *(m_instances[type]);
-    InstanceInfoList* instancesList = hashInstances.value(activity);
-
-    int i = 0;
+    InstanceInfo* result = nullptr;
     bool found = false;
 
-    while (!found && i<instancesList->size())
-    {
-        InstanceInfo* instance = instancesList->at(i);
+    QListIterator<InstanceInfo*> it(m_instances);
 
-        if (instance->getActivity() == activity && instance->getActor() == actor && instance->getSample() == sample) {
+    while (!found && it.hasNext())
+    {
+        InstanceInfo* instance = it.next();
+
+        if (instance->getType().testFlag(type) && instance->getActivity() == activity &&
+            instance->getActor() == actor && instance->getSample() == sample) {
             found = true;
             result = instance;
         }
-
-        i++;
     }
 
     if (!found) {
         throw 1;
     }
 
-    return *result;
+    return result;
 }
 
-const InstanceInfoList* DatasetMetadata::instances(
+const InstanceInfo* DatasetMetadata::instance(int activity, int actor, int sample)
+{
+    InstanceInfo* result = nullptr;
+    bool found = false;
+
+    QListIterator<InstanceInfo*> it(m_instances);
+
+    while (!found && it.hasNext())
+    {
+        InstanceInfo* instance = it.next();
+
+        if (instance->getActivity() == activity && instance->getActor() == actor && instance->getSample() == sample) {
+            found = true;
+            result = instance;
+        }
+    }
+
+    return result;
+}
+
+const InstanceInfoList DatasetMetadata::instances(
         DataFrame::FrameType type, const QList<int>* activities, const QList<int>* actors, const QList<int>* samples) const
 {
-    InstanceInfoList* result = new InstanceInfoList();
+    InstanceInfoList result;
 
-    if (!m_instances.contains(type))
+    if (m_instances.isEmpty())
         return result;
 
-    QHash<int, InstanceInfoList*>& hashInstances = *(m_instances[type]);
+    QListIterator<InstanceInfo*> it(m_instances);
 
-    for (int i=1; i<=m_numberOfActivities; ++i)
+    while (it.hasNext())
     {
-        InstanceInfoList* instancesList = hashInstances.value(i); // instances with actors and samples
+        InstanceInfo* instance = it.next();
+        bool isActivityChecked = false;
+        bool isActorChecked = false;
+        bool isSampleChecked = false;
 
-        if (instancesList == nullptr)
-            continue;
+        if (activities == 0 || (activities != 0 && activities->contains(instance->getActivity())))
+            isActivityChecked = true;
 
-        for (int l=0; l<instancesList->size(); ++l)
-        {
-            InstanceInfo* instance = instancesList->at(l);
-            bool isActivityChecked = false;
-            bool isActorChecked = false;
-            bool isSampleChecked = false;
+        if (actors == 0 || (actors != 0 && actors->contains(instance->getActor())))
+            isActorChecked = true;
 
-            if (activities == 0 || (activities != 0 && activities->contains(instance->getActivity())))
-                isActivityChecked = true;
+        if (samples == 0 || (samples != 0 && samples->contains(instance->getSample())))
+            isSampleChecked = true;
 
-            if (actors == 0 || (actors != 0 && actors->contains(instance->getActor())))
-                isActorChecked = true;
-
-            if (samples == 0 || (samples != 0 && samples->contains(instance->getSample())))
-                isSampleChecked = true;
-
-            if (isActivityChecked && isActorChecked && isSampleChecked) {
-                result->append(instance);
-            }
+        if (instance->getType().testFlag(type) && isActivityChecked && isActorChecked && isSampleChecked) {
+            result.append(instance);
         }
     }
 
@@ -174,32 +161,52 @@ const QString& DatasetMetadata::getSampleName(int key) const
     return *(m_sampleTypes.value(key));
 }
 
+const QList<int> DatasetMetadata::actors() const
+{
+    return m_actors.keys();
+}
+
 void DatasetMetadata::addInstanceInfo(InstanceInfo* instance)
 {
-    QHash<int, InstanceInfoList*>* activities = nullptr;
-
-    // Create list of activities if it doesn't exist
-    // the list of activities contains a list of instances
-    if (!m_instances.contains(instance->getType())) {
-        activities = new QHash<int, InstanceInfoList*>();
-        m_instances.insert(instance->getType(), activities);
-    } else {
-        activities = m_instances.value(instance->getType());
-    }
-
-    InstanceInfoList* list = nullptr;
-
-    if (!activities->contains(instance->getActivity())) {
-        list = new InstanceInfoList();
-        activities->insert(instance->getActivity(), list);
-    } else {
-        list = activities->value(instance->getActivity());
-    }
-
-    list->push_back(instance);
+    Q_ASSERT(instance != nullptr);
+    m_instances.push_back(instance);
 }
 
 shared_ptr<DatasetMetadata> DatasetMetadata::load(QString xmlPath)
+{
+    shared_ptr<DatasetMetadata> dsMetaDataObject(new DatasetMetadata());
+    QFile file(xmlPath);
+    file.open(QIODevice::ReadOnly);
+    int version = 0;
+
+    QXmlStreamReader reader;
+    reader.setDevice(&file);
+
+    // Read Version
+    while (!reader.atEnd() && version == 0) {
+        QXmlStreamReader::TokenType type = reader.readNext();
+        if (type == QXmlStreamReader::StartElement && reader.name() == "dataset") {
+            version = reader.attributes().value("need-version").toInt();
+        }
+    }
+
+    if (reader.hasError()) {
+        cerr << "Error parsing dataset: " << endl;
+        cerr << reader.errorString().toStdString() << endl;
+    }
+
+    reader.clear();
+    file.close();
+
+    if (version == 1)
+        dsMetaDataObject = load_version1(xmlPath);
+    else
+        dsMetaDataObject = load_version2(xmlPath);
+
+    return dsMetaDataObject;
+}
+
+shared_ptr<DatasetMetadata> DatasetMetadata::load_version1(QString xmlPath)
 {
     shared_ptr<DatasetMetadata> dsMetaDataObject(new DatasetMetadata());
     QFile file(xmlPath);
@@ -297,14 +304,19 @@ shared_ptr<DatasetMetadata> DatasetMetadata::load(QString xmlPath)
 
                 dsMetaDataObject->m_availableInstanceTypes |= type;
 
-                InstanceInfo* instanceInfo = new InstanceInfo(type, dsMetaDataObject);
-                instanceInfo->setActivity(activity);
-                instanceInfo->setActor(actor);
-                instanceInfo->setSample(sample);
-                instanceInfo->setFileName(file);
+                InstanceInfo* instanceInfo = const_cast<InstanceInfo*>(dsMetaDataObject->instance(activity, actor, sample));
 
-                // Insert
-                dsMetaDataObject->addInstanceInfo(instanceInfo);
+                if (!instanceInfo) {
+                    instanceInfo = new InstanceInfo(dsMetaDataObject);
+                    instanceInfo->setActivity(activity);
+                    instanceInfo->setActor(actor);
+                    instanceInfo->setSample(sample);
+                    // Insert
+                    dsMetaDataObject->addInstanceInfo(instanceInfo);
+                }
+
+                instanceInfo->addType(type);
+                instanceInfo->addFileName(type, file);
             }
             break;
 
@@ -320,6 +332,172 @@ shared_ptr<DatasetMetadata> DatasetMetadata::load(QString xmlPath)
             }
             else if (reader.name() == "instances") {
                 insideInstances = false;
+            }
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    if (reader.hasError()) {
+        cerr << "Error parsing MSRDailyActivity3D dataset: " << endl;
+        cerr << reader.errorString().toStdString() << endl;
+    }
+
+    reader.clear();
+    file.close();
+
+    return dsMetaDataObject;
+}
+
+shared_ptr<DatasetMetadata> DatasetMetadata::load_version2(QString xmlPath)
+{
+    shared_ptr<DatasetMetadata> dsMetaDataObject(new DatasetMetadata());
+    QFile file(xmlPath);
+    file.open(QIODevice::ReadOnly);
+
+    QXmlStreamReader reader;
+    reader.setDevice(&file);
+
+    bool insideActivities = false;
+    bool insideSamples = false;
+    bool insideActors = false;
+    bool insideInstances = false;
+    InstanceInfo* instanceInfo = nullptr;
+    QHash<int, QString> fileNames;
+
+    while (!reader.atEnd())
+    {
+        QXmlStreamReader::TokenType type = reader.readNext();
+
+        switch (type) {
+        case QXmlStreamReader::StartElement:
+            // DataSet tag
+            if (reader.name() == "dataset") {
+                dsMetaDataObject->m_name = reader.attributes().value("name").toString();
+            }
+            // Description tag
+            else if (reader.name() == "description") {
+                reader.readNext();
+                dsMetaDataObject->m_description = reader.text().toString().trimmed();
+            }
+            // Path tag
+            else if (reader.name() == "path") {
+                reader.readNext();
+                dsMetaDataObject->m_path = reader.text().toString().trimmed();
+            }
+            // Activities tag
+            else if (reader.name() == "activities") {
+                int number = reader.attributes().value("size").toString().toInt();
+                dsMetaDataObject->m_numberOfActivities = number;
+                insideActivities = true;
+            }
+            // Activity tag
+            else if (reader.name() == "activity" && insideActivities) {
+                int key = reader.attributes().value("key").toString().toInt();
+                reader.readNext();
+                dsMetaDataObject->m_activities[key] = new QString(reader.text().toString());
+            }
+            // Actors tag
+            else if (reader.name() == "actors") {
+                int number = reader.attributes().value("size").toString().toInt();
+                dsMetaDataObject->m_numberOfActors = number;
+                insideActors = true;
+            }
+            // Actor tag
+            else if (reader.name() == "actor" && insideActors) {
+                int key = reader.attributes().value("key").toString().toInt();
+                reader.readNext();
+                dsMetaDataObject->m_actors[key] = new QString(reader.text().toString());
+            }
+            // Samples tag
+            else if (reader.name() == "samples") {
+                int number = reader.attributes().value("size").toString().toInt();
+                dsMetaDataObject->m_numberOfSampleTypes = number;
+                insideSamples = true;
+            }
+            // Sample tag
+            else if (reader.name() == "sample" && insideSamples) {
+                int key = reader.attributes().value("key").toString().toInt();
+                reader.readNext();
+                dsMetaDataObject->m_sampleTypes[key] = new QString(reader.text().toString());
+            }
+            // Instances tag
+            else if (reader.name() == "instances") {
+                insideInstances = true;
+            }
+            // Instance tag
+            else if (reader.name() == "instance" && insideInstances) {
+                /*
+                 * <instance activity="1" actor="10" sample="1">
+                 *      <file id="1">S5_C4_U10_L1.oni</file>
+                 *      <data type="color" file-ref="1" />
+                 *      <data type="depth" file-ref="1" />
+                 *      <data type="skeleton" file-ref="1" />
+                 *      <data type="mask" file-ref="1" />
+                 * </instance>
+                 */
+                int activity = reader.attributes().value("activity").toString().toInt();
+                int actor = reader.attributes().value("actor").toString().toInt();
+                int sample = reader.attributes().value("sample").toString().toInt();
+
+                instanceInfo = const_cast<InstanceInfo*>(dsMetaDataObject->instance(activity, actor, sample));
+
+                if (instanceInfo) {
+                    qDebug() << "Such an item should not exist yet";
+                    throw 1;
+                }
+
+                instanceInfo = new InstanceInfo(dsMetaDataObject);
+                instanceInfo->setActivity(activity);
+                instanceInfo->setActor(actor);
+                instanceInfo->setSample(sample);
+                // Insert
+                dsMetaDataObject->addInstanceInfo(instanceInfo);
+            }
+            else if (reader.name() == "file" && insideInstances && instanceInfo != nullptr) {
+                int fileId = reader.attributes().value("id").toString().toInt();
+                reader.readNext();
+                QString file = reader.text().toString();
+                fileNames.insert(fileId, file);
+            }
+            else if (reader.name() == "data" && insideInstances && instanceInfo != nullptr) {
+                QString strType = reader.attributes().value("type").toString();
+                int fileRef = reader.attributes().value("file-ref").toInt();
+                DataFrame::FrameType type = DataFrame::Unknown;
+
+                if (strType == "depth")
+                    type = DataFrame::Depth;
+                else if (strType == "color")
+                    type = DataFrame::Color;
+                else if (strType == "skeleton")
+                    type = DataFrame::Skeleton;
+                else if (strType == "mask")
+                    type = DataFrame::Mask;
+
+                dsMetaDataObject->m_availableInstanceTypes |= type;
+                instanceInfo->addType(type);
+                instanceInfo->addFileName(type, fileNames.value(fileRef));
+            }
+            break;
+
+        case QXmlStreamReader::EndElement:
+            if (reader.name() == "activities") {
+                insideActivities = false;
+            }
+            else if (reader.name() == "actors") {
+                insideActors = false;
+            }
+            else if (reader.name() == "samples") {
+                insideSamples = false;
+            }
+            else if (reader.name() == "instances") {
+                insideInstances = false;
+            }
+            else if (reader.name() == "instance" && insideInstances) {
+                instanceInfo = nullptr;
+                fileNames.clear();
             }
             break;
 

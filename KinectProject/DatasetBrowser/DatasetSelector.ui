@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>349</width>
-    <height>70</height>
+    <width>351</width>
+    <height>85</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -48,6 +48,11 @@
        <item>
         <property name="text">
          <string>MSRAction3D</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>HuDaAct</string>
         </property>
        </item>
       </widget>

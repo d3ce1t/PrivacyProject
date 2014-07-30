@@ -28,9 +28,9 @@ shared_ptr<StreamInstance> Dataset::getInstance(int activity, int actor, int sam
     return instance(activity, actor, sample, type);
 }
 
-shared_ptr<StreamInstance> Dataset::getInstance(const InstanceInfo& info) const
+shared_ptr<StreamInstance> Dataset::getInstance(const InstanceInfo& info, DataFrame::FrameType type) const
 {
-    return instance(info.getActivity(), info.getActor(), info.getSample(), info.getType());
+    return instance(info.getActivity(), info.getActor(), info.getSample(), type);
 }
 
 } // End Namespace

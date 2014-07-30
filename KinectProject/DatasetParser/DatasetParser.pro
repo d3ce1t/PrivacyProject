@@ -1,50 +1,25 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2013-09-18T13:29:56
+# Project created by QtCreator 2013-03-27T13:34:59
 #
 #-------------------------------------------------
 
-QT       += core gui quick multimedia
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+QT       += core
+QT       -= gui
 
-TARGET = DatasetBrowser
-TEMPLATE = app
-CONFIG += link_prl
+TARGET = DatasetParser
+CONFIG   += console
+CONFIG   -= app_bundle
+CONFIG   += link_prl
+TEMPLATE  = app
 
 # Use C++11
 QMAKE_CXXFLAGS += -std=c++11
 QMAKE_LFLAGS = -std=c++11
 
-HEADERS  += \
-    DatasetBrowser.h \
-    SettingsDialog.h \
-    DatasetSelector.h
 
-SOURCES += main.cpp\
-    DatasetBrowser.cpp \
-    SettingsDialog.cpp \
-    DatasetSelector.cpp
+SOURCES += main.cpp
 
-OTHER_FILES += \
-    qml/main.qml \
-    glsl/scene3d.fsh \
-    glsl/scene3d.vsh \
-    glsl/scene2d.fsh \
-    glsl/scene2d.vsh \
-    glsl/skeleton.fsh \
-    glsl/skeleton.vsh \
-    glsl/silhouette.fsh \
-    glsl/silhouette.vsh
-
-RESOURCES += \
-    openglunderqml.qrc
-
-FORMS    += \
-    DatasetBrowser.ui \
-    SettingsDialog.ui \
-    DatasetSelector.ui
-
-# Linux
 unix:!macx {
     # CoreLib
     LIBS += -L$$OUT_PWD/../CoreLib/ -lCoreLib

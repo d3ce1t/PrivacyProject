@@ -50,7 +50,7 @@ bool MSRDailySkeletonInstance::is_open() const
 bool MSRDailySkeletonInstance::openInstance()
 {
     bool result = false;
-    QString instancePath = m_info.parent().getPath() + "/" + m_info.getFileName();
+    QString instancePath = m_info.parent().getPath() + "/" + m_info.getFileName(DataFrame::Skeleton);
 
     if (!m_file.is_open())
     {

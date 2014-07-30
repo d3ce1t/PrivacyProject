@@ -2,6 +2,7 @@
 #include "ui_DatasetBrowser.h"
 #include "dataset/MSRDaily/MSRDailyActivity3D.h"
 #include "dataset/MSRAction3D/MSR3Action3D.h"
+#include "dataset/HuDaAct/HuDaAct.h"
 #include "playback/PlaybackControl.h"
 #include "viewer/InstanceViewerWindow.h"
 #include "InstanceWidgetItem.h"
@@ -21,7 +22,8 @@ DatasetBrowser::DatasetBrowser(QWidget *parent) :
     m_dataset = nullptr;
 
     // First Setup
-    if (m_settings.getMSRAction3D().isEmpty() || m_settings.getMSRDailyActivity3D().isEmpty()) {
+    if (m_settings.getMSRAction3D().isEmpty() || m_settings.getMSRDailyActivity3D().isEmpty()
+            || m_settings.getHuDaAct().isEmpty()) {
         QTimer::singleShot(1, &m_settings, SLOT(show()));
     }
 
@@ -98,7 +100,7 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
 {
     InstanceWidgetItem* instanceItem = dynamic_cast<InstanceWidgetItem*>(item);
     InstanceInfo& info = instanceItem->getInfo();
-    shared_ptr<StreamInstance> instance = m_dataset->getInstance(info);
+    shared_ptr<StreamInstance> instance = m_dataset->getInstance(info, m_showType);
 
     if (instance)
     {
@@ -128,14 +130,20 @@ void DatasetBrowser::loadDataset(Dataset::DatasetType type)
 {
     closeDataset();
 
+    ui->listActivities->blockSignals(true);
+    ui->listActors->blockSignals(true);
+    ui->listSamples->blockSignals(true);
     ui->comboType->blockSignals(true);
 
     if (type == Dataset::Dataset_MSRDailyActivity3D) {
-        m_dataset = new MSRDailyActivity3D();
+        m_dataset = new MSRDailyActivity3D;
         m_dataset->setPath(m_settings.getMSRDailyActivity3D());
     } else if (type == Dataset::Dataset_MSRAction3D) {
-        m_dataset = new MSR3Action3D();
+        m_dataset = new MSR3Action3D;
         m_dataset->setPath(m_settings.getMSRAction3D());
+    } else if (type == Dataset::Dataset_HuDaAct) {
+        m_dataset = new HuDaAct;
+        m_dataset->setPath(m_settings.getHuDaAct());
     }
 
     // Load widgets with DataSet Info
@@ -149,8 +157,8 @@ void DatasetBrowser::loadDataset(Dataset::DatasetType type)
     }
 
     // Load Actors
-    for (int i=1; i<=dsMetaData.getNumberOfActors(); ++i) {
-        QListWidgetItem* item = new QListWidgetItem(dsMetaData.getActorName(i), ui->listActors);
+    foreach (int actor, dsMetaData.actors()) {
+        QListWidgetItem* item = new QListWidgetItem(dsMetaData.getActorName(actor), ui->listActors);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable); // set checkable flag
         item->setCheckState(Qt::Checked); // AND initialize check state
     }
@@ -178,6 +186,9 @@ void DatasetBrowser::loadDataset(Dataset::DatasetType type)
         ui->comboType->addItem("User", QVariant(DataFrame::Mask));
     }
 
+    ui->listActivities->blockSignals(false);
+    ui->listActors->blockSignals(false);
+    ui->listSamples->blockSignals(false);
     ui->comboType->blockSignals(false);
     loadInstances();
 }
@@ -189,7 +200,7 @@ void DatasetBrowser::loadInstances()
     ui->listInstances->clear();
 
     // Prepare Filter
-    DataFrame::FrameType showType = (DataFrame::FrameType) ui->comboType->itemData(ui->comboType->currentIndex()).toInt();
+    m_showType = (DataFrame::FrameType) ui->comboType->itemData(ui->comboType->currentIndex()).toInt();
     QList<int> activities;
 
     for (int i=0; i<ui->listActivities->count(); ++i) {
@@ -203,7 +214,7 @@ void DatasetBrowser::loadInstances()
     for (int i=0; i<ui->listActors->count(); ++i) {
         QListWidgetItem* item = ui->listActors->item(i);
         if (item != 0 && item->checkState() == Qt::Checked)
-            actors.append(i+1);
+            actors.append(item->text().toInt());
     }
 
     QList<int> samples;
@@ -214,16 +225,14 @@ void DatasetBrowser::loadInstances()
             samples.append(i+1);
     }
 
-    // Get and Load Instances (I'm responsible to free this memory)
-    const InstanceInfoList* instances = dsMetadata.instances(showType, &activities, &actors, &samples);
+    // Get and Load Instances
+    const InstanceInfoList instances = dsMetadata.instances(m_showType, &activities, &actors, &samples);
 
-    for (int i=0; i<instances->count(); ++i) {
-        InstanceInfo* instanceInfo = instances->at(i);
-        InstanceWidgetItem* item = new InstanceWidgetItem(instanceInfo->getFileName(), ui->listInstances);
+    for (int i=0; i<instances.count(); ++i) {
+        InstanceInfo* instanceInfo = instances.at(i);
+        InstanceWidgetItem* item = new InstanceWidgetItem(instanceInfo->getFileName(m_showType), ui->listInstances);
         item->setInfo(*instanceInfo);
     }
-
-    delete instances;
 }
 
 void DatasetBrowser::on_btnSelectAllActivities_clicked()

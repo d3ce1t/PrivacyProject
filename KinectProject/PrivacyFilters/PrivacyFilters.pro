@@ -11,24 +11,16 @@ QMAKE_LFLAGS = -std=c++11
 
 HEADERS += \
     MainWindow.h \
-    openni/OpenNIDepthInstance.h \
-    openni/OpenNIColorInstance.h \
-    openni/OpenNIRuntime.h \
     ogre/SinbadCharacterController.h \
     ogre/OgreScene.h \
-    openni/OpenNIUserTrackerInstance.h \
     ogre/OgrePointCloud.h \
     filters/PrivacyFilter.h
 
 SOURCES += \
     Main.cpp \
     MainWindow.cpp \
-    openni/OpenNIDepthInstance.cpp \
-    openni/OpenNIColorInstance.cpp \
-    openni/OpenNIRuntime.cpp \
     ogre/SinbadCharacterController.cpp \
     ogre/OgreScene.cpp \
-    openni/OpenNIUserTrackerInstance.cpp \
     ogre/OgrePointCloud.cpp \
     filters/PrivacyFilter.cpp
 
@@ -61,16 +53,6 @@ unix:!macx {
 
     # Boost
     LIBS += -lboost_system
-
-    # OpenNI2
-    LIBS += -L/opt/OpenNI-Linux-x64-2.2/Tools/ -lOpenNI2
-    INCLUDEPATH += /opt/OpenNI-Linux-x64-2.2/Include
-    DEPENDPATH += /opt/OpenNI-Linux-x64-2.2/Include
-
-    # NiTE2
-    LIBS += -L/opt/NiTE-Linux-x64-2.2/Redist/ -lNiTE2
-    INCLUDEPATH += /opt/NiTE-Linux-x64-2.2/Include
-    DEPENDPATH += /opt/NiTE-Linux-x64-2.2/Include
 
     # OpenCV2
     LIBS += -lopencv_core -lopencv_imgproc
@@ -118,16 +100,6 @@ win32 {
         else:CONFIG(debug, debug|release):LIBS += -L$$BOOSTLIB -lboost_date_time-mgw48-mt-d-1_55 -lboost_thread-mgw48-mt-d-1_55
     }
 
-    # OpenNI2
-    LIBS += -L$$(OPENNI2_LIB) -lOpenNI2
-    INCLUDEPATH += $$(OPENNI2_INCLUDE)
-    DEPENDPATH += $$(OPENNI2_INCLUDE)
-
-    # NiTE2
-    LIBS += -L$$(NITE2_LIB) -lNiTE2
-    INCLUDEPATH += $$(NITE2_INCLUDE)
-    DEPENDPATH += $$(NITE2_INCLUDE)
-
     # OpenCV2
     INCLUDEPATH += $$(OPENCV2_INCLUDE)
     DEPENDPATH += $$(OPENCV2_INCLUDE)
@@ -149,7 +121,7 @@ unix:!macx {
     Config.files = config/linux/*
 }
 
-# Install Win
+# Install Win Files
 win32 {
     # Ogre Resources
     Resources.path = $$DESTDIR/resources
