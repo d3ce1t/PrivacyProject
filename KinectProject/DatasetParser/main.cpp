@@ -75,24 +75,24 @@ void parseMSRAction3D(const QStringList& entries)
 
 void parseHuDaAct(const QStringList& entries)
 {
-    QHash<QString, int> map = {
-        { "L",   1}, // L: enter room
-        { "E",   2}, // E: exit the room
-        { "P",   3}, // P: make a phone call
-        { "B",   4}, // B: go to bed
-        { "G",   5}, // G: get up from bed
-        { "I",   6}, // I: sit down
-        { "T",   7}, // T: stand up
-        { "O",   8}, // O: mop floor
-        { "M",   9}, // M: eat meal
-        { "D",  10}, // D: put on jacket
-        { "N",  11}, // N: take off jacket
-        { "K",  12}, // K: drink water
-        { "BG", 13}, // BG: background activity
-        {"SBG", 14}, // SBG: background activity
-        { "CB", 15}, // CB: background activity
-        {"SCB", 16}  // SCB: background activity
-    };
+    QHash<QString, int> map;
+    map["L"] = 1; // L: enter room
+    map["E"] = 2; // E: exit the room
+    map["P"] =   3; // P: make a phone call
+    map["B"] =   4; // B: go to bed
+    map["G"] =   5; // G: get up from bed
+    map["I"] =  6; // I: sit down
+    map["T"] =  7; // T: stand up
+    map["O"] =  8; // O: mop floor
+    map["M"] =   9; // M: eat meal
+    map["D"] = 10; // D: put on jacket
+    map["N"] = 11; // N: take off jacket
+    map["K"] = 12; // K: drink water
+    map["BG"] =13; // BG: background activity
+    map["SBG"] =14; // SBG: background activity
+    map["CB"] =15; // CB: background activity
+    map["SCB"] = 16;  // SCB: background activity
+
 
     QMap<int, QMap<int, QMap<int, dai::InstanceInfo*> > > list;
 

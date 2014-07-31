@@ -13,8 +13,10 @@ CONFIG += staticlib
 CONFIG += create_prl
 
 # Use C++11
-QMAKE_CXXFLAGS += -std=c++11
-QMAKE_LFLAGS = -std=c++11
+unix:!macx {
+    QMAKE_CXXFLAGS += -std=c++11
+    QMAKE_LFLAGS = -std=c++11
+}
 
 SOURCES += \
     types/Vector3D.cpp \
@@ -61,8 +63,8 @@ SOURCES += \
     dataset/HuDaAct/HuDaAct.cpp \
     openni/OpenNIColorInstance.cpp \
     openni/OpenNIDepthInstance.cpp \
-    openni/OpenNIRuntime.cpp \
-    openni/OpenNIUserTrackerInstance.cpp
+    openni/OpenNIUserTrackerInstance.cpp \
+    openni/OpenNIDevice.cpp
 
 HEADERS += \
     types/Vector3D.h \
@@ -118,8 +120,8 @@ HEADERS += \
     dataset/HuDaAct/HuDaAct.h \
     openni/OpenNIColorInstance.h \
     openni/OpenNIDepthInstance.h \
-    openni/OpenNIRuntime.h \
-    openni/OpenNIUserTrackerInstance.h
+    openni/OpenNIUserTrackerInstance.h \
+    openni/OpenNIDevice.h
 
 OTHER_FILES +=
 

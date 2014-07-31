@@ -5,6 +5,7 @@
 #include "playback/PlaybackControl.h"
 #include "filters/PrivacyFilter.h"
 #include "viewer/InstanceViewerWindow.h"
+#include "openni/OpenNIDevice.h"
 
 namespace Ui {
 class MainWindow;
@@ -26,6 +27,7 @@ private slots:
     void on_btnQuit_clicked();
 
 private:
+    dai::OpenNIDevice* m_device;
     dai::InstanceViewerWindow* m_viewer;
     dai::PlaybackControl  m_playback;
     dai::PrivacyFilter    m_privacyFilter;

@@ -9,18 +9,23 @@ namespace dai {
 OpenNIDepthInstance::OpenNIDepthInstance()
     : StreamInstance(DataFrame::Depth)
 {
-    m_openni = nullptr;
+    m_device = nullptr;
+}
+
+OpenNIDepthInstance::OpenNIDepthInstance(OpenNIDevice* device)
+    : StreamInstance(DataFrame::Depth)
+{
+    m_device = device;
 }
 
 OpenNIDepthInstance::~OpenNIDepthInstance()
 {
     closeInstance();
-    m_openni = nullptr;
 }
 
 bool OpenNIDepthInstance::is_open() const
 {
-    return m_openni != nullptr;
+    return m_device->is_open();
 }
 
 bool OpenNIDepthInstance::openInstance()
@@ -29,7 +34,9 @@ bool OpenNIDepthInstance::openInstance()
 
     if (!is_open())
     {
-        m_openni = OpenNIRuntime::getInstance();
+        if (m_device == nullptr)
+            m_device = OpenNIDevice::create("ANY_DEVICE");
+        m_device->open();
         result = true;
     }
 
@@ -40,8 +47,7 @@ void OpenNIDepthInstance::closeInstance()
 {
     if (is_open())
     {
-        m_openni->releaseInstance();
-        m_openni = nullptr;
+        m_device->close();
     }
 }
 
@@ -52,7 +58,7 @@ void OpenNIDepthInstance::restartInstance()
 QList<shared_ptr<DataFrame>> OpenNIDepthInstance::nextFrames()
 {
     QList<shared_ptr<DataFrame>> result;
-    shared_ptr<DepthFrame> depthFrame = m_openni->readDepthFrame();
+    shared_ptr<DepthFrame> depthFrame = m_device->readDepthFrame();
     result.append(depthFrame);
     return result;
 }

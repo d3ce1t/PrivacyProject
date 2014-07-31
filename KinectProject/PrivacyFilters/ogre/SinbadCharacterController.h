@@ -2,12 +2,15 @@
 #define SINBAD_H
 
 #include <Ogre.h>
-#include "openni/OpenNIRuntime.h"
 #include <OgreStringConverter.h>
 #include <OgreErrorDialog.h>
+#include <memory>
+#include "types/Skeleton.h"
 
 #define RUN_SPEED   17         // character running speed in units per second
 #define TURN_SPEED  500.0f     // character turning in degrees per second
+
+using namespace std;
 
 class SinbadCharacterController
 {

@@ -6,8 +6,10 @@ TEMPLATE = app
 CONFIG += link_prl
 
 # Use C++11
-QMAKE_CXXFLAGS += -std=c++11 -Wno-unused-local-typedefs
-QMAKE_LFLAGS = -std=c++11
+unix:!macx {
+    QMAKE_CXXFLAGS += -std=c++11 -Wno-unused-local-typedefs
+    QMAKE_LFLAGS = -std=c++11
+}
 
 HEADERS += \
     MainWindow.h \
@@ -96,9 +98,21 @@ win32 {
     BOOSTLIB = $$(BOOST_LIBRARYDIR)
     !isEmpty(BOOSTDIR) {
         INCLUDEPATH += $$BOOSTDIR
-        CONFIG(release, debug|release):LIBS += -L$$BOOSTLIB -lboost_date_time-mgw48-mt-1_55 -lboost_thread-mgw48-mt-1_55
-        else:CONFIG(debug, debug|release):LIBS += -L$$BOOSTLIB -lboost_date_time-mgw48-mt-d-1_55 -lboost_thread-mgw48-mt-d-1_55
+        win32-g++:CONFIG(release, debug|release):LIBS += -L$$BOOSTLIB -lboost_date_time-mgw48-mt-1_55 -lboost_thread-mgw48-mt-1_55
+        else:win32-g++:CONFIG(debug, debug|release):LIBS += -L$$BOOSTLIB -lboost_date_time-mgw48-mt-d-1_55 -lboost_thread-mgw48-mt-d-1_55
+        else:CONFIG(release, debug|release):LIBS += -L$$BOOSTLIB -lboost_date_time-vc120-mt-1_55 -lboost_thread-vc120-mt-1_55
+        else:CONFIG(debug, debug|release):LIBS += -L$$BOOSTLIB -lboost_date_time-vc120-mt-gd-1_55 -lboost_thread-vc120-mt-gd-1_55
     }
+
+    # OpenNI2
+    #LIBS += -L$$(OPENNI2_LIB) -lOpenNI2
+    INCLUDEPATH += $$(OPENNI2_INCLUDE)
+    DEPENDPATH += $$(OPENNI2_INCLUDE)
+
+    # NiTE2
+    #LIBS += -L$$(NITE2_LIB) -lNiTE2
+    INCLUDEPATH += $$(NITE2_INCLUDE)
+    DEPENDPATH += $$(NITE2_INCLUDE)
 
     # OpenCV2
     INCLUDEPATH += $$(OPENCV2_INCLUDE)
@@ -118,7 +132,7 @@ unix:!macx {
 
     # Config Files
     Config.path = $$OUT_PWD
-    Config.files = config/linux/*
+    Config.files = ../config/linux/*
 }
 
 # Install Win Files
@@ -129,13 +143,15 @@ win32 {
 
     # Config Files
     Config.path = $$DESTDIR
-    CONFIG(release, debug|release):Config.files = config/win/release/*
-    else:CONFIG(debug, debug|release):Config.files = config/win/debug/*
+    CONFIG(release, debug|release):Config.files = ../config/win/release/*
+    else:CONFIG(debug, debug|release):Config.files = ../config/win/debug/*
 
     # OpenCV dll
     OpenCV.path = $$DESTDIR
-    CONFIG(release, debug|release):OpenCV.files = $$(OPENCV2_BIN)/libopencv_core249.dll $$(OPENCV2_BIN)/libopencv_imgproc249.dll $$(OPENCV2_BIN)/libopencv_highgui249.dll $$(OPENCV2_BIN)/libopencv_objdetect249.dll $$(OPENCV2_BIN)/libopencv_photo249.dll
-    else:CONFIG(debug, debug|release):OpenCV.files = $$(OPENCV2_BIN)/libopencv_core249d.dll $$(OPENCV2_BIN)/libopencv_imgproc249d.dll $$(OPENCV2_BIN)/libopencv_highgui249d.dll $$(OPENCV2_BIN)/libopencv_objdetect249d.dll $$(OPENCV2_BIN)/libopencv_photo249d.dll
+    win32-g++:CONFIG(release, debug|release):OpenCV.files = $$(OPENCV2_BIN)/libopencv_core249.dll $$(OPENCV2_BIN)/libopencv_imgproc249.dll $$(OPENCV2_BIN)/libopencv_highgui249.dll $$(OPENCV2_BIN)/libopencv_objdetect249.dll $$(OPENCV2_BIN)/libopencv_photo249.dll
+    else:win32-g++:CONFIG(debug, debug|release):OpenCV.files = $$(OPENCV2_BIN)/libopencv_core249d.dll $$(OPENCV2_BIN)/libopencv_imgproc249d.dll $$(OPENCV2_BIN)/libopencv_highgui249d.dll $$(OPENCV2_BIN)/libopencv_objdetect249d.dll $$(OPENCV2_BIN)/libopencv_photo249d.dll
+    else:CONFIG(release, debug|release):OpenCV.files = $$(OPENCV2_BIN)/opencv_core249.dll $$(OPENCV2_BIN)/opencv_imgproc249.dll $$(OPENCV2_BIN)/opencv_highgui249.dll $$(OPENCV2_BIN)/opencv_objdetect249.dll $$(OPENCV2_BIN)/opencv_photo249.dll
+    else:CONFIG(debug, debug|release):OpenCV.files = $$(OPENCV2_BIN)/opencv_core249d.dll $$(OPENCV2_BIN)/opencv_imgproc249d.dll $$(OPENCV2_BIN)/opencv_highgui249d.dll $$(OPENCV2_BIN)/opencv_objdetect249d.dll $$(OPENCV2_BIN)/opencv_photo249d.dll
 
     # Ogre dll
     CONFIG(release, debug|release): OGRE_DIR = $$OGREDIR\bin\release

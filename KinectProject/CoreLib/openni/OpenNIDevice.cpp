@@ -1,57 +1,47 @@
-#include "OpenNIRuntime.h"
-#include <iostream>
-#include <cstdio>
+#include "OpenNIDevice.h"
 #include <QDebug>
+#include <iostream>
+
+using namespace std;
 
 namespace dai {
 
-SkeletonJoint::JointType OpenNIRuntime::staticMap[15] = {
+SkeletonJoint::JointType OpenNIDevice::_staticMap[15] = {
     SkeletonJoint::JOINT_HEAD,             // 0
     SkeletonJoint::JOINT_CENTER_SHOULDER,  // 1
-    SkeletonJoint::JOINT_RIGHT_SHOULDER,    // 2
-    SkeletonJoint::JOINT_LEFT_SHOULDER,   // 3
-    SkeletonJoint::JOINT_RIGHT_ELBOW,       // 4
-    SkeletonJoint::JOINT_LEFT_ELBOW,      // 5
-    SkeletonJoint::JOINT_RIGHT_HAND,        // 6
-    SkeletonJoint::JOINT_LEFT_HAND,       // 7
+    SkeletonJoint::JOINT_RIGHT_SHOULDER,   // 2
+    SkeletonJoint::JOINT_LEFT_SHOULDER,    // 3
+    SkeletonJoint::JOINT_RIGHT_ELBOW,      // 4
+    SkeletonJoint::JOINT_LEFT_ELBOW,       // 5
+    SkeletonJoint::JOINT_RIGHT_HAND,       // 6
+    SkeletonJoint::JOINT_LEFT_HAND,        // 7
     SkeletonJoint::JOINT_SPINE,            // 8
-    SkeletonJoint::JOINT_RIGHT_HIP,         // 9
-    SkeletonJoint::JOINT_LEFT_HIP,        // 10
-    SkeletonJoint::JOINT_RIGHT_KNEE,        // 11
-    SkeletonJoint::JOINT_LEFT_KNEE,       // 12
-    SkeletonJoint::JOINT_RIGHT_FOOT,        // 13
-    SkeletonJoint::JOINT_LEFT_FOOT        // 14
+    SkeletonJoint::JOINT_RIGHT_HIP,        // 9
+    SkeletonJoint::JOINT_LEFT_HIP,         // 10
+    SkeletonJoint::JOINT_RIGHT_KNEE,       // 11
+    SkeletonJoint::JOINT_LEFT_KNEE,        // 12
+    SkeletonJoint::JOINT_RIGHT_FOOT,       // 13
+    SkeletonJoint::JOINT_LEFT_FOOT         // 14
 };
 
-OpenNIRuntime* OpenNIRuntime::_instance = nullptr;
-int OpenNIRuntime::_instance_counter = 0;
-QMutex OpenNIRuntime::mutex;
+QHash<QString, OpenNIDevice*> OpenNIDevice::_created_instances;
+int OpenNIDevice::_instance_counter = 0;
+bool OpenNIDevice::_initialised = false;
+QMutex OpenNIDevice::_mutex_counter;
 
-OpenNIRuntime* OpenNIRuntime::getInstance()
+OpenNIDevice::OpenNIDevice(const QString devicePath)
+    : m_devicePath(devicePath)
+    , m_opened(false)
 {
-    mutex.lock();
-    if (_instance == nullptr) {
-        _instance = new OpenNIRuntime();
-    }
+    // Init OpenNI
+    _mutex_counter.lock();
     _instance_counter++;
-    mutex.unlock();
-    return _instance;
-}
-
-void OpenNIRuntime::releaseInstance()
-{
-    mutex.lock();
-    _instance_counter--;
-
-    if (_instance_counter == 0) {
-        delete _instance;
-        _instance = nullptr;
+    if (!_initialised) {
+        initOpenNI();
     }
-    mutex.unlock();
-}
+    _mutex_counter.unlock();
 
-OpenNIRuntime::OpenNIRuntime()
-{
+    // Create buffers for data
     m_colorFrame = make_shared<ColorFrame>();
     m_depthFrame = make_shared<DepthFrame>(640, 480);
 
@@ -60,35 +50,43 @@ OpenNIRuntime::OpenNIRuntime()
     m_depthStreams[0] = &m_oniDepthStream;
     m_colorStreams = new openni::VideoStream*[1];
     m_colorStreams[0] = &m_oniColorStream;
-    initOpenNI();
 }
 
-OpenNIRuntime::~OpenNIRuntime()
+OpenNIDevice::~OpenNIDevice()
 {
+    close();
+
+    // Free Memory
     delete[] m_depthStreams;
     delete[] m_colorStreams;
-    shutdownOpenNI();
+
+    // Update counters
+    _mutex_counter.lock();
+    _instance_counter--;
+
+    if (_instance_counter == 0) {
+        shutdownOpenNI();
+    }
+    _mutex_counter.unlock();
 }
 
-openni::PlaybackControl* OpenNIRuntime::playbackControl()
+void OpenNIDevice::open()
 {
-    return m_device.getPlaybackControl();
-}
-
-void OpenNIRuntime::initOpenNI()
-{
-    //const char* deviceURI = openni::ANY_DEVICE;
-    const char* deviceURI = "/opt/captures/PrimeSense Short-Range (1.09) - 1 user.oni";
-
+    // Open device and create streams
     try {
-        if (openni::OpenNI::initialize() != openni::STATUS_OK)
-            throw 1;
+        QMutexLocker locker(&m_mutex);
+
+        if (m_opened)
+            return;
+
+        const char* deviceURI = openni::ANY_DEVICE;
+        std::string deviceURIStr = m_devicePath.toStdString();
+
+        if (m_devicePath != "ANY_DEVICE")
+            deviceURI = deviceURIStr.c_str();
 
         if (m_device.open(deviceURI) != openni::STATUS_OK)
             throw 2;
-
-        if (nite::NiTE::initialize() != nite::STATUS_OK)
-            throw 3;
 
         // Enable Depth to Color image registration
         if (m_device.isImageRegistrationModeSupported(openni::IMAGE_REGISTRATION_DEPTH_TO_COLOR)) {
@@ -133,6 +131,7 @@ void OpenNIRuntime::initOpenNI()
             throw 9;
 
         m_oniUserTracker.setSkeletonSmoothingFactor(0.4f);
+        m_opened = true;
     }
     catch (int ex)
     {
@@ -141,21 +140,29 @@ void OpenNIRuntime::initOpenNI()
     }
 }
 
-void OpenNIRuntime::shutdownOpenNI()
+void OpenNIDevice::close()
 {
+    QMutexLocker locker(&m_mutex);
     // Destroy streams and close device
     m_oniUserTracker.destroy();
     m_oniDepthStream.destroy();
     m_oniColorStream.stop();
     m_oniColorStream.destroy();
     m_device.close();
-
-    // Shutdown library
-    nite::NiTE::shutdown();
-    openni::OpenNI::shutdown();
+    m_opened = false;
 }
 
-shared_ptr<ColorFrame> OpenNIRuntime::readColorFrame()
+bool OpenNIDevice::is_open() const
+{
+    return m_device.isValid();
+}
+
+openni::PlaybackControl* OpenNIDevice::playbackControl()
+{
+    return m_device.getPlaybackControl();
+}
+
+shared_ptr<ColorFrame> OpenNIDevice::readColorFrame()
 {
     if (m_oniColorStream.readFrame(&m_oniColorFrame) != openni::STATUS_OK)
         throw 1;
@@ -175,7 +182,7 @@ shared_ptr<ColorFrame> OpenNIRuntime::readColorFrame()
     return m_colorFrame;
 }
 
-shared_ptr<DepthFrame> OpenNIRuntime::readDepthFrame()
+shared_ptr<DepthFrame> OpenNIDevice::readDepthFrame()
 {
     int changedIndex;
 
@@ -215,7 +222,7 @@ shared_ptr<DepthFrame> OpenNIRuntime::readDepthFrame()
     return m_depthFrame;
 }
 
-nite::UserTrackerFrameRef OpenNIRuntime::readUserTrackerFrame()
+nite::UserTrackerFrameRef OpenNIDevice::readUserTrackerFrame()
 {
     nite::UserTrackerFrameRef oniUserTrackerFrame;
 
@@ -230,12 +237,12 @@ nite::UserTrackerFrameRef OpenNIRuntime::readUserTrackerFrame()
     return oniUserTrackerFrame;
 }
 
-nite::UserTracker& OpenNIRuntime::getUserTracker()
+nite::UserTracker& OpenNIDevice::getUserTracker()
 {
     return m_oniUserTracker;
 }
 
-void OpenNIRuntime::copySkeleton(const nite::Skeleton& srcSkeleton, dai::Skeleton& dstSkeleton)
+void OpenNIDevice::copySkeleton(const nite::Skeleton& srcSkeleton, dai::Skeleton& dstSkeleton)
 {
     for (int j=0; j<15; ++j)
     {
@@ -245,25 +252,55 @@ void OpenNIRuntime::copySkeleton(const nite::Skeleton& srcSkeleton, dai::Skeleto
         const nite::Quaternion& niteOrientation = niteJoint.getOrientation();
 
         // Copy nite joint pos to my own Joint converting from nite milimeters to meters
-        SkeletonJoint joint(Point3f(nitePos.x / 1000, nitePos.y / 1000, nitePos.z / 1000), staticMap[j]);
+        SkeletonJoint joint(Point3f(nitePos.x / 1000, nitePos.y / 1000, nitePos.z / 1000), _staticMap[j]);
         joint.setOrientation(Quaternion(niteOrientation.w, niteOrientation.x,
                                                            niteOrientation.y,
                                                            niteOrientation.z));
 
         joint.setPositionConfidence(niteJoint.getPositionConfidence());
         joint.setOrientationConfidence(niteJoint.getOrientationConfidence());
-        dstSkeleton.setJoint(staticMap[j], joint);
+        dstSkeleton.setJoint(_staticMap[j], joint);
     }
 }
 
-void OpenNIRuntime::convertDepthToRealWorld(int x, int y, float distance, float &outX, float &outY) const
+OpenNIDevice* OpenNIDevice::create(const QString devicePath)
 {
-    m_oniUserTracker.convertDepthCoordinatesToJoint(x, y, distance * 1000, &outX, &outY);
+    OpenNIDevice* device = _created_instances.value(devicePath);
+
+    if (device == nullptr) {
+        // Create device
+        device = new OpenNIDevice(devicePath);
+        _created_instances.insert(devicePath, device);
+    }
+
+    return device;
 }
 
-void OpenNIRuntime::convertRealWorldCoordinatesToDepth(float x, float y, float z, float* pOutX, float* pOutY) const
+void OpenNIDevice::initOpenNI()
 {
-    m_oniUserTracker.convertJointCoordinatesToDepth(x, y, z * 1000, pOutX, pOutY);
+    // Init OpenNI and NiTE (
+    try {
+        if (openni::OpenNI::initialize() != openni::STATUS_OK)
+            throw 1;
+
+        if (nite::NiTE::initialize() != nite::STATUS_OK)
+            throw 2;
+
+        _initialised = true;
+    }
+    catch (int ex) {
+        printf("OpenNI init error:\n%s\n", openni::OpenNI::getExtendedError());
+        throw ex;
+    }
 }
 
-} // End namespace
+void OpenNIDevice::shutdownOpenNI()
+{
+    // Shutdown library
+    nite::NiTE::shutdown();
+    openni::OpenNI::shutdown();
+
+    _initialised = false;
+}
+
+} // End Namespace

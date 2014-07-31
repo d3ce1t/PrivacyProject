@@ -1,7 +1,7 @@
 #ifndef OPENNIDEPTHINSTANCE_H
 #define OPENNIDEPTHINSTANCE_H
 
-#include "OpenNIRuntime.h"
+#include "OpenNIDevice.h"
 #include "types/StreamInstance.h"
 #include "types/DepthFrame.h"
 #include <QMutex>
@@ -12,6 +12,7 @@ class OpenNIDepthInstance : public StreamInstance
 {
 public:
     OpenNIDepthInstance();
+    OpenNIDepthInstance(OpenNIDevice* device);
     virtual ~OpenNIDepthInstance();
     bool is_open() const override;
 
@@ -22,7 +23,7 @@ protected:
     QList<shared_ptr<DataFrame>> nextFrames() override;
 
 private:
-    OpenNIRuntime* m_openni;
+    OpenNIDevice* m_device;
 };
 
 } // End namespace

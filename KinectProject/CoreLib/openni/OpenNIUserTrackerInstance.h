@@ -1,7 +1,7 @@
 #ifndef OPENNIUSERTRACKERINSTANCE_H
 #define OPENNIUSERTRACKERINSTANCE_H
 
-#include "OpenNIRuntime.h"
+#include "OpenNIDevice.h"
 #include "types/StreamInstance.h"
 #include "types/SkeletonFrame.h"
 #include "types/MaskFrame.h"
@@ -14,6 +14,7 @@ class OpenNIUserTrackerInstance : public StreamInstance
 {
 public:
     OpenNIUserTrackerInstance();
+    OpenNIUserTrackerInstance(OpenNIDevice* device);
     virtual ~OpenNIUserTrackerInstance();
     bool is_open() const override;
 
@@ -24,7 +25,7 @@ protected:
     QList<shared_ptr<DataFrame>> nextFrames() override;
 
 private:
-    OpenNIRuntime* m_openni;
+    OpenNIDevice* m_device;
     shared_ptr<DepthFrame> m_frameDepth;
     shared_ptr<MaskFrame> m_frameUser;
     shared_ptr<SkeletonFrame> m_frameSkeleton;

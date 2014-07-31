@@ -2,6 +2,7 @@
 #include "OgreScene.h"
 #include <QOpenGLContext>
 #include <OgreStringConverter.h>
+#include "types/SkeletonFrame.h"
 #include <QDebug>
 
 OgreScene::OgreScene()

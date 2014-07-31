@@ -10,22 +10,31 @@ namespace dai {
 OpenNIUserTrackerInstance::OpenNIUserTrackerInstance()
     : StreamInstance(DataFrame::Depth | DataFrame::Mask | DataFrame::Skeleton | DataFrame::Metadata)
 {
+    m_device = nullptr;
     m_frameDepth = make_shared<DepthFrame>(640, 480);
     m_frameUser = make_shared<MaskFrame>(640, 480);
     m_frameSkeleton = make_shared<SkeletonFrame>();
     m_frameMetadata = make_shared<MetadataFrame>();
-    m_openni = nullptr;
+}
+
+OpenNIUserTrackerInstance::OpenNIUserTrackerInstance(OpenNIDevice* device)
+    : StreamInstance(DataFrame::Depth | DataFrame::Mask | DataFrame::Skeleton | DataFrame::Metadata)
+{
+    m_device = device;
+    m_frameDepth = make_shared<DepthFrame>(640, 480);
+    m_frameUser = make_shared<MaskFrame>(640, 480);
+    m_frameSkeleton = make_shared<SkeletonFrame>();
+    m_frameMetadata = make_shared<MetadataFrame>();
 }
 
 OpenNIUserTrackerInstance::~OpenNIUserTrackerInstance()
 {
     closeInstance();
-    m_openni = nullptr;
 }
 
 bool OpenNIUserTrackerInstance::is_open() const
 {
-    return m_openni != nullptr;
+    return m_device->is_open();
 }
 
 bool OpenNIUserTrackerInstance::openInstance()
@@ -34,7 +43,9 @@ bool OpenNIUserTrackerInstance::openInstance()
 
     if (!is_open())
     {
-        m_openni = OpenNIRuntime::getInstance();
+        if (m_device == nullptr)
+            m_device = OpenNIDevice::create("ANY_DEVICE");
+        m_device->open();
         result = true;
     }
 
@@ -44,8 +55,7 @@ bool OpenNIUserTrackerInstance::openInstance()
 void OpenNIUserTrackerInstance::closeInstance()
 {
     if (is_open()) {
-        m_openni->releaseInstance();
-        m_openni = nullptr;
+        m_device->close();
     }
 }
 
@@ -56,7 +66,7 @@ void OpenNIUserTrackerInstance::restartInstance()
 QList<shared_ptr<DataFrame>> OpenNIUserTrackerInstance::nextFrames()
 {
     QList<shared_ptr<DataFrame>> result;
-    nite::UserTrackerFrameRef oniUserTrackerFrame = m_openni->readUserTrackerFrame();
+    nite::UserTrackerFrameRef oniUserTrackerFrame = m_device->readUserTrackerFrame();
 
     // Load Depth and User Labels
     openni::VideoFrameRef oniDepthFrame = oniUserTrackerFrame.getDepthFrame();
@@ -90,7 +100,7 @@ QList<shared_ptr<DataFrame>> OpenNIUserTrackerInstance::nextFrames()
     m_frameMetadata->boundingBoxes().clear();
     m_frameMetadata->setIndex(oniUserTrackerFrame.getFrameIndex());
 
-    nite::UserTracker& oniUserTracker = m_openni->getUserTracker();
+    nite::UserTracker& oniUserTracker = m_device->getUserTracker();
     const nite::Array<nite::UserData>& users = oniUserTrackerFrame.getUsers();
 
     for (int i=0; i<users.getSize(); ++i)
@@ -123,7 +133,7 @@ QList<shared_ptr<DataFrame>> OpenNIUserTrackerInstance::nextFrames()
                     m_frameSkeleton->setSkeleton(user.getId(), daiSkeleton);
                 }
 
-                m_openni->copySkeleton(oniSkeleton, *(daiSkeleton.get()));
+                OpenNIDevice::copySkeleton(oniSkeleton, *(daiSkeleton.get()));
                 daiSkeleton->computeQuaternions();
             }
         }
