@@ -11,6 +11,7 @@ ViewerEngine::ViewerEngine()
     , m_colorFrame(nullptr)
     , m_metadataFrame(nullptr)
     , m_viewer(nullptr)
+    , m_showMode(Disabled)
 {
     qmlRegisterType<ViewerEngine>("ViewerEngine", 1, 0, "ViewerEngine");
     qmlRegisterType<InstanceViewer>("InstanceViewer", 1, 0, "InstanceViewer");
@@ -42,6 +43,11 @@ void ViewerEngine::setInstanceViewer(InstanceViewer* viewer)
 InstanceViewer* ViewerEngine::viewer()
 {
     return m_viewer;
+}
+
+void ViewerEngine::setDrawMode(DrawMode mode)
+{
+    m_showMode = mode;
 }
 
 void ViewerEngine::startEngine(QQuickWindow* window)
@@ -130,8 +136,9 @@ void ViewerEngine::renderOpenGLScene(QOpenGLFramebufferObject* fbo)
     m_vao.release();
     m_shaderProgram->release();
 
-    if (m_metadataFrame)
+    if (m_metadataFrame && m_showMode.testFlag(BoundingBox)) {
         renderBoundingBoxes();
+    }
 
     // Restore
     glDisable(GL_BLEND);

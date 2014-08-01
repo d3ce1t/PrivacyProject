@@ -10,6 +10,7 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
+#include <QFlags>
 
 using namespace dai;
 
@@ -20,6 +21,18 @@ class ViewerEngine : public QObject, public QOpenGLFunctions
     Q_OBJECT
 
 public:
+    enum DrawPrimitive {
+        /*Color       = 0x01,
+        Depth       = 0x02,
+        Skeleton    = 0x04,
+        Mask        = 0x08,
+        BoundingBox = 0x16*/
+        Disabled    = 0x00,
+        Mask        = 0x01,
+        BoundingBox = 0x02
+    };
+    Q_DECLARE_FLAGS(DrawMode, DrawPrimitive)
+
     ViewerEngine();
     ~ViewerEngine();
     void startEngine(QQuickWindow *window);
@@ -28,6 +41,7 @@ public:
     void renderOpenGLScene(QOpenGLFramebufferObject *fbo);
     void setInstanceViewer(InstanceViewer* viewer);
     InstanceViewer* viewer();
+    void setDrawMode(DrawMode mode);
 
 private:
     void initialise();
@@ -48,6 +62,7 @@ private:
     QOpenGLBuffer            m_texCoordBuffer;
     QMatrix4x4               m_matrix;
     InstanceViewer*          m_viewer;
+    DrawMode                 m_showMode;
 
     // Shader identifiers
     GLuint                   m_colorTextureId;
@@ -57,5 +72,6 @@ private:
     GLuint                   m_textCoordAttr;
     GLuint                   m_texColorFrameSampler;
 };
+Q_DECLARE_OPERATORS_FOR_FLAGS(ViewerEngine::DrawMode)
 
 #endif // VIEWERENGINE_H

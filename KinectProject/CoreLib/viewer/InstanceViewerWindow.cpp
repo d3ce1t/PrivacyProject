@@ -29,7 +29,7 @@ InstanceViewerWindow::InstanceViewerWindow()
     m_qmlEngine.rootContext()->setContextProperty("ViewerEngine", m_viewerEngine);
 
     // Load QML app
-    m_qmlEngine.load(QUrl("qrc:///qml/qml/main.qml"));
+    m_qmlEngine.load(QUrl("qrc:///qml/qml/viewer.qml"));
 
     // Get Window
     QObject *topLevel = m_qmlEngine.rootObjects().value(0);
@@ -112,6 +112,11 @@ void InstanceViewerWindow::processListItem(QListWidget* widget)
 void InstanceViewerWindow::setDelay(qint64 milliseconds)
 {
     m_delayInMs = milliseconds;
+}
+
+void InstanceViewerWindow::setDrawMode(ViewerEngine::DrawMode mode)
+{
+    m_viewerEngine->setDrawMode(mode);
 }
 
 void InstanceViewerWindow::newFrames(const QHashDataFrames dataFrames)

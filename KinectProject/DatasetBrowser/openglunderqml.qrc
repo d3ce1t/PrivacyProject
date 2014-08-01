@@ -1,10 +1,5 @@
 <RCC>
-    <qresource prefix="/qml">
-        <file>qml/main.qml</file>
-    </qresource>
     <qresource prefix="/glsl">
-        <file>glsl/scene2d.fsh</file>
-        <file>glsl/scene2d.vsh</file>
         <file>glsl/scene3d.fsh</file>
         <file>glsl/scene3d.vsh</file>
         <file>glsl/silhouette.fsh</file>

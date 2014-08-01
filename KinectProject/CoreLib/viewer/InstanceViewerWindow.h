@@ -32,6 +32,7 @@ public:
     QQuickWindow* quickWindow();
     void newFrames(const QHashDataFrames dataFrames) override;
     void setDelay(qint64 milliseconds);
+    void setDrawMode(ViewerEngine::DrawMode mode);
 
 signals:
     void changeOfStatus();
@@ -51,9 +52,9 @@ private:
     void setupJointsModel(QStandardItemModel &model);
     void setupDistancesModel(QStandardItemModel &model);
     void setupQuaternionModel(QStandardItemModel &model);
-    void feedJointsModel(const Skeleton &skeleton, QStandardItemModel &model);
-    void feedDistancesModel(const Skeleton& skeleton, QStandardItemModel& model);
-    void feedQuaternionsModel(const Skeleton &skeleton, QStandardItemModel& model);
+    void feedJointsModel(const dai::Skeleton &skeleton, QStandardItemModel &model);
+    void feedDistancesModel(const dai::Skeleton& skeleton, QStandardItemModel& model);
+    void feedQuaternionsModel(const dai::Skeleton &skeleton, QStandardItemModel& model);
     float colorIntensity(float value);
 
     bool                    m_initialised;

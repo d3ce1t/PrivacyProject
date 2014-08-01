@@ -2,10 +2,15 @@
     <qresource prefix="/glsl">
         <file>glsl/viewer.fsh</file>
         <file>glsl/viewer.vsh</file>
+        <file>glsl/scene2d.fsh</file>
+        <file>glsl/scene2d.vsh</file>
     </qresource>
     <qresource prefix="/">
         <file>data/HuDaAct.xml</file>
         <file>data/MSRAction3D.xml</file>
         <file>data/MSRDailyActivity3D.xml</file>
+    </qresource>
+    <qresource prefix="/qml">
+        <file>qml/viewer.qml</file>
     </qresource>
 </RCC>

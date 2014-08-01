@@ -27,7 +27,6 @@ SOURCES += \
     filters/PrivacyFilter.cpp
 
 OTHER_FILES += \
-    qml/main.qml \
     glsl/scene3d.fsh \
     glsl/scene3d.vsh \
     glsl/silhouette.fsh \

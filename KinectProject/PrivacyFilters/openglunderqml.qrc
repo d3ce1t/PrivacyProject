@@ -1,7 +1,5 @@
 <RCC>
     <qresource prefix="/glsl">
-        <file>glsl/scene2d.fsh</file>
-        <file>glsl/scene2d.vsh</file>
         <file>glsl/scene3d.fsh</file>
         <file>glsl/scene3d.vsh</file>
         <file>glsl/silhouette.fsh</file>
@@ -11,8 +9,5 @@
     </qresource>
     <qresource prefix="/icons">
         <file>kinect.png</file>
-    </qresource>
-    <qresource prefix="/qml">
-        <file>qml/main.qml</file>
     </qresource>
 </RCC>

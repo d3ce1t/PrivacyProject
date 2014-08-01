@@ -28,7 +28,6 @@ SOURCES += main.cpp\
     DatasetSelector.cpp
 
 OTHER_FILES += \
-    qml/main.qml \
     glsl/scene3d.fsh \
     glsl/scene3d.vsh \
     glsl/scene2d.fsh \
