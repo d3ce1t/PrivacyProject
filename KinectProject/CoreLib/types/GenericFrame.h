@@ -44,7 +44,7 @@ public:
      */
     int getStep() const;
     T getItem(int row, int column) const;
-    const T* getRowPtr(int row);
+    T* getRowPtr(int row) const;
     const T* getDataPtr() const;
     void setItem(int row, int column, T value);
 
@@ -231,7 +231,7 @@ const T* GenericFrame<T,frameType>::getDataPtr() const
 }
 
 template <class T,DataFrame::FrameType frameType>
-const T* GenericFrame<T,frameType>::getRowPtr(int row)
+T *GenericFrame<T, frameType>::getRowPtr(int row) const
 {
      return m_data + row * (this->m_width + this->m_padding);
 }

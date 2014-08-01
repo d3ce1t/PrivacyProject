@@ -14,6 +14,7 @@ MSRDailyDepthInstance::MSRDailyDepthInstance(const InstanceInfo &info)
     : DataInstance(info)
 {
     m_frameBuffer = make_shared<DepthFrame>(320, 240);
+    m_frameBuffer->setDistanceUnits(DepthFrame::MILIMETERS);
     m_width = 0;
     m_height = 0;
 }
@@ -80,10 +81,9 @@ QList<shared_ptr<DataFrame>> MSRDailyDepthInstance::nextFrames()
     for (int y=0; y<m_height; ++y) {
         for (int x=0; x<m_width; ++x)
         {
+            // I assume data is captured with Kinect SDK, so...
             // Kinect SDK provide depth values between 0 and 4000 in mm.
-            float value = m_readBuffer[y].depthRow[x] / 1000.0f; // I want meters
-            //value = normalise<int32_t>(m_readBuffer[y].depthRow[x], 0, 4000, 0, 1);
-            m_frameBuffer->setItem(y, x, value);
+            m_frameBuffer->setItem(y, x, m_readBuffer[y].depthRow[x]);
         }
     }
 

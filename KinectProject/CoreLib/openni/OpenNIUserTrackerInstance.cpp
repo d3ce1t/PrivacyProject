@@ -12,6 +12,7 @@ OpenNIUserTrackerInstance::OpenNIUserTrackerInstance()
 {
     m_device = nullptr;
     m_frameDepth = make_shared<DepthFrame>(640, 480);
+    m_frameDepth->setDistanceUnits(DepthFrame::MILIMETERS);
     m_frameUser = make_shared<MaskFrame>(640, 480);
     m_frameSkeleton = make_shared<SkeletonFrame>();
     m_frameMetadata = make_shared<MetadataFrame>();
@@ -22,6 +23,7 @@ OpenNIUserTrackerInstance::OpenNIUserTrackerInstance(OpenNIDevice* device)
 {
     m_device = device;
     m_frameDepth = make_shared<DepthFrame>(640, 480);
+    m_frameDepth->setDistanceUnits(DepthFrame::MILIMETERS);
     m_frameUser = make_shared<MaskFrame>(640, 480);
     m_frameSkeleton = make_shared<SkeletonFrame>();
     m_frameMetadata = make_shared<MetadataFrame>();
@@ -86,9 +88,8 @@ QList<shared_ptr<DataFrame>> OpenNIUserTrackerInstance::nextFrames()
 
     for (int y=0; y < userMap.getHeight(); ++y) {
         for (int x=0; x < userMap.getWidth(); ++x) {
-            uint8_t label = *pLabel;
-            m_frameDepth->setItem(y, x, *pDepth / 1000.0f);
-            m_frameUser->setItem(y, x, label);
+            m_frameDepth->setItem(y, x, *pDepth);
+            m_frameUser->setItem(y, x, *pLabel);
             pDepth++;
             pLabel++;
         }

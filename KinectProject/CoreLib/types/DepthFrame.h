@@ -15,7 +15,7 @@ namespace dai {
  * distance must be provided in meters.
  */
 
-class DepthFrame : public GenericFrame<float, DataFrame::Depth>
+class DepthFrame : public GenericFrame<uint16_t, DataFrame::Depth>
 {
 public:
 
@@ -25,20 +25,21 @@ public:
     };
 
     // Static Class Methods
-    static void calculateHistogram(QMap<float, float> &pHistogram, const DepthFrame &frame);
+    static void calculateHistogram(QMap<uint16_t, float> &pHistogram, const DepthFrame &frame);
 
     // Constructors
     DepthFrame();
     DepthFrame(int width, int height);
-    DepthFrame(int width, int height, float *pData);
+    DepthFrame(int width, int height, uint16_t *pData);
     virtual ~DepthFrame();
     DepthFrame(const DepthFrame& other);
     shared_ptr<DataFrame> clone() const;
-    DistanceUnits distanceUnits() const;
 
     // Member Methods
+    DistanceUnits distanceUnits() const;
     unsigned int getNumOfNonZeroPoints() const;
-    void setItem(int row, int column, float value);
+    void setDistanceUnits(DistanceUnits units);
+    void setItem(int row, int column, uint16_t value);
 
     // Overriden operators
     DepthFrame& operator=(const DepthFrame& other);

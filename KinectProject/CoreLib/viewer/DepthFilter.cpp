@@ -1,10 +1,12 @@
 #include "DepthFilter.h"
-#include "viewer/SkeletonItem.h"
+//#include "viewer/SkeletonItem.h"
 #include "types/ColorFrame.h"
+#include "types/DepthFrame.h"
+#include <QDebug>
 
 namespace dai {
 
-DepthFilter::DepthFilter()
+/*DepthFilter::DepthFilter()
     : m_glContext(nullptr)
     , m_gles(nullptr)
     , m_initialised(false)
@@ -25,16 +27,16 @@ DepthFilter::DepthFilter()
         qDebug() << "The surface could not be created";
         throw 1;
     }
-}
+}*/
 
 DepthFilter::~DepthFilter()
 {
     stopListener();
-    freeResources();
+    //freeResources();
     qDebug() << "DepthFilter::~DepthFilter";
 }
 
-void DepthFilter::initialise()
+/*void DepthFilter::initialise()
 {
     m_glContext = new QOpenGLContext;
     m_glContext->setFormat(m_surface.format());
@@ -65,9 +67,9 @@ void DepthFilter::initialise()
 
     m_glContext->doneCurrent();
     m_initialised = true;
-}
+}*/
 
-void DepthFilter::freeResources()
+/*void DepthFilter::freeResources()
 {
     if (m_glContext)
     {
@@ -92,13 +94,13 @@ void DepthFilter::freeResources()
 
     m_gles = nullptr;
     m_initialised = false;
-}
+}*/
 
 void DepthFilter::newFrames(const QHashDataFrames dataFrames)
 {
-    if (!m_initialised) {
+    /*if (!m_initialised) {
         initialise();
-    }
+    }*/
 
     // Copy frames (1 ms)
     m_frames.clear();
@@ -120,12 +122,13 @@ void DepthFilter::newFrames(const QHashDataFrames dataFrames)
     }
 }
 
-void DepthFilter::afterStop()
+/*void DepthFilter::afterStop()
 {
     freeResources();
-}
+}*/
 
-QHashDataFrames DepthFilter::produceFrames()
+// Render a 3D Scene (old version)
+/*QHashDataFrames DepthFilter::produceFrames()
 {
     shared_ptr<SkeletonItem> skeletonItem = static_pointer_cast<SkeletonItem>(m_scene->getFirstItem(ITEM_SKELETON));
 
@@ -170,6 +173,40 @@ QHashDataFrames DepthFilter::produceFrames()
     m_gles->glReadPixels(0,0, 640, 480, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*) colorFrame->getDataPtr());
     m_fboDisplay->release();
     m_glContext->doneCurrent();
+}*/
+
+// Convert Depth Frame to Color
+QHashDataFrames DepthFilter::produceFrames()
+{
+    if (m_frames.contains(DataFrame::Depth))
+    {
+        shared_ptr<DepthFrame> depthFrame = static_pointer_cast<DepthFrame>(m_frames.value(DataFrame::Depth));
+        shared_ptr<ColorFrame> colorFrame;
+
+        if (m_frames.contains(DataFrame::Color)) {
+            colorFrame = static_pointer_cast<ColorFrame>(m_frames.value(DataFrame::Color));
+        } else {
+            colorFrame = make_shared<ColorFrame>(depthFrame->getWidth(), depthFrame->getHeight());
+            m_frames.insert(DataFrame::Color, colorFrame);
+        }
+
+        QMap<uint16_t, float> colorHistogram;
+        DepthFrame::calculateHistogram(colorHistogram, *(depthFrame.get()));
+
+        for (int i=0; i<depthFrame->getHeight(); ++i)
+        {
+            const uint16_t* pDepth = depthFrame->getRowPtr(i);
+            RGBColor* pColor = colorFrame->getRowPtr(i);
+
+            for (int j=0; j<depthFrame->getWidth(); ++j)
+            {
+               uint16_t color = colorHistogram[pDepth[j]];
+               pColor[j].red = color;
+               pColor[j].green = color;
+               pColor[j].blue = 0;
+            }
+        }
+    }
 
     return m_frames;
 }

@@ -3,10 +3,10 @@
 
 #include "playback/FrameListener.h"
 #include "playback/FrameGenerator.h"
-#include <QOpenGLContext>
+/*#include <QOpenGLContext>
 #include <QOffscreenSurface>
 #include <QOpenGLFramebufferObject>
-#include "viewer/Scene3DPainter.h"
+#include "viewer/Scene3DPainter.h"*/
 
 namespace dai {
 
@@ -16,24 +16,24 @@ namespace dai {
 class DepthFilter : public FrameListener, public FrameGenerator
 {
 public:
-    DepthFilter();
+    //DepthFilter();
     ~DepthFilter();
-    void initialise();
+    //void initialise();
     void newFrames(const QHashDataFrames dataFrames) override;
 
 protected:
-    void afterStop() override;
+    //void afterStop() override;
     QHashDataFrames produceFrames() override;
-    void freeResources();
+    //void freeResources();
 
 private:
     QHashDataFrames m_frames;
-    QOpenGLContext* m_glContext;
-    QOpenGLFunctions* m_gles;
-    QOffscreenSurface m_surface;
-    bool m_initialised;
-    Scene3DPainter* m_scene;
-    QOpenGLFramebufferObject* m_fboDisplay;
+    //QOpenGLContext* m_glContext;
+    //QOpenGLFunctions* m_gles;
+    //QOffscreenSurface m_surface;
+    //bool m_initialised;
+    //Scene3DPainter* m_scene;
+    //QOpenGLFramebufferObject* m_fboDisplay;
 };
 
 } // End Namespace

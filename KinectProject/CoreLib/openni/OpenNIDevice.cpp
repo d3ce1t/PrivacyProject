@@ -44,6 +44,7 @@ OpenNIDevice::OpenNIDevice(const QString devicePath)
     // Create buffers for data
     m_colorFrame = make_shared<ColorFrame>();
     m_depthFrame = make_shared<DepthFrame>(640, 480);
+    m_depthFrame->setDistanceUnits(DepthFrame::MILIMETERS);
 
     // Videostreams
     m_depthStreams = new openni::VideoStream*[1];
@@ -210,7 +211,7 @@ shared_ptr<DepthFrame> OpenNIDevice::readDepthFrame()
 
             for (int y=0; y < m_oniDepthFrame.getHeight(); ++y) {
                 for (int x=0; x < m_oniDepthFrame.getWidth(); ++x) {
-                    m_depthFrame->setItem(y, x, *pDepth / 1000.0f);
+                    m_depthFrame->setItem(y, x, *pDepth);
                     pDepth++;
                 }
             }

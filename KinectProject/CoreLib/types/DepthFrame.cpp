@@ -2,6 +2,7 @@
 #include <cstring>
 #include <limits>
 #include <QDebug>
+#include "Utils.h"
 
 namespace dai {
 
@@ -12,13 +13,13 @@ DepthFrame::DepthFrame()
 }
 
 DepthFrame::DepthFrame(int width, int height)
-    : GenericFrame<float,DataFrame::Depth>(width, height)
+    : GenericFrame<uint16_t,DataFrame::Depth>(width, height)
 {
     m_nNonZeroOfPoints = 0;
 }
 
-DepthFrame::DepthFrame(int width, int height, float *pData)
-    : GenericFrame<float,DataFrame::Depth>(width, height, pData)
+DepthFrame::DepthFrame(int width, int height, uint16_t *pData)
+    : GenericFrame<uint16_t,DataFrame::Depth>(width, height, pData)
 {
      m_nNonZeroOfPoints = 0;
 }
@@ -29,7 +30,7 @@ DepthFrame::~DepthFrame()
 }
 
 DepthFrame::DepthFrame(const DepthFrame& other)
-    : GenericFrame<float,DataFrame::Depth>(other)
+    : GenericFrame<uint16_t,DataFrame::Depth>(other)
 {
     m_nNonZeroOfPoints = other.m_nNonZeroOfPoints;
 }
@@ -41,7 +42,7 @@ shared_ptr<DataFrame> DepthFrame::clone() const
 
 DepthFrame& DepthFrame::operator=(const DepthFrame& other)
 {
-    GenericFrame<float,DataFrame::Depth>::operator=(other);
+    GenericFrame<uint16_t,DataFrame::Depth>::operator=(other);
     m_nNonZeroOfPoints = other.m_nNonZeroOfPoints;
     return *this;
 }
@@ -56,10 +57,15 @@ DepthFrame::DistanceUnits DepthFrame::distanceUnits() const
     return m_units;
 }
 
-void DepthFrame::setItem(int row, int column, float value)
+void DepthFrame::setDistanceUnits(DistanceUnits units)
 {
-    uint16_t current_value = GenericFrame<float,DataFrame::Depth>::getItem(row, column);
-    GenericFrame<float,DataFrame::Depth>::setItem(row, column, value);
+    m_units = units;
+}
+
+void DepthFrame::setItem(int row, int column, uint16_t value)
+{
+    uint16_t current_value = GenericFrame<uint16_t,DataFrame::Depth>::getItem(row, column);
+    GenericFrame<uint16_t,DataFrame::Depth>::setItem(row, column, value);
 
     if (value != 0 && current_value == 0) {
         m_nNonZeroOfPoints++;
@@ -71,19 +77,21 @@ void DepthFrame::setItem(int row, int column, float value)
 //
 // Static Class Methods
 //
-void DepthFrame::calculateHistogram(QMap<float, float> &pHistogram, const DepthFrame& frame)
+void DepthFrame::calculateHistogram(QMap<uint16_t, float> &pHistogram, const DepthFrame& frame)
 {
     pHistogram.clear();
 
-    int width = frame.getWidth();
-    int height = frame.getHeight();
+    int points_number = 0;
+    pHistogram[0] = 0;
 
     // Count how may points there are in a given depth
-    for (int y = 0; y < height; ++y)
+    for (int i = 0; i < frame.getHeight(); ++i)
     {
-        for (int x = 0; x < width; ++x)
+        const uint16_t* pDepth = frame.getRowPtr(i);
+
+        for (int j = 0; j < frame.getWidth(); ++j)
         {
-            float distance = frame.getItem(y, x);
+            uint16_t distance = pDepth[j];
 
             if (distance != 0) {
                 if (pHistogram.contains(distance)) {
@@ -91,12 +99,13 @@ void DepthFrame::calculateHistogram(QMap<float, float> &pHistogram, const DepthF
                 } else {
                     pHistogram.insert(distance, 1);
                 }
+                points_number++;
             }
         }
     }
 
     // Accumulate in the given depth all the points of previous depth layers
-    QMapIterator<float, float> it(pHistogram);
+    QMapIterator<uint16_t, float> it(pHistogram);
     uint16_t previousKey;
     uint16_t currentKey;
 
@@ -114,15 +123,16 @@ void DepthFrame::calculateHistogram(QMap<float, float> &pHistogram, const DepthF
 
     // Normalize (0% -> 256 color value, whereas 100% -> 0 color value)
     // In other words, near objects are brighter than far objects
-    if (frame.m_nNonZeroOfPoints)
+    if (points_number)
     {
-        QMapIterator<float, float> it(pHistogram);
-        float currentKey;
+        QMapIterator<uint16_t, float> it(pHistogram);
+        uint16_t currentKey;
+        it.next(); // Skip 0 depth
 
         while (it.hasNext()) {
             it.next();
             currentKey = it.key();
-            pHistogram[currentKey] = 1.0f - (pHistogram[currentKey] / frame.m_nNonZeroOfPoints);
+            pHistogram[currentKey] = 255 * (1.0f - (pHistogram[currentKey] / float(points_number)));
         }
     }
 }

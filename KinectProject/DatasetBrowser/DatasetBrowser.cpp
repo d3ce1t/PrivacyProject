@@ -105,12 +105,19 @@ void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)
     if (instance)
     {
         InstanceViewerWindow* windowViewer = new InstanceViewerWindow;
+        //windowViewer->setDrawMode(ViewerEngine::BoundingBox);
 
         m_playback.stop();
         m_playback.clearInstances();
         m_playback.addInstance(instance);
-        m_playback.addListener(&m_depthFilter);
-        m_depthFilter.addListener(windowViewer);
+
+        if (m_showType == DataFrame::Depth || m_showType == DataFrame::Skeleton) {
+            m_playback.addListener(&m_depthFilter);
+            m_depthFilter.addListener(windowViewer);
+        }
+        else {
+            m_playback.addListener(windowViewer);
+        }
 
         try {
             m_playback.play();
