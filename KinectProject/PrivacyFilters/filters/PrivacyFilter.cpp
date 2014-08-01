@@ -8,6 +8,9 @@
 #include <QDebug>
 #include <QThread>
 #include <iostream>
+#include <cmath>
+#include <boost/random.hpp>
+#include "Utils.h"
 
 namespace dai {
 
@@ -156,7 +159,8 @@ void PrivacyFilter::enableFilter(ColorFilter filterType)
     m_filter = filterType;
 }
 
-QHashDataFrames PrivacyFilter::produceFrames()
+// Test Whatever thing
+void PrivacyFilter::test1()
 {
     Q_ASSERT(m_frames.contains(DataFrame::Color) && m_frames.contains(DataFrame::Mask) &&
              m_frames.contains(DataFrame::Skeleton) && m_frames.contains(DataFrame::Metadata));
@@ -166,22 +170,23 @@ QHashDataFrames PrivacyFilter::produceFrames()
     shared_ptr<MetadataFrame> metadataFrame = static_pointer_cast<MetadataFrame>(m_frames.value(DataFrame::Metadata));
 
     // Work in the Bounding Box
-    if (!metadataFrame->boundingBoxes().isEmpty())
-    {
-        BoundingBox bb = metadataFrame->boundingBoxes().first();
-        shared_ptr<ColorFrame> subColorFrame = colorFrame->subFrame(bb.getMin().y(),bb.getMin().x(),
-                                                                    bb.size().width(), bb.size().height());
-        shared_ptr<MaskFrame> subMaskFrame = maskFrame->subFrame(bb.getMin().y(),bb.getMin().x(),
-                                                                 bb.size().width(), bb.size().height());
+    if (metadataFrame->boundingBoxes().isEmpty())
+        return;
 
-        cv::Mat subImage(subColorFrame->getHeight(), subColorFrame->getWidth(),
-                        CV_8UC3, (void*)subColorFrame->getDataPtr(), subColorFrame->getStep());
-        cv::Mat greyImage;
+    BoundingBox bb = metadataFrame->boundingBoxes().first();
+    shared_ptr<ColorFrame> subColorFrame = colorFrame->subFrame(bb.getMin().y(),bb.getMin().x(),
+                                                                bb.size().width(), bb.size().height());
+    shared_ptr<MaskFrame> subMaskFrame = maskFrame->subFrame(bb.getMin().y(),bb.getMin().x(),
+                                                             bb.size().width(), bb.size().height());
 
-        cv::cvtColor(subImage, greyImage, cv::COLOR_RGB2GRAY);
+    /*cv::Mat subImage(subColorFrame->getHeight(), subColorFrame->getWidth(),
+                     CV_8UC3, (void*)subColorFrame->getDataPtr(), subColorFrame->getStep());
+    cv::Mat greyImage;
 
-        // Face Detection
-        /*std::vector<cv::Rect> faces = faceDetection(greyImage);
+    cv::cvtColor(subImage, greyImage, cv::COLOR_RGB2GRAY);
+
+    // Face Detection
+    std::vector<cv::Rect> faces = faceDetection(greyImage);
 
         for (size_t i=0; i<faces.size(); ++i) {
             BoundingBox faceBB(Point3f(bb.getMin().x() + faces[i].x, bb.getMin().y() + faces[i].y, 0),
@@ -191,9 +196,165 @@ QHashDataFrames PrivacyFilter::produceFrames()
             metadataFrame->boundingBoxes().append(faceBB);
         }*/
 
-        // Compute Histogram
-        calcHistogram(subColorFrame, subMaskFrame);
-    }
+    // Compute Histogram
+    calcHistogram(subColorFrame, subMaskFrame);
+
+}
+
+// Test 2D log color space
+// Paper: Color Invariants for Person Reidentification
+void PrivacyFilter::test2()
+{
+    Q_ASSERT(m_frames.contains(DataFrame::Color) && m_frames.contains(DataFrame::Mask) &&
+             m_frames.contains(DataFrame::Skeleton) && m_frames.contains(DataFrame::Metadata));
+
+    shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(m_frames.value(DataFrame::Color));
+    shared_ptr<MaskFrame> maskFrame = static_pointer_cast<MaskFrame>(m_frames.value(DataFrame::Mask));
+    shared_ptr<MetadataFrame> metadataFrame = static_pointer_cast<MetadataFrame>(m_frames.value(DataFrame::Metadata));
+
+    // Work in the Bounding Box
+    if (metadataFrame->boundingBoxes().isEmpty())
+        return;
+
+    BoundingBox bb = metadataFrame->boundingBoxes().first();
+    shared_ptr<ColorFrame> subColorFrame = colorFrame->subFrame(bb.getMin().y(),bb.getMin().x(),
+                                                                bb.size().width(), bb.size().height());
+    shared_ptr<MaskFrame> subMaskFrame = maskFrame->subFrame(bb.getMin().y(),bb.getMin().x(),
+                                                             bb.size().width(), bb.size().height());
+
+    // Start OpenCV code
+    {using namespace cv;
+
+        Mat inputImg(subColorFrame->getHeight(), subColorFrame->getWidth(),
+                     CV_8UC3, (void*)subColorFrame->getDataPtr(), subColorFrame->getStep());
+
+        Mat mask(subMaskFrame->getHeight(), subMaskFrame->getWidth(),
+                 CV_8UC1, (void*)subMaskFrame->getDataPtr(), subMaskFrame->getStep());
+
+        // Compute Upper and Lower Masks
+        Mat upper_mask;
+        Mat lower_mask;
+        computeUpperAndLowerMasks(inputImg, upper_mask, lower_mask, mask);
+
+        // Denoise Image
+        Mat denoise_img;
+        GaussianBlur(inputImg, denoise_img, cv::Size(7, 7), 0, 0);
+        GaussianBlur(denoise_img, denoise_img, cv::Size(7, 7), 0, 0);
+        //bilateralFilter(image, denoiseImage, 9, 18, 4.5f);
+
+        // Sample Image
+        Mat upper_sampled_mask = simpleRandomSampling<uchar>(upper_mask, 400, upper_mask);
+        Mat lower_sampled_mask = simpleRandomSampling<uchar>(lower_mask, 400, lower_mask);
+
+        // Convert from RGB color space to 2D log color space
+        Mat imgLog = convertRGB2Log2D(inputImg);
+
+        //
+        // Let's party
+        //
+
+        // Compute the histogram
+        int img_size[] = {400, 400};
+        float log_range[] = {-5.6f, 5.6f};
+        const float* hist_ranges[] = { log_range, log_range };
+        int channels[] = {0, 1};
+        Mat u_hist, l_hist;
+        calcHist( &imgLog, 1, channels, upper_sampled_mask, u_hist, 2, img_size, hist_ranges, true, false);
+        calcHist( &imgLog, 1, channels, lower_sampled_mask, l_hist, 2, img_size, hist_ranges, true, false);
+
+        // Create masks for the upper and lower histograms
+        int u_nonzero_counter, l_nonzero_counter;
+        Mat u_hist_mask = createMask(u_hist, &u_nonzero_counter);
+        Mat l_hist_mask = createMask(l_hist, &l_nonzero_counter);
+
+        // Get min and max
+        double u_min, u_max, l_min, l_max;
+        minMaxLoc(u_hist, &u_min, &u_max);
+        minMaxLoc(l_hist, &l_min, &l_max);
+        qDebug() << "u.min" << u_min << "u.max" << u_max << "u.nz" << u_nonzero_counter <<
+                    "l.min" << l_min << "l.max" << l_max << "l.nz" << l_nonzero_counter;
+
+        // Histogram of the histogram (Upper part & Lower part)
+        int histSize = dai::max<float>(u_max, l_max);
+        float histD_ranges[2]; histD_ranges[0] = dai::min(u_min, l_min);  histD_ranges[1] = dai::max<float>(u_max, l_max);
+        const float* histD_range = {histD_ranges};
+        Mat u_histD, l_histD;
+
+        if (u_nonzero_counter)
+            calcHist( &u_hist, 1, channels, u_hist_mask, u_histD, 1, &histSize, &histD_range, true, false);
+
+        if (l_nonzero_counter)
+            calcHist( &l_hist, 1, channels, l_hist_mask, l_histD, 1, &histSize, &histD_range, true, false);
+
+        // Show it
+        int bin_w = cvRound( (double) img_size[1]/histSize );
+        Mat histImage( img_size[0], img_size[1], CV_8UC3, Scalar( 0,0,0) );
+
+        // Normalize the result to [ 0, histImage.rows ]
+        if (u_nonzero_counter)
+            normalize(u_histD, u_histD, 0, histImage.rows, NORM_MINMAX, -1, Mat() );
+
+        if (l_nonzero_counter)
+            normalize(l_histD, l_histD, 0, histImage.rows, NORM_MINMAX, -1, Mat() );
+
+        // Draw for each channel
+        for( int i=1; i < histSize; i++)
+        {
+            // This is OpenCV blue channel (Red in real because of BGR)
+            if (u_nonzero_counter)
+                line(histImage,
+                     Point( bin_w*(i-1), img_size[0] - cvRound(u_histD.at<float>(i-1)) ) ,
+                        Point( bin_w*(i), img_size[0] - cvRound(u_histD.at<float>(i)) ),
+                        Scalar( 0, 0, 255), 1, 8, 0  );
+
+            if (l_nonzero_counter)
+                line(histImage,
+                     Point( bin_w*(i-1), img_size[0] - cvRound(l_histD.at<float>(i-1)) ) ,
+                        Point( bin_w*(i), img_size[0] - cvRound(l_histD.at<float>(i)) ),
+                        Scalar( 255, 0, 0), 1, 8, 0  );
+        }
+
+        /*Mat u_hist_norm;
+        divide(u_hist, u_max, u_hist_norm);
+
+        Mat l_hist_norm;
+        divide(l_hist, l_max, l_hist_norm);
+
+        Mat diff_hist;
+        absdiff(u_hist, l_hist, diff_hist);*/
+
+        normalize(u_hist, u_hist, 0,1, NORM_MINMAX, -1, Mat() );
+        normalize(l_hist, l_hist, 0,1, NORM_MINMAX, -1, Mat() );
+
+        // Show
+        //imshow("Sample.Image", sampled_img);
+        //imshow("Denoise.Image", denoise_img);
+        imshow("H.image", histImage);
+        //imshow("ImgLOG0", log_planes[0]);
+        //imshow("ImgLOG1", log_planes[1]);
+        //imshow("Hist", hist);
+        imshow("U.hist", u_hist);
+        imshow("L.hist", l_hist);
+        //imshow("D.hist", diff_hist);
+        //imshow("NU.hist", u_hist_norm);
+        //imshow("NL.hist", l_hist_norm);
+        waitKey(1);
+
+    } // End OpenCV code
+
+    return;
+}
+
+QHashDataFrames PrivacyFilter::produceFrames()
+{
+    Q_ASSERT(m_frames.contains(DataFrame::Color) && m_frames.contains(DataFrame::Mask) &&
+             m_frames.contains(DataFrame::Skeleton) && m_frames.contains(DataFrame::Metadata));
+
+    shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(m_frames.value(DataFrame::Color));
+    shared_ptr<MaskFrame> maskFrame = static_pointer_cast<MaskFrame>(m_frames.value(DataFrame::Mask));
+
+    //test1();
+    test2();
 
     // Dilate mask to create a wide border (value = 255)
     shared_ptr<MaskFrame> inputMask = static_pointer_cast<MaskFrame>(m_frames.value(DataFrame::Mask));
@@ -273,6 +434,193 @@ QHashDataFrames PrivacyFilter::produceFrames()
     m_glContext->doneCurrent();
 
     return m_frames;
+}
+
+cv::Mat PrivacyFilter::createMask(cv::Mat input_img, int* nonzero_counter) const
+{
+    using namespace cv;
+
+    Mat output_mask = Mat::zeros(input_img.rows, input_img.cols, CV_8UC1);
+    int counter = 0;
+
+    for (int i=0; i<input_img.rows; ++i)
+    {
+        float* pixel = input_img.ptr<float>(i);
+
+        for (int j=0; j<input_img.cols; ++j)
+        {
+            if (pixel[j] > 0) {
+                output_mask.at<uchar>(i, j) = 1;
+                counter++;
+            }
+        }
+    }
+
+    if (nonzero_counter)
+        *nonzero_counter = counter;
+
+    return output_mask;
+}
+
+cv::Mat PrivacyFilter::convertRGB2Log2D(cv::Mat inputImg)
+{
+    using namespace cv;
+
+    Mat outputImg = Mat::zeros(inputImg.rows, inputImg.cols, CV_32FC2);
+
+    for (int i=0; i<inputImg.rows; ++i)
+    {
+        Vec3b* inPixel = inputImg.ptr<Vec3b>(i);
+        Vec2f* outPixel = outputImg.ptr<Vec2f>(i);
+
+        for (int j=0; j<inputImg.cols; ++j) {
+            // First approach
+            /*float divisor = inPixel[j][1] > 0 ? inPixel[j][1] : 1;
+            float dividend0 = inPixel[j][0] > 0 ? inPixel[j][0] : 1;
+            float dividend1 = inPixel[j][2] > 0 ? inPixel[j][2] : 1;
+            outPixel[j][0] = log(dividend0 / divisor);
+            outPixel[j][1] = log(dividend1 / divisor);*/
+
+            // Second Approach
+            /*if (inPixel[j][1] > 0) {
+                float factor0 = float(inPixel[j][0]) / float(inPixel[j][1]);
+                float factor1 = float(inPixel[j][2]) / float(inPixel[j][1]);
+                outPixel[j][0] = factor0 > 0 ? log(factor0) : 0;
+                outPixel[j][1] = factor1 > 0 ? log(factor1) : 0;
+            }*/
+
+            // Third approach: Consider RGB colors from 1 to 256
+            // min color: log(1/256) ~ -5.6
+            // max color: log(256/1) ~ 5.6
+            outPixel[j][0] = log( float(inPixel[j][0]+1) / float(inPixel[j][1]+1) ); // log ( R/G )
+            outPixel[j][1] = log( float(inPixel[j][2]+1) / float(inPixel[j][1]+1) ); // log ( B/G )
+        }
+    }
+
+    return outputImg;
+}
+
+template <class T>
+cv::Mat PrivacyFilter::simpleRandomSampling(cv::Mat inputImg, int n, cv::Mat mask)
+{
+    Q_ASSERT( (mask.rows == 0 && mask.cols == 0) || (mask.rows == inputImg.rows && mask.cols == inputImg.cols) );
+
+    using namespace cv;
+
+    Mat sampledImage = Mat::zeros(inputImg.rows, inputImg.cols, inputImg.type());
+    bool useMask = mask.rows > 0 && mask.cols > 0;
+    int n_mask_pixels = 0;
+    QSet<int> used_samples;
+    int k = inputImg.rows * inputImg.cols - 1;
+
+    boost::mt19937 generator;
+    generator.seed(time(0));
+    boost::uniform_int<> uniform_dist(0, k);
+    boost::variate_generator<boost::mt19937&, boost::uniform_int<>> uniform_rnd(generator, uniform_dist);
+
+    if (useMask) {
+        for (int i=0; i<mask.rows; ++i) {
+            uchar* maskPixel = mask.ptr<uchar>(i);
+            for (int j=0; j<mask.cols; ++j) {
+                if (maskPixel[j] > 0)
+                    n_mask_pixels++;
+            }
+        }
+
+        n = dai::min<int>(n, n_mask_pixels);
+    }
+
+    int i = 0;
+    int attempts = 0;
+
+    while (i < n && n < k)
+    {
+        int z = uniform_rnd();
+
+        if (!used_samples.contains(z)) {
+
+            int row = z / inputImg.cols;
+            int col = z % inputImg.cols;
+
+            if (useMask && mask.at<uchar>(row,col) <= 0) {
+                attempts++;
+                continue;
+            }
+
+            sampledImage.at<T>(row,col) = inputImg.at<T>(row,col);
+            used_samples << z;
+            i++;
+            attempts = 0;
+        }
+        else {
+            attempts++;
+        }
+
+        if (attempts > 0 && attempts % 1000 == 0) {
+            qDebug() << "Privacy Filter Stalled" << "attempts" << attempts << "i" << i << "n" << n << "k" << k << "mask pixels" << n_mask_pixels;
+        }
+    }
+
+    return sampledImage;
+}
+
+void PrivacyFilter::computeUpperAndLowerMasks(const cv::Mat input_img, cv::Mat& upper_mask, cv::Mat& lower_mask, const cv::Mat mask) const
+{
+    Q_ASSERT( (mask.rows == 0 && mask.cols == 0) || (mask.rows == input_img.rows && mask.cols == input_img.cols) );
+
+    using namespace cv;
+
+    bool useMask = mask.rows > 0 && mask.cols > 0;
+    upper_mask = Mat::zeros(input_img.rows, input_img.cols, CV_8UC1);
+    lower_mask = Mat::zeros(input_img.rows, input_img.cols, CV_8UC1);
+
+    for (int i=0; i<input_img.rows; ++i)
+    {
+        Vec3b* pixel = const_cast<Vec3b*>(input_img.ptr<Vec3b>(i));
+        uchar* uMask = upper_mask.ptr<uchar>(i);
+        uchar* lMask = lower_mask.ptr<uchar>(i);
+        const uchar* maskPixel = useMask ? mask.ptr<uchar>(i) : nullptr;
+
+        for (int j=0; j<input_img.cols; ++j)
+        {
+            if (useMask && maskPixel[j] <= 0)
+                continue;
+
+            if (i > input_img.rows * 0.12 && i < input_img.rows * 0.45) {
+                uMask[j] = 1;
+                //pixel[j][0] = 255;
+            } else if (i > input_img.rows * 0.50 && i < input_img.rows * 0.78) {
+                lMask[j] = 1;
+                pixel[j][2] = 255;
+            }
+        }
+    }
+
+    return;
+}
+
+template <class T>
+void PrivacyFilter::create2DCoordImage(cv::Mat input_img, cv::Mat& output_img, int size[], float input_range[], bool init_output, cv::Vec3b color) const
+{
+    Q_ASSERT(input_img.channels() == 2);
+    Q_ASSERT( init_output == true || (output_img.rows == size[0] && output_img.cols == size[1]) );
+
+    using namespace cv;
+
+    if (init_output)
+        output_img = Mat::zeros(size[0], size[1], CV_8UC3);
+
+    for (int i=0; i<input_img.rows; ++i)
+    {
+        T* pixel = input_img.ptr<T>(i);
+
+        for (int j=0; j<input_img.cols; ++j)
+        {
+            float coord_y = dai::normalise<float>(pixel[j][0], input_range[0], input_range[1], 0, size[0]);
+            float coord_x = dai::normalise<float>(pixel[j][1], input_range[0], input_range[1], 0, size[1]);
+            output_img.at<Vec3b>(coord_y, coord_x) = color;
+        }
+    }
 }
 
 void PrivacyFilter::dilateUserMask(uint8_t *labels)
@@ -426,6 +774,7 @@ template <class T>
 cv::Mat PrivacyFilter::interleaveMatChannels(cv::Mat inputMat, cv::Mat mask, int type)
 {
     Q_ASSERT(inputMat.channels() == 2 || inputMat.channels() == 3);
+    Q_ASSERT( (mask.rows == 0 && mask.cols == 0) || (mask.rows == inputMat.rows && mask.cols == inputMat.cols) );
 
     using namespace cv;
 

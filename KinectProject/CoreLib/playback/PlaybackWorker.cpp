@@ -112,6 +112,10 @@ void PlaybackWorker::run()
         /*qDebug() << "Available Time (ms)" << availableTime / 1000000.0f <<
                     "Remaining (ms)" << remainingTime / 1000000.0f <<
                     "Offset (ms)" << offsetTime / 1000000.0f;*/
+
+        if (productsCount() % 100 == 0) {
+            qDebug() << "PlaybackWorker is running" << productsCount();
+        }
     }
 
     closeAllInstances();

@@ -39,17 +39,18 @@ void MainWindow::on_btnStartKinect_clicked()
     m_playback.clearInstances();
     m_playback.addInstance(colorInstance);
     m_playback.addInstance(userTrackerInstance);
-    //m_playback.addListener(&m_privacyFilter);
+    m_playback.addListener(&m_privacyFilter);
 
     // Create viewers
     m_viewer = new dai::InstanceViewerWindow;
+    m_viewer->setDrawMode(ViewerEngine::BoundingBox);
 
     // Connect viewers
-     m_playback.addListener(m_viewer);
-    //m_privacyFilter.addListener(m_viewer);
+    //m_playback.addListener(m_viewer);
+    m_privacyFilter.addListener(m_viewer);
 
     // Run
-    //m_privacyFilter.enableFilter(FILTER_DISABLED);
+    m_privacyFilter.enableFilter(FILTER_DISABLED);
     m_viewer->show();
     m_playback.play();
 }
