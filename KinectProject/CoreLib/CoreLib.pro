@@ -64,7 +64,8 @@ SOURCES += \
     openni/OpenNIColorInstance.cpp \
     openni/OpenNIDepthInstance.cpp \
     openni/OpenNIUserTrackerInstance.cpp \
-    openni/OpenNIDevice.cpp
+    openni/OpenNIDevice.cpp \
+    viewer/BackgroundItem.cpp
 
 HEADERS += \
     types/Vector3D.h \
@@ -121,7 +122,8 @@ HEADERS += \
     openni/OpenNIColorInstance.h \
     openni/OpenNIDepthInstance.h \
     openni/OpenNIUserTrackerInstance.h \
-    openni/OpenNIDevice.h
+    openni/OpenNIDevice.h \
+    viewer/BackgroundItem.h
 
 OTHER_FILES +=
 

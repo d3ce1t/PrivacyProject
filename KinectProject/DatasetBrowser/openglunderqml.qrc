@@ -4,7 +4,5 @@
         <file>glsl/scene3d.vsh</file>
         <file>glsl/silhouette.fsh</file>
         <file>glsl/silhouette.vsh</file>
-        <file>glsl/skeleton.fsh</file>
-        <file>glsl/skeleton.vsh</file>
     </qresource>
 </RCC>

@@ -1,16 +1,18 @@
 #include "DepthFilter.h"
-//#include "viewer/SkeletonItem.h"
 #include "types/ColorFrame.h"
 #include "types/DepthFrame.h"
+#include "types/SkeletonFrame.h"
 #include <QDebug>
 
 namespace dai {
 
-/*DepthFilter::DepthFilter()
-    : m_glContext(nullptr)
+DepthFilter::DepthFilter()
+    : m_skelItem(nullptr)
+    , m_bgItem(nullptr)
+    , m_glContext(nullptr)
     , m_gles(nullptr)
     , m_initialised(false)
-    , m_scene(nullptr)
+    //, m_scene(nullptr)
     , m_fboDisplay(nullptr)
 {
     QSurfaceFormat format;
@@ -27,16 +29,16 @@ namespace dai {
         qDebug() << "The surface could not be created";
         throw 1;
     }
-}*/
+}
 
 DepthFilter::~DepthFilter()
 {
     stopListener();
-    //freeResources();
+    freeResources();
     qDebug() << "DepthFilter::~DepthFilter";
 }
 
-/*void DepthFilter::initialise()
+void DepthFilter::initialise()
 {
     m_glContext = new QOpenGLContext;
     m_glContext->setFormat(m_surface.format());
@@ -63,22 +65,38 @@ DepthFilter::~DepthFilter()
         throw 2;
     }
 
-    m_scene = new Scene3DPainter;
+    m_skelItem = new SkeletonItem;
+    m_skelItem->setMode3D(false);
+    m_skelItem->initItem();
+
+    m_bgItem = new BackgroundItem;
+    m_bgItem->initItem();
+    //m_scene = new Scene3DPainter;
 
     m_glContext->doneCurrent();
     m_initialised = true;
-}*/
+}
 
-/*void DepthFilter::freeResources()
+void DepthFilter::freeResources()
 {
     if (m_glContext)
     {
         m_glContext->makeCurrent(&m_surface);
 
-        if (m_scene) {
+        if (m_bgItem) {
+            delete m_bgItem;
+            m_bgItem = nullptr;
+        }
+
+        if (m_skelItem) {
+            delete m_skelItem;
+            m_skelItem = nullptr;
+        }
+
+        /*if (m_scene) {
             delete m_scene;
             m_scene = nullptr;
-        }
+        }*/
 
         if (m_fboDisplay) {
             m_fboDisplay->release();
@@ -94,13 +112,13 @@ DepthFilter::~DepthFilter()
 
     m_gles = nullptr;
     m_initialised = false;
-}*/
+}
 
 void DepthFilter::newFrames(const QHashDataFrames dataFrames)
 {
-    /*if (!m_initialised) {
+    if (!m_initialised) {
         initialise();
-    }*/
+    }
 
     // Copy frames (1 ms)
     m_frames.clear();
@@ -122,10 +140,10 @@ void DepthFilter::newFrames(const QHashDataFrames dataFrames)
     }
 }
 
-/*void DepthFilter::afterStop()
+void DepthFilter::afterStop()
 {
     freeResources();
-}*/
+}
 
 // Render a 3D Scene (old version)
 /*QHashDataFrames DepthFilter::produceFrames()
@@ -175,9 +193,11 @@ void DepthFilter::newFrames(const QHashDataFrames dataFrames)
     m_glContext->doneCurrent();
 }*/
 
-// Convert Depth Frame to Color
 QHashDataFrames DepthFilter::produceFrames()
 {
+    bool background = false;
+
+    // Convert Depth Frame to Color
     if (m_frames.contains(DataFrame::Depth))
     {
         shared_ptr<DepthFrame> depthFrame = static_pointer_cast<DepthFrame>(m_frames.value(DataFrame::Depth));
@@ -206,6 +226,48 @@ QHashDataFrames DepthFilter::produceFrames()
                pColor[j].blue = 0;
             }
         }
+
+        background = true;
+    }
+
+    // Render Skeleton
+    if (m_frames.contains(DataFrame::Skeleton))
+    {
+        shared_ptr<SkeletonFrame> skelFrame = static_pointer_cast<SkeletonFrame>(m_frames.value(DataFrame::Skeleton));
+        shared_ptr<ColorFrame> colorFrame;
+
+        if (m_frames.contains(DataFrame::Color)) {
+            colorFrame = static_pointer_cast<ColorFrame>(m_frames.value(DataFrame::Color));
+        } else {
+            colorFrame = make_shared<ColorFrame>(640, 480);
+            m_frames.insert(DataFrame::Color, colorFrame);
+        }
+
+        // Render
+        m_glContext->makeCurrent(&m_surface);
+        m_fboDisplay->bind();
+
+        // Clear Screen
+        m_gles->glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        m_gles->glClearDepthf(1.0f);
+        m_gles->glViewport(0, 0, 640, 480);
+        m_gles->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        if (background) {
+            // Render Background
+            m_bgItem->setBackground(colorFrame);
+            m_bgItem->renderItem();
+        }
+
+        // Render Item
+        m_skelItem->setSkeleton(skelFrame);
+        m_skelItem->renderItem();
+
+        // Copy data back to ColorFrame
+        m_gles->glFlush();
+        m_gles->glReadPixels(0,0, 640, 480, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*) colorFrame->getDataPtr());
+        m_fboDisplay->release();
+        m_glContext->doneCurrent();
     }
 
     return m_frames;

@@ -11,7 +11,6 @@ namespace dai {
 Scene2DPainter::Scene2DPainter()
     : m_shaderProgram(nullptr)
     , m_fboFirstPass(nullptr)
-    , m_fboSecondPass(nullptr)
 {
     m_currentFilter = FILTER_DISABLED;
 }
@@ -28,12 +27,6 @@ Scene2DPainter::~Scene2DPainter()
         m_fboFirstPass->release();
         delete m_fboFirstPass;
         m_fboFirstPass = nullptr;
-    }
-
-    if (m_fboSecondPass) {
-        m_fboSecondPass->release();
-        delete m_fboSecondPass;
-        m_fboSecondPass = nullptr;
     }
 }
 
@@ -61,14 +54,20 @@ void Scene2DPainter::initialise()
     // Create texture
     glGenTextures(1, &m_fgTextureId);
     glGenTextures(1, &m_maskTextureId);
+
+    // Configure ViewPort and Clear Screen
+    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+    glClearDepth(1.0f);
+    glViewport(0, 0, 640, 480);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void Scene2DPainter::render(QOpenGLFramebufferObject *target)
 {
     Q_ASSERT(m_bg == nullptr || m_bg->getType() == DataFrame::Color);
+    Q_ASSERT(target != nullptr);
 
-    if (target)
-        target->bind();
+    target->bind();
 
     // Init Each Frame (because QtQuick could change it)
     glDepthRange(0.0f, 1.0f);
@@ -78,12 +77,6 @@ void Scene2DPainter::render(QOpenGLFramebufferObject *target)
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    // Configure ViewPort and Clear Screen
-    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
-    glClearDepth(1.0f);
-    glViewport(0, 0, 640, 480);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Draw Background
     if (m_bg == nullptr)
@@ -100,13 +93,10 @@ void Scene2DPainter::render(QOpenGLFramebufferObject *target)
     renderBackground(); // it renders bg or fg into fboFirstPass
 
     // Stage 2
-    renderItems(); // items first-pass rendering (fboFirstPass)
+    renderItems(target); // items reindering (first-pass: fboFirstPass, second-pass: target)
 
     // Stage 3
-    displayRenderedTexture(target); // here framebuffer (display) and second-pass rendering
-
-    // Stage 4
-    renderComposite(target);
+    renderComposite();
 
     m_shaderProgram->release();
 
@@ -114,9 +104,7 @@ void Scene2DPainter::render(QOpenGLFramebufferObject *target)
     glDisable(GL_BLEND);
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_DEPTH_TEST);
-
-    if (target)
-        target->release();
+    target->release();
 }
 
 void Scene2DPainter::setupTextures()
@@ -213,7 +201,7 @@ void Scene2DPainter::renderBackground()
     m_vao.release();
 }
 
-void Scene2DPainter::renderItems()
+void Scene2DPainter::renderItems(QOpenGLFramebufferObject* target)
 {
     GLuint bg;
 
@@ -269,10 +257,8 @@ void Scene2DPainter::renderItems()
         item->renderItem(1);
     }
 
-    glFlush();
-
-    // Second-pass (write to fboSecondPass, read from fboFirstPass)
-    m_fboSecondPass->bind();
+    // Second-pass (write to target, read from fboFirstPass)
+    target->bind();
     glViewport(0, 0, 640, 480);
 
     m_shaderProgram->bind();
@@ -297,43 +283,10 @@ void Scene2DPainter::renderItems()
             item->renderItem(2);
         }
     }
-
-    glFlush();
-    m_fboSecondPass->release();
 }
 
-void Scene2DPainter::displayRenderedTexture(QOpenGLFramebufferObject* target)
+void Scene2DPainter::renderComposite()
 {
-    if (target)
-        target->bind();
-
-    m_shaderProgram->bind();
-    m_shaderProgram->setUniformValue(m_stageUniform, 3);
-
-    // Configure Viewport
-    glViewport(0, 0, m_scene_width, m_scene_height);
-    m_vao.bind();
-
-    // Enabe FG
-    glActiveTexture(GL_TEXTURE0 + 0);
-    glBindTexture(GL_TEXTURE_2D, m_fboSecondPass->texture());
-
-    glDrawArrays(GL_TRIANGLE_FAN, m_posAttr, 4);
-
-    // Unbind FG
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    glFlush();
-
-    m_shaderProgram->release();
-    m_vao.release();
-}
-
-void Scene2DPainter::renderComposite(QOpenGLFramebufferObject* target)
-{
-    if (target)
-        target->bind();
-
     m_shaderProgram->bind();
     m_shaderProgram->setUniformValue(m_stageUniform, 3);
 
@@ -350,8 +303,6 @@ void Scene2DPainter::renderComposite(QOpenGLFramebufferObject* target)
     // Unbind FG
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    glFlush();
-
     m_shaderProgram->release();
     m_vao.release();
 }
@@ -361,12 +312,6 @@ void Scene2DPainter::createFrameBuffer()
     m_fboFirstPass = new QOpenGLFramebufferObject(640, 480);
 
     if (!m_fboFirstPass->isValid()) {
-        qDebug() << "FBO Error";
-    }
-
-    m_fboSecondPass = new QOpenGLFramebufferObject(640, 480);
-
-    if (!m_fboSecondPass->isValid()) {
         qDebug() << "FBO Error";
     }
 

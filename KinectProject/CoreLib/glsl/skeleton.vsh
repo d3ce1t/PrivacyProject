@@ -19,11 +19,8 @@ vec2 convertRealWorldToDepth(vec3 coordinates)
 void main()
 {
     vec3 position = mode3d ? posAttr.xyz : vec3(convertRealWorldToDepth(posAttr.xyz), 0);
-
-    if (mode3d) {
-        position.y = -position.y;
-    }
-
+    //position.y = mode3d ? -position.y : position.y;
+    //position.z -= 0.8; // Hack to show a little bit far from camera
     theColor = colAttr;
     gl_Position = perspectiveMatrix * vec4(position, 1.0);
     gl_PointSize = pointSize;

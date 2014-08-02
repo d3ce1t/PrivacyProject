@@ -27,10 +27,11 @@ public:
      */
     virtual void newFrames(const QHashDataFrames dataFrames) = 0;
 
+
 protected:
+    bool hasExpired();
     virtual void afterStop() {}
     FrameGenerator* producerHandler();
-    bool hasExpired();
     void stopListener();
 
 private:

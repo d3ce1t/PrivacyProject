@@ -24,7 +24,7 @@ public:
 
 protected:
     void setupTextures();
-    void renderItems();
+    void renderItems(QOpenGLFramebufferObject* target);
     void initialise() override;
     void render(QOpenGLFramebufferObject* target) override;
 
@@ -33,8 +33,7 @@ private:
     void enableBGRendering();
     void extractBackground();
     void renderBackground();
-    void displayRenderedTexture(QOpenGLFramebufferObject *target = nullptr);
-    void renderComposite(QOpenGLFramebufferObject* target = nullptr);
+    void renderComposite();
     void prepareShaderProgram();
     void prepareVertexBuffer();
 
@@ -44,7 +43,6 @@ private:
 
     // OpenGL Buffer
     QOpenGLFramebufferObject* m_fboFirstPass; // render-to-texture (first-pass)
-    QOpenGLFramebufferObject* m_fboSecondPass; // render-to-texture (second-pass)
     QOpenGLVertexArrayObject  m_vao;
     QOpenGLBuffer             m_positionsBuffer;
     QOpenGLBuffer             m_texCoordBuffer;

@@ -26,7 +26,7 @@ class ScenePainter : public QOpenGLFunctions
 {
 public:
     ScenePainter();
-    virtual ~ScenePainter();
+    virtual ~ScenePainter() {}
     void clearItems();
     void addItem(shared_ptr<SceneItem> item);
     shared_ptr<SceneItem> getFirstItem(ItemType type) const;

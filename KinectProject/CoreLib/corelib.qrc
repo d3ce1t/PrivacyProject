@@ -4,6 +4,10 @@
         <file>glsl/viewer.vsh</file>
         <file>glsl/scene2d.fsh</file>
         <file>glsl/scene2d.vsh</file>
+        <file>glsl/skeleton.fsh</file>
+        <file>glsl/skeleton.vsh</file>
+        <file>glsl/background.fsh</file>
+        <file>glsl/background.vsh</file>
     </qresource>
     <qresource prefix="/">
         <file>data/HuDaAct.xml</file>

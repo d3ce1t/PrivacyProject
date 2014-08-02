@@ -99,7 +99,7 @@ void SkeletonItem::prepareShaderProgram()
     m_perspectiveMatrix = m_shaderProgram->uniformLocation("perspectiveMatrix");
 
     m_shaderProgram->bind();
-    m_shaderProgram->setUniformValue(m_perspectiveMatrix, scene()->getMatrix() );
+    m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
     m_shaderProgram->setUniformValue(m_pointSizeUniform, 2.0f);
     //m_shaderProgram->setUniformValue(m_widthUniform, 320.0f); //scene()->windowWidth());
     //m_shaderProgram->setUniformValue(m_heightUniform, 240.0f); //(float) scene()->windowHeight());
@@ -129,7 +129,7 @@ void SkeletonItem::drawLimb(const dai::SkeletonJoint& joint1, const dai::Skeleto
     m_shaderProgram->setAttributeArray(m_posAttr, vertexData, 3);
     m_shaderProgram->setAttributeArray(m_colorAttr, colorData, 3);
     m_shaderProgram->setUniformValue(m_pointSizeUniform, 8.0f);
-    m_shaderProgram->setUniformValue(m_perspectiveMatrix, scene()->getMatrix());
+    m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
     m_shaderProgram->enableAttributeArray(m_posAttr);
     m_shaderProgram->enableAttributeArray(m_colorAttr);
     glDrawArrays(GL_LINES, m_posAttr, 2);

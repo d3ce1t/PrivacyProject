@@ -9,11 +9,6 @@ ScenePainter::ScenePainter()
     m_dirty.store(0);
 }
 
-ScenePainter::~ScenePainter()
-{
-
-}
-
 void ScenePainter::clearItems()
 {
     m_items.clear();
@@ -37,6 +32,7 @@ void ScenePainter::clearDirty()
 void ScenePainter::addItem(shared_ptr<SceneItem> item)
 {
     item->m_scene = this;
+    item->setMatrix(m_matrix);
     m_items.append(item);
 }
 
@@ -100,6 +96,7 @@ void ScenePainter::renderScene(QOpenGLFramebufferObject *target)
     if (!m_initialised)
     {
         initializeOpenGLFunctions();
+        if (target) target->bind();
         initialise();
         resetPerspective();
         m_initialised = true;

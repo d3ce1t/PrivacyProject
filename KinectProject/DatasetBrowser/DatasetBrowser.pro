@@ -32,8 +32,6 @@ OTHER_FILES += \
     glsl/scene3d.vsh \
     glsl/scene2d.fsh \
     glsl/scene2d.vsh \
-    glsl/skeleton.fsh \
-    glsl/skeleton.vsh \
     glsl/silhouette.fsh \
     glsl/silhouette.vsh
 
