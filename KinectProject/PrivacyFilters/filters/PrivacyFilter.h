@@ -12,6 +12,7 @@
 #include <opencv2/objdetect/objdetect.hpp>
 #include <QImage>
 #include <QFile>
+#include "types/Histogram2D.h"
 
 namespace dai {
 
@@ -30,23 +31,38 @@ protected:
     void freeResources();
 
 private:
-    void test1();
-    void test2();
+    void approach1();
+    void approach2();
+    void approach3();
+    void approach4();
     void dilateUserMask(uint8_t *labels);
+
     template <class T>
-    cv::Mat simpleRandomSampling(cv::Mat inputImg, int n, cv::Mat mask = cv::Mat());
+    shared_ptr<Histogram2D> computeHistogram(cv::Mat inputImg, cv::Mat mask);
+
+    template <class T>
+    cv::Mat randomSampling(cv::Mat inputImg, int n, cv::Mat mask = cv::Mat());
+
     cv::Mat convertRGB2Log2D(cv::Mat inputImg);
     cv::Mat calcHistogram(shared_ptr<ColorFrame> colorFrame, shared_ptr<MaskFrame> mask);
     std::vector<cv::Rect> faceDetection(cv::Mat frameGray, bool equalised = false);
     cv::Mat computeIntegralImage(cv::Mat image);
+
     template <class T>
     cv::Mat interleaveMatChannels(cv::Mat inputMat, cv::Mat mask = cv::Mat(), int type = CV_32SC1);
+
     double computeOccupancy(shared_ptr<MaskFrame> mask, int *outNumPixels = nullptr);
     void computeUpperAndLowerMasks(const cv::Mat input_img, cv::Mat &upper_mask, cv::Mat &lower_mask, const cv::Mat mask = cv::Mat()) const;
+
     template <class T>
     void create2DCoordImage(cv::Mat input_img, cv::Mat &output_img, int size[], float input_range[],
                             bool init_output = false, cv::Vec3b color = cv::Vec3b(255, 255, 255)) const;
-    cv::Mat createMask(cv::Mat input_img, int *nonzero_counter = nullptr) const;
+
+    void create2DCoordImage(const Histogram2D& histogram, cv::Mat& output_img, int size[], float input_range[],
+                            bool init_output = false, cv::Vec3b color = cv::Vec3b(255, 255, 255)) const;
+
+    cv::Mat createMask(cv::Mat input_img, int min_value, int *nonzero_counter = nullptr, bool filter = false) const;
+    void denoiseImage(cv::Mat input_img, cv::Mat output_img) const;
 
     QHashDataFrames m_frames;
     QOpenGLContext* m_glContext;

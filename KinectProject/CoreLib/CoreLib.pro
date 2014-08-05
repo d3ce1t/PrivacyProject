@@ -65,7 +65,8 @@ SOURCES += \
     openni/OpenNIDepthInstance.cpp \
     openni/OpenNIUserTrackerInstance.cpp \
     openni/OpenNIDevice.cpp \
-    viewer/BackgroundItem.cpp
+    viewer/BackgroundItem.cpp \
+    types/Histogram2D.cpp
 
 HEADERS += \
     types/Vector3D.h \
@@ -123,7 +124,8 @@ HEADERS += \
     openni/OpenNIDepthInstance.h \
     openni/OpenNIUserTrackerInstance.h \
     openni/OpenNIDevice.h \
-    viewer/BackgroundItem.h
+    viewer/BackgroundItem.h \
+    types/Histogram2D.h
 
 OTHER_FILES +=
 
@@ -146,6 +148,10 @@ win32 {
     load(moc)
     INCLUDEPATH += $$PWD
 
+    # GLM
+    INCLUDEPATH += $$(GLM_INCLUDE)
+    DEPENDPATH += $$(GLM_INCLUDE)
+
     # OpenNI2
     LIBS += -L$$(OPENNI2_LIB) -lOpenNI2
     INCLUDEPATH += $$(OPENNI2_INCLUDE)
@@ -155,4 +161,10 @@ win32 {
     LIBS += -L$$(NITE2_LIB) -lNiTE2
     INCLUDEPATH += $$(NITE2_INCLUDE)
     DEPENDPATH += $$(NITE2_INCLUDE)
+
+    # OpenCV2
+    INCLUDEPATH += $$(OPENCV2_INCLUDE)
+    DEPENDPATH += $$(OPENCV2_INCLUDE)
+    CONFIG(release, debug|release):LIBS += -L$$(OPENCV2_LIB) -lopencv_core249 -lopencv_imgproc249 -lopencv_highgui249 -lopencv_objdetect249 -lopencv_photo249
+    else:CONFIG(debug, debug|release):LIBS += -L$$(OPENCV2_LIB) -lopencv_core249d -lopencv_imgproc249d -lopencv_highgui249d -lopencv_objdetect249d -lopencv_photo249d
 }
