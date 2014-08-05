@@ -11,9 +11,6 @@ OpenNIUserTrackerInstance::OpenNIUserTrackerInstance()
     : StreamInstance(DataFrame::Depth | DataFrame::Mask | DataFrame::Skeleton | DataFrame::Metadata)
 {
     m_device = nullptr;
-    m_frameDepth = make_shared<DepthFrame>(640, 480);
-    m_frameDepth->setDistanceUnits(DepthFrame::MILIMETERS);
-    m_frameUser = make_shared<MaskFrame>(640, 480);
     m_frameSkeleton = make_shared<SkeletonFrame>();
     m_frameMetadata = make_shared<MetadataFrame>();
 }
@@ -22,9 +19,6 @@ OpenNIUserTrackerInstance::OpenNIUserTrackerInstance(OpenNIDevice* device)
     : StreamInstance(DataFrame::Depth | DataFrame::Mask | DataFrame::Skeleton | DataFrame::Metadata)
 {
     m_device = device;
-    m_frameDepth = make_shared<DepthFrame>(640, 480);
-    m_frameDepth->setDistanceUnits(DepthFrame::MILIMETERS);
-    m_frameUser = make_shared<MaskFrame>(640, 480);
     m_frameSkeleton = make_shared<SkeletonFrame>();
     m_frameMetadata = make_shared<MetadataFrame>();
 }
@@ -70,30 +64,11 @@ QList<shared_ptr<DataFrame>> OpenNIUserTrackerInstance::nextFrames()
     QList<shared_ptr<DataFrame>> result;
     nite::UserTrackerFrameRef oniUserTrackerFrame = m_device->readUserTrackerFrame();
 
-    // Load Depth and User Labels
-    openni::VideoFrameRef oniDepthFrame = oniUserTrackerFrame.getDepthFrame();
-    const openni::DepthPixel* pDepth = (const openni::DepthPixel*) oniDepthFrame.getData();
-    const nite::UserMap& userMap = oniUserTrackerFrame.getUserMap();
+    shared_ptr<DepthFrame> depthFrame = m_device->depthFrame();
+    result.append(depthFrame);
 
-    int strideUser = userMap.getStride() / sizeof(nite::UserId) - userMap.getWidth();
-
-    if (strideUser > 0) {
-        qWarning() << "WARNING: OpenNIRuntime - Not managed user stride!!!";
-        throw 1;
-    }
-
-    const nite::UserId* pLabel = userMap.getPixels();
-    m_frameDepth->setIndex(oniDepthFrame.getFrameIndex());
-    m_frameUser->setIndex(oniUserTrackerFrame.getFrameIndex());
-
-    for (int y=0; y < userMap.getHeight(); ++y) {
-        for (int x=0; x < userMap.getWidth(); ++x) {
-            m_frameDepth->setItem(y, x, *pDepth);
-            m_frameUser->setItem(y, x, *pLabel);
-            pDepth++;
-            pLabel++;
-        }
-    }
+    shared_ptr<MaskFrame> maskFrame = m_device->maskFrame();
+    result.append(maskFrame);
 
     // Process Users
     m_frameSkeleton->clear();
@@ -143,9 +118,7 @@ QList<shared_ptr<DataFrame>> OpenNIUserTrackerInstance::nextFrames()
         }
     } // End for
 
-    oniUserTrackerFrame.release();
-    result.append(m_frameDepth);
-    result.append(m_frameUser);
+    //oniUserTrackerFrame.release(); // I have to hold the frame as long as I can
     result.append(m_frameSkeleton);
     result.append(m_frameMetadata);
     return result;

@@ -26,8 +26,6 @@ protected:
 
 private:
     OpenNIDevice* m_device;
-    shared_ptr<DepthFrame> m_frameDepth;
-    shared_ptr<MaskFrame> m_frameUser;
     shared_ptr<SkeletonFrame> m_frameSkeleton;
     shared_ptr<MetadataFrame> m_frameMetadata;
 };

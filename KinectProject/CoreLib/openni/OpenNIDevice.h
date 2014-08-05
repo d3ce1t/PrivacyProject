@@ -7,6 +7,7 @@
 #include "types/DepthFrame.h"
 #include "types/ColorFrame.h"
 #include "types/SkeletonFrame.h"
+#include "types/MaskFrame.h"
 #include <QMutex>
 #include <QHash>
 
@@ -24,13 +25,15 @@ public:
     bool is_open() const;
     shared_ptr<ColorFrame> readColorFrame();
     shared_ptr<DepthFrame> readDepthFrame();
+    shared_ptr<DepthFrame> depthFrame() const;
+    shared_ptr<MaskFrame>  maskFrame() const;
     nite::UserTrackerFrameRef readUserTrackerFrame();
     openni::PlaybackControl* playbackControl();
     nite::UserTracker& getUserTracker();
+    void depth2color(shared_ptr<DepthFrame> depthFrame, shared_ptr<MaskFrame> mask = nullptr);
+    void setRegistration(bool flag);
 
 private:
-
-
     OpenNIDevice(const QString devicePath);
     void initOpenNI();
     void shutdownOpenNI();
@@ -49,11 +52,13 @@ private:
     openni::VideoStream**	   m_colorStreams;
     nite::UserTracker          m_oniUserTracker;
     openni::VideoFrameRef      m_oniDepthFrame;
-    std::shared_ptr<DepthFrame> m_depthFrame;
+    shared_ptr<DepthFrame>     m_depthFrame;
     openni::VideoFrameRef      m_oniColorFrame;
-    std::shared_ptr<ColorFrame> m_colorFrame;
-    QMutex                      m_mutex;
-    bool                        m_opened;
+    shared_ptr<ColorFrame>     m_colorFrame;
+    shared_ptr<MaskFrame>      m_maskFrame;
+    QMutex                     m_mutex;
+    bool                       m_opened;
+    bool                       m_manual_registration;
 };
 
 } // End Namespace

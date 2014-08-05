@@ -1,6 +1,7 @@
 #include "OpenNIDevice.h"
 #include <QDebug>
 #include <iostream>
+#include <glm/glm.hpp>
 
 using namespace std;
 
@@ -32,6 +33,7 @@ QMutex OpenNIDevice::_mutex_counter;
 OpenNIDevice::OpenNIDevice(const QString devicePath)
     : m_devicePath(devicePath)
     , m_opened(false)
+    , m_manual_registration(false)
 {
     // Init OpenNI
     _mutex_counter.lock();
@@ -43,8 +45,9 @@ OpenNIDevice::OpenNIDevice(const QString devicePath)
 
     // Create buffers for data
     m_colorFrame = make_shared<ColorFrame>();
-    m_depthFrame = make_shared<DepthFrame>(640, 480);
+    m_depthFrame = make_shared<DepthFrame>();
     m_depthFrame->setDistanceUnits(DepthFrame::MILIMETERS);
+    m_maskFrame = make_shared<MaskFrame>(640, 480);
 
     // Videostreams
     m_depthStreams = new openni::VideoStream*[1];
@@ -91,8 +94,12 @@ void OpenNIDevice::open()
 
         // Enable Depth to Color image registration
         if (m_device.isImageRegistrationModeSupported(openni::IMAGE_REGISTRATION_DEPTH_TO_COLOR)) {
-            if (m_device.getImageRegistrationMode() == openni::IMAGE_REGISTRATION_OFF)
-                m_device.setImageRegistrationMode(openni::IMAGE_REGISTRATION_DEPTH_TO_COLOR);
+            if (m_device.getImageRegistrationMode() == openni::IMAGE_REGISTRATION_OFF) {
+                if (m_device.setImageRegistrationMode(openni::IMAGE_REGISTRATION_DEPTH_TO_COLOR) != openni::STATUS_OK)
+                    qDebug() << "Depth to Color registration cannot be set";
+            }
+        } else {
+            qDebug() << "Depth to Color registration isn't supported";
         }
 
         // Enable Depth and Color sync
@@ -163,6 +170,21 @@ openni::PlaybackControl* OpenNIDevice::playbackControl()
     return m_device.getPlaybackControl();
 }
 
+shared_ptr<DepthFrame> OpenNIDevice::depthFrame() const
+{
+    return m_depthFrame;
+}
+
+shared_ptr<MaskFrame> OpenNIDevice::maskFrame() const
+{
+    return m_maskFrame;
+}
+
+void OpenNIDevice::setRegistration(bool flag)
+{
+    m_manual_registration = flag;
+}
+
 shared_ptr<ColorFrame> OpenNIDevice::readColorFrame()
 {
     if (m_oniColorStream.readFrame(&m_oniColorFrame) != openni::STATUS_OK)
@@ -174,7 +196,7 @@ shared_ptr<ColorFrame> OpenNIDevice::readColorFrame()
     int stride = m_oniColorFrame.getStrideInBytes() / sizeof(openni::RGB888Pixel) - m_oniColorFrame.getWidth();
 
     if (stride > 0) {
-        qWarning() << "WARNING: OpenNIRuntime - Not managed color stride!!!";
+        qWarning() << "WARNING: OpenNIDevice - Not managed color stride!!!";
         throw 3;
     }
 
@@ -184,6 +206,34 @@ shared_ptr<ColorFrame> OpenNIDevice::readColorFrame()
 }
 
 shared_ptr<DepthFrame> OpenNIDevice::readDepthFrame()
+{
+    if (m_oniDepthStream.readFrame(&m_oniDepthFrame) != openni::STATUS_OK) {
+        throw 1;
+    }
+
+    if (!m_oniDepthFrame.isValid()) {
+        throw 2;
+    }
+
+    int strideDepth = m_oniDepthFrame.getStrideInBytes() / sizeof(openni::DepthPixel) - m_oniDepthFrame.getWidth();
+
+    if (strideDepth > 0) {
+        qWarning() << "WARNING: OpenNIDevice - Not managed depth stride!!!";
+        throw 3;
+    }
+
+    m_depthFrame->setDataPtr(640, 480, (uint16_t*) m_oniDepthFrame.getData());
+    m_depthFrame->setIndex(m_oniDepthFrame.getFrameIndex());
+
+    if (m_manual_registration) {
+        depth2color(m_depthFrame);
+    }
+
+    return m_depthFrame;
+}
+
+/* Old Version
+ * shared_ptr<DepthFrame> OpenNIDevice::readDepthFrame()
 {
     int changedIndex;
 
@@ -202,26 +252,18 @@ shared_ptr<DepthFrame> OpenNIDevice::readDepthFrame()
             int strideDepth = m_oniDepthFrame.getStrideInBytes() / sizeof(openni::DepthPixel) - m_oniDepthFrame.getWidth();
 
             if (strideDepth > 0) {
-                qWarning() << "WARNING: OpenNIRuntime - Not managed depth stride!!!";
+                qWarning() << "WARNING: OpenNIDevice - Not managed depth stride!!!";
                 throw 3;
             }
 
-            // Hack: Make a copy
-            const openni::DepthPixel* pDepth = (const openni::DepthPixel*) m_oniDepthFrame.getData();
-
-            for (int y=0; y < m_oniDepthFrame.getHeight(); ++y) {
-                for (int x=0; x < m_oniDepthFrame.getWidth(); ++x) {
-                    m_depthFrame->setItem(y, x, *pDepth);
-                    pDepth++;
-                }
-            }
-
+            m_depthFrame->setDataPtr(640, 480, (uint16_t*) m_oniDepthFrame.getData());
             m_depthFrame->setIndex(m_oniDepthFrame.getFrameIndex());
+            return m_depthFrame;
         }
     }
 
     return m_depthFrame;
-}
+}*/
 
 nite::UserTrackerFrameRef OpenNIDevice::readUserTrackerFrame()
 {
@@ -235,7 +277,133 @@ nite::UserTrackerFrameRef OpenNIDevice::readUserTrackerFrame()
         throw 2;
     }
 
+    // Depth Frame
+    m_oniDepthFrame = oniUserTrackerFrame.getDepthFrame();
+
+    int strideDepth = m_oniDepthFrame.getStrideInBytes() / sizeof(openni::DepthPixel) - m_oniDepthFrame.getWidth();
+
+    if (strideDepth > 0) {
+        qWarning() << "WARNING: OpenNIDevice - Not managed depth stride!!!";
+        throw 3;
+    }
+
+    m_depthFrame->setDataPtr(640, 480, (uint16_t*) m_oniDepthFrame.getData());
+    m_depthFrame->setIndex(m_oniDepthFrame.getFrameIndex());
+
+    // Load User Labels
+    const nite::UserMap& userMap = oniUserTrackerFrame.getUserMap();
+
+    int strideUser = userMap.getStride() / sizeof(nite::UserId) - userMap.getWidth();
+
+    if (strideUser > 0) {
+        qWarning() << "WARNING: OpenNIRuntime - Not managed user stride!!!";
+        throw 1;
+    }
+
+    const nite::UserId* pLabel = userMap.getPixels();
+
+    for (int i=0; i < userMap.getHeight(); ++i) {
+        uint8_t* pMask = m_maskFrame->getRowPtr(i);
+        for (int j=0; j < userMap.getWidth(); ++j) {
+            pMask[j] = *pLabel;
+            pLabel++;
+        }
+    }
+
+    m_maskFrame->setIndex(oniUserTrackerFrame.getFrameIndex());
+
+    // Registration
+    if (m_manual_registration) {
+        depth2color(m_depthFrame, m_maskFrame);
+    }
+
     return oniUserTrackerFrame;
+}
+
+void OpenNIDevice::depth2color(shared_ptr<DepthFrame> depthFrame, shared_ptr<MaskFrame> mask)
+{
+    // RGB Intrinsics
+    const double fx_rgb = 529.21508098293293;
+    const double fy_rgb = 525.56393630057437;
+    const double cx_rgb = 320.0f; // 328.94272028759258;
+    const double cy_rgb = 240.0f; // 267.48068171871557;
+
+    // Depth Intrinsics
+    const double fx_d = 594.21434211923247;
+    const double fy_d = 591.04053696870778;
+    const double cx_d = 320.0f; // 339.30780975300314;
+    const double cy_d = 240.0f; // 242.73913761751615;
+
+    const glm::mat3 r_matrix = {
+        999.979, 6.497, -0.801,
+        -6.498, 999.978, -1.054,
+        0.794, 1.059, 999.999
+    };
+
+    const glm::vec3 t_vector = {
+        -25.165, 0.047, -4.077
+    };
+
+    // Rotation Transform (millimeterS)
+    /*glm::mat3 r_matrix = {
+         999.84628826577793, 1.2635359098409581, -17.487233004436643,
+        -1.4779096108364480, 999.92385683542895, -12.251380107679535,
+         17.470421412464927, 12.275341476520762,  999.77202419716948
+    };
+
+    // Translation Transform (millimeters)
+    glm::vec3 t_vector = {
+        19.985242312092553, -7442.3738761617583e-04, -10.916736334336222
+    };*/
+
+    // Do Registration
+    shared_ptr<DepthFrame> outputDepth = make_shared<DepthFrame>(640, 480);
+    shared_ptr<MaskFrame> outputMask = mask ? make_shared<MaskFrame>(640, 480) : nullptr;
+
+    for (int i=0; i<depthFrame->getHeight(); ++i)
+    {
+        uint16_t* pDepth = depthFrame->getRowPtr(i);
+        uint8_t* pMask = mask ? mask->getRowPtr(i) : nullptr;
+
+        for (int j=0; j<depthFrame->getWidth(); ++j)
+        {
+            // Convert each point of the depth frame into a real world coordinate in millimeters
+            // FIX: I think next formula assumes depth is given as a distance from a point to the
+            // sensor, whereas OpenNI gives it as a distance from the point to the sensor plane.
+
+            // Start hack in order to get distance to sensor, rather than to the plane
+            float out_x, out_y, out_z;
+            m_oniUserTracker.convertDepthCoordinatesToJoint(j, i, pDepth[j], &out_x, &out_y);
+            out_z = Point3f::distance(Point3f(0, 0, 0), Point3f(out_x, out_y, pDepth[j]));
+            // End hack
+
+            glm::vec3 p3d;
+            p3d.x = (j - cx_d) * out_z / fx_d;
+            p3d.y = (i - cy_d) * out_z / fy_d;
+            p3d.z = out_z;
+
+            // Rotate and Translate 3D point to change origin to color sensor
+            p3d = r_matrix * p3d;
+            p3d = p3d + t_vector;
+
+            // Reproject to 2D
+            glm::vec2 p2d;
+            p2d.x = (p3d.x * fx_rgb / p3d.z) + cx_rgb;
+            p2d.y = (p3d.y * fy_rgb / p3d.z) + cy_rgb;
+
+            if (p2d.x >= 0 && p2d.y >= 0 && p2d.x < 640 && p2d.y < 480) {
+                outputDepth->setItem(p2d.y, p2d.x, pDepth[j]);
+                if (outputMask) {
+                    outputMask->setItem(p2d.y, p2d.x, pMask[j]);
+                }
+            }
+        }
+    }
+
+    *depthFrame = *outputDepth; // Copy
+    if (mask) {
+        *mask = *outputMask; // Copy
+    }
 }
 
 nite::UserTracker& OpenNIDevice::getUserTracker()
@@ -270,7 +438,7 @@ OpenNIDevice* OpenNIDevice::create(const QString devicePath)
 
     if (device == nullptr) {
         // Create device
-        device = new OpenNIDevice(devicePath);
+        device = new OpenNIDevice(devicePath); // TODO: Memory leak here
         _created_instances.insert(devicePath, device);
     }
 
