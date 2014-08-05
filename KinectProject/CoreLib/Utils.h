@@ -7,7 +7,7 @@
 namespace dai {
 
 template <class T>
-float min(T a, T b) {
+T min(T a, T b) {
     return a < b ? a : b;
 }
 
