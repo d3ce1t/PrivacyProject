@@ -167,10 +167,10 @@ GenericFrame<T, frameType>& GenericFrame<T, frameType>::operator=(const GenericF
         if (this->m_data) {
             delete [] this->m_data;
             this->m_data = new T[this->m_width * this->m_height];
+            this->m_managedData = true;
         }
     }
 
-    this->m_managedData = true;
     memcpy(this->m_data, other.m_data, this->m_width * this->m_height * sizeof(T));
     this->m_padding = other.m_padding;
     return *this;
