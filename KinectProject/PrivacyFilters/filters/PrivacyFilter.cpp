@@ -215,11 +215,10 @@ void PrivacyFilter::approach1()
         shared_ptr<Histogram2D> l_hist = computeHistogram<Vec2f>(imgLog, lower_sampled_mask);
 
         // Show histogram info
-        // Show histogram info
-        const Histogram2D::Item* u_max_item = u_hist->maxFreqItem();
-        const Histogram2D::Item* l_max_item = l_hist->maxFreqItem();
-        qDebug() << "u.max" << "(" << u_max_item->x << u_max_item->y << ")" << u_max_item->value;
-        qDebug() << "l.max" << "(" << l_max_item->x << l_max_item->y << ")" << l_max_item->value;
+        const HistItem2D u_max_item = u_hist->maxFreqItem();
+        const HistItem2D l_max_item = l_hist->maxFreqItem();
+        qDebug() << "u.max" << "(" << u_max_item.point[DIM_X] << u_max_item.point[DIM_Y] << ")" << u_max_item.value;
+        qDebug() << "l.max" << "(" << l_max_item.point[DIM_X] << l_max_item.point[DIM_Y] << ")" << l_max_item.value;
         //qDebug() << "avg" << u_hist->avgFreq() << "n" << u_hist->numItems();
 
         // Show it on an image
@@ -357,10 +356,10 @@ void PrivacyFilter::approach2()
         shared_ptr<Histogram2D> l_hist = computeHistogram<Vec2b>(imgAb, lower_sampled_mask);
 
         // Show histogram info
-        const Histogram2D::Item* u_max_item = u_hist->maxFreqItem();
-        const Histogram2D::Item* l_max_item = l_hist->maxFreqItem();
-        qDebug() << "u.max" << "(" << u_max_item->x << u_max_item->y << ")" << u_max_item->value;
-        qDebug() << "l.max" << "(" << l_max_item->x << l_max_item->y << ")" << l_max_item->value;
+        const HistItem2D u_max_item = u_hist->maxFreqItem();
+        const HistItem2D l_max_item = l_hist->maxFreqItem();
+        qDebug() << "u.max" << "(" << u_max_item.point[DIM_X] << u_max_item.point[DIM_Y] << ")" << u_max_item.value;
+        qDebug() << "l.max" << "(" << l_max_item.point[DIM_X] << l_max_item.point[DIM_Y] << ")" << l_max_item.value;
         //qDebug() << "avg" << u_hist->avgFreq() << "n" << u_hist->numItems();
 
         // Show it on an image
@@ -448,10 +447,10 @@ void PrivacyFilter::approach3()
         shared_ptr<Histogram2D> l_hist = computeHistogram<Vec2b>(imgUv, lower_sampled_mask);
 
         // Show histogram info
-        const Histogram2D::Item* u_max_item = u_hist->maxFreqItem();
-        const Histogram2D::Item* l_max_item = l_hist->maxFreqItem();
-        qDebug() << "u.max" << "(" << u_max_item->x << u_max_item->y << ")" << u_max_item->value;
-        qDebug() << "l.max" << "(" << l_max_item->x << l_max_item->y << ")" << l_max_item->value;
+        const HistItem2D u_max_item = u_hist->maxFreqItem();
+        const HistItem2D l_max_item = l_hist->maxFreqItem();
+        qDebug() << "u.max" << "(" << u_max_item.point[DIM_X] << u_max_item.point[DIM_Y] << ")" << u_max_item.value;
+        qDebug() << "l.max" << "(" << l_max_item.point[DIM_X] << l_max_item.point[DIM_Y] << ")" << l_max_item.value;
         //qDebug() << "avg" << u_hist->avgFreq() << "n" << u_hist->numItems();
 
         // Show it on an image
@@ -519,12 +518,12 @@ void PrivacyFilter::approach4()
         int img_size[] = {400, 400};
         float ab_range[] = {0, 255};
         //const float* hist_ranges[] = { ab_range, ab_range };
-        shared_ptr<Histogram2D> u_hist = computeHistogram<Vec2b>(copyImg, upper_sampled_mask);
-        shared_ptr<Histogram2D> l_hist = computeHistogram<Vec2b>(copyImg, lower_sampled_mask);
+        /*shared_ptr<Histogram> u_hist = computeHistogram<Vec2b>(copyImg, upper_sampled_mask);
+        shared_ptr<Histogram> l_hist = computeHistogram<Vec2b>(copyImg, lower_sampled_mask);
 
         // Show histogram info
-        const Histogram2D::Item* u_max_item = u_hist->maxFreqItem();
-        const Histogram2D::Item* l_max_item = l_hist->maxFreqItem();
+        const Histogram::Item* u_max_item = u_hist->maxFreqItem();
+        const Histogram::Item* l_max_item = l_hist->maxFreqItem();
         qDebug() << "u.max" << "(" << u_max_item->x << u_max_item->y << ")" << u_max_item->value;
         qDebug() << "l.max" << "(" << l_max_item->x << l_max_item->y << ")" << l_max_item->value;
         //qDebug() << "avg" << u_hist->avgFreq() << "n" << u_hist->numItems();
@@ -538,7 +537,7 @@ void PrivacyFilter::approach4()
         imshow("hist2DImg", hist2DImg);
         imshow("U.channel", yuv_planes[1]);
         imshow("V.channel", yuv_planes[2]);
-        waitKey(1);
+        waitKey(1);*/
 
     } // End OpenCV code
 
@@ -563,9 +562,9 @@ QHashDataFrames PrivacyFilter::produceFrames()
     shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(m_frames.value(DataFrame::Color));
     shared_ptr<MaskFrame> maskFrame = static_pointer_cast<MaskFrame>(m_frames.value(DataFrame::Mask));
 
-    //approach1();
+    approach1();
     //approach2();
-    approach3();
+    //approach3();
 
     // Dilate mask to create a wide border (value = 255)
     /*shared_ptr<MaskFrame> inputMask = static_pointer_cast<MaskFrame>(m_frames.value(DataFrame::Mask));
@@ -830,7 +829,7 @@ void PrivacyFilter::computeUpperAndLowerMasks(const cv::Mat input_img, cv::Mat& 
     }
 }
 
-void PrivacyFilter::create2DCoordImage(const Histogram2D& histogram, cv::Mat& output_img, int size[], float input_range[], bool init_output, cv::Vec3b color) const
+void PrivacyFilter::create2DCoordImage(const Histogram2D &histogram, cv::Mat& output_img, int size[], float input_range[], bool init_output, cv::Vec3b color) const
 {
     Q_ASSERT( init_output == true || (output_img.rows == size[0] && output_img.cols == size[1]) );
 
@@ -841,10 +840,10 @@ void PrivacyFilter::create2DCoordImage(const Histogram2D& histogram, cv::Mat& ou
         output_img = Mat(size[0], size[1], CV_8UC3, Scalar(128,128, 128));
     }
 
-    foreach (Histogram2D::Item* item, histogram.items())
+    foreach (HistItem2D* item, histogram.items())
     {
-        float coord_y = dai::normalise<float>(item->y, input_range[0], input_range[1], 0, size[0]);
-        float coord_x = dai::normalise<float>(item->x, input_range[0], input_range[1], 0, size[1]);
+        float coord_y = dai::normalise<float>(item->point[DIM_Y], input_range[0], input_range[1], 0, size[0]);
+        float coord_x = dai::normalise<float>(item->point[DIM_X], input_range[0], input_range[1], 0, size[1]);
         float factor = 1.0f; // dai::normalise<int>(item->value, histogram.minFreq(), histogram.maxFreq(), 0.98f, 1.0f);
         color[0] = float(color[0]) * factor;
         color[1] = float(color[1]) * factor;
@@ -1142,9 +1141,9 @@ shared_ptr<Histogram2D> PrivacyFilter::computeHistogram(cv::Mat inputImg, cv::Ma
     using namespace cv;
 
     shared_ptr<Histogram2D> result = make_shared<Histogram2D>();
-    QHash<float, QHash<float, Histogram2D::Item*>> index;
+    QHash<float, QHash<float, HistItem2D*>> index;
     int min_value = 999999, max_value = 0, num_pixels = 0;
-    Histogram2D::Item *pMinItem, *pMaxItem;
+    HistItem2D min_item, max_item;
 
     bool useMask = mask.rows > 0 && mask.cols > 0;
 
@@ -1158,12 +1157,12 @@ shared_ptr<Histogram2D> PrivacyFilter::computeHistogram(cv::Mat inputImg, cv::Ma
             if (useMask && maskPixel[j] <= 0)
                 continue;
 
-            Histogram2D::Item*& item = index[pPixel[j][0]][pPixel[j][1]];
+            HistItem2D*& item = index[pPixel[j][0]][pPixel[j][1]];
 
             if (item == nullptr) {
-                item = new Histogram2D::Item;
-                item->x = pPixel[j][1]; // 2nd dimension
-                item->y = pPixel[j][0]; // 1st dimension
+                item = new HistItem2D;
+                item->point[DIM_X] = pPixel[j][1]; // 2nd dimension
+                item->point[DIM_Y] = pPixel[j][0]; // 1st dimension
                 item->value = 0;
                 result->m_items.append(item);
             }
@@ -1174,20 +1173,20 @@ shared_ptr<Histogram2D> PrivacyFilter::computeHistogram(cv::Mat inputImg, cv::Ma
             // Min value
             if (item->value < min_value) {
                 min_value = item->value;
-                pMinItem = item;
+                min_item = *item;
             }
             // Max value
             if (item->value > max_value) {
                 max_value = item->value;
-                pMaxItem = item;
+                max_item = *item;
             }
         }
     }
 
     result->m_min_value = min_value;
-    result->m_min_item = pMinItem;
+    result->m_min_item = min_item;
     result->m_max_value = max_value;
-    result->m_max_item = pMaxItem;
+    result->m_max_item = max_item;
     result->m_avg_value = float(num_pixels) / result->m_items.size();
     return result;
 }

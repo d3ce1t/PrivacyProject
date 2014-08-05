@@ -65,8 +65,7 @@ SOURCES += \
     openni/OpenNIDepthInstance.cpp \
     openni/OpenNIUserTrackerInstance.cpp \
     openni/OpenNIDevice.cpp \
-    viewer/BackgroundItem.cpp \
-    types/Histogram2D.cpp
+    viewer/BackgroundItem.cpp
 
 HEADERS += \
     types/Vector3D.h \
@@ -125,7 +124,7 @@ HEADERS += \
     openni/OpenNIUserTrackerInstance.h \
     openni/OpenNIDevice.h \
     viewer/BackgroundItem.h \
-    types/Histogram2D.h
+    types/Histogram.h
 
 OTHER_FILES +=
 

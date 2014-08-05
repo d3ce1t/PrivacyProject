@@ -12,7 +12,7 @@
 #include <opencv2/objdetect/objdetect.hpp>
 #include <QImage>
 #include <QFile>
-#include "types/Histogram2D.h"
+#include "types/Histogram.h"
 
 namespace dai {
 
