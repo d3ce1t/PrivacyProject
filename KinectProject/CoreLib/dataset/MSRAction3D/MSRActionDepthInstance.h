@@ -6,6 +6,7 @@
 #include "dataset/DataInstance.h"
 #include "types/DepthFrame.h"
 #include <stdint.h>
+#include <QMutex>
 
 using namespace std;
 
@@ -29,6 +30,10 @@ protected:
     QList<shared_ptr<DataFrame>> nextFrames() override;
 
 private:
+    static uint16_t _distances_table[2048];
+    static bool _initialised;
+    static QMutex _mutex;
+
     ifstream    m_file;
     int         m_width;
     int         m_height;

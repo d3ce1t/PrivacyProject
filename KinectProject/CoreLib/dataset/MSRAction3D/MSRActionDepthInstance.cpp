@@ -6,9 +6,23 @@
 
 namespace dai {
 
+uint16_t MSRActionDepthInstance::_distances_table[2048];
+bool MSRActionDepthInstance::_initialised = false;
+QMutex MSRActionDepthInstance::_mutex;
+
 MSRActionDepthInstance::MSRActionDepthInstance(const InstanceInfo &info)
     : DataInstance(info)
 {
+    // Compute distances look up table (shared between all instances)
+    _mutex.lock();
+    if (!_initialised) {
+        for (int i=0; i<2048; ++i) {
+            _distances_table[i] = 0.1236 * tan(float(i) / 2842.5f + 1.1863) * 1000;
+        }
+        _initialised = true;
+    }
+    _mutex.unlock();
+
     m_frameBuffer = make_shared<DepthFrame>(320, 240);
     m_frameBuffer->setDistanceUnits(DepthFrame::MILIMETERS);
     m_width = 0;
@@ -84,7 +98,7 @@ QList<shared_ptr<DataFrame>> MSRActionDepthInstance::nextFrames()
             uint16_t value = 0;
 
             if (rawValue > 0 && rawValue < 2047)
-                value = 0.1236 * tan(float(rawValue) / 2842.5f + 1.1863) * 1000;
+                value = _distances_table[rawValue];
 
             /* http://openkinect.org/wiki/Imaging_Information
              * x = (i - w / 2) * (z + minDistance) * scaleFactor
