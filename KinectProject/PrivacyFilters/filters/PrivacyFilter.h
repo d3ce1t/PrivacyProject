@@ -38,9 +38,6 @@ private:
     void dilateUserMask(uint8_t *labels);
 
     template <class T>
-    shared_ptr<Histogram2D> computeHistogram(cv::Mat inputImg, cv::Mat mask);
-
-    template <class T>
     cv::Mat randomSampling(cv::Mat inputImg, int n, cv::Mat mask = cv::Mat());
 
     cv::Mat convertRGB2Log2D(cv::Mat inputImg);
