@@ -35,6 +35,7 @@ private:
     void approach2();
     void approach3();
     void approach4();
+    void approach5();
     void dilateUserMask(uint8_t *labels);
 
     template <class T>
@@ -55,11 +56,16 @@ private:
     void create2DCoordImage(cv::Mat input_img, cv::Mat &output_img, int size[], float input_range[],
                             bool init_output = false, cv::Vec3b color = cv::Vec3b(255, 255, 255)) const;
 
-    void create2DCoordImage(const Histogram2D& histogram, cv::Mat& output_img, int size[], float input_range[],
+    template <class T>
+    void create2DCoordImage(const Histogram2D<T>& histogram, cv::Mat& output_img, int size[], float input_range[],
                             bool init_output = false, cv::Vec3b color = cv::Vec3b(255, 255, 255)) const;
+
+    template <class T>
+    void create2DColorPalette(const Histogram3D<T> &upper_hist, const Histogram3D<T> &lower_hist, cv::Mat& output_img);
 
     cv::Mat createMask(cv::Mat input_img, int min_value, int *nonzero_counter = nullptr, bool filter = false) const;
     void denoiseImage(cv::Mat input_img, cv::Mat output_img) const;
+    void discretiseRGBImage(cv::Mat input_img, cv::Mat output_img) const;
 
     QHashDataFrames m_frames;
     QOpenGLContext* m_glContext;
