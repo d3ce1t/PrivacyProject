@@ -111,8 +111,8 @@ void SkeletonItem::drawLimb(const dai::SkeletonJoint& joint1, const dai::Skeleto
 {
     // Skeleton depth coordinate axis is positive farther screen but in OpenGL is < 0
     float vertexData[] = {
-        (float) joint1.getPosition().x(), (float) joint1.getPosition().y(), (float) -joint1.getPosition().z(),
-        (float) joint2.getPosition().x(), (float) joint2.getPosition().y(), (float) -joint2.getPosition().z()
+        (float) joint1.getPosition().val(0), (float) joint1.getPosition().val(1), (float) -joint1.getPosition().val(2),
+        (float) joint2.getPosition().val(0), (float) joint2.getPosition().val(1), (float) -joint2.getPosition().val(2)
     };
 
     float colorData[] = {

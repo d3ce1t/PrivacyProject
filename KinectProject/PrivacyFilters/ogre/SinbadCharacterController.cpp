@@ -27,9 +27,9 @@ void SinbadCharacterController::newUser(int userId)
 {
     Q_UNUSED(userId);
     const dai::SkeletonJoint& jointTorso = m_skeleton->getJoint(dai::SkeletonJoint::JOINT_SPINE);
-    m_origTorsoPos.x = jointTorso.getPosition().x();
-    m_origTorsoPos.y = jointTorso.getPosition().y();
-    m_origTorsoPos.z = -jointTorso.getPosition().z();
+    m_origTorsoPos.x = jointTorso.getPosition().val(0);
+    m_origTorsoPos.y = jointTorso.getPosition().val(1);
+    m_origTorsoPos.z = -jointTorso.getPosition().val(2);
     mBodyEnt->setVisible(m_enabled);
     m_userVisible = true;
 }
@@ -216,9 +216,9 @@ void SinbadCharacterController::PSupdateBody(Ogre::Real deltaTime)
     transformBone("Shin.R",dai::SkeletonJoint::JOINT_RIGHT_KNEE);
 
     Ogre::Vector3 newPos;
-    newPos.x = torsoJoint.getPosition().x();
-    newPos.y = torsoJoint.getPosition().y() - 0.25;
-    newPos.z = -(torsoJoint.getPosition().z() + 3.2f);
+    newPos.x = torsoJoint.getPosition().val(0);
+    newPos.y = torsoJoint.getPosition().val(1) - 0.25;
+    newPos.z = -(torsoJoint.getPosition().val(2) + 3.2f);
     rootBone->setPosition(newPos);
 }
 

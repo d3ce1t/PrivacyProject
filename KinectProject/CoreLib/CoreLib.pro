@@ -24,7 +24,6 @@ SOURCES += \
     types/SkeletonFrame.cpp \
     types/Skeleton.cpp \
     types/Quaternion.cpp \
-    types/Point3f.cpp \
     types/DepthFrame.cpp \
     types/DataFrame.cpp \
     dataset/InstanceInfo.cpp \
@@ -74,7 +73,6 @@ HEADERS += \
     types/SkeletonFrame.h \
     types/Skeleton.h \
     types/Quaternion.h \
-    types/Point3f.h \
     types/GenericFrame.h \
     types/DepthFrame.h \
     types/DataFrame.h \
@@ -124,7 +122,8 @@ HEADERS += \
     openni/OpenNIUserTrackerInstance.h \
     openni/OpenNIDevice.h \
     viewer/BackgroundItem.h \
-    types/Histogram.h
+    types/Histogram.h \
+    types/Point.h
 
 OTHER_FILES +=
 

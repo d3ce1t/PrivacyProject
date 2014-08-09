@@ -215,8 +215,8 @@ Quaternion Quaternion::getRotationBetween(const Vector3D& v1, const Vector3D& v2
 
 Quaternion Quaternion::getRotationBetween(const Point3f &p1, const Point3f &p2, const Point3f &vertex)
 {
-    Vector3D v1( p1.x() - vertex.x(), p1.y() - vertex.y(), p1.z() - vertex.z() );
-    Vector3D v2( p2.x() - vertex.x(), p2.y() - vertex.y(), p2.z() - vertex.z() );
+    Vector3D v1( p1.val(0) - vertex.val(0), p1.val(1) - vertex.val(1), p1.val(2) - vertex.val(2) );
+    Vector3D v2( p2.val(0) - vertex.val(0), p2.val(1) - vertex.val(1), p2.val(2) - vertex.val(2) );
     return Quaternion::getRotationBetween(v1, v2);
 }
 

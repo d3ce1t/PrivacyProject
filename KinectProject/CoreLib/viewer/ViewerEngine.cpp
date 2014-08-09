@@ -157,10 +157,10 @@ void ViewerEngine::renderBoundingBoxes()
     {
         // OpenGL coordinates system has y-axis inverted (0 is bottom, instead of top)
         float vertexData[] = {
-            bb.getMax().x(), 480 - bb.getMax().y(),
-            bb.getMax().x(), 480 - bb.getMin().y(),
-            bb.getMin().x(), 480 - bb.getMin().y(),
-            bb.getMin().x(), 480 - bb.getMax().y()
+            bb.getMax().val(0), 480 - bb.getMax().val(1),
+            bb.getMax().val(0), 480 - bb.getMin().val(1),
+            bb.getMin().val(0), 480 - bb.getMin().val(1),
+            bb.getMin().val(0), 480 - bb.getMax().val(1)
         };
 
         m_shaderProgram->enableAttributeArray(m_posAttr);

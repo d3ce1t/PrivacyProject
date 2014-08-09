@@ -3,6 +3,7 @@
 
 #include <QHash>
 #include <QMultiMap>
+#include "types/Point.h"
 #include <opencv2/opencv.hpp>
 #include <memory>
 #include <QString>
@@ -36,7 +37,7 @@ inline uint hashItem(const cv::Vec<uchar,3>& point)
 template <typename T, int N>
 class HistItem {
 public:
-    T point[N];
+    Point<T, N> point;
     int value = 0;
     float dist = 0;
 };

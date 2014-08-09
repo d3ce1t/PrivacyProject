@@ -351,9 +351,9 @@ void InstanceViewerWindow::feedJointsModel(const dai::Skeleton& skeleton, QStand
         CustomItem* itemY = dynamic_cast<CustomItem*>(model.item(i, 1));
         CustomItem* itemZ = dynamic_cast<CustomItem*>(model.item(i, 2));
 
-        itemX->setNumber(joint.getPosition().x());
-        itemY->setNumber(joint.getPosition().y());
-        itemZ->setNumber(joint.getPosition().z());
+        itemX->setNumber(joint.getPosition().val(0));
+        itemY->setNumber(joint.getPosition().val(1));
+        itemZ->setNumber(joint.getPosition().val(2));
     }
 }
 

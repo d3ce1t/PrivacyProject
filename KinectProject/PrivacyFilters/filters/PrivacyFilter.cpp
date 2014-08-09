@@ -176,9 +176,9 @@ void PrivacyFilter::approach1()
         return;
 
     BoundingBox bb = metadataFrame->boundingBoxes().first();
-    shared_ptr<ColorFrame> subColorFrame = colorFrame->subFrame(bb.getMin().y(),bb.getMin().x(),
+    shared_ptr<ColorFrame> subColorFrame = colorFrame->subFrame(bb.getMin().val(1),bb.getMin().val(0),
                                                                 bb.size().width(), bb.size().height());
-    shared_ptr<MaskFrame> subMaskFrame = maskFrame->subFrame(bb.getMin().y(),bb.getMin().x(),
+    shared_ptr<MaskFrame> subMaskFrame = maskFrame->subFrame(bb.getMin().val(1),bb.getMin().val(0),
                                                              bb.size().width(), bb.size().height());
 
     // Start OpenCV code
@@ -304,9 +304,9 @@ void PrivacyFilter::approach2()
         return;
 
     BoundingBox bb = metadataFrame->boundingBoxes().first();
-    shared_ptr<ColorFrame> subColorFrame = colorFrame->subFrame(bb.getMin().y(),bb.getMin().x(),
+    shared_ptr<ColorFrame> subColorFrame = colorFrame->subFrame(bb.getMin().val(1),bb.getMin().val(0),
                                                                 bb.size().width(), bb.size().height());
-    shared_ptr<MaskFrame> subMaskFrame = maskFrame->subFrame(bb.getMin().y(),bb.getMin().x(),
+    shared_ptr<MaskFrame> subMaskFrame = maskFrame->subFrame(bb.getMin().val(1),bb.getMin().val(0),
                                                              bb.size().width(), bb.size().height());
 
     // Start OpenCV code
@@ -395,9 +395,9 @@ void PrivacyFilter::approach3()
         return;
 
     BoundingBox bb = metadataFrame->boundingBoxes().first();
-    shared_ptr<ColorFrame> subColorFrame = colorFrame->subFrame(bb.getMin().y(),bb.getMin().x(),
+    shared_ptr<ColorFrame> subColorFrame = colorFrame->subFrame(bb.getMin().val(1),bb.getMin().val(0),
                                                                 bb.size().width(), bb.size().height());
-    shared_ptr<MaskFrame> subMaskFrame = maskFrame->subFrame(bb.getMin().y(),bb.getMin().x(),
+    shared_ptr<MaskFrame> subMaskFrame = maskFrame->subFrame(bb.getMin().val(1),bb.getMin().val(0),
                                                              bb.size().width(), bb.size().height());
 
     // Start OpenCV code
@@ -486,9 +486,9 @@ void PrivacyFilter::approach4()
         return;
 
     BoundingBox bb = metadataFrame->boundingBoxes().first();
-    shared_ptr<ColorFrame> roiColorFrame = colorFrame->subFrame(bb.getMin().y(),bb.getMin().x(),
+    shared_ptr<ColorFrame> roiColorFrame = colorFrame->subFrame(bb.getMin().val(1),bb.getMin().val(0),
                                                                 bb.size().width(), bb.size().height());
-    shared_ptr<MaskFrame> roiMaskFrame = maskFrame->subFrame(bb.getMin().y(),bb.getMin().x(),
+    shared_ptr<MaskFrame> roiMaskFrame = maskFrame->subFrame(bb.getMin().val(1),bb.getMin().val(0),
                                                              bb.size().width(), bb.size().height());
 
     // Start OpenCV code
@@ -591,9 +591,9 @@ void PrivacyFilter::approach5()
         return;
 
     BoundingBox bb = metadataFrame->boundingBoxes().first();
-    shared_ptr<ColorFrame> roiColorFrame = colorFrame->subFrame(bb.getMin().y(),bb.getMin().x(),
+    shared_ptr<ColorFrame> roiColorFrame = colorFrame->subFrame(bb.getMin().val(1),bb.getMin().val(0),
                                                                 bb.size().width(), bb.size().height());
-    shared_ptr<MaskFrame> roiMaskFrame = maskFrame->subFrame(bb.getMin().y(),bb.getMin().x(),
+    shared_ptr<MaskFrame> roiMaskFrame = maskFrame->subFrame(bb.getMin().val(1),bb.getMin().val(0),
                                                              bb.size().width(), bb.size().height());
 
     static int frame_counter = 0;
@@ -1059,18 +1059,18 @@ void PrivacyFilter::create2DColorPalette(const Histogram3D<T>& upper_hist, const
             if (row < 4) {
                 int offset = row * 8 + col;
                 if (offset < upper_list.size()) {
-                    const T* point = upper_list.at(offset)->point;
-                    pixel[j][0] = point[0]; // Y Blue
-                    pixel[j][1] = point[1]; // u Green
-                    pixel[j][2] = point[2]; // v Red
+                    const HistItem3D<T>* item = upper_list.at(offset);
+                    pixel[j][0] = item->point[0]; // Y Blue
+                    pixel[j][1] = item->point[1]; // u Green
+                    pixel[j][2] = item->point[2]; // v Red
                 }
             } else {
                 int offset = (row * 8 + col) - 32;
                 if (offset < lower_list.size()) {
-                    const T* point = lower_list.at(offset)->point;
-                    pixel[j][0] = point[0]; // Y Blue
-                    pixel[j][1] = point[1]; // u Green
-                    pixel[j][2] = point[2]; // v Red
+                    const HistItem3D<T>* item = lower_list.at(offset);
+                    pixel[j][0] = item->point[0]; // Y Blue
+                    pixel[j][1] = item->point[1]; // u Green
+                    pixel[j][2] = item->point[2]; // v Red
                 }
             }
         }
@@ -1242,20 +1242,20 @@ cv::Mat PrivacyFilter::calcHistogram(shared_ptr<ColorFrame> colorFrame, shared_p
     {
         // This is OpenCV blue channel (Red in real because of BGR)
         line(histImage,
-             Point( bin_w*(i-1), hist_h - cvRound(l_hist.at<float>(i-1)) ) ,
-             Point( bin_w*(i), hist_h - cvRound(l_hist.at<float>(i)) ),
+             cv::Point( bin_w*(i-1), hist_h - cvRound(l_hist.at<float>(i-1)) ) ,
+             cv::Point( bin_w*(i), hist_h - cvRound(l_hist.at<float>(i)) ),
              Scalar( 0, 0, 255), 1, 8, 0  );
         line(histImage,
-             Point( bin_w*(i-1), hist_h - cvRound(a_hist.at<float>(i-1)) ) ,
-             Point( bin_w*(i), hist_h - cvRound(a_hist.at<float>(i)) ),
+             cv::Point( bin_w*(i-1), hist_h - cvRound(a_hist.at<float>(i-1)) ) ,
+             cv::Point( bin_w*(i), hist_h - cvRound(a_hist.at<float>(i)) ),
              Scalar( 0, 255, 0), 1, 8, 0  );
         line(histImage,
-             Point( bin_w*(i-1), hist_h - cvRound(b_hist.at<float>(i-1)) ) ,
-             Point( bin_w*(i), hist_h - cvRound(b_hist.at<float>(i)) ),
+             cv::Point( bin_w*(i-1), hist_h - cvRound(b_hist.at<float>(i-1)) ) ,
+             cv::Point( bin_w*(i), hist_h - cvRound(b_hist.at<float>(i)) ),
              Scalar( 255, 0, 0), 1, 8, 0  );
         line(histImage,
-             Point( bin_w*(i-1), hist_h - cvRound(int_hist.at<float>(i-1)) ) ,
-             Point( bin_w*(i), hist_h - cvRound(int_hist.at<float>(i)) ),
+             cv::Point( bin_w*(i-1), hist_h - cvRound(int_hist.at<float>(i-1)) ) ,
+             cv::Point( bin_w*(i), hist_h - cvRound(int_hist.at<float>(i)) ),
              Scalar( 0, 255, 255), 1, 8, 0  );
     }
 

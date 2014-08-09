@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include "Vector3D.h"
-#include "Point3f.h"
+#include "Point.h"
 
 namespace dai {
 
