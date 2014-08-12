@@ -374,7 +374,7 @@ void OpenNIDevice::depth2color(shared_ptr<DepthFrame> depthFrame, shared_ptr<Mas
             // Start hack in order to get distance to sensor, rather than to the plane
             float out_x, out_y, out_z;
             m_oniUserTracker.convertDepthCoordinatesToJoint(j, i, pDepth[j], &out_x, &out_y);
-            out_z = Point3f::distance(Point3f(0, 0, 0), Point3f(out_x, out_y, pDepth[j]));
+            out_z = Point3f::euclideanDistance(Point3f(0, 0, 0), Point3f(out_x, out_y, pDepth[j]));
             // End hack
 
             glm::vec3 p3d;

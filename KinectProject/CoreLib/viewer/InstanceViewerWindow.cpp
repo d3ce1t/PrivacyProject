@@ -372,7 +372,7 @@ void InstanceViewerWindow::feedDistancesModel(const dai::Skeleton &skeleton, QSt
             float distance = 0;
 
             if (j < i) {
-                distance = Point3f::distance(joint1.getPosition(), joint2.getPosition(), Point3f::DISTANCE_EUCLIDEAN);
+                distance = Point3f::euclideanDistance(joint1.getPosition(), joint2.getPosition());
             } else if (j > i) {
                 distance = -1;
             }

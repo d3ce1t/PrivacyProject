@@ -12,10 +12,6 @@
 
 namespace dai {
 
-#define DIM_Y 0
-#define DIM_X 1
-#define DIM_Z 2
-
 template<class T, int N>
 inline uint hashItem(const cv::Vec<T,N>& point)
 {
@@ -142,37 +138,37 @@ public:
         return *this;
     }
 
-    const HistItem<T,N>& maxFreqItem() const
+    inline const HistItem<T,N>& maxFreqItem() const
     {
         return m_max_item;
     }
 
-    const HistItem<T,N>& minFreqItem() const
+    inline const HistItem<T,N>& minFreqItem() const
     {
         return m_min_item;
     }
 
-    int maxFreq() const
+    inline int maxFreq() const
     {
         return m_max_freq;
     }
 
-    int minFreq() const
+    inline int minFreq() const
     {
         return m_min_freq;
     }
 
-    float avgFreq() const
+    inline float avgFreq() const
     {
         return m_avg_value;
     }
 
-    int numItems() const
+    inline int numItems() const
     {
         return m_index.size();
     }
 
-    int dimensions() const
+    inline int dimensions() const
     {
         return N;
     }
@@ -255,8 +251,91 @@ public:
             }
         }
 
+        // Compute stats
         result->computeStats();
         return result;
+    }
+
+    /**
+     * Compute the distance as the average distance element by element.
+     * @brief distance
+     * @param hist1
+     * @param hist2
+     * @param n_elements
+     * @return
+     */
+    static float distance1(const Histogram<T,N>& hist1, const Histogram<T,N>& hist2, int n_elements = 0)
+    {
+        int max_elements = dai::min<int>(hist1.numItems(), hist2.numItems());
+        Q_ASSERT(n_elements <= max_elements);
+
+        if (n_elements <= 0)
+            n_elements = max_elements;
+
+        auto h1_items = hist1.sortedItems(n_elements);
+        auto h2_items = hist2.sortedItems(n_elements);
+        auto it_h1 = h1_items.constBegin();
+        auto it_h2 = h2_items.constBegin();
+
+        float distance = 0;
+
+        while (it_h1 != h1_items.constEnd() && it_h2 != h2_items.constEnd())
+        {
+            const HistItem<T,N>* item1 = *it_h1;
+            const HistItem<T,N>* item2 = *it_h2;
+            distance += Point<T,N>::euclideanDistance(item1->point, item2->point);
+
+            // Next items
+            ++it_h1;
+            ++it_h2;
+        }
+
+        return distance / n_elements;
+    }
+
+    /**
+     * Compute the distance as the average distance element by element, but also consider the size of each
+     * item. So, final distance is weighted as 0.6*color and 0.4*size
+     * @brief distance
+     * @param hist1
+     * @param hist2
+     * @param n_elements
+     * @return
+     */
+    static float distance2(const Histogram<T,N>& hist1, const Histogram<T,N>& hist2, int n_elements = 0)
+    {
+        int max_elements = dai::min<int>(hist1.numItems(), hist2.numItems());
+        Q_ASSERT(n_elements <= max_elements);
+
+        if (n_elements <= 0)
+            n_elements = max_elements;
+
+        auto h1_items = hist1.sortedItems(n_elements);
+        auto h2_items = hist2.sortedItems(n_elements);
+        auto it_h1 = h1_items.constBegin();
+        auto it_h2 = h2_items.constBegin();
+
+        float color_dist = 0;
+        float size_dist = 0;
+
+        while (it_h1 != h1_items.constEnd() && it_h2 != h2_items.constEnd())
+        {
+            const HistItem<T,N>* item1 = *it_h1;
+            const HistItem<T,N>* item2 = *it_h2;
+            color_dist += Point<T,N>::euclideanDistanceNorm(item1->point, item2->point);
+
+            float higher = dai::max<float>(item1->dist, item2->dist);
+            float lower = dai::min<float>(item1->dist, item2->dist);
+            size_dist += 1 - (lower / higher);
+
+            // Next items
+            ++it_h1;
+            ++it_h2;
+        }
+
+        qDebug() << "Size dist" << (size_dist / n_elements);
+
+        return 0.7*(color_dist / n_elements) + 0.3*(size_dist / n_elements);
     }
 
 }; // End Histogram
