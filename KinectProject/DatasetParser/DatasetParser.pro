@@ -11,15 +11,15 @@ TARGET = DatasetParser
 CONFIG   += console
 CONFIG   -= app_bundle
 CONFIG   += link_prl
+CONFIG += c++11
+
+# Fix for Qt 5.3.1 on VS 2013 compiler, because Qt does not define a macro for this compiler
+DEFINES += Q_COMPILER_INITIALIZER_LISTS
+
 TEMPLATE  = app
 
-# Use C++11
-unix:!macx {
-    QMAKE_CXXFLAGS += -std=c++11
-    QMAKE_LFLAGS = -std=c++11
-}
-
 SOURCES += main.cpp
+
 
 unix:!macx {
     # CoreLib

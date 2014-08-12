@@ -4,12 +4,10 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = PrivacyFilters
 TEMPLATE = app
 CONFIG += link_prl
+CONFIG += c++11
 
-# Use C++11
-unix:!macx {
-    QMAKE_CXXFLAGS += -std=c++11 -Wno-unused-local-typedefs
-    QMAKE_LFLAGS = -std=c++11
-}
+# Fix for Qt 5.3.1 on VS 2013 compiler, because Qt does not define a macro for this compiler
+DEFINES += Q_COMPILER_INITIALIZER_LISTS
 
 HEADERS += \
     MainWindow.h \
