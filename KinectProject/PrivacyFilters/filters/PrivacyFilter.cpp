@@ -10,6 +10,7 @@
 #include <QElapsedTimer>
 #include <iostream>
 #include <cmath>
+#include <QList>
 #include <boost/random.hpp>
 #include "Utils.h"
 
@@ -160,9 +161,9 @@ void PrivacyFilter::enableFilter(ColorFilter filterType)
     m_filter = filterType;
 }
 
-// Approach 1: log color space
+// Approach 1.1: log color space (2 channels)
 // Paper: Color Invariants for Person Reidentification
-void PrivacyFilter::approach1()
+void PrivacyFilter::approach11()
 {
     Q_ASSERT(m_frames.contains(DataFrame::Color) && m_frames.contains(DataFrame::Mask) &&
              m_frames.contains(DataFrame::Skeleton) && m_frames.contains(DataFrame::Metadata));
@@ -191,104 +192,124 @@ void PrivacyFilter::approach1()
         Mat mask(subMaskFrame->getHeight(), subMaskFrame->getWidth(),
                  CV_8UC1, (void*)subMaskFrame->getDataPtr(), subMaskFrame->getStep());
 
-        // Copy: because I'm going to modify inputImg to show some things on screen
-        Mat copyImg = inputImg.clone();
-
         // Compute Upper and Lower Masks
         Mat upper_mask, lower_mask;
-        computeUpperAndLowerMasks(inputImg, upper_mask, lower_mask, mask); // This ones modifies inputImg
+        computeUpperAndLowerMasks(inputImg, upper_mask, lower_mask, mask);
 
         // Sample Mask
-        Mat upper_sampled_mask = randomSampling<uchar>(upper_mask, 200, upper_mask);
-        Mat lower_sampled_mask = randomSampling<uchar>(lower_mask, 200, lower_mask);
+        Mat upper_sampled_mask = upper_mask; //randomSampling<uchar>(upper_mask, 200, upper_mask);
+        Mat lower_sampled_mask = lower_mask; //randomSampling<uchar>(lower_mask, 200, lower_mask);
 
         // Denoise Image
-        denoiseImage(copyImg, copyImg);
+        //Mat copyImg = inputImg.clone();
+        //denoiseImage(copyImg, copyImg);
 
         // Convert from RGB color space to 2D log color space
-        Mat imgLog = convertRGB2Log2D(copyImg);
+        Mat imgLog = convertRGB2Log2D(inputImg);
 
         // Compute the histogram for the upper (torso) and lower (leggs) parts
         auto u_hist = Histogram2D<float>::create(imgLog, upper_sampled_mask);
         auto l_hist = Histogram2D<float>::create(imgLog, lower_sampled_mask);
+        //auto hist = Histogram2D<float>::create(imgLog, mask);
 
-        // Show histogram info
-        const auto u_max_item = u_hist->maxFreqItem();
-        const auto l_max_item = l_hist->maxFreqItem();
-        qDebug() << "u.max" << "(" << u_max_item.point[DIM_X] << u_max_item.point[DIM_Y] << ")" << u_max_item.value;
-        qDebug() << "l.max" << "(" << l_max_item.point[DIM_X] << l_max_item.point[DIM_Y] << ")" << l_max_item.value;
-        //qDebug() << "avg" << u_hist->avgFreq() << "n" << u_hist->numItems();
+        const int n_often_colors = 8;
 
-        // Show it on an image
-        int img_size[] = {400, 400};
+        // Create an image of the distribution of the histogram
+        Mat histDist;
+        createHistDistImage<float,2>({u_hist.get(), l_hist.get()},
+                                     n_often_colors,
+                                     {Scalar(255, 0, 0), Scalar(0, 0, 255)}, // Blue (upper), Red (lower)
+                                     histDist);
+
+        // Create a 2D Image of the histogram
         float log_range[] = {-5.6f, 5.6f};
-        //const float* hist_ranges[] = { log_range, log_range };
-        Mat hist2DImg;
-        create2DCoordImage(*u_hist, hist2DImg, img_size, log_range, true, Vec3b(255, 0, 0)); // Blue
-        create2DCoordImage(*l_hist, hist2DImg, img_size, log_range, false, Vec3b(0, 0, 255)); // Red
+        Mat histImg;
+        create2DCoordImage<float>({u_hist.get(), l_hist.get()},
+                                  n_often_colors,
+                                  {Vec3b(255, 0, 0), Vec3b(0, 0, 255)}, // Blue (upper), Red (lower)
+                                  histImg,
+                                  log_range);
 
         // Histogram of the histogram (Upper part & Lower part)
-/*        int histSize = dai::max<float>(u_max, l_max);
-        float histD_ranges[2]; histD_ranges[0] = dai::min(u_min, l_min);  histD_ranges[1] = dai::max<float>(u_max, l_max);
-        const float* histD_range = {histD_ranges};
-        Mat u_histD, l_histD;
-
-        if (u_nonzero_counter)
-            calcHist( &u_hist, 1, channels, u_hist_mask, u_histD, 1, &histSize, &histD_range, true, false);
-
-        if (l_nonzero_counter)
-            calcHist( &l_hist, 1, channels, l_hist_mask, l_histD, 1, &histSize, &histD_range, true, false);
-
-        // Show it
-        int bin_w = cvRound( (double) img_size[1]/histSize );
-        Mat histImage( img_size[0], img_size[1], CV_8UC3, Scalar( 0,0,0) );
-
-        // Normalize the result to [ 0, histImage.rows ]
-        if (u_nonzero_counter)
-            normalize(u_histD, u_histD, 0, histImage.rows, NORM_MINMAX, -1, Mat() );
-
-        if (l_nonzero_counter)
-            normalize(l_histD, l_histD, 0, histImage.rows, NORM_MINMAX, -1, Mat() );
-
-        // Draw for each channel
-        for( int i=1; i < histSize; i++)
-        {
-            // This is OpenCV blue channel (Red in real because of BGR)
-            if (u_nonzero_counter)
-                line(histImage,
-                     Point( bin_w*(i-1), img_size[0] - cvRound(u_histD.at<float>(i-1)) ) ,
-                        Point( bin_w*(i), img_size[0] - cvRound(u_histD.at<float>(i)) ),
-                        Scalar( 0, 0, 255), 1, 8, 0  );
-
-            if (l_nonzero_counter)
-                line(histImage,
-                     Point( bin_w*(i-1), img_size[0] - cvRound(l_histD.at<float>(i-1)) ) ,
-                        Point( bin_w*(i), img_size[0] - cvRound(l_histD.at<float>(i)) ),
-                        Scalar( 255, 0, 0), 1, 8, 0  );
-        }
-*/
-        /*Mat u_hist_norm;
+        /*Mat u_hist_norm, l_hist_norm, diff_hist;
         divide(u_hist, u_max, u_hist_norm);
-
-        Mat l_hist_norm;
         divide(l_hist, l_max, l_hist_norm);
-
-        Mat diff_hist;
         absdiff(u_hist, l_hist, diff_hist);*/
 
-        //normalize(u_hist, u_hist, 0,1, NORM_MINMAX, -1, Mat() );
-        //normalize(l_hist, l_hist, 0,1, NORM_MINMAX, -1, Mat() );
+        // Modify input image to show used mask
+        colorImageWithMask(inputImg, inputImg, upper_mask, lower_mask);
 
         // Show
-        imshow("hist2DImg", hist2DImg);
+        imshow("Hist.Dist", histDist);
+        imshow("Hist.Img", histImg);
+        //imshow("hist.Whole", histWholeImg);
         waitKey(1);
 
     } // End OpenCV code
-
-    return;
 }
 
-// Approach 2: CIElab
+// Approach 1.2: log color space (2 channels) without Histogram!!
+// Paper: Color Invariants for Person Reidentification
+void PrivacyFilter::approach12()
+{
+    Q_ASSERT(m_frames.contains(DataFrame::Color) && m_frames.contains(DataFrame::Mask) &&
+             m_frames.contains(DataFrame::Skeleton) && m_frames.contains(DataFrame::Metadata));
+
+    shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(m_frames.value(DataFrame::Color));
+    shared_ptr<MaskFrame> maskFrame = static_pointer_cast<MaskFrame>(m_frames.value(DataFrame::Mask));
+    shared_ptr<MetadataFrame> metadataFrame = static_pointer_cast<MetadataFrame>(m_frames.value(DataFrame::Metadata));
+
+    // Work in the Bounding Box
+    if (metadataFrame->boundingBoxes().isEmpty())
+        return;
+
+    BoundingBox bb = metadataFrame->boundingBoxes().first();
+    shared_ptr<ColorFrame> subColorFrame = colorFrame->subFrame(bb.getMin().val(1),bb.getMin().val(0),
+                                                                bb.size().width(), bb.size().height());
+    shared_ptr<MaskFrame> subMaskFrame = maskFrame->subFrame(bb.getMin().val(1),bb.getMin().val(0),
+                                                             bb.size().width(), bb.size().height());
+
+    // Start OpenCV code
+    {using namespace cv;
+
+        // Use cv::Mat for my color frame and mask frame
+        Mat inputImg(subColorFrame->getHeight(), subColorFrame->getWidth(),
+                     CV_8UC3, (void*)subColorFrame->getDataPtr(), subColorFrame->getStep());
+
+        Mat mask(subMaskFrame->getHeight(), subMaskFrame->getWidth(),
+                 CV_8UC1, (void*)subMaskFrame->getDataPtr(), subMaskFrame->getStep());
+
+        // Compute Upper and Lower Masks
+        Mat upper_mask, lower_mask;
+        computeUpperAndLowerMasks(inputImg, upper_mask, lower_mask, mask);
+
+        // Sample Points
+        QList<Point3b> u_list = randomSampling<uchar, 3>(inputImg, 500, upper_mask);
+        QList<Point3b> l_list = randomSampling<uchar, 3>(inputImg, 500, lower_mask);
+
+        // Convert from RGB color space to 2D log-chromacity color space
+        QList<Point2f> log_u_list = convertRGB2Log2D(u_list);
+        QList<Point2f> log_l_list = convertRGB2Log2D(l_list);
+
+        // Create a 2D Image of the color space
+        float log_range[] = {-5.6f, 5.6f};
+        Mat logCoordImg;
+        create2DCoordImage({&log_u_list, &log_l_list},
+                           {Vec3b(0, 0, 255), Vec3b(255, 0, 0)}, // Red (upper), Blue (lower)
+                           logCoordImg,
+                           log_range);
+
+        // Modify input image to show used mask
+        colorImageWithMask(inputImg, inputImg, upper_mask, lower_mask);
+
+        // Show
+        imshow("Log.Img", logCoordImg);
+        waitKey(1);
+
+    } // End OpenCV code
+}
+
+// Approach 2: CIElab (2 channels)
 // Paper: Color Invariants for Person Reidentification
 void PrivacyFilter::approach2()
 {
@@ -319,59 +340,59 @@ void PrivacyFilter::approach2()
         Mat mask(subMaskFrame->getHeight(), subMaskFrame->getWidth(),
                  CV_8UC1, (void*)subMaskFrame->getDataPtr(), subMaskFrame->getStep());
 
-        // Copy: because I'm going to modify inputImg to show some things on screen
-        Mat copyImg = inputImg.clone();
-
         // Compute Upper and Lower Masks
         Mat upper_mask, lower_mask;
         computeUpperAndLowerMasks(inputImg, upper_mask, lower_mask, mask); // This ones modifies inputImg
 
         // Sample Mask
-        Mat upper_sampled_mask = randomSampling<uchar>(upper_mask, 200, upper_mask);
-        Mat lower_sampled_mask = randomSampling<uchar>(lower_mask, 200, lower_mask);
+        Mat upper_sampled_mask = upper_mask; //randomSampling<uchar>(upper_mask, 200, upper_mask);
+        Mat lower_sampled_mask = lower_mask; //randomSampling<uchar>(lower_mask, 200, lower_mask);
 
         // Denoise Image
-        denoiseImage(copyImg, copyImg);
+        //denoiseImage(copyImg, copyImg);
 
         // Convert from RGB color space to CIElab
-        // CIElab 8 bits image ranges: all channels 0-255.
+        // CIElab 8 bits image: all channels range is 0-255.
         Mat imgLab;
-        cv::cvtColor(copyImg, imgLab, cv::COLOR_RGB2Lab);
+        cv::cvtColor(inputImg, imgLab, cv::COLOR_RGB2Lab);
 
         // Split image in L*, a* and b* channels
         vector<Mat> lab_planes;
         split(imgLab, lab_planes);
 
         // Create 2D image with only a and b channels
-        vector<Mat> ab_planes;
+        vector<Mat> ab_planes = {lab_planes[1], lab_planes[2]};
         Mat imgAb;
-        ab_planes.push_back(lab_planes[1]); // a channel
-        ab_planes.push_back(lab_planes[2]); // b channel
         merge(ab_planes, imgAb);
 
         // Compute the histogram for the upper (torso) and lower (leggs) parts
         auto u_hist = Histogram2D<uchar>::create(imgAb, upper_sampled_mask);
         auto l_hist = Histogram2D<uchar>::create(imgAb, lower_sampled_mask);
 
-        // Show histogram info
-        const auto u_max_item = u_hist->maxFreqItem();
-        const auto l_max_item = l_hist->maxFreqItem();
-        qDebug() << "u.max" << "(" << u_max_item.point[DIM_X] << u_max_item.point[DIM_Y] << ")" << u_max_item.value;
-        qDebug() << "l.max" << "(" << l_max_item.point[DIM_X] << l_max_item.point[DIM_Y] << ")" << l_max_item.value;
-        //qDebug() << "avg" << u_hist->avgFreq() << "n" << u_hist->numItems();
+        const int n_often_colors = 8;
 
-        // Show it on an image
-        int img_size[] = {400, 400};
-        float ab_range[] = {0, 255};
-        //const float* hist_ranges[] = { ab_range, ab_range };
-        Mat hist2DImg;
-        create2DCoordImage(*u_hist, hist2DImg, img_size, ab_range, true, Vec3b(255, 0, 0)); // Blue
-        create2DCoordImage(*l_hist, hist2DImg, img_size, ab_range, false, Vec3b(0, 0, 255)); // Red
+        // Create an image of the distribution of the histogram
+        Mat histDist;
+        createHistDistImage<uchar,2>({u_hist.get(), l_hist.get()},
+                                     n_often_colors,
+                                     {Scalar(255, 0, 0), Scalar(0, 0, 255)}, // Blue (upper), Red (lower)
+                                     histDist);
+
+        // Create a 2D Image of the histogram
+        float ab_range[] = {0.0f, 255.0f};
+        Mat histImg;
+        create2DCoordImage<uchar>({u_hist.get(), l_hist.get()},
+                                  n_often_colors,
+                                  {Vec3b(255, 0, 0), Vec3b(0, 0, 255)}, // Blue (upper), Red (lower)
+                                  histImg,
+                                  ab_range);
+
+        // Modify input image to show used mask
+        colorImageWithMask(inputImg, inputImg, upper_mask, lower_mask);
 
         // Show
-        imshow("hist2DImg", hist2DImg);
-        imshow("A.channel", lab_planes[1]);
-        imshow("B.channel", lab_planes[2]);
+        imshow("Hist.Dist", histDist);
+        imshow("Hist.Img", histImg);
         waitKey(1);
 
     } // End OpenCV code
@@ -379,7 +400,7 @@ void PrivacyFilter::approach2()
     return;
 }
 
-// Approach 3: YUV
+// Approach 3: YUV (2 channels)
 // Paper: Color Invariants for Person Reidentification
 void PrivacyFilter::approach3()
 {
@@ -410,59 +431,62 @@ void PrivacyFilter::approach3()
         Mat mask(subMaskFrame->getHeight(), subMaskFrame->getWidth(),
                  CV_8UC1, (void*)subMaskFrame->getDataPtr(), subMaskFrame->getStep());
 
-        // Copy: because I'm going to modify inputImg to show some things on screen
-        Mat copyImg = inputImg.clone();
 
         // Compute Upper and Lower Masks
         Mat upper_mask, lower_mask;
         computeUpperAndLowerMasks(inputImg, upper_mask, lower_mask, mask); // This ones modifies inputImg
 
         // Sample Mask
-        Mat upper_sampled_mask = randomSampling<uchar>(upper_mask, 200, upper_mask);
-        Mat lower_sampled_mask = randomSampling<uchar>(lower_mask, 200, lower_mask);
+        Mat upper_sampled_mask = upper_mask; //randomSampling<uchar>(upper_mask, 200, upper_mask);
+        Mat lower_sampled_mask = lower_mask; //randomSampling<uchar>(lower_mask, 200, lower_mask);
 
         // Denoise Image
-        denoiseImage(copyImg, copyImg);
+        //denoiseImage(copyImg, copyImg);
 
-        // Convert from RGB color space to CIElab
-        // CIElab 8 bits image ranges: all channels 0-255.
-        Mat imgLab;
-        cv::cvtColor(copyImg, imgLab, cv::COLOR_RGB2YCrCb);
+        // Convert from RGB color space to YCrCb
+        Mat imgYuv;
+        cv::cvtColor(inputImg, imgYuv, cv::COLOR_RGB2YCrCb);
 
         // Split image in Y, u and v channels
         vector<Mat> yuv_planes;
-        split(imgLab, yuv_planes);
+        split(imgYuv, yuv_planes);
 
         // Create 2D image with only u and v channels
-        vector<Mat> uv_planes;
+        vector<Mat> uv_planes = {yuv_planes[1], yuv_planes[2]};
         Mat imgUv;
-        uv_planes.push_back(yuv_planes[1]); // u channel
-        uv_planes.push_back(yuv_planes[2]); // v channel
         merge(uv_planes, imgUv);
 
         // Compute the histogram for the upper (torso) and lower (leggs) parts
         auto u_hist = Histogram2D<uchar>::create(imgUv, upper_sampled_mask);
         auto l_hist = Histogram2D<uchar>::create(imgUv, lower_sampled_mask);
 
-        // Show histogram info
-        const auto u_max_item = u_hist->maxFreqItem();
-        const auto l_max_item = l_hist->maxFreqItem();
-        qDebug() << "u.max" << "(" << u_max_item.point[DIM_X] << u_max_item.point[DIM_Y] << ")" << u_max_item.value;
-        qDebug() << "l.max" << "(" << l_max_item.point[DIM_X] << l_max_item.point[DIM_Y] << ")" << l_max_item.value;
-        //qDebug() << "avg" << u_hist->avgFreq() << "n" << u_hist->numItems();
+        const int n_often_colors = 8;
 
-        // Show it on an image
-        int img_size[] = {400, 400};
-        float ab_range[] = {0, 255};
-        //const float* hist_ranges[] = { ab_range, ab_range };
-        Mat hist2DImg;
-        create2DCoordImage(*u_hist, hist2DImg, img_size, ab_range, true, Vec3b(255, 0, 0)); // Blue
-        create2DCoordImage(*l_hist, hist2DImg, img_size, ab_range, false, Vec3b(0, 0, 255)); // Red
+        // Show info of the histogram
+        printHistogram<uchar, 2>(*u_hist, n_often_colors);
+
+        // Create an image of the distribution of the histogram
+        Mat histDist;
+        createHistDistImage<uchar,2>({u_hist.get(), l_hist.get()},
+                                     n_often_colors,
+                                     {Scalar(255, 0, 0), Scalar(0, 0, 255)}, // Blue (upper), Red (lower)
+                                     histDist);
+
+        // Create a 2D Image of the histogram
+        float uv_range[] = {0.0f, 255.0f};
+        Mat histImg;
+        create2DCoordImage<uchar>({u_hist.get(), l_hist.get()},
+                                  n_often_colors,
+                                  {Vec3b(255, 0, 0), Vec3b(0, 0, 255)}, // Blue (upper), Red (lower)
+                                  histImg,
+                                  uv_range);
+
+        // Modify input image to show used mask
+        colorImageWithMask(inputImg, inputImg, upper_mask, lower_mask);
 
         // Show
-        imshow("hist2DImg", hist2DImg);
-        imshow("U.channel", yuv_planes[1]);
-        imshow("V.channel", yuv_planes[2]);
+        imshow("Hist.Dist", histDist);
+        imshow("Hist.Img", histImg);
         waitKey(1);
 
     } // End OpenCV code
@@ -502,73 +526,49 @@ void PrivacyFilter::approach4()
                  CV_8UC1, (void*)roiMaskFrame->getDataPtr(), roiMaskFrame->getStep());
 
         // Denoise Image
-        denoiseImage(inputImg, inputImg);
+        //denoiseImage(inputImg, inputImg);
 
         // Discretise Image
-        discretiseRGBImage(inputImg, inputImg); // TEST: in YUV Space not RGB
-
-        // Copy: because I'm going to modify inputImg to show some things on screen
-        Mat copyImg = inputImg.clone();
+        //discretiseRGBImage(inputImg, inputImg); // TEST: in YUV Space not RGB
 
         // Compute Upper and Lower Masks
         Mat upper_mask, lower_mask;
-        computeUpperAndLowerMasks(inputImg, upper_mask, lower_mask, mask); // This ones modifies inputImg
+        computeUpperAndLowerMasks(inputImg, upper_mask, lower_mask, mask);
 
         // Sample Mask
         Mat upper_sampled_mask = upper_mask; //randomSampling<uchar>(upper_mask, 1500, upper_mask);
         Mat lower_sampled_mask = lower_mask; //randomSampling<uchar>(lower_mask, 1500, lower_mask);
 
         // Convert to another color space
-        cv::cvtColor(copyImg, copyImg, cv::COLOR_RGB2YCrCb); // YUV
+        Mat imgYuv;
+        cv::cvtColor(inputImg, imgYuv, cv::COLOR_RGB2YCrCb); // YUV
 
         // Compute the histogram for the upper (torso) and lower (leggs) parts
-        auto u_hist = Histogram3D<uchar>::create(copyImg, upper_sampled_mask);
-        auto l_hist = Histogram3D<uchar>::create(copyImg, lower_sampled_mask);
+        auto u_hist = Histogram3D<uchar>::create(imgYuv, upper_sampled_mask);
+        auto l_hist = Histogram3D<uchar>::create(imgYuv, lower_sampled_mask);
 
-        /*double sum_head = 0;
-        double sum_tail = 0;
-        int i=0;
-
-        foreach (auto item, u_hist->items()) {
-            if (i < 32) {
-                sum_head += item->dist;
-            } else {
-                sum_tail += item->dist;
-            }
-            ++i;
-        }*/
-
-        //qDebug() << "u.sum32" << sum_head << "u.rest" << sum_tail << "check" << (sum_head + sum_tail);
-
-        /*sum_head = 0;
-        sum_tail = 0;
-        i = 0;
-
-        foreach (auto item, l_hist->items()) {
-            if (i < 32) {
-                sum_head += item->dist;
-            } else {
-                sum_tail += item->dist;
-            }
-            ++i;
-        }*/
-
-        //qDebug() << "l.sum32" << sum_head << "l.rest" << sum_tail << "check" << (sum_head + sum_tail);
+        const int n_often_items = 8;
 
         // Show Histogram Info
-        //const HistItem3D u_max_item = u_hist->maxFreqItem();
-        //const HistItem3D l_max_item = l_hist->maxFreqItem();
-        //qDebug() << "u.max" << "(" << u_max_item.point[DIM_X] << u_max_item.point[DIM_Y] << u_max_item.point[DIM_Z] << ")" << u_max_item.value;
-        //qDebug() << "l.max" << "(" << l_max_item.point[DIM_X] << l_max_item.point[DIM_Y] << l_max_item.point[DIM_Z] << ")" << l_max_item.value;
-        qDebug() << "u.colors" << u_hist->numItems() << "u.maxFreq" << u_hist->maxFreq() << "u.minFreq" << u_hist->minFreq() << "u.avgFreq" << u_hist->avgFreq();
-        qDebug() << "l.colors" << l_hist->numItems() << "l.maxFreq" << l_hist->maxFreq() << "l.minFreq" << l_hist->minFreq() << "l.avgFreq" << l_hist->avgFreq();
+        qDebug() << "U.Hist";
+        printHistogram<uchar, 3>(*u_hist, n_often_items);
+        qDebug() << "L.Hist";
+        printHistogram<uchar, 3>(*l_hist, n_often_items);
 
-        // Show it on an image
+        // Create Distribution
+        Mat distImg;
+        createHistDistImage<uchar,3>({u_hist.get(), l_hist.get()},
+                                     n_often_items,
+                                     {Scalar(255, 0, 0), Scalar(0, 0, 255)}, // Blue (upper hist), Red (lower hist)
+                                     distImg);
+
+        // Create it on an image
         Mat colorPalette;
-        create2DColorPalette<uchar>(*u_hist, *l_hist, colorPalette);
+        create2DColorPalette<uchar>(u_hist->sortedItems(n_often_items), l_hist->sortedItems(n_often_items), colorPalette);
         cv::cvtColor(colorPalette, colorPalette, cv::COLOR_YCrCb2BGR); // YUV to BGR
 
         // Show
+        imshow("Dist.Hist", distImg);
         imshow("Palette", colorPalette);
         waitKey(1);
 
@@ -620,7 +620,7 @@ void PrivacyFilter::approach5()
         denoiseImage(img, img);
 
         // Discretise Image
-        discretiseRGBImage(img, img); // TEST: in YUV Space not RGB
+        //discretiseRGBImage(img, img); // TEST: in YUV Space not RGB
 
         // Convert to another color space
         cv::cvtColor(img, img, cv::COLOR_RGB2YCrCb); // YUV
@@ -628,19 +628,31 @@ void PrivacyFilter::approach5()
         //
         // Buffering
         //
-        int vector_idx = frame_counter % buffer_size;
-        color_frame_vector[vector_idx] = img;
-        mask_frame_vector[vector_idx] = mask.clone();
+        int current_idx = frame_counter % buffer_size;
+        int previous_idx = (frame_counter - 1) % buffer_size;
+        color_frame_vector[current_idx] = img;
+        mask_frame_vector[current_idx] = mask.clone();
 
         // Start to do things when I fill up the buffer
         if (frame_counter >= buffer_size-1)
         {
-            // Compute single histogram for the last frame received for comparison purposes
+            // Compute single histogram for the current frame (for comparison purposes)
             Mat upper_mask, lower_mask;
-            computeUpperAndLowerMasks(color_frame_vector[vector_idx], upper_mask, lower_mask, mask);
-            auto u_hist = Histogram3D<uchar>::create(color_frame_vector[vector_idx], upper_mask);
-            auto l_hist = Histogram3D<uchar>::create(color_frame_vector[vector_idx], lower_mask);
 
+            computeUpperAndLowerMasks(color_frame_vector[current_idx],
+                                      upper_mask, lower_mask, mask_frame_vector[current_idx]);
+
+            auto u_hist_current = Histogram3D<uchar>::create(color_frame_vector[current_idx], upper_mask);
+            auto l_hist_current = Histogram3D<uchar>::create(color_frame_vector[current_idx], lower_mask);
+
+            // Compute single histogram for the previous frame (for comparison purposes)
+            computeUpperAndLowerMasks(color_frame_vector[previous_idx],
+                                      upper_mask, lower_mask, mask_frame_vector[previous_idx]);
+
+            auto u_hist_previous = Histogram3D<uchar>::create(color_frame_vector[previous_idx], upper_mask);
+            auto l_hist_previous = Histogram3D<uchar>::create(color_frame_vector[previous_idx], lower_mask);
+
+            // Compute accumulated histogram of the current frame plus the previous fourth
             Histogram3D<uchar> u_hist_acc, l_hist_acc;
 
             for (int i=0; i<buffer_size; ++i)
@@ -662,19 +674,36 @@ void PrivacyFilter::approach5()
                 l_hist_acc += *l_hist_t;
             }
 
+            // Analyse data
+            const int n_often_items = 72;
+
+            // Compute distance between current and previous (and between upper and lower)
+            if (u_hist_current->numItems() >= n_often_items && l_hist_current->numItems() >= n_often_items &&
+                    u_hist_previous->numItems() >= n_often_items && l_hist_previous->numItems() >= n_often_items) {
+                float u_distance = Histogram3D<uchar>::distance2(*u_hist_current, *u_hist_previous, n_often_items);
+                float l_distance = Histogram3D<uchar>::distance2(*l_hist_current, *l_hist_previous, n_often_items);
+                float ul_distance = Histogram3D<uchar>::distance2(*u_hist_current, *l_hist_current, n_often_items);
+                qDebug() << "u.dist" << u_distance << "l.dist" << l_distance << "ul.dist" << ul_distance;
+            }
+
             // Show Histogram Info
-            auto u_items = u_hist_acc.sortedItems(32);
-            auto l_items = l_hist_acc.sortedItems(32);
+            /*auto u_items = u_hist_acc.sortedItems(128);
+            auto l_items = l_hist_acc.sortedItems(128);
             int i = 0;
 
             foreach (auto item, u_items) {
-                qDebug() << "u.ac.item" << i++ << "(" << item->point[DIM_X] << item->point[DIM_Y] << item->point[DIM_Z] << ")" << item->value;
+                qDebug() << "u.ac.item" << i++ << "(" << item->point[0] << item->point[1] << item->point[2] << ")" << item->value << item->dist;
             }
 
+            qDebug() << "u.ac.dist" << sum;
+
             i = 0;
+
             foreach (auto item, l_items) {
-                qDebug() << "l.ac.item" << i++ << "(" << item->point[DIM_X] << item->point[DIM_Y] << item->point[DIM_Z] << ")" << item->value;
+                qDebug() << "l.ac.item" << i++ << "(" << item->point[0] << item->point[1] << item->point[2] << ")" << item->value << item->dist;
             }
+
+            qDebug() << "l.ac.dist" << sum;*/
 
             //const HistItem3D u_max_item = u_hist->maxFreqItem();
             //const HistItem3D l_max_item = l_hist->maxFreqItem();
@@ -685,20 +714,39 @@ void PrivacyFilter::approach5()
 
             // Show it on an image
             Mat colorPalette_acc, colorPalette;
-            create2DColorPalette<uchar>(u_hist_acc, l_hist_acc, colorPalette_acc);
-            create2DColorPalette<uchar>(*u_hist, *l_hist, colorPalette);
+            create2DColorPalette<uchar>(u_hist_acc.sortedItems(n_often_items), l_hist_acc.sortedItems(n_often_items), colorPalette_acc);
+            create2DColorPalette<uchar>(u_hist_current->sortedItems(n_often_items), l_hist_current->sortedItems(n_often_items), colorPalette);
             cv::cvtColor(colorPalette_acc, colorPalette_acc, cv::COLOR_YCrCb2BGR); // YUV to BGR
             cv::cvtColor(colorPalette, colorPalette, cv::COLOR_YCrCb2BGR); // YUV to BGR
+
+            // Show Distribution
+            Mat distImg;
+
+            createHistDistImage<uchar,3>({&u_hist_acc, &l_hist_acc},
+                                       0,
+                                       {Scalar(255, 0, 0), Scalar(0, 0, 255)}, // Blue (upper hist), Red (lower hist)
+                                       distImg);
 
             // Show
             imshow("Palette AC", colorPalette_acc);
             imshow("Palette", colorPalette);
+            imshow("Hist.dist", distImg);
             waitKey(1);
         }
 
     } // End OpenCV code
 
     frame_counter++;
+}
+
+template <class T, int N>
+void PrivacyFilter::printHistogram(const Histogram<T, N> &hist, int n_elems) const
+{
+    // Show info of the histogram
+    int i=0;
+    foreach (auto item, hist.sortedItems(n_elems)) {
+        qDebug() << i++ << "(" << item->point.toString() << ")" << item->value << item->dist;
+    }
 }
 
 void PrivacyFilter::denoiseImage(cv::Mat input_img, cv::Mat output_img) const
@@ -757,11 +805,12 @@ QHashDataFrames PrivacyFilter::produceFrames()
     shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(m_frames.value(DataFrame::Color));
     shared_ptr<MaskFrame> maskFrame = static_pointer_cast<MaskFrame>(m_frames.value(DataFrame::Mask));
 
-    //approach1();
+    //approach11();
+    approach12();
     //approach2();
     //approach3();
     //approach4();
-    approach5();
+    //approach5();
 
     // Dilate mask to create a wide border (value = 255)
     /*shared_ptr<MaskFrame> inputMask = static_pointer_cast<MaskFrame>(m_frames.value(DataFrame::Mask));
@@ -871,7 +920,7 @@ cv::Mat PrivacyFilter::createMask(cv::Mat input_img, int min_value, int* nonzero
     return output_mask;
 }
 
-cv::Mat PrivacyFilter::convertRGB2Log2D(cv::Mat inputImg)
+cv::Mat PrivacyFilter::convertRGB2Log2D(cv::Mat& inputImg)
 {
     using namespace cv;
 
@@ -883,22 +932,7 @@ cv::Mat PrivacyFilter::convertRGB2Log2D(cv::Mat inputImg)
         Vec2f* outPixel = outputImg.ptr<Vec2f>(i);
 
         for (int j=0; j<inputImg.cols; ++j) {
-            // First approach
-            /*float divisor = inPixel[j][1] > 0 ? inPixel[j][1] : 1;
-            float dividend0 = inPixel[j][0] > 0 ? inPixel[j][0] : 1;
-            float dividend1 = inPixel[j][2] > 0 ? inPixel[j][2] : 1;
-            outPixel[j][0] = log(dividend0 / divisor);
-            outPixel[j][1] = log(dividend1 / divisor);*/
-
-            // Second Approach
-            /*if (inPixel[j][1] > 0) {
-                float factor0 = float(inPixel[j][0]) / float(inPixel[j][1]);
-                float factor1 = float(inPixel[j][2]) / float(inPixel[j][1]);
-                outPixel[j][0] = factor0 > 0 ? log(factor0) : 0;
-                outPixel[j][1] = factor1 > 0 ? log(factor1) : 0;
-            }*/
-
-            // Third approach: Consider RGB colors from 1 to 256
+            // Approach: Consider RGB colors from 1 to 256
             // min color: log(1/256) ~ -5.6
             // max color: log(256/1) ~ 5.6
             outPixel[j][0] = log( float(inPixel[j][0]+1) / float(inPixel[j][1]+1) ); // log ( R/G )
@@ -907,6 +941,20 @@ cv::Mat PrivacyFilter::convertRGB2Log2D(cv::Mat inputImg)
     }
 
     return outputImg;
+}
+
+QList<Point2f> PrivacyFilter::convertRGB2Log2D(const QList<Point3b>& list)
+{
+    QList<Point2f> result;
+
+    for (auto it = list.constBegin(); it != list.constEnd(); ++it)
+    {
+        float log_rg = log( float( (*it)[0]+1) ) / float( (*it)[1]+1 ); // log ( R/G )
+        float log_bg = log( float( (*it)[2]+1) ) / float( (*it)[1]+1 ); // log ( B/G )
+        result << Point2f(log_rg, log_bg);
+    }
+
+    return result;
 }
 
 template <class T>
@@ -973,6 +1021,78 @@ cv::Mat PrivacyFilter::randomSampling(cv::Mat inputImg, int n, cv::Mat mask)
     return sampledImage;
 }
 
+template <class T, int N>
+QList<Point<T,N>> PrivacyFilter::randomSampling(cv::Mat inputImg, int n, cv::Mat mask)
+{
+    Q_ASSERT( (mask.rows == 0 && mask.cols == 0) || (mask.rows == inputImg.rows && mask.cols == inputImg.cols) );
+
+    using namespace cv;
+
+    QList<Point<T,N> > result;
+    bool useMask = mask.rows > 0 && mask.cols > 0;
+    int n_mask_pixels = 0;
+    QSet<int> used_samples;
+    int k = inputImg.rows * inputImg.cols - 1;
+
+    boost::mt19937 generator;
+    generator.seed(time(0));
+    boost::uniform_int<> uniform_dist(0, k);
+    boost::variate_generator<boost::mt19937&, boost::uniform_int<>> uniform_rnd(generator, uniform_dist);
+
+    if (useMask) {
+        for (int i=0; i<mask.rows; ++i) {
+            uchar* maskPixel = mask.ptr<uchar>(i);
+            for (int j=0; j<mask.cols; ++j) {
+                if (maskPixel[j] > 0)
+                    n_mask_pixels++;
+            }
+        }
+
+        n = dai::min<int>(n, n_mask_pixels); // There are no guarantee that n pixels will sample
+    }
+
+    n = dai::min<int>(n, k);
+
+    int i = 0;
+    int attempts = 0;
+
+    while (i < n)
+    {
+        int z = uniform_rnd();
+
+        if (!used_samples.contains(z)) {
+
+            int row = z / inputImg.cols;
+            int col = z % inputImg.cols;
+
+            if (useMask && mask.at<uchar>(row,col) <= 0) {
+                attempts++;
+                continue;
+            }
+
+            Point<T,N> point;
+            Vec<T,N> pixel = inputImg.at<Vec<T,N>>(row,col);
+            for (int j=0; j<N; ++j) {
+                point[j] = pixel[j];
+            }
+
+            result << point;
+            used_samples << z;
+            i++;
+            attempts = 0;
+        }
+        else {
+            attempts++;
+        }
+
+        if (attempts > 0 && attempts % 1000 == 0) {
+            qDebug() << "Privacy Filter Stalled" << "attempts" << attempts << "i" << i << "n" << n << "k" << k << "mask pixels" << n_mask_pixels;
+        }
+    }
+
+    return result;
+}
+
 void PrivacyFilter::computeUpperAndLowerMasks(const cv::Mat input_img, cv::Mat& upper_mask, cv::Mat& lower_mask, const cv::Mat mask) const
 {
     Q_ASSERT( (mask.rows == 0 && mask.cols == 0) || (mask.rows == input_img.rows && mask.cols == input_img.cols) );
@@ -1007,7 +1127,6 @@ void PrivacyFilter::computeUpperAndLowerMasks(const cv::Mat input_img, cv::Mat& 
 
     for (int i=0; i<input_img.rows; ++i)
     {
-        //Vec3b* pixel = const_cast<Vec3b*>(input_img.ptr<Vec3b>(i));
         uchar* uMask = upper_mask.ptr<uchar>(i);
         uchar* lMask = lower_mask.ptr<uchar>(i);
         const uchar* maskPixel = useMask ? mask.ptr<uchar>(i) : nullptr;
@@ -1020,32 +1139,67 @@ void PrivacyFilter::computeUpperAndLowerMasks(const cv::Mat input_img, cv::Mat& 
             if (i >= input_img.rows * margins[0][0] && i < input_img.rows * margins[1][0]) {
                 if (j > input_img.cols * margins[0][1] && j < input_img.cols * margins[1][1]) {
                     uMask[j] = 1;
-                    //pixel[j][0] = 255;
                 }
             } else if (i >= input_img.rows * margins[2][0] && i < input_img.rows * margins[3][0]) {
                 if (j > input_img.cols * margins[2][1] && j < input_img.cols * margins[3][1]) {
                     lMask[j] = 1;
-                    //pixel[j][2] = 255;
                 }
             }
         }
     }
 }
 
+void PrivacyFilter::colorImageWithMask(cv::Mat input_img, cv::Mat output_img, cv::Mat upper_mask, cv::Mat lower_mask)
+{
+    Q_ASSERT(input_img.rows == output_img.rows && input_img.cols == output_img.cols);
+
+    using namespace cv;
+
+    if (input_img.data != output_img.data) {
+        output_img = input_img.clone();
+    }
+
+    for (int i=0; i<output_img.rows; ++i)
+    {
+        Vec3b* out_pixel = output_img.ptr<Vec3b>(i);
+        uchar* um_pixel = upper_mask.ptr<uchar>(i);
+        uchar* lm_pixel = lower_mask.ptr<uchar>(i);
+
+        for (int j=0; j<output_img.cols; ++j)
+        {
+            if (um_pixel[j] > 0) {
+                out_pixel[j][0] = 255; // R
+                //out_pixel[j][1] = 255; // G
+                //out_pixel[j][2] = 0;   // B
+            } else if (lm_pixel[j] > 0) {
+                //out_pixel[j][0] = in_pixel[j][0];
+                //out_pixel[j][1] = in_pixel[j][1];
+                out_pixel[j][2] = 255;
+            }
+        }
+    }
+}
+
 template <class T>
-void PrivacyFilter::create2DColorPalette(const Histogram3D<T>& upper_hist, const Histogram3D<T>& lower_hist, cv::Mat& output_img)
+void PrivacyFilter::create2DColorPalette(const QList<const HistItem3D<T>*>& upper_hist, const QList<const HistItem3D<T>*>& lower_hist, cv::Mat& output_img) const
 {
     using namespace cv;
 
     int width = 400;
     int height = 400;
-    int color_width = width / 8;
-    int color_height = height / 8;
-    int row = 0, col = 0;
-    output_img = Mat::zeros(height, width, CV_8UC3);
+    const int num_items = dai::max<int>(upper_hist.size(), lower_hist.size());
 
-    QList<const HistItem3D<T>*> upper_list = upper_hist.sortedItems(32);
-    QList<const HistItem3D<T>*> lower_list = lower_hist.sortedItems(32);
+    int size = cvCeil(std::sqrt(num_items * 2));
+    int size_offset = size % 2;
+
+    const int num_rows = size + size_offset;
+    const int num_cols = num_rows;
+    const int total_cells = num_rows * num_cols;
+    float color_height = float(height) / num_rows;
+    float color_width = float(width) / num_cols;
+    int row = 0, col = 0;
+
+    output_img = Mat::zeros(height, width, CV_8UC3);
 
     for (int i=0; i<400; ++i)
     {
@@ -1056,18 +1210,18 @@ void PrivacyFilter::create2DColorPalette(const Histogram3D<T>& upper_hist, const
         {
             col = j / color_width;
 
-            if (row < 4) {
-                int offset = row * 8 + col;
-                if (offset < upper_list.size()) {
-                    const HistItem3D<T>* item = upper_list.at(offset);
+            if (row < num_rows / 2) {
+                int offset = row * num_rows + col;
+                if (offset < upper_hist.size()) {
+                    const HistItem3D<T>* item = upper_hist.at(offset);
                     pixel[j][0] = item->point[0]; // Y Blue
                     pixel[j][1] = item->point[1]; // u Green
                     pixel[j][2] = item->point[2]; // v Red
                 }
             } else {
-                int offset = (row * 8 + col) - 32;
-                if (offset < lower_list.size()) {
-                    const HistItem3D<T>* item = lower_list.at(offset);
+                int offset = (row * num_rows + col) - (total_cells / 2);
+                if (offset < lower_hist.size()) {
+                    const HistItem3D<T>* item = lower_hist.at(offset);
                     pixel[j][0] = item->point[0]; // Y Blue
                     pixel[j][1] = item->point[1]; // u Green
                     pixel[j][2] = item->point[2]; // v Red
@@ -1077,27 +1231,118 @@ void PrivacyFilter::create2DColorPalette(const Histogram3D<T>& upper_hist, const
     }
 }
 
-template <class T>
-void PrivacyFilter::create2DCoordImage(const Histogram2D<T> &histogram, cv::Mat& output_img, int size[], float input_range[], bool init_output, cv::Vec3b color) const
+template <class T, int N>
+void PrivacyFilter::createHistDistImage(const QList<Histogram<T,N>*>& hist_list, int n_items, const QList<cv::Scalar> &color_list, cv::Mat& output_img) const
 {
-    Q_ASSERT( init_output == true || (output_img.rows == size[0] && output_img.cols == size[1]) );
+    Q_ASSERT(hist_list.size() == color_list.size());
 
     using namespace cv;
 
-    if (init_output) {
-        //output_img = Mat::zeros(size[0], size[1], CV_8UC3);
-        output_img = Mat(size[0], size[1], CV_8UC3, Scalar(0,0,0));
+    const int width = 500;
+    const int height = 400;
+
+    // Init output image
+    output_img = Mat::zeros(height, width, CV_8UC3);
+
+    // Search min and max freq
+    float maxFreq = 0.0f;
+    float minFreq = 1.0f;
+
+    for (auto it = hist_list.constBegin(); it != hist_list.constEnd(); ++it) {
+        const HistItem<T,N>& max_item = (*it)->maxFreqItem();
+        const HistItem<T,N>& min_item = (*it)->minFreqItem();
+        maxFreq = dai::max<float>(max_item.dist, maxFreq);
+        minFreq = dai::min<float>(min_item.dist, minFreq);
     }
 
-    foreach (auto item, histogram.items())
+    // Draw all distributions (width is scaled, but height relations are correct)
+    int color_idx = 0;
+
+    for (auto it_hist = hist_list.constBegin(); it_hist != hist_list.constEnd(); ++it_hist)
     {
-        float coord_y = dai::normalise<T>(item->point[DIM_Y], input_range[0], input_range[1], 0, size[0]);
-        float coord_x = dai::normalise<T>(item->point[DIM_X], input_range[0], input_range[1], 0, size[1]);
-        float factor = 1.0f; // dai::normalise<int>(item->value, histogram.minFreq(), histogram.maxFreq(), 0.98f, 1.0f);
-        color[0] = float(color[0]) * factor;
-        color[1] = float(color[1]) * factor;
-        color[2] = float(color[2]) * factor;
-        output_img.at<Vec3b>(coord_y, coord_x) = color;
+        auto items = (*it_hist)->sortedItems(n_items);
+
+        if (!items.isEmpty()) {
+            float bin_w = double(width)/ (items.size()-1);
+            float prev_value = dai::normalise<float>(items.at(0)->dist, minFreq, maxFreq, height-3, 0);
+            int i = 1;
+
+            for (auto it_items = items.constBegin()+1; it_items != items.constEnd(); ++it_items)
+            {
+                float curr_value = dai::normalise<float>( (*it_items)->dist, minFreq, maxFreq, height-3, 0);
+
+                line(output_img,
+                     cv::Point( cvRound( bin_w*(i-1) ), cvRound(prev_value)),
+                     cv::Point( cvRound( bin_w*(i) ), cvRound(curr_value) ),
+                     color_list.at(color_idx), 1, 8, 0 );
+
+                prev_value = curr_value;
+                ++i;
+            }
+        }
+
+        ++color_idx;
+    }
+}
+
+template <class T>
+void PrivacyFilter::create2DCoordImage(const QList<Histogram2D<T>*>& hist_list, int n_items, const QList<cv::Vec3b> &color_list, cv::Mat& output_img,
+                                       float input_range[]) const
+{
+    Q_ASSERT(hist_list.size() == color_list.size());
+
+    using namespace cv;
+
+    const int width = 400;
+    const int height = 400;
+
+    output_img = Mat(height, width, CV_8UC3, Scalar(0,0,0));
+
+    int color_idx = 0;
+
+    for (auto it = hist_list.constBegin(); it != hist_list.constEnd(); ++it)
+    {
+        Vec3b color = color_list.at(color_idx);
+        auto items = (*it)->sortedItems(n_items);
+
+        foreach (auto item, items)
+        {
+            float coord_y = dai::normalise<T>(item->point[0], input_range[0], input_range[1], 0, height);
+            float coord_x = dai::normalise<T>(item->point[1], input_range[0], input_range[1], 0, width);
+            output_img.at<Vec3b>(coord_y, coord_x) = color;
+        }
+
+        ++color_idx;
+    }
+}
+
+void PrivacyFilter::create2DCoordImage(const QList<QList<Point2f>*> &input_list, const QList<cv::Vec3b>& color_list,
+                                       cv::Mat& output_img, float input_range[]) const
+{
+    Q_ASSERT(input_list.size() == color_list.size());
+
+    using namespace cv;
+
+    const int width = 500;
+    const int height = 500;
+
+    output_img = Mat(height, width, CV_8UC3, Scalar(0,0,0));
+
+    int color_idx = 0;
+
+    for (auto it = input_list.constBegin(); it != input_list.constEnd(); ++it)
+    {
+        Vec3b color = color_list.at(color_idx);
+        QList<Point2f>* items = *it;
+
+        foreach (auto point, *items)
+        {
+            float coord_x = dai::normalise<float>(point[0], input_range[0], input_range[1], 0, width);
+            float coord_y = dai::normalise<float>(point[1], input_range[0], input_range[1], 0, height);
+            output_img.at<Vec3b>(coord_y, coord_x) = color;
+        }
+
+        ++color_idx;
     }
 }
 
@@ -1380,56 +1625,5 @@ cv::Mat PrivacyFilter::computeIntegralImage(cv::Mat image)
 
     return lookup;
 }
-
-/*void PrivacyFilter::blurEffect(shared_ptr<DataFrame> frame)
-{
-    ColorFrame* colorFrame = (ColorFrame*) frame.get();
-    ColorFrame  background = *colorFrame;
-    cv::Mat newImag(480, 640, CV_8UC3,  const_cast<RGBColor*>(colorFrame->getDataPtr()));
-
-    cv::GaussianBlur( newImag, newImag, cv::Size( 29, 29 ), 0, 0 );
-
-    for (int i=0; i<480; ++i) {
-        for (int j=0; j<640; ++j) {
-            if (m_userMask->getItem(i, j) == 0) {
-                RGBColor color = background.getItem(i, j);
-                colorFrame->setItem(i, j, color);
-            }
-        }
-    }
-}
-
-void PrivacyFilter::invisibilityEffect(shared_ptr<DataFrame> frame)
-{
-    if (m_userMask == nullptr)
-        return;
-
-    ColorFrame* colorFrame = (ColorFrame*) frame.get();
-
-    // Get initial background at 20th frame
-    if (colorFrame->getIndex() == 20) {
-        m_background = *colorFrame;
-    }
-
-    // Update Background and make replacement
-    for (int i=0; i<m_userMask->getHeight(); ++i)
-    {
-        for (int j=0; j<m_userMask->getWidth(); ++j)
-        {
-            uint8_t uLabel = m_userMask->getItem(i, j);
-
-            if (uLabel != 0) {
-                if (m_enabled) {
-                    RGBColor bgColor = m_background.getItem(i, j);
-                    colorFrame->setItem(i, j, bgColor);
-                }
-            }
-            else {
-                RGBColor color = colorFrame->getItem(i, j);
-                m_background.setItem(i, j, color);
-            }
-        }
-    }
-}*/
 
 } // End Namespace

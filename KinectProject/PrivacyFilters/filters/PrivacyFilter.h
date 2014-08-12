@@ -31,7 +31,8 @@ protected:
     void freeResources();
 
 private:
-    void approach1();
+    void approach11();
+    void approach12();
     void approach2();
     void approach3();
     void approach4();
@@ -41,10 +42,20 @@ private:
     template <class T>
     cv::Mat randomSampling(cv::Mat inputImg, int n, cv::Mat mask = cv::Mat());
 
-    cv::Mat convertRGB2Log2D(cv::Mat inputImg);
+    template <class T, int N>
+    QList<Point<T,N>> randomSampling(cv::Mat inputImg, int n, cv::Mat mask = cv::Mat());
+
+    cv::Mat convertRGB2Log2D(cv::Mat &inputImg);
+
+
+    QList<Point2f> convertRGB2Log2D(const QList<Point3b>& list);
+
     cv::Mat calcHistogram(shared_ptr<ColorFrame> colorFrame, shared_ptr<MaskFrame> mask);
     std::vector<cv::Rect> faceDetection(cv::Mat frameGray, bool equalised = false);
     cv::Mat computeIntegralImage(cv::Mat image);
+
+    template <class T, int N>
+    void printHistogram(const Histogram<T, N>& hist, int n_elems = 0) const;
 
     template <class T>
     cv::Mat interleaveMatChannels(cv::Mat inputMat, cv::Mat mask = cv::Mat(), int type = CV_32SC1);
@@ -52,16 +63,27 @@ private:
     double computeOccupancy(shared_ptr<MaskFrame> mask, int *outNumPixels = nullptr);
     void computeUpperAndLowerMasks(const cv::Mat input_img, cv::Mat &upper_mask, cv::Mat &lower_mask, const cv::Mat mask = cv::Mat()) const;
 
+    void colorImageWithMask(cv::Mat input_img, cv::Mat output_img, cv::Mat upper_mask, cv::Mat lower_mask);
+
+
     template <class T>
-    void create2DCoordImage(cv::Mat input_img, cv::Mat &output_img, int size[], float input_range[],
+    void create2DCoordImage(cv::Mat input_img, cv::Mat& output_img, int size[], float input_range[],
                             bool init_output = false, cv::Vec3b color = cv::Vec3b(255, 255, 255)) const;
 
     template <class T>
-    void create2DCoordImage(const Histogram2D<T>& histogram, cv::Mat& output_img, int size[], float input_range[],
-                            bool init_output = false, cv::Vec3b color = cv::Vec3b(255, 255, 255)) const;
+    void create2DCoordImage(const QList<Histogram2D<T>*>& hist_list, int n_items, const QList<cv::Vec3b>& color_list,
+                            cv::Mat& output_img, float input_range[]) const;
+
+    void create2DCoordImage(const QList< QList<Point2f>* >& input_list, const QList<cv::Vec3b>& color_list,
+                            cv::Mat& output_img, float input_range[]) const;
+
 
     template <class T>
-    void create2DColorPalette(const Histogram3D<T> &upper_hist, const Histogram3D<T> &lower_hist, cv::Mat& output_img);
+    void create2DColorPalette(const QList<const HistItem3D<T>*>& upper_hist, const QList<const HistItem3D<T>*>& lower_hist, cv::Mat& output_img) const;
+
+    template <class T, int N>
+    void createHistDistImage(const QList<Histogram<T,N>*>& hist_list, int n_items, const QList<cv::Scalar>& color_list, cv::Mat& output_img) const;
+
 
     cv::Mat createMask(cv::Mat input_img, int min_value, int *nonzero_counter = nullptr, bool filter = false) const;
     void denoiseImage(cv::Mat input_img, cv::Mat output_img) const;
