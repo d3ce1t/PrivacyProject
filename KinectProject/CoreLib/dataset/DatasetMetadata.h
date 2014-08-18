@@ -22,45 +22,42 @@ public:
     static shared_ptr<DatasetMetadata> load(QString xmlPath);
     static shared_ptr<DatasetMetadata> load_version1(QString xmlPath);
     static shared_ptr<DatasetMetadata> load_version2(QString xmlPath);
+    static shared_ptr<DatasetMetadata> load_version3(QString xmlPath);
 
     virtual ~DatasetMetadata();
     const QString getName() const;
     const QString getDescription() const;
     const QString getPath() const;
-    int getNumberOfActivities() const;
-    int getNumberOfActors() const;
-    int getNumberOfSampleTypes() const;
-    const InstanceInfoList instances(DataFrame::FrameType type, const QList<int> *activities = 0, const QList<int> *actors = 0, const QList<int> *samples = 0) const;
-    const InstanceInfo *instance(DataFrame::FrameType type, int activity, int actor, int sample);
-    const InstanceInfo* instance(int activity, int actor, int sample);
-    const QString& getActivityName(int key) const;
-    const QString& getActorName(int key) const;
-    const QString& getSampleName(int key) const;
+    const shared_ptr<InstanceInfo> instance(int actor, int camera, int sample, const QList<QString>& labels);
+    const shared_ptr<InstanceInfo> instance(int actor, int camera, int sample, const QList<QString>& labels, DataFrame::FrameType type);
+    const QList<shared_ptr<InstanceInfo>> instance(int actor, int camera, int sample);
+    const QList<shared_ptr<InstanceInfo>> instances(DataFrame::FrameType type, const QList<int> *actors = 0, const QList<int> *cameras = 0, const QList<int> *samples = 0, const QList<QList<QString> > *labels = 0) const;
     const Dataset& dataset() const;
     const DataFrame::SupportedFrames availableInstanceTypes() const;
-    const QList<int> actors() const;
+    const QMap<int, QString>& actors() const;
+    const QMap<int, QString>& cameras() const;
+    const QMap<int, QString>& sampleTypes() const;
+    const QMap<QString, QString>& labels() const;
 
 private:
     void setDataset(Dataset* dataset);
 
     // Private Constructor
-    explicit DatasetMetadata();
-    void addInstanceInfo(InstanceInfo *instance);
+    explicit DatasetMetadata() {}
+    void addInstanceInfo(shared_ptr<InstanceInfo> instance);
 
     QString                      m_name;
     QString                      m_description;
     QString                      m_path;
-    int                          m_numberOfActivities;
-    int                          m_numberOfActors;
-    int                          m_numberOfSampleTypes;
-    QMap<int, QString*>          m_activities;
-    QMap<int, QString*>          m_actors;
-    QMap<int, QString*>          m_sampleTypes;
+    QMap<int, QString>           m_actors;
+    QMap<int, QString>           m_cameras;
+    QMap<int, QString>           m_sampleTypes; // Compatibility with version 1 y 2
+    QMap<QString, QString>       m_labels;
     Dataset*                     m_dataset;
     DataFrame::SupportedFrames   m_availableInstanceTypes;
 
     // List of instances
-    InstanceInfoList             m_instances;
+    QList<shared_ptr<InstanceInfo>> m_instances;
 };
 
 } // End Namespace

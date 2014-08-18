@@ -1,7 +1,6 @@
 #ifndef CAVIAR4REID_INSTANCE_H
 #define CAVIAR4REID_INSTANCE_H
 
-#include <fstream>
 #include "dataset/DataInstance.h"
 #include "types/ColorFrame.h"
 #include <QImage>

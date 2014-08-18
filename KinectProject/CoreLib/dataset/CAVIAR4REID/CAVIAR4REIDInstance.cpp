@@ -37,7 +37,7 @@ bool CAVIAR4REIDInstance::openInstance()
 
     if (file.exists())
     {
-        if (!m_frameBuffer.load(file))
+        if (!m_frameBuffer.load(instancePath))
             return result;
 
         result = true;
@@ -57,8 +57,8 @@ void CAVIAR4REIDInstance::restartInstance()
 QList<shared_ptr<DataFrame> > CAVIAR4REIDInstance::nextFrame()
 {
     QList<shared_ptr<DataFrame>> result;
-    m_colorFrame->setDataPtr(m_frameBuffer.width(), m_frameBuffer.height(), m_frameBuffer.constBits());
-    result.append(colorFrame);
+    m_colorFrame->setDataPtr(m_frameBuffer.width(), m_frameBuffer.height(), (RGBColor*) m_frameBuffer.constBits());
+    result.append(m_colorFrame);
     return result;
 }
 

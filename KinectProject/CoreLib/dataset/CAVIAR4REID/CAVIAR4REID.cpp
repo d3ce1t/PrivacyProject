@@ -8,9 +8,9 @@ CAVIAR4REID::CAVIAR4REID()
 {
 }
 
-shared_ptr<StreamInstance> CAVIAR4REID::instance(int activity, int actor, int sample, DataFrame::FrameType type) const
+shared_ptr<StreamInstance> CAVIAR4REID::instance(int actor, int camera, int sample, const QList<QString> &label, DataFrame::FrameType type) const
 {
-    const InstanceInfo* instanceInfo = m_metadata->instance(type, activity, actor, sample);
+    const shared_ptr<InstanceInfo> instanceInfo = m_metadata->instance(actor, camera, sample, label, type);
 
     switch (type) {
     case DataFrame::Color:

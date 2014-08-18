@@ -9,16 +9,16 @@ MSR3Action3D::MSR3Action3D()
 {
 }
 
-shared_ptr<StreamInstance> MSR3Action3D::instance(int activity, int actor, int sample, DataFrame::FrameType type) const
+shared_ptr<StreamInstance> MSR3Action3D::instance(int actor, int camera, int sample, const QList<QString> &label, DataFrame::FrameType type) const
 {
-    const InstanceInfo* instanceInfo = m_metadata->instance(type, activity, actor, sample);
+    const shared_ptr<InstanceInfo> instanceInfo = m_metadata->instance(actor, camera, sample, label, type);
 
     switch (type) {
     case DataFrame::Depth:
-        return shared_ptr<StreamInstance>(new MSRActionDepthInstance(*instanceInfo));
+        return make_shared<MSRActionDepthInstance>(*instanceInfo);
         break;
     case DataFrame::Skeleton:
-        return shared_ptr<StreamInstance>(new MSRActionSkeletonInstance(*instanceInfo));
+        return make_shared<MSRActionSkeletonInstance>(*instanceInfo);
         break;
     default:
         return nullptr;

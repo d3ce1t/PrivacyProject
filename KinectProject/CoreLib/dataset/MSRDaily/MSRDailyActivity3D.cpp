@@ -10,19 +10,19 @@ MSRDailyActivity3D::MSRDailyActivity3D()
 {
 }
 
-shared_ptr<StreamInstance> MSRDailyActivity3D::instance(int activity, int actor, int sample, DataFrame::FrameType type) const
+shared_ptr<StreamInstance> MSRDailyActivity3D::instance(int actor, int camera, int sample, const QList<QString> &label, DataFrame::FrameType type) const
 {
-    const InstanceInfo* instanceInfo = m_metadata->instance(type, activity, actor, sample);
+    const shared_ptr<InstanceInfo> instanceInfo = m_metadata->instance(actor, camera, sample, label, type);
 
     switch (type) {
     case DataFrame::Depth:
-        return shared_ptr<StreamInstance>(new MSRDailyDepthInstance(*instanceInfo));
+        return make_shared<MSRDailyDepthInstance>(*instanceInfo);
         break;
     case DataFrame::Skeleton:
-        return shared_ptr<StreamInstance>(new MSRDailySkeletonInstance(*instanceInfo));
+        return make_shared<MSRDailySkeletonInstance>(*instanceInfo);
         break;
     case DataFrame::Color:
-        return shared_ptr<StreamInstance>(new MSRDailyColorInstance(*instanceInfo));
+        return make_shared<MSRDailyColorInstance>(*instanceInfo);
         break;
     default:
         return nullptr;

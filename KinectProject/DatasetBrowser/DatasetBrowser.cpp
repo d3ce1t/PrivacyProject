@@ -157,22 +157,26 @@ void DatasetBrowser::loadDataset(Dataset::DatasetType type)
     const DatasetMetadata& dsMetaData = m_dataset->getMetadata();
 
     // Load Activities
-    for (int i=1; i<=dsMetaData.getNumberOfActivities(); ++i) {
-        QListWidgetItem* item = new QListWidgetItem(dsMetaData.getActivityName(i), ui->listActivities);
+    for (auto it = dsMetaData.labels().constBegin(); it != dsMetaData.labels().constEnd(); ++it) {
+        QListWidgetItem* item = new QListWidgetItem(it.value(), ui->listActivities);
+        item->setData(Qt::UserRole, it.key());
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable); // set checkable flag
         item->setCheckState(Qt::Checked);
     }
 
+
     // Load Actors
-    foreach (int actor, dsMetaData.actors()) {
-        QListWidgetItem* item = new QListWidgetItem(dsMetaData.getActorName(actor), ui->listActors);
+    for (auto it = dsMetaData.actors().constBegin(); it != dsMetaData.actors().constEnd(); ++it) {
+        QListWidgetItem* item = new QListWidgetItem(it.value(), ui->listActors);
+        item->setData(Qt::UserRole, it.key());
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable); // set checkable flag
         item->setCheckState(Qt::Checked); // AND initialize check state
     }
 
     // Load Samples
-    for (int i=1; i<=dsMetaData.getNumberOfSampleTypes(); ++i) {
-        QListWidgetItem* item = new QListWidgetItem(dsMetaData.getSampleName(i), ui->listSamples);
+    for (auto it = dsMetaData.sampleTypes().constBegin(); it != dsMetaData.sampleTypes().constEnd(); ++it) {
+        QListWidgetItem* item = new QListWidgetItem(it.value(), ui->listSamples);
+        item->setData(Qt::UserRole, it.key());
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable); // set checkable flag
         item->setCheckState(Qt::Checked); // AND initialize check state
     }
@@ -208,12 +212,15 @@ void DatasetBrowser::loadInstances()
 
     // Prepare Filter
     m_showType = (DataFrame::FrameType) ui->comboType->itemData(ui->comboType->currentIndex()).toInt();
-    QList<int> activities;
+    QList<QList<QString>> activities;
 
     for (int i=0; i<ui->listActivities->count(); ++i) {
         QListWidgetItem* item = ui->listActivities->item(i);
-        if (item != 0 && item->checkState() == Qt::Checked)
-            activities.append(i+1);
+        if (item != 0 && item->checkState() == Qt::Checked) {
+            QList<QString> list;
+            list.append(item->data(Qt::UserRole).toString());
+            activities << list;
+        }
     }
 
     QList<int> actors;
@@ -221,7 +228,7 @@ void DatasetBrowser::loadInstances()
     for (int i=0; i<ui->listActors->count(); ++i) {
         QListWidgetItem* item = ui->listActors->item(i);
         if (item != 0 && item->checkState() == Qt::Checked)
-            actors.append(item->text().toInt());
+            actors.append(item->data(Qt::UserRole).toInt());
     }
 
     QList<int> samples;
@@ -229,14 +236,17 @@ void DatasetBrowser::loadInstances()
     for (int i=0; i<ui->listSamples->count(); ++i) {
         QListWidgetItem* item = ui->listSamples->item(i);
         if (item != 0 && item->checkState() == Qt::Checked)
-            samples.append(i+1);
+            samples.append(item->data(Qt::UserRole).toInt());
     }
 
+    QList<int> cameras;
+    cameras.append(1);
+
     // Get and Load Instances
-    const InstanceInfoList instances = dsMetadata.instances(m_showType, &activities, &actors, &samples);
+    const QList<shared_ptr<InstanceInfo>> instances = dsMetadata.instances(m_showType, &actors, &cameras, &samples, &activities);
 
     for (int i=0; i<instances.count(); ++i) {
-        InstanceInfo* instanceInfo = instances.at(i);
+        shared_ptr<InstanceInfo> instanceInfo = instances.at(i);
         InstanceWidgetItem* item = new InstanceWidgetItem(instanceInfo->getFileName(m_showType), ui->listInstances);
         item->setInfo(*instanceInfo);
     }

@@ -11,9 +11,9 @@ HuDaAct::HuDaAct()
 {
 }
 
-shared_ptr<StreamInstance> HuDaAct::instance(int activity, int actor, int sample, DataFrame::FrameType type) const
+shared_ptr<StreamInstance> HuDaAct::instance(int actor, int camera, int sample, const QList<QString> &label, DataFrame::FrameType type) const
 {
-    const InstanceInfo* instanceInfo = m_metadata->instance(type, activity, actor, sample);
+    const shared_ptr<InstanceInfo> instanceInfo = m_metadata->instance(actor, camera, sample, label, type);
     QString datasetPath = instanceInfo->parent().getPath();
     QString instancePath = datasetPath + "/" + instanceInfo->getFileName(type);
 

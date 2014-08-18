@@ -28,11 +28,11 @@ public:
     void open(const QString& xmlDescriptor);
     void setPath(const QString& path);
     const DatasetMetadata& getMetadata() const;
-    shared_ptr<StreamInstance> getInstance(int activity, int actor, int sample, DataFrame::FrameType type) const;
+    shared_ptr<StreamInstance> getInstance(int actor, int camera, int sample, const QList<QString>& labels, DataFrame::FrameType type) const;
     shared_ptr<StreamInstance> getInstance(const InstanceInfo &info, DataFrame::FrameType type) const;
 
 protected:
-    virtual shared_ptr<StreamInstance> instance(int activity, int actor, int sample, DataFrame::FrameType type) const = 0;
+    virtual shared_ptr<StreamInstance> instance(int actor, int camera, int sample, const QList<QString>& labels, DataFrame::FrameType type) const = 0;
 
     shared_ptr<DatasetMetadata> m_metadata;
 };

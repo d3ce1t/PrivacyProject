@@ -13,9 +13,10 @@ InstanceInfo::InstanceInfo(shared_ptr<DatasetMetadata> parent)
 InstanceInfo::InstanceInfo(const InstanceInfo& other)
 {
     m_type = other.m_type;
-    m_activity = other.m_activity;
     m_actor = other.m_actor;
     m_sample = other.m_sample;
+    m_camera = other.m_camera;
+    m_labels = other.m_labels;
     m_files = other.m_files; // Implicit sharing
     m_parent = other.m_parent;
 }
@@ -23,9 +24,10 @@ InstanceInfo::InstanceInfo(const InstanceInfo& other)
 InstanceInfo& InstanceInfo::operator=(const InstanceInfo& other)
 {
     m_type = other.m_type;
-    m_activity = other.m_activity;
     m_actor = other.m_actor;
+    m_camera = other.m_camera;
     m_sample = other.m_sample;
+    m_labels = other.m_labels;
     m_files = other.m_files;
     m_parent = other.m_parent;
     return *this;
@@ -36,14 +38,34 @@ DataFrame::SupportedFrames InstanceInfo::getType() const
     return m_type;
 }
 
-int InstanceInfo::getActivity() const
+QList<QString> InstanceInfo::getLabels() const
 {
-    return m_activity;
+    return m_labels.values();
+}
+
+bool InstanceInfo::hasLabels(const QList<QString>& labels) const
+{
+    bool hasAll = true;
+
+    auto it = labels.constBegin();
+
+    while (it != labels.constEnd() && hasAll == true)
+    {
+        hasAll = m_labels.contains(*it);
+        ++it;
+    }
+
+    return hasAll;
 }
 
 int InstanceInfo::getActor() const
 {
     return m_actor;
+}
+
+int InstanceInfo::getCamera() const
+{
+    return m_camera;
 }
 
 int InstanceInfo::getSample() const
@@ -66,14 +88,19 @@ void InstanceInfo::addType(DataFrame::FrameType type)
     m_type |= type;
 }
 
-void InstanceInfo::setActivity(int activity)
+void InstanceInfo::addLabel(const QString &label)
 {
-    m_activity = activity;
+    m_labels.insert(label);
 }
 
 void InstanceInfo::setActor(int actor)
 {
     m_actor = actor;
+}
+
+void InstanceInfo::setCamera(int camera)
+{
+    m_camera = camera;
 }
 
 void InstanceInfo::setSample(int sample)

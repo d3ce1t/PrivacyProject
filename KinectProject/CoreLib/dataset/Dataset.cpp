@@ -23,14 +23,14 @@ const DatasetMetadata& Dataset::getMetadata() const
     return *m_metadata;
 }
 
-shared_ptr<StreamInstance> Dataset::getInstance(int activity, int actor, int sample, DataFrame::FrameType type) const
+shared_ptr<StreamInstance> Dataset::getInstance(int actor, int camera, int sample, const QList<QString>& labels, DataFrame::FrameType type) const
 {
-    return instance(activity, actor, sample, type);
+    return instance(actor, camera, sample, labels, type);
 }
 
 shared_ptr<StreamInstance> Dataset::getInstance(const InstanceInfo& info, DataFrame::FrameType type) const
 {
-    return instance(info.getActivity(), info.getActor(), info.getSample(), type);
+    return instance(info.getActor(), info.getCamera(), info.getSample(), info.getLabels(), type);
 }
 
 } // End Namespace
