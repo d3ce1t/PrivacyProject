@@ -55,7 +55,7 @@ void OpenNIDepthInstance::restartInstance()
 {
 }
 
-QList<shared_ptr<DataFrame>> OpenNIDepthInstance::nextFrames()
+QList<shared_ptr<DataFrame>> OpenNIDepthInstance::nextFrame()
 {
     QList<shared_ptr<DataFrame>> result;
     shared_ptr<DepthFrame> depthFrame = m_device->readDepthFrame();

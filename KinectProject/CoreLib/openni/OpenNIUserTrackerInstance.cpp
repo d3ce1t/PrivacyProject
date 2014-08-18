@@ -59,7 +59,7 @@ void OpenNIUserTrackerInstance::restartInstance()
 {
 }
 
-QList<shared_ptr<DataFrame>> OpenNIUserTrackerInstance::nextFrames()
+QList<shared_ptr<DataFrame>> OpenNIUserTrackerInstance::nextFrame()
 {
     QList<shared_ptr<DataFrame>> result;
     nite::UserTrackerFrameRef oniUserTrackerFrame = m_device->readUserTrackerFrame();

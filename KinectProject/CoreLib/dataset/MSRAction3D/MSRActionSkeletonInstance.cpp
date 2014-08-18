@@ -94,7 +94,7 @@ void MSRActionSkeletonInstance::restartInstance()
     }
 }
 
-QList<shared_ptr<DataFrame>> MSRActionSkeletonInstance::nextFrames()
+QList<shared_ptr<DataFrame>> MSRActionSkeletonInstance::nextFrame()
 {
     QList<shared_ptr<DataFrame>> result;
     auto skeleton = m_frameBuffer->getSkeleton(1);

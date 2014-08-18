@@ -55,7 +55,7 @@ void OpenNIColorInstance::restartInstance()
 {
 }
 
-QList<shared_ptr<DataFrame>> OpenNIColorInstance::nextFrames()
+QList<shared_ptr<DataFrame>> OpenNIColorInstance::nextFrame()
 {
     QList<shared_ptr<DataFrame>> result;
     shared_ptr<ColorFrame> colorFrame = m_device->readColorFrame();

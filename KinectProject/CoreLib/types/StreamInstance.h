@@ -23,7 +23,7 @@ public:
     virtual void restart();
     virtual bool is_open() const = 0;
     virtual bool hasNext() const;
-    void readNextFrames();
+    void readNextFrame();
 
     virtual QList< shared_ptr<DataFrame> > frames();
     unsigned int getFrameIndex() const;
@@ -33,7 +33,7 @@ protected:
     virtual bool openInstance() = 0;
     virtual void closeInstance() = 0;
     virtual void restartInstance() = 0;
-    virtual QList< shared_ptr<DataFrame>> nextFrames() = 0;
+    virtual QList< shared_ptr<DataFrame>> nextFrame() = 0;
 
 private:
 

@@ -71,7 +71,7 @@ void MSRDailyDepthInstance::restartInstance()
     }
 }
 
-QList<shared_ptr<DataFrame>> MSRDailyDepthInstance::nextFrames()
+QList<shared_ptr<DataFrame>> MSRDailyDepthInstance::nextFrame()
 {
     QList<shared_ptr<DataFrame>> result;
 

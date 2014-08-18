@@ -82,7 +82,7 @@ void MSRActionDepthInstance::restartInstance()
     }
 }
 
-QList<shared_ptr<DataFrame>> MSRActionDepthInstance::nextFrames()
+QList<shared_ptr<DataFrame>> MSRActionDepthInstance::nextFrame()
 {
     QList<shared_ptr<DataFrame>> result;
 

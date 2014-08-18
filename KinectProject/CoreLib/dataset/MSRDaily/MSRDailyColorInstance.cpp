@@ -60,7 +60,7 @@ void MSRDailyColorInstance::restartInstance()
     QThread::msleep(200);
 }
 
-QList<shared_ptr<DataFrame> > MSRDailyColorInstance::nextFrames()
+QList<shared_ptr<DataFrame> > MSRDailyColorInstance::nextFrame()
 {
     QList<shared_ptr<DataFrame>> result;
 

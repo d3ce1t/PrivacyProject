@@ -84,7 +84,7 @@ void MSRDailySkeletonInstance::restartInstance()
     }
 }
 
-QList<shared_ptr<DataFrame>> MSRDailySkeletonInstance::nextFrames()
+QList<shared_ptr<DataFrame>> MSRDailySkeletonInstance::nextFrame()
 {
     QList<shared_ptr<DataFrame>> result;
     auto skeleton = m_frameBuffer->getSkeleton(1);

@@ -43,7 +43,7 @@ void StreamInstance::restart()
     }
 }
 
-void StreamInstance::readNextFrames()
+void StreamInstance::readNextFrame()
 {
     if (!is_open()) {
         throw NotOpenedInstanceException();
@@ -51,7 +51,7 @@ void StreamInstance::readNextFrames()
 
     if (hasNext()) {
         QWriteLocker locker(&m_locker);
-        m_readFrames = nextFrames();
+        m_readFrames = nextFrame();
         m_frameIndex++;
     }
     else {

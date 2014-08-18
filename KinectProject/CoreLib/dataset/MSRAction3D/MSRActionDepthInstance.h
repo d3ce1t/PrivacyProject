@@ -27,7 +27,7 @@ protected:
     bool openInstance() override;
     void closeInstance() override;
     void restartInstance() override;
-    QList<shared_ptr<DataFrame>> nextFrames() override;
+    QList<shared_ptr<DataFrame>> nextFrame() override;
 
 private:
     static uint16_t _distances_table[2048];
