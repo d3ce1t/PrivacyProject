@@ -62,7 +62,9 @@ SOURCES += \
     openni/OpenNIDepthInstance.cpp \
     openni/OpenNIUserTrackerInstance.cpp \
     openni/OpenNIDevice.cpp \
-    viewer/BackgroundItem.cpp
+    viewer/BackgroundItem.cpp \
+    dataset/CAVIAR4REID/CAVIAR4REID.cpp \
+    dataset/CAVIAR4REID/CAVIAR4REIDInstance.cpp
 
 HEADERS += \
     types/Vector3D.h \
@@ -121,7 +123,10 @@ HEADERS += \
     openni/OpenNIDevice.h \
     viewer/BackgroundItem.h \
     types/Histogram.h \
-    types/Point.h
+    types/Point.h \
+    ml/KMeans.h \
+    dataset/CAVIAR4REID/CAVIAR4REID.h \
+    dataset/CAVIAR4REID/CAVIAR4REIDInstance.h
 
 OTHER_FILES +=
 
@@ -147,6 +152,17 @@ win32 {
     # GLM
     INCLUDEPATH += $$(GLM_INCLUDE)
     DEPENDPATH += $$(GLM_INCLUDE)
+
+    # Boost
+    BOOSTDIR = $$(BOOST_INCLUDEDIR)
+    #BOOSTLIB = $$(BOOST_LIBRARYDIR)
+    !isEmpty(BOOSTDIR) {
+        INCLUDEPATH += $$BOOSTDIR
+        #win32-g++:CONFIG(release, debug|release):LIBS += -L$$BOOSTLIB -lboost_date_time-mgw48-mt-1_55 -lboost_thread-mgw48-mt-1_55
+        #else:win32-g++:CONFIG(debug, debug|release):LIBS += -L$$BOOSTLIB -lboost_date_time-mgw48-mt-d-1_55 -lboost_thread-mgw48-mt-d-1_55
+        #else:CONFIG(release, debug|release):LIBS += -L$$BOOSTLIB -lboost_date_time-vc120-mt-1_55 -lboost_thread-vc120-mt-1_55
+        #else:CONFIG(debug, debug|release):LIBS += -L$$BOOSTLIB -lboost_date_time-vc120-mt-gd-1_55 -lboost_thread-vc120-mt-gd-1_55
+    }
 
     # OpenNI2
     LIBS += -L$$(OPENNI2_LIB) -lOpenNI2
