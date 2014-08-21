@@ -5,10 +5,6 @@
 #include <QString>
 #include <memory>
 #include "DataInstance.h"
-#include "types/DepthFrame.h"
-#include "types/ColorFrame.h"
-#include "types/SkeletonFrame.h"
-#include "types/MaskFrame.h"
 
 using namespace std;
 

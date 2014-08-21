@@ -158,12 +158,14 @@ void DatasetBrowser::loadDataset(Dataset::DatasetType type)
 
     // Load Activities
     for (auto it = dsMetaData.labels().constBegin(); it != dsMetaData.labels().constEnd(); ++it) {
-        QListWidgetItem* item = new QListWidgetItem(it.value(), ui->listActivities);
-        item->setData(Qt::UserRole, it.key());
-        item->setFlags(item->flags() | Qt::ItemIsUserCheckable); // set checkable flag
-        item->setCheckState(Qt::Checked);
+        QString key = it.key();
+        if (key.startsWith("act")) {
+            QListWidgetItem* item = new QListWidgetItem(it.value(), ui->listActivities);
+            item->setData(Qt::UserRole, it.key());
+            item->setFlags(item->flags() | Qt::ItemIsUserCheckable); // set checkable flag
+            item->setCheckState(Qt::Checked);
+        }
     }
-
 
     // Load Actors
     for (auto it = dsMetaData.actors().constBegin(); it != dsMetaData.actors().constEnd(); ++it) {
@@ -174,11 +176,14 @@ void DatasetBrowser::loadDataset(Dataset::DatasetType type)
     }
 
     // Load Samples
-    for (auto it = dsMetaData.sampleTypes().constBegin(); it != dsMetaData.sampleTypes().constEnd(); ++it) {
-        QListWidgetItem* item = new QListWidgetItem(it.value(), ui->listSamples);
-        item->setData(Qt::UserRole, it.key());
-        item->setFlags(item->flags() | Qt::ItemIsUserCheckable); // set checkable flag
-        item->setCheckState(Qt::Checked); // AND initialize check state
+    for (auto it = dsMetaData.labels().constBegin(); it != dsMetaData.labels().constEnd(); ++it) {
+        QString key = it.key();
+        if (key.startsWith("rep")) {
+            QListWidgetItem* item = new QListWidgetItem(it.value(), ui->listSamples);
+            item->setData(Qt::UserRole, it.key());
+            item->setFlags(item->flags() | Qt::ItemIsUserCheckable); // set checkable flag
+            item->setCheckState(Qt::Checked); // AND initialize check state
+        }
     }
 
     // Load Instance Types
@@ -212,14 +217,28 @@ void DatasetBrowser::loadInstances()
 
     // Prepare Filter
     m_showType = (DataFrame::FrameType) ui->comboType->itemData(ui->comboType->currentIndex()).toInt();
-    QList<QList<QString>> activities;
+    QList<QList<QString>> labels;
 
-    for (int i=0; i<ui->listActivities->count(); ++i) {
-        QListWidgetItem* item = ui->listActivities->item(i);
-        if (item != 0 && item->checkState() == Qt::Checked) {
-            QList<QString> list;
-            list.append(item->data(Qt::UserRole).toString());
-            activities << list;
+    // Activites x Samples
+    for (int i=0; i<ui->listActivities->count(); ++i)
+    {
+        QListWidgetItem* itemAct = ui->listActivities->item(i);
+
+        if (itemAct != 0 && itemAct->checkState() == Qt::Checked)
+        {
+            for (int j=0; j<ui->listSamples->count(); ++j)
+            {
+                QListWidgetItem* itemSample = ui->listSamples->item(j);
+
+                if (itemSample != 0 && itemSample->checkState() == Qt::Checked)
+                {
+                    QList<QString> list;
+                    list << itemAct->data(Qt::UserRole).toString()
+                         << itemSample->data(Qt::UserRole).toString();
+
+                    labels << list;
+                }
+            }
         }
     }
 
@@ -231,19 +250,12 @@ void DatasetBrowser::loadInstances()
             actors.append(item->data(Qt::UserRole).toInt());
     }
 
-    QList<int> samples;
-
-    for (int i=0; i<ui->listSamples->count(); ++i) {
-        QListWidgetItem* item = ui->listSamples->item(i);
-        if (item != 0 && item->checkState() == Qt::Checked)
-            samples.append(item->data(Qt::UserRole).toInt());
-    }
-
     QList<int> cameras;
     cameras.append(1);
 
     // Get and Load Instances
-    const QList<shared_ptr<InstanceInfo>> instances = dsMetadata.instances(m_showType, &actors, &cameras, &samples, &activities);
+    const QList<shared_ptr<InstanceInfo>> instances = dsMetadata.instances(m_showType, actors, cameras, labels);
+    //qDebug() << "Num.Instances" << instances.count();
 
     for (int i=0; i<instances.count(); ++i) {
         shared_ptr<InstanceInfo> instanceInfo = instances.at(i);

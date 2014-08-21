@@ -3,7 +3,7 @@
 
 #include "dataset/DataInstance.h"
 #include "types/ColorFrame.h"
-#include <QImage>
+#include <opencv2/opencv.hpp>
 
 namespace dai {
 
@@ -11,7 +11,7 @@ class CAVIAR4REIDInstance : public DataInstance
 {
     int                     m_width;
     int                     m_height;
-    QImage                  m_frameBuffer;
+    cv::Mat                 m_frameBuffer;
     shared_ptr<ColorFrame>  m_colorFrame;
 
 public:

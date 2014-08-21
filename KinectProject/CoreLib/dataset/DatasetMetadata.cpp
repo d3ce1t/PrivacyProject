@@ -9,6 +9,8 @@ using namespace std;
 
 namespace dai {
 
+const QList<QList<QString>> DatasetMetadata::ANY_LABEL = QList<QList<QString>>();
+
 DatasetMetadata::~DatasetMetadata()
 {
     m_instances.clear();
@@ -78,7 +80,7 @@ const shared_ptr<InstanceInfo> DatasetMetadata::instance(int actor, int camera, 
     return result;
 }
 
-const QList<shared_ptr<InstanceInfo>> DatasetMetadata::instance(int actor, int camera, int sample)
+/*const QList<shared_ptr<InstanceInfo>> DatasetMetadata::instance(int actor, int camera, int sample)
 {
     QList<shared_ptr<InstanceInfo>> result;
 
@@ -97,61 +99,56 @@ const QList<shared_ptr<InstanceInfo>> DatasetMetadata::instance(int actor, int c
     }
 
     return result;
-}
+}*/
 
 const QList<shared_ptr<InstanceInfo>> DatasetMetadata::instances(DataFrame::FrameType type,
-                                                      const QList<int>* actors,
-                                                      const QList<int>* cameras,
-                                                      const QList<int>* samples,
-                                                      const QList<QList<QString>>* labels) const
+                                                      const QList<int>& actors,
+                                                      const QList<int>& cameras,
+                                                      const QList<QList<QString>>& labels) const
 {
     QList<shared_ptr<InstanceInfo>> result;
 
     if (m_instances.isEmpty())
         return result;
 
-    auto it = m_instances.constBegin();
+    auto it1 = m_instances.constBegin();
 
-    while (it != m_instances.constEnd())
+    while (it1 != m_instances.constEnd())
     {
-        shared_ptr<InstanceInfo> instance = *it;
+        shared_ptr<InstanceInfo> instance = *it1;
         bool isActorChecked = false;
         bool isCameraChecked = false;
-        bool isSampleChecked = false;
         bool isLabelsChecked = false;
 
-        if (actors == 0 || actors->contains(instance->getActor()))
+        if (actors.isEmpty() || actors.contains(instance->getActor()))
             isActorChecked = true;
 
-        if (cameras == 0 || cameras->contains(instance->getCamera()))
+        if (cameras.isEmpty() || cameras.contains(instance->getCamera()))
             isCameraChecked = true;
 
-        if (samples == 0 || samples->contains(instance->getSample()))
-            isSampleChecked = true;
-
-        if (labels == 0)
+        if (labels.isEmpty())
             isLabelsChecked = true;
         else
         {
             bool found = false;
-            auto it = labels->constBegin();
+            auto it2 = labels.constBegin();
 
-            while (it != labels->constEnd() && !found)
+            while (it2 != labels.constEnd() && !found)
             {
-                if (instance->hasLabels(*it)) {
+                if (instance->hasLabels(*it2)) {
                     isLabelsChecked = true;
                     found = true;
                 }
 
-                ++it;
+                ++it2;
             }
         }
 
-        if (instance->getType().testFlag(type) && isActorChecked && isCameraChecked && isSampleChecked && isLabelsChecked) {
+        if (instance->getType().testFlag(type) && isActorChecked && isCameraChecked && isLabelsChecked) {
             result.append(instance);
         }
 
-        ++it;
+        ++it1;
     }
 
     return result;
@@ -165,11 +162,6 @@ const QMap<int, QString>& DatasetMetadata::actors() const
 const QMap<int, QString>& DatasetMetadata::cameras() const
 {
     return m_cameras;
-}
-
-const QMap<int, QString>& DatasetMetadata::sampleTypes() const
-{
-    return m_sampleTypes;
 }
 
 const QMap<QString, QString>& DatasetMetadata::labels() const
@@ -276,7 +268,7 @@ shared_ptr<DatasetMetadata> DatasetMetadata::load_version1(QString xmlPath)
             }
             // Activity tag
             else if (reader.name() == "activity" && insideActivities) {
-                QString key = reader.attributes().value("key").toString();
+                QString key = "act" + reader.attributes().value("key").toString();
                 reader.readNext();
                 dsMetaDataObject->m_labels[key] = reader.text().toString();
             }
@@ -300,9 +292,9 @@ shared_ptr<DatasetMetadata> DatasetMetadata::load_version1(QString xmlPath)
             }
             // Sample tag
             else if (reader.name() == "sample" && insideSamples) {
-                int key = reader.attributes().value("key").toString().toInt();
+                QString key = "rep" + reader.attributes().value("key").toString();
                 reader.readNext();
-                dsMetaDataObject->m_sampleTypes[key] = reader.text().toString();
+                dsMetaDataObject->m_labels[key] = reader.text().toString();
             }
             // Instances tag
             else if (reader.name() == "instances") {
@@ -311,9 +303,10 @@ shared_ptr<DatasetMetadata> DatasetMetadata::load_version1(QString xmlPath)
             // Instance tag
             else if (reader.name() == "instance" && insideInstances) {
                 QString strType = reader.attributes().value("type").toString();
-                QString activity = reader.attributes().value("activity").toString();
+                QString activity = "act" + reader.attributes().value("activity").toString();
                 int actor = reader.attributes().value("actor").toString().toInt();
                 int sample = reader.attributes().value("sample").toString().toInt();
+                QString strSample = "rep" + reader.attributes().value("sample").toString();
 
                 reader.readNextStartElement(); // seek into <file>
                 reader.readNext(); // seek into text
@@ -332,7 +325,7 @@ shared_ptr<DatasetMetadata> DatasetMetadata::load_version1(QString xmlPath)
 
                 dsMetaDataObject->m_availableInstanceTypes |= type;
 
-                shared_ptr<InstanceInfo> instanceInfo = dsMetaDataObject->instance(actor, 1, sample, {activity});
+                shared_ptr<InstanceInfo> instanceInfo = dsMetaDataObject->instance(actor, 1, sample, {activity, strSample});
 
                 if (!instanceInfo) {
                     instanceInfo = make_shared<InstanceInfo>(dsMetaDataObject);
@@ -340,6 +333,7 @@ shared_ptr<DatasetMetadata> DatasetMetadata::load_version1(QString xmlPath)
                     instanceInfo->setSample(sample);
                     instanceInfo->setCamera(1);
                     instanceInfo->addLabel(activity);
+                    instanceInfo->addLabel(strSample);
                     // Insert
                     dsMetaDataObject->addInstanceInfo(instanceInfo);
                 }
@@ -424,7 +418,7 @@ shared_ptr<DatasetMetadata> DatasetMetadata::load_version2(QString xmlPath)
             }
             // Activity tag
             else if (reader.name() == "activity" && insideActivities) {
-                QString key = reader.attributes().value("key").toString();
+                QString key = "act" + reader.attributes().value("key").toString();
                 reader.readNext();
                 dsMetaDataObject->m_labels[key] = reader.text().toString();
             }
@@ -448,9 +442,9 @@ shared_ptr<DatasetMetadata> DatasetMetadata::load_version2(QString xmlPath)
             }
             // Sample tag
             else if (reader.name() == "sample" && insideSamples) {
-                int key = reader.attributes().value("key").toString().toInt();
+                QString key = "rep" + reader.attributes().value("key").toString();
                 reader.readNext();
-                dsMetaDataObject->m_sampleTypes[key] = reader.text().toString();
+                dsMetaDataObject->m_labels[key] = reader.text().toString();
             }
             // Instances tag
             else if (reader.name() == "instances") {
@@ -467,11 +461,12 @@ shared_ptr<DatasetMetadata> DatasetMetadata::load_version2(QString xmlPath)
                  *      <data type="mask" file-ref="1" />
                  * </instance>
                  */
-                QString activity = reader.attributes().value("activity").toString();
+                QString activity = "act" + reader.attributes().value("activity").toString();
                 int actor = reader.attributes().value("actor").toString().toInt();
                 int sample = reader.attributes().value("sample").toString().toInt();
+                QString strSample = "rep" + reader.attributes().value("sample").toString();
 
-                instanceInfo = dsMetaDataObject->instance(actor, 1, sample, {activity});
+                instanceInfo = dsMetaDataObject->instance(actor, 1, sample, {activity, strSample});
 
                 if (instanceInfo) {
                     qDebug() << "Such an item should not exist yet";
@@ -483,6 +478,7 @@ shared_ptr<DatasetMetadata> DatasetMetadata::load_version2(QString xmlPath)
                 instanceInfo->setSample(sample);
                 instanceInfo->setCamera(1);
                 instanceInfo->addLabel(activity);
+                instanceInfo->addLabel(strSample);
                 // Insert
                 dsMetaDataObject->addInstanceInfo(instanceInfo);
             }
@@ -537,7 +533,7 @@ shared_ptr<DatasetMetadata> DatasetMetadata::load_version2(QString xmlPath)
     }
 
     if (reader.hasError()) {
-        cerr << "Error parsing MSRDailyActivity3D dataset: " << endl;
+        cerr << "Error parsing dataset: " << endl;
         cerr << reader.errorString().toStdString() << endl;
     }
 
@@ -559,7 +555,6 @@ shared_ptr<DatasetMetadata> DatasetMetadata::load_version3(QString xmlPath)
     bool insideCameras = false;
     bool insideActors = false;
     bool insideLabels = false;
-    bool insideSamples = false;
     bool insideInstances = false;
     shared_ptr<InstanceInfo> instanceInfo = nullptr;
     QHash<int, QString> fileNames;
@@ -618,18 +613,6 @@ shared_ptr<DatasetMetadata> DatasetMetadata::load_version3(QString xmlPath)
                 reader.readNext();
                 dsMetaDataObject->m_labels[key] = reader.text().toString();
             }
-            // Samples tag
-            /*else if (reader.name() == "samples") {
-                int number = reader.attributes().value("size").toString().toInt();
-                dsMetaDataObject->m_numberOfSampleTypes = number;
-                insideSamples = true;
-            }*/
-            // Sample tag
-            /*else if (reader.name() == "sample" && insideSamples) {
-                int key = reader.attributes().value("key").toString().toInt();
-                reader.readNext();
-                dsMetaDataObject->m_sampleTypes[key] = new QString(reader.text().toString());
-            }*/
             // Instances tag
             else if (reader.name() == "instances") {
                 insideInstances = true;
@@ -648,9 +631,9 @@ shared_ptr<DatasetMetadata> DatasetMetadata::load_version3(QString xmlPath)
                 int actor = reader.attributes().value("actor").toString().toInt();
                 int camera = reader.attributes().value("camera").toString().toInt();
                 int sample = reader.attributes().value("sample").toString().toInt();
-                QString label = reader.attributes().value("label").toString();
+                QStringList labels = reader.attributes().value("label").toString().split(',');
 
-                instanceInfo = dsMetaDataObject->instance(actor, camera, sample, {label});
+                instanceInfo = dsMetaDataObject->instance(actor, camera, sample, labels);
 
                 if (instanceInfo) {
                     qDebug() << "Such an item should not exist yet";
@@ -661,7 +644,8 @@ shared_ptr<DatasetMetadata> DatasetMetadata::load_version3(QString xmlPath)
                 instanceInfo->setActor(actor);
                 instanceInfo->setCamera(camera);
                 instanceInfo->setSample(sample);
-                instanceInfo->addLabel(label);
+                foreach (auto label, labels)
+                    instanceInfo->addLabel(label);
                 // Insert
                 dsMetaDataObject->addInstanceInfo(instanceInfo);
             }
@@ -701,9 +685,6 @@ shared_ptr<DatasetMetadata> DatasetMetadata::load_version3(QString xmlPath)
             else if (reader.name() == "labels") {
                 insideLabels = false;
             }
-            else if (reader.name() == "samples") {
-                insideSamples = false;
-            }
             else if (reader.name() == "instances") {
                 insideInstances = false;
             }
@@ -716,11 +697,11 @@ shared_ptr<DatasetMetadata> DatasetMetadata::load_version3(QString xmlPath)
         default:
             break;
         }
-    }
 
-    if (reader.hasError()) {
-        cerr << "Error parsing MSRDailyActivity3D dataset: " << endl;
-        cerr << reader.errorString().toStdString() << endl;
+        if (reader.hasError()) {
+            cerr << "Error parsing dataset (" << reader.lineNumber() << "," << reader.columnNumber() << ")" << endl;
+            cerr << reader.errorString().toStdString() << endl;
+        }
     }
 
     reader.clear();

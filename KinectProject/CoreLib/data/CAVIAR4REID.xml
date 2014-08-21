@@ -1,0 +1,4964 @@
+<dataset name="CAVIAR4REID">
+
+	<cameras size="2">
+		<camera key="1">Camera 1</camera>
+		<camera key="2">Camera 2</camera>
+	</cameras>
+
+	<actors size="72">
+		<actor key="1">Actor 1</actor>
+		<actor key="2">Actor 2</actor>
+		<actor key="3">Actor 3</actor>
+		<actor key="4">Actor 4</actor>
+		<actor key="5">Actor 5</actor>
+		<actor key="6">Actor 6</actor>
+		<actor key="7">Actor 7</actor>
+		<actor key="8">Actor 8</actor>
+		<actor key="9">Actor 9</actor>
+		<actor key="10">Actor 10</actor>
+		<actor key="11">Actor 11</actor>
+		<actor key="12">Actor 12</actor>
+		<actor key="13">Actor 13</actor>
+		<actor key="14">Actor 14</actor>
+		<actor key="15">Actor 15</actor>
+		<actor key="16">Actor 16</actor>
+		<actor key="17">Actor 17</actor>
+		<actor key="18">Actor 18</actor>
+		<actor key="19">Actor 19</actor>
+		<actor key="20">Actor 20</actor>
+		<actor key="21">Actor 21</actor>
+		<actor key="22">Actor 22</actor>
+		<actor key="23">Actor 23</actor>
+		<actor key="24">Actor 24</actor>
+		<actor key="25">Actor 25</actor>
+		<actor key="26">Actor 26</actor>
+		<actor key="27">Actor 27</actor>
+		<actor key="28">Actor 28</actor>
+		<actor key="29">Actor 29</actor>
+		<actor key="30">Actor 30</actor>
+		<actor key="31">Actor 31</actor>
+		<actor key="32">Actor 32</actor>
+		<actor key="33">Actor 33</actor>
+		<actor key="34">Actor 34</actor>
+		<actor key="35">Actor 35</actor>
+		<actor key="36">Actor 36</actor>
+		<actor key="37">Actor 37</actor>
+		<actor key="38">Actor 38</actor>
+		<actor key="39">Actor 39</actor>
+		<actor key="40">Actor 40</actor>
+		<actor key="41">Actor 41</actor>
+		<actor key="42">Actor 42</actor>
+		<actor key="43">Actor 43</actor>
+		<actor key="44">Actor 44</actor>
+		<actor key="45">Actor 45</actor>
+		<actor key="46">Actor 46</actor>
+		<actor key="47">Actor 47</actor>
+		<actor key="48">Actor 48</actor>
+		<actor key="49">Actor 49</actor>
+		<actor key="50">Actor 50</actor>
+		<actor key="51">Actor 51</actor>
+		<actor key="52">Actor 52</actor>
+		<actor key="53">Actor 53</actor>
+		<actor key="54">Actor 54</actor>
+		<actor key="55">Actor 55</actor>
+		<actor key="56">Actor 56</actor>
+		<actor key="57">Actor 57</actor>
+		<actor key="58">Actor 58</actor>
+		<actor key="59">Actor 59</actor>
+		<actor key="60">Actor 60</actor>
+		<actor key="61">Actor 61</actor>
+		<actor key="62">Actor 62</actor>
+		<actor key="63">Actor 63</actor>
+		<actor key="64">Actor 64</actor>
+		<actor key="65">Actor 65</actor>
+		<actor key="66">Actor 66</actor>
+		<actor key="67">Actor 67</actor>
+		<actor key="68">Actor 68</actor>
+		<actor key="69">Actor 69</actor>
+		<actor key="70">Actor 70</actor>
+		<actor key="71">Actor 71</actor>
+		<actor key="72">Actor 72</actor>
+	</actors>
+	<instances>
+		<instance actor="1" camera="1" sample="1">
+			<file id="1">0001001.jpg</file>
+			<data type="color" file-ref="1" />
+		</instance>
+		<instance actor="1" camera="1" sample="2">
+			<file id="2">0001002.jpg</file>
+			<data type="color" file-ref="2" />
+		</instance>
+		<instance actor="1" camera="1" sample="3">
+			<file id="3">0001003.jpg</file>
+			<data type="color" file-ref="3" />
+		</instance>
+		<instance actor="1" camera="1" sample="4">
+			<file id="4">0001004.jpg</file>
+			<data type="color" file-ref="4" />
+		</instance>
+		<instance actor="1" camera="1" sample="5">
+			<file id="5">0001005.jpg</file>
+			<data type="color" file-ref="5" />
+		</instance>
+		<instance actor="1" camera="1" sample="6">
+			<file id="6">0001006.jpg</file>
+			<data type="color" file-ref="6" />
+		</instance>
+		<instance actor="1" camera="1" sample="7">
+			<file id="7">0001007.jpg</file>
+			<data type="color" file-ref="7" />
+		</instance>
+		<instance actor="1" camera="1" sample="8">
+			<file id="8">0001008.jpg</file>
+			<data type="color" file-ref="8" />
+		</instance>
+		<instance actor="1" camera="1" sample="9">
+			<file id="9">0001009.jpg</file>
+			<data type="color" file-ref="9" />
+		</instance>
+		<instance actor="1" camera="1" sample="10">
+			<file id="10">0001010.jpg</file>
+			<data type="color" file-ref="10" />
+		</instance>
+		<instance actor="2" camera="1" sample="1">
+			<file id="11">0002001.jpg</file>
+			<data type="color" file-ref="11" />
+		</instance>
+		<instance actor="2" camera="1" sample="2">
+			<file id="12">0002002.jpg</file>
+			<data type="color" file-ref="12" />
+		</instance>
+		<instance actor="2" camera="1" sample="3">
+			<file id="13">0002003.jpg</file>
+			<data type="color" file-ref="13" />
+		</instance>
+		<instance actor="2" camera="1" sample="4">
+			<file id="14">0002004.jpg</file>
+			<data type="color" file-ref="14" />
+		</instance>
+		<instance actor="2" camera="1" sample="5">
+			<file id="15">0002005.jpg</file>
+			<data type="color" file-ref="15" />
+		</instance>
+		<instance actor="2" camera="1" sample="6">
+			<file id="16">0002006.jpg</file>
+			<data type="color" file-ref="16" />
+		</instance>
+		<instance actor="2" camera="1" sample="7">
+			<file id="17">0002007.jpg</file>
+			<data type="color" file-ref="17" />
+		</instance>
+		<instance actor="2" camera="1" sample="8">
+			<file id="18">0002008.jpg</file>
+			<data type="color" file-ref="18" />
+		</instance>
+		<instance actor="2" camera="1" sample="9">
+			<file id="19">0002009.jpg</file>
+			<data type="color" file-ref="19" />
+		</instance>
+		<instance actor="2" camera="1" sample="10">
+			<file id="20">0002010.jpg</file>
+			<data type="color" file-ref="20" />
+		</instance>
+		<instance actor="3" camera="1" sample="1">
+			<file id="21">0003001.jpg</file>
+			<data type="color" file-ref="21" />
+		</instance>
+		<instance actor="3" camera="1" sample="2">
+			<file id="22">0003002.jpg</file>
+			<data type="color" file-ref="22" />
+		</instance>
+		<instance actor="3" camera="1" sample="3">
+			<file id="23">0003003.jpg</file>
+			<data type="color" file-ref="23" />
+		</instance>
+		<instance actor="3" camera="1" sample="4">
+			<file id="24">0003004.jpg</file>
+			<data type="color" file-ref="24" />
+		</instance>
+		<instance actor="3" camera="1" sample="5">
+			<file id="25">0003005.jpg</file>
+			<data type="color" file-ref="25" />
+		</instance>
+		<instance actor="3" camera="1" sample="6">
+			<file id="26">0003006.jpg</file>
+			<data type="color" file-ref="26" />
+		</instance>
+		<instance actor="3" camera="1" sample="7">
+			<file id="27">0003007.jpg</file>
+			<data type="color" file-ref="27" />
+		</instance>
+		<instance actor="3" camera="1" sample="8">
+			<file id="28">0003008.jpg</file>
+			<data type="color" file-ref="28" />
+		</instance>
+		<instance actor="3" camera="1" sample="9">
+			<file id="29">0003009.jpg</file>
+			<data type="color" file-ref="29" />
+		</instance>
+		<instance actor="3" camera="1" sample="10">
+			<file id="30">0003010.jpg</file>
+			<data type="color" file-ref="30" />
+		</instance>
+		<instance actor="3" camera="2" sample="11">
+			<file id="31">0003011.jpg</file>
+			<data type="color" file-ref="31" />
+		</instance>
+		<instance actor="3" camera="2" sample="12">
+			<file id="32">0003012.jpg</file>
+			<data type="color" file-ref="32" />
+		</instance>
+		<instance actor="3" camera="2" sample="13">
+			<file id="33">0003013.jpg</file>
+			<data type="color" file-ref="33" />
+		</instance>
+		<instance actor="3" camera="2" sample="14">
+			<file id="34">0003014.jpg</file>
+			<data type="color" file-ref="34" />
+		</instance>
+		<instance actor="3" camera="2" sample="15">
+			<file id="35">0003015.jpg</file>
+			<data type="color" file-ref="35" />
+		</instance>
+		<instance actor="3" camera="2" sample="16">
+			<file id="36">0003016.jpg</file>
+			<data type="color" file-ref="36" />
+		</instance>
+		<instance actor="3" camera="2" sample="17">
+			<file id="37">0003017.jpg</file>
+			<data type="color" file-ref="37" />
+		</instance>
+		<instance actor="3" camera="2" sample="18">
+			<file id="38">0003018.jpg</file>
+			<data type="color" file-ref="38" />
+		</instance>
+		<instance actor="3" camera="2" sample="19">
+			<file id="39">0003019.jpg</file>
+			<data type="color" file-ref="39" />
+		</instance>
+		<instance actor="3" camera="2" sample="20">
+			<file id="40">0003020.jpg</file>
+			<data type="color" file-ref="40" />
+		</instance>
+		<instance actor="4" camera="1" sample="1">
+			<file id="41">0004001.jpg</file>
+			<data type="color" file-ref="41" />
+		</instance>
+		<instance actor="4" camera="1" sample="2">
+			<file id="42">0004002.jpg</file>
+			<data type="color" file-ref="42" />
+		</instance>
+		<instance actor="4" camera="1" sample="3">
+			<file id="43">0004003.jpg</file>
+			<data type="color" file-ref="43" />
+		</instance>
+		<instance actor="4" camera="1" sample="4">
+			<file id="44">0004004.jpg</file>
+			<data type="color" file-ref="44" />
+		</instance>
+		<instance actor="4" camera="1" sample="5">
+			<file id="45">0004005.jpg</file>
+			<data type="color" file-ref="45" />
+		</instance>
+		<instance actor="4" camera="1" sample="6">
+			<file id="46">0004006.jpg</file>
+			<data type="color" file-ref="46" />
+		</instance>
+		<instance actor="4" camera="1" sample="7">
+			<file id="47">0004007.jpg</file>
+			<data type="color" file-ref="47" />
+		</instance>
+		<instance actor="4" camera="1" sample="8">
+			<file id="48">0004008.jpg</file>
+			<data type="color" file-ref="48" />
+		</instance>
+		<instance actor="4" camera="1" sample="9">
+			<file id="49">0004009.jpg</file>
+			<data type="color" file-ref="49" />
+		</instance>
+		<instance actor="4" camera="1" sample="10">
+			<file id="50">0004010.jpg</file>
+			<data type="color" file-ref="50" />
+		</instance>
+		<instance actor="4" camera="2" sample="11">
+			<file id="51">0004011.jpg</file>
+			<data type="color" file-ref="51" />
+		</instance>
+		<instance actor="4" camera="2" sample="12">
+			<file id="52">0004012.jpg</file>
+			<data type="color" file-ref="52" />
+		</instance>
+		<instance actor="4" camera="2" sample="13">
+			<file id="53">0004013.jpg</file>
+			<data type="color" file-ref="53" />
+		</instance>
+		<instance actor="4" camera="2" sample="14">
+			<file id="54">0004014.jpg</file>
+			<data type="color" file-ref="54" />
+		</instance>
+		<instance actor="4" camera="2" sample="15">
+			<file id="55">0004015.jpg</file>
+			<data type="color" file-ref="55" />
+		</instance>
+		<instance actor="4" camera="2" sample="16">
+			<file id="56">0004016.jpg</file>
+			<data type="color" file-ref="56" />
+		</instance>
+		<instance actor="4" camera="2" sample="17">
+			<file id="57">0004017.jpg</file>
+			<data type="color" file-ref="57" />
+		</instance>
+		<instance actor="4" camera="2" sample="18">
+			<file id="58">0004018.jpg</file>
+			<data type="color" file-ref="58" />
+		</instance>
+		<instance actor="4" camera="2" sample="19">
+			<file id="59">0004019.jpg</file>
+			<data type="color" file-ref="59" />
+		</instance>
+		<instance actor="4" camera="2" sample="20">
+			<file id="60">0004020.jpg</file>
+			<data type="color" file-ref="60" />
+		</instance>
+		<instance actor="5" camera="1" sample="1">
+			<file id="61">0005001.jpg</file>
+			<data type="color" file-ref="61" />
+		</instance>
+		<instance actor="5" camera="1" sample="2">
+			<file id="62">0005002.jpg</file>
+			<data type="color" file-ref="62" />
+		</instance>
+		<instance actor="5" camera="1" sample="3">
+			<file id="63">0005003.jpg</file>
+			<data type="color" file-ref="63" />
+		</instance>
+		<instance actor="5" camera="1" sample="4">
+			<file id="64">0005004.jpg</file>
+			<data type="color" file-ref="64" />
+		</instance>
+		<instance actor="5" camera="1" sample="5">
+			<file id="65">0005005.jpg</file>
+			<data type="color" file-ref="65" />
+		</instance>
+		<instance actor="5" camera="1" sample="6">
+			<file id="66">0005006.jpg</file>
+			<data type="color" file-ref="66" />
+		</instance>
+		<instance actor="5" camera="1" sample="7">
+			<file id="67">0005007.jpg</file>
+			<data type="color" file-ref="67" />
+		</instance>
+		<instance actor="5" camera="1" sample="8">
+			<file id="68">0005008.jpg</file>
+			<data type="color" file-ref="68" />
+		</instance>
+		<instance actor="5" camera="1" sample="9">
+			<file id="69">0005009.jpg</file>
+			<data type="color" file-ref="69" />
+		</instance>
+		<instance actor="5" camera="1" sample="10">
+			<file id="70">0005010.jpg</file>
+			<data type="color" file-ref="70" />
+		</instance>
+		<instance actor="6" camera="1" sample="1">
+			<file id="71">0006001.jpg</file>
+			<data type="color" file-ref="71" />
+		</instance>
+		<instance actor="6" camera="1" sample="2">
+			<file id="72">0006002.jpg</file>
+			<data type="color" file-ref="72" />
+		</instance>
+		<instance actor="6" camera="1" sample="3">
+			<file id="73">0006003.jpg</file>
+			<data type="color" file-ref="73" />
+		</instance>
+		<instance actor="6" camera="1" sample="4">
+			<file id="74">0006004.jpg</file>
+			<data type="color" file-ref="74" />
+		</instance>
+		<instance actor="6" camera="1" sample="5">
+			<file id="75">0006005.jpg</file>
+			<data type="color" file-ref="75" />
+		</instance>
+		<instance actor="6" camera="1" sample="6">
+			<file id="76">0006006.jpg</file>
+			<data type="color" file-ref="76" />
+		</instance>
+		<instance actor="6" camera="1" sample="7">
+			<file id="77">0006007.jpg</file>
+			<data type="color" file-ref="77" />
+		</instance>
+		<instance actor="6" camera="1" sample="8">
+			<file id="78">0006008.jpg</file>
+			<data type="color" file-ref="78" />
+		</instance>
+		<instance actor="6" camera="1" sample="9">
+			<file id="79">0006009.jpg</file>
+			<data type="color" file-ref="79" />
+		</instance>
+		<instance actor="6" camera="1" sample="10">
+			<file id="80">0006010.jpg</file>
+			<data type="color" file-ref="80" />
+		</instance>
+		<instance actor="6" camera="2" sample="11">
+			<file id="81">0006011.jpg</file>
+			<data type="color" file-ref="81" />
+		</instance>
+		<instance actor="6" camera="2" sample="12">
+			<file id="82">0006012.jpg</file>
+			<data type="color" file-ref="82" />
+		</instance>
+		<instance actor="6" camera="2" sample="13">
+			<file id="83">0006013.jpg</file>
+			<data type="color" file-ref="83" />
+		</instance>
+		<instance actor="6" camera="2" sample="14">
+			<file id="84">0006014.jpg</file>
+			<data type="color" file-ref="84" />
+		</instance>
+		<instance actor="6" camera="2" sample="15">
+			<file id="85">0006015.jpg</file>
+			<data type="color" file-ref="85" />
+		</instance>
+		<instance actor="6" camera="2" sample="16">
+			<file id="86">0006016.jpg</file>
+			<data type="color" file-ref="86" />
+		</instance>
+		<instance actor="6" camera="2" sample="17">
+			<file id="87">0006017.jpg</file>
+			<data type="color" file-ref="87" />
+		</instance>
+		<instance actor="6" camera="2" sample="18">
+			<file id="88">0006018.jpg</file>
+			<data type="color" file-ref="88" />
+		</instance>
+		<instance actor="6" camera="2" sample="19">
+			<file id="89">0006019.jpg</file>
+			<data type="color" file-ref="89" />
+		</instance>
+		<instance actor="6" camera="2" sample="20">
+			<file id="90">0006020.jpg</file>
+			<data type="color" file-ref="90" />
+		</instance>
+		<instance actor="7" camera="1" sample="1">
+			<file id="91">0007001.jpg</file>
+			<data type="color" file-ref="91" />
+		</instance>
+		<instance actor="7" camera="1" sample="2">
+			<file id="92">0007002.jpg</file>
+			<data type="color" file-ref="92" />
+		</instance>
+		<instance actor="7" camera="1" sample="3">
+			<file id="93">0007003.jpg</file>
+			<data type="color" file-ref="93" />
+		</instance>
+		<instance actor="7" camera="1" sample="4">
+			<file id="94">0007004.jpg</file>
+			<data type="color" file-ref="94" />
+		</instance>
+		<instance actor="7" camera="1" sample="5">
+			<file id="95">0007005.jpg</file>
+			<data type="color" file-ref="95" />
+		</instance>
+		<instance actor="7" camera="1" sample="6">
+			<file id="96">0007006.jpg</file>
+			<data type="color" file-ref="96" />
+		</instance>
+		<instance actor="7" camera="1" sample="7">
+			<file id="97">0007007.jpg</file>
+			<data type="color" file-ref="97" />
+		</instance>
+		<instance actor="7" camera="1" sample="8">
+			<file id="98">0007008.jpg</file>
+			<data type="color" file-ref="98" />
+		</instance>
+		<instance actor="7" camera="1" sample="9">
+			<file id="99">0007009.jpg</file>
+			<data type="color" file-ref="99" />
+		</instance>
+		<instance actor="7" camera="1" sample="10">
+			<file id="100">0007010.jpg</file>
+			<data type="color" file-ref="100" />
+		</instance>
+		<instance actor="7" camera="2" sample="11">
+			<file id="101">0007011.jpg</file>
+			<data type="color" file-ref="101" />
+		</instance>
+		<instance actor="7" camera="2" sample="12">
+			<file id="102">0007012.jpg</file>
+			<data type="color" file-ref="102" />
+		</instance>
+		<instance actor="7" camera="2" sample="13">
+			<file id="103">0007013.jpg</file>
+			<data type="color" file-ref="103" />
+		</instance>
+		<instance actor="7" camera="2" sample="14">
+			<file id="104">0007014.jpg</file>
+			<data type="color" file-ref="104" />
+		</instance>
+		<instance actor="7" camera="2" sample="15">
+			<file id="105">0007015.jpg</file>
+			<data type="color" file-ref="105" />
+		</instance>
+		<instance actor="7" camera="2" sample="16">
+			<file id="106">0007016.jpg</file>
+			<data type="color" file-ref="106" />
+		</instance>
+		<instance actor="7" camera="2" sample="17">
+			<file id="107">0007017.jpg</file>
+			<data type="color" file-ref="107" />
+		</instance>
+		<instance actor="7" camera="2" sample="18">
+			<file id="108">0007018.jpg</file>
+			<data type="color" file-ref="108" />
+		</instance>
+		<instance actor="7" camera="2" sample="19">
+			<file id="109">0007019.jpg</file>
+			<data type="color" file-ref="109" />
+		</instance>
+		<instance actor="7" camera="2" sample="20">
+			<file id="110">0007020.jpg</file>
+			<data type="color" file-ref="110" />
+		</instance>
+		<instance actor="8" camera="1" sample="1">
+			<file id="111">0008001.jpg</file>
+			<data type="color" file-ref="111" />
+		</instance>
+		<instance actor="8" camera="1" sample="2">
+			<file id="112">0008002.jpg</file>
+			<data type="color" file-ref="112" />
+		</instance>
+		<instance actor="8" camera="1" sample="3">
+			<file id="113">0008003.jpg</file>
+			<data type="color" file-ref="113" />
+		</instance>
+		<instance actor="8" camera="1" sample="4">
+			<file id="114">0008004.jpg</file>
+			<data type="color" file-ref="114" />
+		</instance>
+		<instance actor="8" camera="1" sample="5">
+			<file id="115">0008005.jpg</file>
+			<data type="color" file-ref="115" />
+		</instance>
+		<instance actor="8" camera="1" sample="6">
+			<file id="116">0008006.jpg</file>
+			<data type="color" file-ref="116" />
+		</instance>
+		<instance actor="8" camera="1" sample="7">
+			<file id="117">0008007.jpg</file>
+			<data type="color" file-ref="117" />
+		</instance>
+		<instance actor="8" camera="1" sample="8">
+			<file id="118">0008008.jpg</file>
+			<data type="color" file-ref="118" />
+		</instance>
+		<instance actor="8" camera="1" sample="9">
+			<file id="119">0008009.jpg</file>
+			<data type="color" file-ref="119" />
+		</instance>
+		<instance actor="8" camera="1" sample="10">
+			<file id="120">0008010.jpg</file>
+			<data type="color" file-ref="120" />
+		</instance>
+		<instance actor="8" camera="2" sample="11">
+			<file id="121">0008011.jpg</file>
+			<data type="color" file-ref="121" />
+		</instance>
+		<instance actor="8" camera="2" sample="12">
+			<file id="122">0008012.jpg</file>
+			<data type="color" file-ref="122" />
+		</instance>
+		<instance actor="8" camera="2" sample="13">
+			<file id="123">0008013.jpg</file>
+			<data type="color" file-ref="123" />
+		</instance>
+		<instance actor="8" camera="2" sample="14">
+			<file id="124">0008014.jpg</file>
+			<data type="color" file-ref="124" />
+		</instance>
+		<instance actor="8" camera="2" sample="15">
+			<file id="125">0008015.jpg</file>
+			<data type="color" file-ref="125" />
+		</instance>
+		<instance actor="8" camera="2" sample="16">
+			<file id="126">0008016.jpg</file>
+			<data type="color" file-ref="126" />
+		</instance>
+		<instance actor="8" camera="2" sample="17">
+			<file id="127">0008017.jpg</file>
+			<data type="color" file-ref="127" />
+		</instance>
+		<instance actor="8" camera="2" sample="18">
+			<file id="128">0008018.jpg</file>
+			<data type="color" file-ref="128" />
+		</instance>
+		<instance actor="8" camera="2" sample="19">
+			<file id="129">0008019.jpg</file>
+			<data type="color" file-ref="129" />
+		</instance>
+		<instance actor="8" camera="2" sample="20">
+			<file id="130">0008020.jpg</file>
+			<data type="color" file-ref="130" />
+		</instance>
+		<instance actor="9" camera="1" sample="1">
+			<file id="131">0009001.jpg</file>
+			<data type="color" file-ref="131" />
+		</instance>
+		<instance actor="9" camera="1" sample="2">
+			<file id="132">0009002.jpg</file>
+			<data type="color" file-ref="132" />
+		</instance>
+		<instance actor="9" camera="1" sample="3">
+			<file id="133">0009003.jpg</file>
+			<data type="color" file-ref="133" />
+		</instance>
+		<instance actor="9" camera="1" sample="4">
+			<file id="134">0009004.jpg</file>
+			<data type="color" file-ref="134" />
+		</instance>
+		<instance actor="9" camera="1" sample="5">
+			<file id="135">0009005.jpg</file>
+			<data type="color" file-ref="135" />
+		</instance>
+		<instance actor="9" camera="1" sample="6">
+			<file id="136">0009006.jpg</file>
+			<data type="color" file-ref="136" />
+		</instance>
+		<instance actor="9" camera="1" sample="7">
+			<file id="137">0009007.jpg</file>
+			<data type="color" file-ref="137" />
+		</instance>
+		<instance actor="9" camera="1" sample="8">
+			<file id="138">0009008.jpg</file>
+			<data type="color" file-ref="138" />
+		</instance>
+		<instance actor="9" camera="1" sample="9">
+			<file id="139">0009009.jpg</file>
+			<data type="color" file-ref="139" />
+		</instance>
+		<instance actor="9" camera="1" sample="10">
+			<file id="140">0009010.jpg</file>
+			<data type="color" file-ref="140" />
+		</instance>
+		<instance actor="9" camera="2" sample="11">
+			<file id="141">0009011.jpg</file>
+			<data type="color" file-ref="141" />
+		</instance>
+		<instance actor="9" camera="2" sample="12">
+			<file id="142">0009012.jpg</file>
+			<data type="color" file-ref="142" />
+		</instance>
+		<instance actor="9" camera="2" sample="13">
+			<file id="143">0009013.jpg</file>
+			<data type="color" file-ref="143" />
+		</instance>
+		<instance actor="9" camera="2" sample="14">
+			<file id="144">0009014.jpg</file>
+			<data type="color" file-ref="144" />
+		</instance>
+		<instance actor="9" camera="2" sample="15">
+			<file id="145">0009015.jpg</file>
+			<data type="color" file-ref="145" />
+		</instance>
+		<instance actor="9" camera="2" sample="16">
+			<file id="146">0009016.jpg</file>
+			<data type="color" file-ref="146" />
+		</instance>
+		<instance actor="9" camera="2" sample="17">
+			<file id="147">0009017.jpg</file>
+			<data type="color" file-ref="147" />
+		</instance>
+		<instance actor="9" camera="2" sample="18">
+			<file id="148">0009018.jpg</file>
+			<data type="color" file-ref="148" />
+		</instance>
+		<instance actor="9" camera="2" sample="19">
+			<file id="149">0009019.jpg</file>
+			<data type="color" file-ref="149" />
+		</instance>
+		<instance actor="9" camera="2" sample="20">
+			<file id="150">0009020.jpg</file>
+			<data type="color" file-ref="150" />
+		</instance>
+		<instance actor="10" camera="1" sample="1">
+			<file id="151">0010001.jpg</file>
+			<data type="color" file-ref="151" />
+		</instance>
+		<instance actor="10" camera="1" sample="2">
+			<file id="152">0010002.jpg</file>
+			<data type="color" file-ref="152" />
+		</instance>
+		<instance actor="10" camera="1" sample="3">
+			<file id="153">0010003.jpg</file>
+			<data type="color" file-ref="153" />
+		</instance>
+		<instance actor="10" camera="1" sample="4">
+			<file id="154">0010004.jpg</file>
+			<data type="color" file-ref="154" />
+		</instance>
+		<instance actor="10" camera="1" sample="5">
+			<file id="155">0010005.jpg</file>
+			<data type="color" file-ref="155" />
+		</instance>
+		<instance actor="10" camera="1" sample="6">
+			<file id="156">0010006.jpg</file>
+			<data type="color" file-ref="156" />
+		</instance>
+		<instance actor="10" camera="1" sample="7">
+			<file id="157">0010007.jpg</file>
+			<data type="color" file-ref="157" />
+		</instance>
+		<instance actor="10" camera="1" sample="8">
+			<file id="158">0010008.jpg</file>
+			<data type="color" file-ref="158" />
+		</instance>
+		<instance actor="10" camera="1" sample="9">
+			<file id="159">0010009.jpg</file>
+			<data type="color" file-ref="159" />
+		</instance>
+		<instance actor="10" camera="1" sample="10">
+			<file id="160">0010010.jpg</file>
+			<data type="color" file-ref="160" />
+		</instance>
+		<instance actor="11" camera="1" sample="1">
+			<file id="161">0011001.jpg</file>
+			<data type="color" file-ref="161" />
+		</instance>
+		<instance actor="11" camera="1" sample="2">
+			<file id="162">0011002.jpg</file>
+			<data type="color" file-ref="162" />
+		</instance>
+		<instance actor="11" camera="1" sample="3">
+			<file id="163">0011003.jpg</file>
+			<data type="color" file-ref="163" />
+		</instance>
+		<instance actor="11" camera="1" sample="4">
+			<file id="164">0011004.jpg</file>
+			<data type="color" file-ref="164" />
+		</instance>
+		<instance actor="11" camera="1" sample="5">
+			<file id="165">0011005.jpg</file>
+			<data type="color" file-ref="165" />
+		</instance>
+		<instance actor="11" camera="1" sample="6">
+			<file id="166">0011006.jpg</file>
+			<data type="color" file-ref="166" />
+		</instance>
+		<instance actor="11" camera="1" sample="7">
+			<file id="167">0011007.jpg</file>
+			<data type="color" file-ref="167" />
+		</instance>
+		<instance actor="11" camera="1" sample="8">
+			<file id="168">0011008.jpg</file>
+			<data type="color" file-ref="168" />
+		</instance>
+		<instance actor="11" camera="1" sample="9">
+			<file id="169">0011009.jpg</file>
+			<data type="color" file-ref="169" />
+		</instance>
+		<instance actor="11" camera="1" sample="10">
+			<file id="170">0011010.jpg</file>
+			<data type="color" file-ref="170" />
+		</instance>
+		<instance actor="12" camera="1" sample="1">
+			<file id="171">0012001.jpg</file>
+			<data type="color" file-ref="171" />
+		</instance>
+		<instance actor="12" camera="1" sample="2">
+			<file id="172">0012002.jpg</file>
+			<data type="color" file-ref="172" />
+		</instance>
+		<instance actor="12" camera="1" sample="3">
+			<file id="173">0012003.jpg</file>
+			<data type="color" file-ref="173" />
+		</instance>
+		<instance actor="12" camera="1" sample="4">
+			<file id="174">0012004.jpg</file>
+			<data type="color" file-ref="174" />
+		</instance>
+		<instance actor="12" camera="1" sample="5">
+			<file id="175">0012005.jpg</file>
+			<data type="color" file-ref="175" />
+		</instance>
+		<instance actor="12" camera="1" sample="6">
+			<file id="176">0012006.jpg</file>
+			<data type="color" file-ref="176" />
+		</instance>
+		<instance actor="12" camera="1" sample="7">
+			<file id="177">0012007.jpg</file>
+			<data type="color" file-ref="177" />
+		</instance>
+		<instance actor="12" camera="1" sample="8">
+			<file id="178">0012008.jpg</file>
+			<data type="color" file-ref="178" />
+		</instance>
+		<instance actor="12" camera="1" sample="9">
+			<file id="179">0012009.jpg</file>
+			<data type="color" file-ref="179" />
+		</instance>
+		<instance actor="12" camera="1" sample="10">
+			<file id="180">0012010.jpg</file>
+			<data type="color" file-ref="180" />
+		</instance>
+		<instance actor="12" camera="2" sample="11">
+			<file id="181">0012011.jpg</file>
+			<data type="color" file-ref="181" />
+		</instance>
+		<instance actor="12" camera="2" sample="12">
+			<file id="182">0012012.jpg</file>
+			<data type="color" file-ref="182" />
+		</instance>
+		<instance actor="12" camera="2" sample="13">
+			<file id="183">0012013.jpg</file>
+			<data type="color" file-ref="183" />
+		</instance>
+		<instance actor="12" camera="2" sample="14">
+			<file id="184">0012014.jpg</file>
+			<data type="color" file-ref="184" />
+		</instance>
+		<instance actor="12" camera="2" sample="15">
+			<file id="185">0012015.jpg</file>
+			<data type="color" file-ref="185" />
+		</instance>
+		<instance actor="12" camera="2" sample="16">
+			<file id="186">0012016.jpg</file>
+			<data type="color" file-ref="186" />
+		</instance>
+		<instance actor="12" camera="2" sample="17">
+			<file id="187">0012017.jpg</file>
+			<data type="color" file-ref="187" />
+		</instance>
+		<instance actor="12" camera="2" sample="18">
+			<file id="188">0012018.jpg</file>
+			<data type="color" file-ref="188" />
+		</instance>
+		<instance actor="12" camera="2" sample="19">
+			<file id="189">0012019.jpg</file>
+			<data type="color" file-ref="189" />
+		</instance>
+		<instance actor="12" camera="2" sample="20">
+			<file id="190">0012020.jpg</file>
+			<data type="color" file-ref="190" />
+		</instance>
+		<instance actor="13" camera="1" sample="1">
+			<file id="191">0013001.jpg</file>
+			<data type="color" file-ref="191" />
+		</instance>
+		<instance actor="13" camera="1" sample="2">
+			<file id="192">0013002.jpg</file>
+			<data type="color" file-ref="192" />
+		</instance>
+		<instance actor="13" camera="1" sample="3">
+			<file id="193">0013003.jpg</file>
+			<data type="color" file-ref="193" />
+		</instance>
+		<instance actor="13" camera="1" sample="4">
+			<file id="194">0013004.jpg</file>
+			<data type="color" file-ref="194" />
+		</instance>
+		<instance actor="13" camera="1" sample="5">
+			<file id="195">0013005.jpg</file>
+			<data type="color" file-ref="195" />
+		</instance>
+		<instance actor="13" camera="1" sample="6">
+			<file id="196">0013006.jpg</file>
+			<data type="color" file-ref="196" />
+		</instance>
+		<instance actor="13" camera="1" sample="7">
+			<file id="197">0013007.jpg</file>
+			<data type="color" file-ref="197" />
+		</instance>
+		<instance actor="13" camera="1" sample="8">
+			<file id="198">0013008.jpg</file>
+			<data type="color" file-ref="198" />
+		</instance>
+		<instance actor="13" camera="1" sample="9">
+			<file id="199">0013009.jpg</file>
+			<data type="color" file-ref="199" />
+		</instance>
+		<instance actor="13" camera="1" sample="10">
+			<file id="200">0013010.jpg</file>
+			<data type="color" file-ref="200" />
+		</instance>
+		<instance actor="14" camera="1" sample="1">
+			<file id="201">0014001.jpg</file>
+			<data type="color" file-ref="201" />
+		</instance>
+		<instance actor="14" camera="1" sample="2">
+			<file id="202">0014002.jpg</file>
+			<data type="color" file-ref="202" />
+		</instance>
+		<instance actor="14" camera="1" sample="3">
+			<file id="203">0014003.jpg</file>
+			<data type="color" file-ref="203" />
+		</instance>
+		<instance actor="14" camera="1" sample="4">
+			<file id="204">0014004.jpg</file>
+			<data type="color" file-ref="204" />
+		</instance>
+		<instance actor="14" camera="1" sample="5">
+			<file id="205">0014005.jpg</file>
+			<data type="color" file-ref="205" />
+		</instance>
+		<instance actor="14" camera="1" sample="6">
+			<file id="206">0014006.jpg</file>
+			<data type="color" file-ref="206" />
+		</instance>
+		<instance actor="14" camera="1" sample="7">
+			<file id="207">0014007.jpg</file>
+			<data type="color" file-ref="207" />
+		</instance>
+		<instance actor="14" camera="1" sample="8">
+			<file id="208">0014008.jpg</file>
+			<data type="color" file-ref="208" />
+		</instance>
+		<instance actor="14" camera="1" sample="9">
+			<file id="209">0014009.jpg</file>
+			<data type="color" file-ref="209" />
+		</instance>
+		<instance actor="14" camera="1" sample="10">
+			<file id="210">0014010.jpg</file>
+			<data type="color" file-ref="210" />
+		</instance>
+		<instance actor="15" camera="1" sample="1">
+			<file id="211">0015001.jpg</file>
+			<data type="color" file-ref="211" />
+		</instance>
+		<instance actor="15" camera="1" sample="2">
+			<file id="212">0015002.jpg</file>
+			<data type="color" file-ref="212" />
+		</instance>
+		<instance actor="15" camera="1" sample="3">
+			<file id="213">0015003.jpg</file>
+			<data type="color" file-ref="213" />
+		</instance>
+		<instance actor="15" camera="1" sample="4">
+			<file id="214">0015004.jpg</file>
+			<data type="color" file-ref="214" />
+		</instance>
+		<instance actor="15" camera="1" sample="5">
+			<file id="215">0015005.jpg</file>
+			<data type="color" file-ref="215" />
+		</instance>
+		<instance actor="15" camera="1" sample="6">
+			<file id="216">0015006.jpg</file>
+			<data type="color" file-ref="216" />
+		</instance>
+		<instance actor="15" camera="1" sample="7">
+			<file id="217">0015007.jpg</file>
+			<data type="color" file-ref="217" />
+		</instance>
+		<instance actor="15" camera="1" sample="8">
+			<file id="218">0015008.jpg</file>
+			<data type="color" file-ref="218" />
+		</instance>
+		<instance actor="15" camera="1" sample="9">
+			<file id="219">0015009.jpg</file>
+			<data type="color" file-ref="219" />
+		</instance>
+		<instance actor="15" camera="1" sample="10">
+			<file id="220">0015010.jpg</file>
+			<data type="color" file-ref="220" />
+		</instance>
+		<instance actor="15" camera="2" sample="11">
+			<file id="221">0015011.jpg</file>
+			<data type="color" file-ref="221" />
+		</instance>
+		<instance actor="15" camera="2" sample="12">
+			<file id="222">0015012.jpg</file>
+			<data type="color" file-ref="222" />
+		</instance>
+		<instance actor="15" camera="2" sample="13">
+			<file id="223">0015013.jpg</file>
+			<data type="color" file-ref="223" />
+		</instance>
+		<instance actor="15" camera="2" sample="14">
+			<file id="224">0015014.jpg</file>
+			<data type="color" file-ref="224" />
+		</instance>
+		<instance actor="15" camera="2" sample="15">
+			<file id="225">0015015.jpg</file>
+			<data type="color" file-ref="225" />
+		</instance>
+		<instance actor="15" camera="2" sample="16">
+			<file id="226">0015016.jpg</file>
+			<data type="color" file-ref="226" />
+		</instance>
+		<instance actor="15" camera="2" sample="17">
+			<file id="227">0015017.jpg</file>
+			<data type="color" file-ref="227" />
+		</instance>
+		<instance actor="15" camera="2" sample="18">
+			<file id="228">0015018.jpg</file>
+			<data type="color" file-ref="228" />
+		</instance>
+		<instance actor="15" camera="2" sample="19">
+			<file id="229">0015019.jpg</file>
+			<data type="color" file-ref="229" />
+		</instance>
+		<instance actor="15" camera="2" sample="20">
+			<file id="230">0015020.jpg</file>
+			<data type="color" file-ref="230" />
+		</instance>
+		<instance actor="16" camera="1" sample="1">
+			<file id="231">0016001.jpg</file>
+			<data type="color" file-ref="231" />
+		</instance>
+		<instance actor="16" camera="1" sample="2">
+			<file id="232">0016002.jpg</file>
+			<data type="color" file-ref="232" />
+		</instance>
+		<instance actor="16" camera="1" sample="3">
+			<file id="233">0016003.jpg</file>
+			<data type="color" file-ref="233" />
+		</instance>
+		<instance actor="16" camera="1" sample="4">
+			<file id="234">0016004.jpg</file>
+			<data type="color" file-ref="234" />
+		</instance>
+		<instance actor="16" camera="1" sample="5">
+			<file id="235">0016005.jpg</file>
+			<data type="color" file-ref="235" />
+		</instance>
+		<instance actor="16" camera="1" sample="6">
+			<file id="236">0016006.jpg</file>
+			<data type="color" file-ref="236" />
+		</instance>
+		<instance actor="16" camera="1" sample="7">
+			<file id="237">0016007.jpg</file>
+			<data type="color" file-ref="237" />
+		</instance>
+		<instance actor="16" camera="1" sample="8">
+			<file id="238">0016008.jpg</file>
+			<data type="color" file-ref="238" />
+		</instance>
+		<instance actor="16" camera="1" sample="9">
+			<file id="239">0016009.jpg</file>
+			<data type="color" file-ref="239" />
+		</instance>
+		<instance actor="16" camera="1" sample="10">
+			<file id="240">0016010.jpg</file>
+			<data type="color" file-ref="240" />
+		</instance>
+		<instance actor="16" camera="2" sample="11">
+			<file id="241">0016011.jpg</file>
+			<data type="color" file-ref="241" />
+		</instance>
+		<instance actor="16" camera="2" sample="12">
+			<file id="242">0016012.jpg</file>
+			<data type="color" file-ref="242" />
+		</instance>
+		<instance actor="16" camera="2" sample="13">
+			<file id="243">0016013.jpg</file>
+			<data type="color" file-ref="243" />
+		</instance>
+		<instance actor="16" camera="2" sample="14">
+			<file id="244">0016014.jpg</file>
+			<data type="color" file-ref="244" />
+		</instance>
+		<instance actor="16" camera="2" sample="15">
+			<file id="245">0016015.jpg</file>
+			<data type="color" file-ref="245" />
+		</instance>
+		<instance actor="16" camera="2" sample="16">
+			<file id="246">0016016.jpg</file>
+			<data type="color" file-ref="246" />
+		</instance>
+		<instance actor="16" camera="2" sample="17">
+			<file id="247">0016017.jpg</file>
+			<data type="color" file-ref="247" />
+		</instance>
+		<instance actor="16" camera="2" sample="18">
+			<file id="248">0016018.jpg</file>
+			<data type="color" file-ref="248" />
+		</instance>
+		<instance actor="16" camera="2" sample="19">
+			<file id="249">0016019.jpg</file>
+			<data type="color" file-ref="249" />
+		</instance>
+		<instance actor="16" camera="2" sample="20">
+			<file id="250">0016020.jpg</file>
+			<data type="color" file-ref="250" />
+		</instance>
+		<instance actor="17" camera="1" sample="1">
+			<file id="251">0017001.jpg</file>
+			<data type="color" file-ref="251" />
+		</instance>
+		<instance actor="17" camera="1" sample="2">
+			<file id="252">0017002.jpg</file>
+			<data type="color" file-ref="252" />
+		</instance>
+		<instance actor="17" camera="1" sample="3">
+			<file id="253">0017003.jpg</file>
+			<data type="color" file-ref="253" />
+		</instance>
+		<instance actor="17" camera="1" sample="4">
+			<file id="254">0017004.jpg</file>
+			<data type="color" file-ref="254" />
+		</instance>
+		<instance actor="17" camera="1" sample="5">
+			<file id="255">0017005.jpg</file>
+			<data type="color" file-ref="255" />
+		</instance>
+		<instance actor="17" camera="1" sample="6">
+			<file id="256">0017006.jpg</file>
+			<data type="color" file-ref="256" />
+		</instance>
+		<instance actor="17" camera="1" sample="7">
+			<file id="257">0017007.jpg</file>
+			<data type="color" file-ref="257" />
+		</instance>
+		<instance actor="17" camera="1" sample="8">
+			<file id="258">0017008.jpg</file>
+			<data type="color" file-ref="258" />
+		</instance>
+		<instance actor="17" camera="1" sample="9">
+			<file id="259">0017009.jpg</file>
+			<data type="color" file-ref="259" />
+		</instance>
+		<instance actor="17" camera="1" sample="10">
+			<file id="260">0017010.jpg</file>
+			<data type="color" file-ref="260" />
+		</instance>
+		<instance actor="18" camera="1" sample="1">
+			<file id="261">0018001.jpg</file>
+			<data type="color" file-ref="261" />
+		</instance>
+		<instance actor="18" camera="1" sample="2">
+			<file id="262">0018002.jpg</file>
+			<data type="color" file-ref="262" />
+		</instance>
+		<instance actor="18" camera="1" sample="3">
+			<file id="263">0018003.jpg</file>
+			<data type="color" file-ref="263" />
+		</instance>
+		<instance actor="18" camera="1" sample="4">
+			<file id="264">0018004.jpg</file>
+			<data type="color" file-ref="264" />
+		</instance>
+		<instance actor="18" camera="1" sample="5">
+			<file id="265">0018005.jpg</file>
+			<data type="color" file-ref="265" />
+		</instance>
+		<instance actor="18" camera="1" sample="6">
+			<file id="266">0018006.jpg</file>
+			<data type="color" file-ref="266" />
+		</instance>
+		<instance actor="18" camera="1" sample="7">
+			<file id="267">0018007.jpg</file>
+			<data type="color" file-ref="267" />
+		</instance>
+		<instance actor="18" camera="1" sample="8">
+			<file id="268">0018008.jpg</file>
+			<data type="color" file-ref="268" />
+		</instance>
+		<instance actor="18" camera="1" sample="9">
+			<file id="269">0018009.jpg</file>
+			<data type="color" file-ref="269" />
+		</instance>
+		<instance actor="18" camera="1" sample="10">
+			<file id="270">0018010.jpg</file>
+			<data type="color" file-ref="270" />
+		</instance>
+		<instance actor="18" camera="2" sample="11">
+			<file id="271">0018011.jpg</file>
+			<data type="color" file-ref="271" />
+		</instance>
+		<instance actor="18" camera="2" sample="12">
+			<file id="272">0018012.jpg</file>
+			<data type="color" file-ref="272" />
+		</instance>
+		<instance actor="18" camera="2" sample="13">
+			<file id="273">0018013.jpg</file>
+			<data type="color" file-ref="273" />
+		</instance>
+		<instance actor="18" camera="2" sample="14">
+			<file id="274">0018014.jpg</file>
+			<data type="color" file-ref="274" />
+		</instance>
+		<instance actor="18" camera="2" sample="15">
+			<file id="275">0018015.jpg</file>
+			<data type="color" file-ref="275" />
+		</instance>
+		<instance actor="18" camera="2" sample="16">
+			<file id="276">0018016.jpg</file>
+			<data type="color" file-ref="276" />
+		</instance>
+		<instance actor="18" camera="2" sample="17">
+			<file id="277">0018017.jpg</file>
+			<data type="color" file-ref="277" />
+		</instance>
+		<instance actor="18" camera="2" sample="18">
+			<file id="278">0018018.jpg</file>
+			<data type="color" file-ref="278" />
+		</instance>
+		<instance actor="18" camera="2" sample="19">
+			<file id="279">0018019.jpg</file>
+			<data type="color" file-ref="279" />
+		</instance>
+		<instance actor="18" camera="2" sample="20">
+			<file id="280">0018020.jpg</file>
+			<data type="color" file-ref="280" />
+		</instance>
+		<instance actor="19" camera="1" sample="1">
+			<file id="281">0019001.jpg</file>
+			<data type="color" file-ref="281" />
+		</instance>
+		<instance actor="19" camera="1" sample="2">
+			<file id="282">0019002.jpg</file>
+			<data type="color" file-ref="282" />
+		</instance>
+		<instance actor="19" camera="1" sample="3">
+			<file id="283">0019003.jpg</file>
+			<data type="color" file-ref="283" />
+		</instance>
+		<instance actor="19" camera="1" sample="4">
+			<file id="284">0019004.jpg</file>
+			<data type="color" file-ref="284" />
+		</instance>
+		<instance actor="19" camera="1" sample="5">
+			<file id="285">0019005.jpg</file>
+			<data type="color" file-ref="285" />
+		</instance>
+		<instance actor="19" camera="1" sample="6">
+			<file id="286">0019006.jpg</file>
+			<data type="color" file-ref="286" />
+		</instance>
+		<instance actor="19" camera="1" sample="7">
+			<file id="287">0019007.jpg</file>
+			<data type="color" file-ref="287" />
+		</instance>
+		<instance actor="19" camera="1" sample="8">
+			<file id="288">0019008.jpg</file>
+			<data type="color" file-ref="288" />
+		</instance>
+		<instance actor="19" camera="1" sample="9">
+			<file id="289">0019009.jpg</file>
+			<data type="color" file-ref="289" />
+		</instance>
+		<instance actor="19" camera="1" sample="10">
+			<file id="290">0019010.jpg</file>
+			<data type="color" file-ref="290" />
+		</instance>
+		<instance actor="19" camera="2" sample="11">
+			<file id="291">0019011.jpg</file>
+			<data type="color" file-ref="291" />
+		</instance>
+		<instance actor="19" camera="2" sample="12">
+			<file id="292">0019012.jpg</file>
+			<data type="color" file-ref="292" />
+		</instance>
+		<instance actor="19" camera="2" sample="13">
+			<file id="293">0019013.jpg</file>
+			<data type="color" file-ref="293" />
+		</instance>
+		<instance actor="19" camera="2" sample="14">
+			<file id="294">0019014.jpg</file>
+			<data type="color" file-ref="294" />
+		</instance>
+		<instance actor="19" camera="2" sample="15">
+			<file id="295">0019015.jpg</file>
+			<data type="color" file-ref="295" />
+		</instance>
+		<instance actor="19" camera="2" sample="16">
+			<file id="296">0019016.jpg</file>
+			<data type="color" file-ref="296" />
+		</instance>
+		<instance actor="19" camera="2" sample="17">
+			<file id="297">0019017.jpg</file>
+			<data type="color" file-ref="297" />
+		</instance>
+		<instance actor="19" camera="2" sample="18">
+			<file id="298">0019018.jpg</file>
+			<data type="color" file-ref="298" />
+		</instance>
+		<instance actor="19" camera="2" sample="19">
+			<file id="299">0019019.jpg</file>
+			<data type="color" file-ref="299" />
+		</instance>
+		<instance actor="19" camera="2" sample="20">
+			<file id="300">0019020.jpg</file>
+			<data type="color" file-ref="300" />
+		</instance>
+		<instance actor="20" camera="1" sample="1">
+			<file id="301">0020001.jpg</file>
+			<data type="color" file-ref="301" />
+		</instance>
+		<instance actor="20" camera="1" sample="2">
+			<file id="302">0020002.jpg</file>
+			<data type="color" file-ref="302" />
+		</instance>
+		<instance actor="20" camera="1" sample="3">
+			<file id="303">0020003.jpg</file>
+			<data type="color" file-ref="303" />
+		</instance>
+		<instance actor="20" camera="1" sample="4">
+			<file id="304">0020004.jpg</file>
+			<data type="color" file-ref="304" />
+		</instance>
+		<instance actor="20" camera="1" sample="5">
+			<file id="305">0020005.jpg</file>
+			<data type="color" file-ref="305" />
+		</instance>
+		<instance actor="20" camera="1" sample="6">
+			<file id="306">0020006.jpg</file>
+			<data type="color" file-ref="306" />
+		</instance>
+		<instance actor="20" camera="1" sample="7">
+			<file id="307">0020007.jpg</file>
+			<data type="color" file-ref="307" />
+		</instance>
+		<instance actor="20" camera="1" sample="8">
+			<file id="308">0020008.jpg</file>
+			<data type="color" file-ref="308" />
+		</instance>
+		<instance actor="20" camera="1" sample="9">
+			<file id="309">0020009.jpg</file>
+			<data type="color" file-ref="309" />
+		</instance>
+		<instance actor="20" camera="1" sample="10">
+			<file id="310">0020010.jpg</file>
+			<data type="color" file-ref="310" />
+		</instance>
+		<instance actor="20" camera="2" sample="11">
+			<file id="311">0020011.jpg</file>
+			<data type="color" file-ref="311" />
+		</instance>
+		<instance actor="20" camera="2" sample="12">
+			<file id="312">0020012.jpg</file>
+			<data type="color" file-ref="312" />
+		</instance>
+		<instance actor="20" camera="2" sample="13">
+			<file id="313">0020013.jpg</file>
+			<data type="color" file-ref="313" />
+		</instance>
+		<instance actor="20" camera="2" sample="14">
+			<file id="314">0020014.jpg</file>
+			<data type="color" file-ref="314" />
+		</instance>
+		<instance actor="20" camera="2" sample="15">
+			<file id="315">0020015.jpg</file>
+			<data type="color" file-ref="315" />
+		</instance>
+		<instance actor="20" camera="2" sample="16">
+			<file id="316">0020016.jpg</file>
+			<data type="color" file-ref="316" />
+		</instance>
+		<instance actor="20" camera="2" sample="17">
+			<file id="317">0020017.jpg</file>
+			<data type="color" file-ref="317" />
+		</instance>
+		<instance actor="20" camera="2" sample="18">
+			<file id="318">0020018.jpg</file>
+			<data type="color" file-ref="318" />
+		</instance>
+		<instance actor="20" camera="2" sample="19">
+			<file id="319">0020019.jpg</file>
+			<data type="color" file-ref="319" />
+		</instance>
+		<instance actor="20" camera="2" sample="20">
+			<file id="320">0020020.jpg</file>
+			<data type="color" file-ref="320" />
+		</instance>
+		<instance actor="21" camera="1" sample="1">
+			<file id="321">0021001.jpg</file>
+			<data type="color" file-ref="321" />
+		</instance>
+		<instance actor="21" camera="1" sample="2">
+			<file id="322">0021002.jpg</file>
+			<data type="color" file-ref="322" />
+		</instance>
+		<instance actor="21" camera="1" sample="3">
+			<file id="323">0021003.jpg</file>
+			<data type="color" file-ref="323" />
+		</instance>
+		<instance actor="21" camera="1" sample="4">
+			<file id="324">0021004.jpg</file>
+			<data type="color" file-ref="324" />
+		</instance>
+		<instance actor="21" camera="1" sample="5">
+			<file id="325">0021005.jpg</file>
+			<data type="color" file-ref="325" />
+		</instance>
+		<instance actor="21" camera="1" sample="6">
+			<file id="326">0021006.jpg</file>
+			<data type="color" file-ref="326" />
+		</instance>
+		<instance actor="21" camera="1" sample="7">
+			<file id="327">0021007.jpg</file>
+			<data type="color" file-ref="327" />
+		</instance>
+		<instance actor="21" camera="1" sample="8">
+			<file id="328">0021008.jpg</file>
+			<data type="color" file-ref="328" />
+		</instance>
+		<instance actor="21" camera="1" sample="9">
+			<file id="329">0021009.jpg</file>
+			<data type="color" file-ref="329" />
+		</instance>
+		<instance actor="21" camera="1" sample="10">
+			<file id="330">0021010.jpg</file>
+			<data type="color" file-ref="330" />
+		</instance>
+		<instance actor="21" camera="2" sample="11">
+			<file id="331">0021011.jpg</file>
+			<data type="color" file-ref="331" />
+		</instance>
+		<instance actor="21" camera="2" sample="12">
+			<file id="332">0021012.jpg</file>
+			<data type="color" file-ref="332" />
+		</instance>
+		<instance actor="21" camera="2" sample="13">
+			<file id="333">0021013.jpg</file>
+			<data type="color" file-ref="333" />
+		</instance>
+		<instance actor="21" camera="2" sample="14">
+			<file id="334">0021014.jpg</file>
+			<data type="color" file-ref="334" />
+		</instance>
+		<instance actor="21" camera="2" sample="15">
+			<file id="335">0021015.jpg</file>
+			<data type="color" file-ref="335" />
+		</instance>
+		<instance actor="21" camera="2" sample="16">
+			<file id="336">0021016.jpg</file>
+			<data type="color" file-ref="336" />
+		</instance>
+		<instance actor="21" camera="2" sample="17">
+			<file id="337">0021017.jpg</file>
+			<data type="color" file-ref="337" />
+		</instance>
+		<instance actor="21" camera="2" sample="18">
+			<file id="338">0021018.jpg</file>
+			<data type="color" file-ref="338" />
+		</instance>
+		<instance actor="21" camera="2" sample="19">
+			<file id="339">0021019.jpg</file>
+			<data type="color" file-ref="339" />
+		</instance>
+		<instance actor="21" camera="2" sample="20">
+			<file id="340">0021020.jpg</file>
+			<data type="color" file-ref="340" />
+		</instance>
+		<instance actor="22" camera="1" sample="1">
+			<file id="341">0022001.jpg</file>
+			<data type="color" file-ref="341" />
+		</instance>
+		<instance actor="22" camera="1" sample="2">
+			<file id="342">0022002.jpg</file>
+			<data type="color" file-ref="342" />
+		</instance>
+		<instance actor="22" camera="1" sample="3">
+			<file id="343">0022003.jpg</file>
+			<data type="color" file-ref="343" />
+		</instance>
+		<instance actor="22" camera="1" sample="4">
+			<file id="344">0022004.jpg</file>
+			<data type="color" file-ref="344" />
+		</instance>
+		<instance actor="22" camera="1" sample="5">
+			<file id="345">0022005.jpg</file>
+			<data type="color" file-ref="345" />
+		</instance>
+		<instance actor="22" camera="1" sample="6">
+			<file id="346">0022006.jpg</file>
+			<data type="color" file-ref="346" />
+		</instance>
+		<instance actor="22" camera="1" sample="7">
+			<file id="347">0022007.jpg</file>
+			<data type="color" file-ref="347" />
+		</instance>
+		<instance actor="22" camera="1" sample="8">
+			<file id="348">0022008.jpg</file>
+			<data type="color" file-ref="348" />
+		</instance>
+		<instance actor="22" camera="1" sample="9">
+			<file id="349">0022009.jpg</file>
+			<data type="color" file-ref="349" />
+		</instance>
+		<instance actor="22" camera="1" sample="10">
+			<file id="350">0022010.jpg</file>
+			<data type="color" file-ref="350" />
+		</instance>
+		<instance actor="22" camera="2" sample="11">
+			<file id="351">0022011.jpg</file>
+			<data type="color" file-ref="351" />
+		</instance>
+		<instance actor="22" camera="2" sample="12">
+			<file id="352">0022012.jpg</file>
+			<data type="color" file-ref="352" />
+		</instance>
+		<instance actor="22" camera="2" sample="13">
+			<file id="353">0022013.jpg</file>
+			<data type="color" file-ref="353" />
+		</instance>
+		<instance actor="22" camera="2" sample="14">
+			<file id="354">0022014.jpg</file>
+			<data type="color" file-ref="354" />
+		</instance>
+		<instance actor="22" camera="2" sample="15">
+			<file id="355">0022015.jpg</file>
+			<data type="color" file-ref="355" />
+		</instance>
+		<instance actor="22" camera="2" sample="16">
+			<file id="356">0022016.jpg</file>
+			<data type="color" file-ref="356" />
+		</instance>
+		<instance actor="22" camera="2" sample="17">
+			<file id="357">0022017.jpg</file>
+			<data type="color" file-ref="357" />
+		</instance>
+		<instance actor="22" camera="2" sample="18">
+			<file id="358">0022018.jpg</file>
+			<data type="color" file-ref="358" />
+		</instance>
+		<instance actor="22" camera="2" sample="19">
+			<file id="359">0022019.jpg</file>
+			<data type="color" file-ref="359" />
+		</instance>
+		<instance actor="22" camera="2" sample="20">
+			<file id="360">0022020.jpg</file>
+			<data type="color" file-ref="360" />
+		</instance>
+		<instance actor="23" camera="1" sample="1">
+			<file id="361">0023001.jpg</file>
+			<data type="color" file-ref="361" />
+		</instance>
+		<instance actor="23" camera="1" sample="2">
+			<file id="362">0023002.jpg</file>
+			<data type="color" file-ref="362" />
+		</instance>
+		<instance actor="23" camera="1" sample="3">
+			<file id="363">0023003.jpg</file>
+			<data type="color" file-ref="363" />
+		</instance>
+		<instance actor="23" camera="1" sample="4">
+			<file id="364">0023004.jpg</file>
+			<data type="color" file-ref="364" />
+		</instance>
+		<instance actor="23" camera="1" sample="5">
+			<file id="365">0023005.jpg</file>
+			<data type="color" file-ref="365" />
+		</instance>
+		<instance actor="23" camera="1" sample="6">
+			<file id="366">0023006.jpg</file>
+			<data type="color" file-ref="366" />
+		</instance>
+		<instance actor="23" camera="1" sample="7">
+			<file id="367">0023007.jpg</file>
+			<data type="color" file-ref="367" />
+		</instance>
+		<instance actor="23" camera="1" sample="8">
+			<file id="368">0023008.jpg</file>
+			<data type="color" file-ref="368" />
+		</instance>
+		<instance actor="23" camera="1" sample="9">
+			<file id="369">0023009.jpg</file>
+			<data type="color" file-ref="369" />
+		</instance>
+		<instance actor="23" camera="1" sample="10">
+			<file id="370">0023010.jpg</file>
+			<data type="color" file-ref="370" />
+		</instance>
+		<instance actor="23" camera="2" sample="11">
+			<file id="371">0023011.jpg</file>
+			<data type="color" file-ref="371" />
+		</instance>
+		<instance actor="23" camera="2" sample="12">
+			<file id="372">0023012.jpg</file>
+			<data type="color" file-ref="372" />
+		</instance>
+		<instance actor="23" camera="2" sample="13">
+			<file id="373">0023013.jpg</file>
+			<data type="color" file-ref="373" />
+		</instance>
+		<instance actor="23" camera="2" sample="14">
+			<file id="374">0023014.jpg</file>
+			<data type="color" file-ref="374" />
+		</instance>
+		<instance actor="23" camera="2" sample="15">
+			<file id="375">0023015.jpg</file>
+			<data type="color" file-ref="375" />
+		</instance>
+		<instance actor="23" camera="2" sample="16">
+			<file id="376">0023016.jpg</file>
+			<data type="color" file-ref="376" />
+		</instance>
+		<instance actor="23" camera="2" sample="17">
+			<file id="377">0023017.jpg</file>
+			<data type="color" file-ref="377" />
+		</instance>
+		<instance actor="23" camera="2" sample="18">
+			<file id="378">0023018.jpg</file>
+			<data type="color" file-ref="378" />
+		</instance>
+		<instance actor="23" camera="2" sample="19">
+			<file id="379">0023019.jpg</file>
+			<data type="color" file-ref="379" />
+		</instance>
+		<instance actor="23" camera="2" sample="20">
+			<file id="380">0023020.jpg</file>
+			<data type="color" file-ref="380" />
+		</instance>
+		<instance actor="24" camera="1" sample="1">
+			<file id="381">0024001.jpg</file>
+			<data type="color" file-ref="381" />
+		</instance>
+		<instance actor="24" camera="1" sample="2">
+			<file id="382">0024002.jpg</file>
+			<data type="color" file-ref="382" />
+		</instance>
+		<instance actor="24" camera="1" sample="3">
+			<file id="383">0024003.jpg</file>
+			<data type="color" file-ref="383" />
+		</instance>
+		<instance actor="24" camera="1" sample="4">
+			<file id="384">0024004.jpg</file>
+			<data type="color" file-ref="384" />
+		</instance>
+		<instance actor="24" camera="1" sample="5">
+			<file id="385">0024005.jpg</file>
+			<data type="color" file-ref="385" />
+		</instance>
+		<instance actor="24" camera="1" sample="6">
+			<file id="386">0024006.jpg</file>
+			<data type="color" file-ref="386" />
+		</instance>
+		<instance actor="24" camera="1" sample="7">
+			<file id="387">0024007.jpg</file>
+			<data type="color" file-ref="387" />
+		</instance>
+		<instance actor="24" camera="1" sample="8">
+			<file id="388">0024008.jpg</file>
+			<data type="color" file-ref="388" />
+		</instance>
+		<instance actor="24" camera="1" sample="9">
+			<file id="389">0024009.jpg</file>
+			<data type="color" file-ref="389" />
+		</instance>
+		<instance actor="24" camera="1" sample="10">
+			<file id="390">0024010.jpg</file>
+			<data type="color" file-ref="390" />
+		</instance>
+		<instance actor="24" camera="2" sample="11">
+			<file id="391">0024011.jpg</file>
+			<data type="color" file-ref="391" />
+		</instance>
+		<instance actor="24" camera="2" sample="12">
+			<file id="392">0024012.jpg</file>
+			<data type="color" file-ref="392" />
+		</instance>
+		<instance actor="24" camera="2" sample="13">
+			<file id="393">0024013.jpg</file>
+			<data type="color" file-ref="393" />
+		</instance>
+		<instance actor="24" camera="2" sample="14">
+			<file id="394">0024014.jpg</file>
+			<data type="color" file-ref="394" />
+		</instance>
+		<instance actor="24" camera="2" sample="15">
+			<file id="395">0024015.jpg</file>
+			<data type="color" file-ref="395" />
+		</instance>
+		<instance actor="24" camera="2" sample="16">
+			<file id="396">0024016.jpg</file>
+			<data type="color" file-ref="396" />
+		</instance>
+		<instance actor="24" camera="2" sample="17">
+			<file id="397">0024017.jpg</file>
+			<data type="color" file-ref="397" />
+		</instance>
+		<instance actor="24" camera="2" sample="18">
+			<file id="398">0024018.jpg</file>
+			<data type="color" file-ref="398" />
+		</instance>
+		<instance actor="24" camera="2" sample="19">
+			<file id="399">0024019.jpg</file>
+			<data type="color" file-ref="399" />
+		</instance>
+		<instance actor="24" camera="2" sample="20">
+			<file id="400">0024020.jpg</file>
+			<data type="color" file-ref="400" />
+		</instance>
+		<instance actor="25" camera="1" sample="1">
+			<file id="401">0025001.jpg</file>
+			<data type="color" file-ref="401" />
+		</instance>
+		<instance actor="25" camera="1" sample="2">
+			<file id="402">0025002.jpg</file>
+			<data type="color" file-ref="402" />
+		</instance>
+		<instance actor="25" camera="1" sample="3">
+			<file id="403">0025003.jpg</file>
+			<data type="color" file-ref="403" />
+		</instance>
+		<instance actor="25" camera="1" sample="4">
+			<file id="404">0025004.jpg</file>
+			<data type="color" file-ref="404" />
+		</instance>
+		<instance actor="25" camera="1" sample="5">
+			<file id="405">0025005.jpg</file>
+			<data type="color" file-ref="405" />
+		</instance>
+		<instance actor="25" camera="1" sample="6">
+			<file id="406">0025006.jpg</file>
+			<data type="color" file-ref="406" />
+		</instance>
+		<instance actor="25" camera="1" sample="7">
+			<file id="407">0025007.jpg</file>
+			<data type="color" file-ref="407" />
+		</instance>
+		<instance actor="25" camera="1" sample="8">
+			<file id="408">0025008.jpg</file>
+			<data type="color" file-ref="408" />
+		</instance>
+		<instance actor="25" camera="1" sample="9">
+			<file id="409">0025009.jpg</file>
+			<data type="color" file-ref="409" />
+		</instance>
+		<instance actor="25" camera="1" sample="10">
+			<file id="410">0025010.jpg</file>
+			<data type="color" file-ref="410" />
+		</instance>
+		<instance actor="26" camera="1" sample="1">
+			<file id="411">0026001.jpg</file>
+			<data type="color" file-ref="411" />
+		</instance>
+		<instance actor="26" camera="1" sample="2">
+			<file id="412">0026002.jpg</file>
+			<data type="color" file-ref="412" />
+		</instance>
+		<instance actor="26" camera="1" sample="3">
+			<file id="413">0026003.jpg</file>
+			<data type="color" file-ref="413" />
+		</instance>
+		<instance actor="26" camera="1" sample="4">
+			<file id="414">0026004.jpg</file>
+			<data type="color" file-ref="414" />
+		</instance>
+		<instance actor="26" camera="1" sample="5">
+			<file id="415">0026005.jpg</file>
+			<data type="color" file-ref="415" />
+		</instance>
+		<instance actor="26" camera="1" sample="6">
+			<file id="416">0026006.jpg</file>
+			<data type="color" file-ref="416" />
+		</instance>
+		<instance actor="26" camera="1" sample="7">
+			<file id="417">0026007.jpg</file>
+			<data type="color" file-ref="417" />
+		</instance>
+		<instance actor="26" camera="1" sample="8">
+			<file id="418">0026008.jpg</file>
+			<data type="color" file-ref="418" />
+		</instance>
+		<instance actor="26" camera="1" sample="9">
+			<file id="419">0026009.jpg</file>
+			<data type="color" file-ref="419" />
+		</instance>
+		<instance actor="26" camera="1" sample="10">
+			<file id="420">0026010.jpg</file>
+			<data type="color" file-ref="420" />
+		</instance>
+		<instance actor="27" camera="1" sample="1">
+			<file id="421">0027001.jpg</file>
+			<data type="color" file-ref="421" />
+		</instance>
+		<instance actor="27" camera="1" sample="2">
+			<file id="422">0027002.jpg</file>
+			<data type="color" file-ref="422" />
+		</instance>
+		<instance actor="27" camera="1" sample="3">
+			<file id="423">0027003.jpg</file>
+			<data type="color" file-ref="423" />
+		</instance>
+		<instance actor="27" camera="1" sample="4">
+			<file id="424">0027004.jpg</file>
+			<data type="color" file-ref="424" />
+		</instance>
+		<instance actor="27" camera="1" sample="5">
+			<file id="425">0027005.jpg</file>
+			<data type="color" file-ref="425" />
+		</instance>
+		<instance actor="27" camera="1" sample="6">
+			<file id="426">0027006.jpg</file>
+			<data type="color" file-ref="426" />
+		</instance>
+		<instance actor="27" camera="1" sample="7">
+			<file id="427">0027007.jpg</file>
+			<data type="color" file-ref="427" />
+		</instance>
+		<instance actor="27" camera="1" sample="8">
+			<file id="428">0027008.jpg</file>
+			<data type="color" file-ref="428" />
+		</instance>
+		<instance actor="27" camera="1" sample="9">
+			<file id="429">0027009.jpg</file>
+			<data type="color" file-ref="429" />
+		</instance>
+		<instance actor="27" camera="1" sample="10">
+			<file id="430">0027010.jpg</file>
+			<data type="color" file-ref="430" />
+		</instance>
+		<instance actor="27" camera="2" sample="11">
+			<file id="431">0027011.jpg</file>
+			<data type="color" file-ref="431" />
+		</instance>
+		<instance actor="27" camera="2" sample="12">
+			<file id="432">0027012.jpg</file>
+			<data type="color" file-ref="432" />
+		</instance>
+		<instance actor="27" camera="2" sample="13">
+			<file id="433">0027013.jpg</file>
+			<data type="color" file-ref="433" />
+		</instance>
+		<instance actor="27" camera="2" sample="14">
+			<file id="434">0027014.jpg</file>
+			<data type="color" file-ref="434" />
+		</instance>
+		<instance actor="27" camera="2" sample="15">
+			<file id="435">0027015.jpg</file>
+			<data type="color" file-ref="435" />
+		</instance>
+		<instance actor="27" camera="2" sample="16">
+			<file id="436">0027016.jpg</file>
+			<data type="color" file-ref="436" />
+		</instance>
+		<instance actor="27" camera="2" sample="17">
+			<file id="437">0027017.jpg</file>
+			<data type="color" file-ref="437" />
+		</instance>
+		<instance actor="27" camera="2" sample="18">
+			<file id="438">0027018.jpg</file>
+			<data type="color" file-ref="438" />
+		</instance>
+		<instance actor="27" camera="2" sample="19">
+			<file id="439">0027019.jpg</file>
+			<data type="color" file-ref="439" />
+		</instance>
+		<instance actor="27" camera="2" sample="20">
+			<file id="440">0027020.jpg</file>
+			<data type="color" file-ref="440" />
+		</instance>
+		<instance actor="28" camera="1" sample="1">
+			<file id="441">0028001.jpg</file>
+			<data type="color" file-ref="441" />
+		</instance>
+		<instance actor="28" camera="1" sample="2">
+			<file id="442">0028002.jpg</file>
+			<data type="color" file-ref="442" />
+		</instance>
+		<instance actor="28" camera="1" sample="3">
+			<file id="443">0028003.jpg</file>
+			<data type="color" file-ref="443" />
+		</instance>
+		<instance actor="28" camera="1" sample="4">
+			<file id="444">0028004.jpg</file>
+			<data type="color" file-ref="444" />
+		</instance>
+		<instance actor="28" camera="1" sample="5">
+			<file id="445">0028005.jpg</file>
+			<data type="color" file-ref="445" />
+		</instance>
+		<instance actor="28" camera="1" sample="6">
+			<file id="446">0028006.jpg</file>
+			<data type="color" file-ref="446" />
+		</instance>
+		<instance actor="28" camera="1" sample="7">
+			<file id="447">0028007.jpg</file>
+			<data type="color" file-ref="447" />
+		</instance>
+		<instance actor="28" camera="1" sample="8">
+			<file id="448">0028008.jpg</file>
+			<data type="color" file-ref="448" />
+		</instance>
+		<instance actor="28" camera="1" sample="9">
+			<file id="449">0028009.jpg</file>
+			<data type="color" file-ref="449" />
+		</instance>
+		<instance actor="28" camera="1" sample="10">
+			<file id="450">0028010.jpg</file>
+			<data type="color" file-ref="450" />
+		</instance>
+		<instance actor="28" camera="2" sample="11">
+			<file id="451">0028011.jpg</file>
+			<data type="color" file-ref="451" />
+		</instance>
+		<instance actor="28" camera="2" sample="12">
+			<file id="452">0028012.jpg</file>
+			<data type="color" file-ref="452" />
+		</instance>
+		<instance actor="28" camera="2" sample="13">
+			<file id="453">0028013.jpg</file>
+			<data type="color" file-ref="453" />
+		</instance>
+		<instance actor="28" camera="2" sample="14">
+			<file id="454">0028014.jpg</file>
+			<data type="color" file-ref="454" />
+		</instance>
+		<instance actor="28" camera="2" sample="15">
+			<file id="455">0028015.jpg</file>
+			<data type="color" file-ref="455" />
+		</instance>
+		<instance actor="28" camera="2" sample="16">
+			<file id="456">0028016.jpg</file>
+			<data type="color" file-ref="456" />
+		</instance>
+		<instance actor="28" camera="2" sample="17">
+			<file id="457">0028017.jpg</file>
+			<data type="color" file-ref="457" />
+		</instance>
+		<instance actor="28" camera="2" sample="18">
+			<file id="458">0028018.jpg</file>
+			<data type="color" file-ref="458" />
+		</instance>
+		<instance actor="28" camera="2" sample="19">
+			<file id="459">0028019.jpg</file>
+			<data type="color" file-ref="459" />
+		</instance>
+		<instance actor="28" camera="2" sample="20">
+			<file id="460">0028020.jpg</file>
+			<data type="color" file-ref="460" />
+		</instance>
+		<instance actor="29" camera="1" sample="1">
+			<file id="461">0029001.jpg</file>
+			<data type="color" file-ref="461" />
+		</instance>
+		<instance actor="29" camera="1" sample="2">
+			<file id="462">0029002.jpg</file>
+			<data type="color" file-ref="462" />
+		</instance>
+		<instance actor="29" camera="1" sample="3">
+			<file id="463">0029003.jpg</file>
+			<data type="color" file-ref="463" />
+		</instance>
+		<instance actor="29" camera="1" sample="4">
+			<file id="464">0029004.jpg</file>
+			<data type="color" file-ref="464" />
+		</instance>
+		<instance actor="29" camera="1" sample="5">
+			<file id="465">0029005.jpg</file>
+			<data type="color" file-ref="465" />
+		</instance>
+		<instance actor="29" camera="1" sample="6">
+			<file id="466">0029006.jpg</file>
+			<data type="color" file-ref="466" />
+		</instance>
+		<instance actor="29" camera="1" sample="7">
+			<file id="467">0029007.jpg</file>
+			<data type="color" file-ref="467" />
+		</instance>
+		<instance actor="29" camera="1" sample="8">
+			<file id="468">0029008.jpg</file>
+			<data type="color" file-ref="468" />
+		</instance>
+		<instance actor="29" camera="1" sample="9">
+			<file id="469">0029009.jpg</file>
+			<data type="color" file-ref="469" />
+		</instance>
+		<instance actor="29" camera="1" sample="10">
+			<file id="470">0029010.jpg</file>
+			<data type="color" file-ref="470" />
+		</instance>
+		<instance actor="29" camera="2" sample="11">
+			<file id="471">0029011.jpg</file>
+			<data type="color" file-ref="471" />
+		</instance>
+		<instance actor="29" camera="2" sample="12">
+			<file id="472">0029012.jpg</file>
+			<data type="color" file-ref="472" />
+		</instance>
+		<instance actor="29" camera="2" sample="13">
+			<file id="473">0029013.jpg</file>
+			<data type="color" file-ref="473" />
+		</instance>
+		<instance actor="29" camera="2" sample="14">
+			<file id="474">0029014.jpg</file>
+			<data type="color" file-ref="474" />
+		</instance>
+		<instance actor="29" camera="2" sample="15">
+			<file id="475">0029015.jpg</file>
+			<data type="color" file-ref="475" />
+		</instance>
+		<instance actor="29" camera="2" sample="16">
+			<file id="476">0029016.jpg</file>
+			<data type="color" file-ref="476" />
+		</instance>
+		<instance actor="29" camera="2" sample="17">
+			<file id="477">0029017.jpg</file>
+			<data type="color" file-ref="477" />
+		</instance>
+		<instance actor="29" camera="2" sample="18">
+			<file id="478">0029018.jpg</file>
+			<data type="color" file-ref="478" />
+		</instance>
+		<instance actor="29" camera="2" sample="19">
+			<file id="479">0029019.jpg</file>
+			<data type="color" file-ref="479" />
+		</instance>
+		<instance actor="29" camera="2" sample="20">
+			<file id="480">0029020.jpg</file>
+			<data type="color" file-ref="480" />
+		</instance>
+		<instance actor="30" camera="1" sample="1">
+			<file id="481">0030001.jpg</file>
+			<data type="color" file-ref="481" />
+		</instance>
+		<instance actor="30" camera="1" sample="2">
+			<file id="482">0030002.jpg</file>
+			<data type="color" file-ref="482" />
+		</instance>
+		<instance actor="30" camera="1" sample="3">
+			<file id="483">0030003.jpg</file>
+			<data type="color" file-ref="483" />
+		</instance>
+		<instance actor="30" camera="1" sample="4">
+			<file id="484">0030004.jpg</file>
+			<data type="color" file-ref="484" />
+		</instance>
+		<instance actor="30" camera="1" sample="5">
+			<file id="485">0030005.jpg</file>
+			<data type="color" file-ref="485" />
+		</instance>
+		<instance actor="30" camera="1" sample="6">
+			<file id="486">0030006.jpg</file>
+			<data type="color" file-ref="486" />
+		</instance>
+		<instance actor="30" camera="1" sample="7">
+			<file id="487">0030007.jpg</file>
+			<data type="color" file-ref="487" />
+		</instance>
+		<instance actor="30" camera="1" sample="8">
+			<file id="488">0030008.jpg</file>
+			<data type="color" file-ref="488" />
+		</instance>
+		<instance actor="30" camera="1" sample="9">
+			<file id="489">0030009.jpg</file>
+			<data type="color" file-ref="489" />
+		</instance>
+		<instance actor="30" camera="1" sample="10">
+			<file id="490">0030010.jpg</file>
+			<data type="color" file-ref="490" />
+		</instance>
+		<instance actor="30" camera="2" sample="11">
+			<file id="491">0030011.jpg</file>
+			<data type="color" file-ref="491" />
+		</instance>
+		<instance actor="30" camera="2" sample="12">
+			<file id="492">0030012.jpg</file>
+			<data type="color" file-ref="492" />
+		</instance>
+		<instance actor="30" camera="2" sample="13">
+			<file id="493">0030013.jpg</file>
+			<data type="color" file-ref="493" />
+		</instance>
+		<instance actor="30" camera="2" sample="14">
+			<file id="494">0030014.jpg</file>
+			<data type="color" file-ref="494" />
+		</instance>
+		<instance actor="30" camera="2" sample="15">
+			<file id="495">0030015.jpg</file>
+			<data type="color" file-ref="495" />
+		</instance>
+		<instance actor="30" camera="2" sample="16">
+			<file id="496">0030016.jpg</file>
+			<data type="color" file-ref="496" />
+		</instance>
+		<instance actor="30" camera="2" sample="17">
+			<file id="497">0030017.jpg</file>
+			<data type="color" file-ref="497" />
+		</instance>
+		<instance actor="30" camera="2" sample="18">
+			<file id="498">0030018.jpg</file>
+			<data type="color" file-ref="498" />
+		</instance>
+		<instance actor="30" camera="2" sample="19">
+			<file id="499">0030019.jpg</file>
+			<data type="color" file-ref="499" />
+		</instance>
+		<instance actor="30" camera="2" sample="20">
+			<file id="500">0030020.jpg</file>
+			<data type="color" file-ref="500" />
+		</instance>
+		<instance actor="31" camera="1" sample="1">
+			<file id="501">0031001.jpg</file>
+			<data type="color" file-ref="501" />
+		</instance>
+		<instance actor="31" camera="1" sample="2">
+			<file id="502">0031002.jpg</file>
+			<data type="color" file-ref="502" />
+		</instance>
+		<instance actor="31" camera="1" sample="3">
+			<file id="503">0031003.jpg</file>
+			<data type="color" file-ref="503" />
+		</instance>
+		<instance actor="31" camera="1" sample="4">
+			<file id="504">0031004.jpg</file>
+			<data type="color" file-ref="504" />
+		</instance>
+		<instance actor="31" camera="1" sample="5">
+			<file id="505">0031005.jpg</file>
+			<data type="color" file-ref="505" />
+		</instance>
+		<instance actor="31" camera="1" sample="6">
+			<file id="506">0031006.jpg</file>
+			<data type="color" file-ref="506" />
+		</instance>
+		<instance actor="31" camera="1" sample="7">
+			<file id="507">0031007.jpg</file>
+			<data type="color" file-ref="507" />
+		</instance>
+		<instance actor="31" camera="1" sample="8">
+			<file id="508">0031008.jpg</file>
+			<data type="color" file-ref="508" />
+		</instance>
+		<instance actor="31" camera="1" sample="9">
+			<file id="509">0031009.jpg</file>
+			<data type="color" file-ref="509" />
+		</instance>
+		<instance actor="31" camera="1" sample="10">
+			<file id="510">0031010.jpg</file>
+			<data type="color" file-ref="510" />
+		</instance>
+		<instance actor="31" camera="2" sample="11">
+			<file id="511">0031011.jpg</file>
+			<data type="color" file-ref="511" />
+		</instance>
+		<instance actor="31" camera="2" sample="12">
+			<file id="512">0031012.jpg</file>
+			<data type="color" file-ref="512" />
+		</instance>
+		<instance actor="31" camera="2" sample="13">
+			<file id="513">0031013.jpg</file>
+			<data type="color" file-ref="513" />
+		</instance>
+		<instance actor="31" camera="2" sample="14">
+			<file id="514">0031014.jpg</file>
+			<data type="color" file-ref="514" />
+		</instance>
+		<instance actor="31" camera="2" sample="15">
+			<file id="515">0031015.jpg</file>
+			<data type="color" file-ref="515" />
+		</instance>
+		<instance actor="31" camera="2" sample="16">
+			<file id="516">0031016.jpg</file>
+			<data type="color" file-ref="516" />
+		</instance>
+		<instance actor="31" camera="2" sample="17">
+			<file id="517">0031017.jpg</file>
+			<data type="color" file-ref="517" />
+		</instance>
+		<instance actor="31" camera="2" sample="18">
+			<file id="518">0031018.jpg</file>
+			<data type="color" file-ref="518" />
+		</instance>
+		<instance actor="31" camera="2" sample="19">
+			<file id="519">0031019.jpg</file>
+			<data type="color" file-ref="519" />
+		</instance>
+		<instance actor="31" camera="2" sample="20">
+			<file id="520">0031020.jpg</file>
+			<data type="color" file-ref="520" />
+		</instance>
+		<instance actor="32" camera="1" sample="1">
+			<file id="521">0032001.jpg</file>
+			<data type="color" file-ref="521" />
+		</instance>
+		<instance actor="32" camera="1" sample="2">
+			<file id="522">0032002.jpg</file>
+			<data type="color" file-ref="522" />
+		</instance>
+		<instance actor="32" camera="1" sample="3">
+			<file id="523">0032003.jpg</file>
+			<data type="color" file-ref="523" />
+		</instance>
+		<instance actor="32" camera="1" sample="4">
+			<file id="524">0032004.jpg</file>
+			<data type="color" file-ref="524" />
+		</instance>
+		<instance actor="32" camera="1" sample="5">
+			<file id="525">0032005.jpg</file>
+			<data type="color" file-ref="525" />
+		</instance>
+		<instance actor="32" camera="1" sample="6">
+			<file id="526">0032006.jpg</file>
+			<data type="color" file-ref="526" />
+		</instance>
+		<instance actor="32" camera="1" sample="7">
+			<file id="527">0032007.jpg</file>
+			<data type="color" file-ref="527" />
+		</instance>
+		<instance actor="32" camera="1" sample="8">
+			<file id="528">0032008.jpg</file>
+			<data type="color" file-ref="528" />
+		</instance>
+		<instance actor="32" camera="1" sample="9">
+			<file id="529">0032009.jpg</file>
+			<data type="color" file-ref="529" />
+		</instance>
+		<instance actor="32" camera="1" sample="10">
+			<file id="530">0032010.jpg</file>
+			<data type="color" file-ref="530" />
+		</instance>
+		<instance actor="32" camera="2" sample="11">
+			<file id="531">0032011.jpg</file>
+			<data type="color" file-ref="531" />
+		</instance>
+		<instance actor="32" camera="2" sample="12">
+			<file id="532">0032012.jpg</file>
+			<data type="color" file-ref="532" />
+		</instance>
+		<instance actor="32" camera="2" sample="13">
+			<file id="533">0032013.jpg</file>
+			<data type="color" file-ref="533" />
+		</instance>
+		<instance actor="32" camera="2" sample="14">
+			<file id="534">0032014.jpg</file>
+			<data type="color" file-ref="534" />
+		</instance>
+		<instance actor="32" camera="2" sample="15">
+			<file id="535">0032015.jpg</file>
+			<data type="color" file-ref="535" />
+		</instance>
+		<instance actor="32" camera="2" sample="16">
+			<file id="536">0032016.jpg</file>
+			<data type="color" file-ref="536" />
+		</instance>
+		<instance actor="32" camera="2" sample="17">
+			<file id="537">0032017.jpg</file>
+			<data type="color" file-ref="537" />
+		</instance>
+		<instance actor="32" camera="2" sample="18">
+			<file id="538">0032018.jpg</file>
+			<data type="color" file-ref="538" />
+		</instance>
+		<instance actor="32" camera="2" sample="19">
+			<file id="539">0032019.jpg</file>
+			<data type="color" file-ref="539" />
+		</instance>
+		<instance actor="32" camera="2" sample="20">
+			<file id="540">0032020.jpg</file>
+			<data type="color" file-ref="540" />
+		</instance>
+		<instance actor="33" camera="1" sample="1">
+			<file id="541">0033001.jpg</file>
+			<data type="color" file-ref="541" />
+		</instance>
+		<instance actor="33" camera="1" sample="2">
+			<file id="542">0033002.jpg</file>
+			<data type="color" file-ref="542" />
+		</instance>
+		<instance actor="33" camera="1" sample="3">
+			<file id="543">0033003.jpg</file>
+			<data type="color" file-ref="543" />
+		</instance>
+		<instance actor="33" camera="1" sample="4">
+			<file id="544">0033004.jpg</file>
+			<data type="color" file-ref="544" />
+		</instance>
+		<instance actor="33" camera="1" sample="5">
+			<file id="545">0033005.jpg</file>
+			<data type="color" file-ref="545" />
+		</instance>
+		<instance actor="33" camera="1" sample="6">
+			<file id="546">0033006.jpg</file>
+			<data type="color" file-ref="546" />
+		</instance>
+		<instance actor="33" camera="1" sample="7">
+			<file id="547">0033007.jpg</file>
+			<data type="color" file-ref="547" />
+		</instance>
+		<instance actor="33" camera="1" sample="8">
+			<file id="548">0033008.jpg</file>
+			<data type="color" file-ref="548" />
+		</instance>
+		<instance actor="33" camera="1" sample="9">
+			<file id="549">0033009.jpg</file>
+			<data type="color" file-ref="549" />
+		</instance>
+		<instance actor="33" camera="1" sample="10">
+			<file id="550">0033010.jpg</file>
+			<data type="color" file-ref="550" />
+		</instance>
+		<instance actor="33" camera="2" sample="11">
+			<file id="551">0033011.jpg</file>
+			<data type="color" file-ref="551" />
+		</instance>
+		<instance actor="33" camera="2" sample="12">
+			<file id="552">0033012.jpg</file>
+			<data type="color" file-ref="552" />
+		</instance>
+		<instance actor="33" camera="2" sample="13">
+			<file id="553">0033013.jpg</file>
+			<data type="color" file-ref="553" />
+		</instance>
+		<instance actor="33" camera="2" sample="14">
+			<file id="554">0033014.jpg</file>
+			<data type="color" file-ref="554" />
+		</instance>
+		<instance actor="33" camera="2" sample="15">
+			<file id="555">0033015.jpg</file>
+			<data type="color" file-ref="555" />
+		</instance>
+		<instance actor="33" camera="2" sample="16">
+			<file id="556">0033016.jpg</file>
+			<data type="color" file-ref="556" />
+		</instance>
+		<instance actor="33" camera="2" sample="17">
+			<file id="557">0033017.jpg</file>
+			<data type="color" file-ref="557" />
+		</instance>
+		<instance actor="33" camera="2" sample="18">
+			<file id="558">0033018.jpg</file>
+			<data type="color" file-ref="558" />
+		</instance>
+		<instance actor="33" camera="2" sample="19">
+			<file id="559">0033019.jpg</file>
+			<data type="color" file-ref="559" />
+		</instance>
+		<instance actor="33" camera="2" sample="20">
+			<file id="560">0033020.jpg</file>
+			<data type="color" file-ref="560" />
+		</instance>
+		<instance actor="34" camera="1" sample="1">
+			<file id="561">0034001.jpg</file>
+			<data type="color" file-ref="561" />
+		</instance>
+		<instance actor="34" camera="1" sample="2">
+			<file id="562">0034002.jpg</file>
+			<data type="color" file-ref="562" />
+		</instance>
+		<instance actor="34" camera="1" sample="3">
+			<file id="563">0034003.jpg</file>
+			<data type="color" file-ref="563" />
+		</instance>
+		<instance actor="34" camera="1" sample="4">
+			<file id="564">0034004.jpg</file>
+			<data type="color" file-ref="564" />
+		</instance>
+		<instance actor="34" camera="1" sample="5">
+			<file id="565">0034005.jpg</file>
+			<data type="color" file-ref="565" />
+		</instance>
+		<instance actor="34" camera="1" sample="6">
+			<file id="566">0034006.jpg</file>
+			<data type="color" file-ref="566" />
+		</instance>
+		<instance actor="34" camera="1" sample="7">
+			<file id="567">0034007.jpg</file>
+			<data type="color" file-ref="567" />
+		</instance>
+		<instance actor="34" camera="1" sample="8">
+			<file id="568">0034008.jpg</file>
+			<data type="color" file-ref="568" />
+		</instance>
+		<instance actor="34" camera="1" sample="9">
+			<file id="569">0034009.jpg</file>
+			<data type="color" file-ref="569" />
+		</instance>
+		<instance actor="34" camera="1" sample="10">
+			<file id="570">0034010.jpg</file>
+			<data type="color" file-ref="570" />
+		</instance>
+		<instance actor="34" camera="2" sample="11">
+			<file id="571">0034011.jpg</file>
+			<data type="color" file-ref="571" />
+		</instance>
+		<instance actor="34" camera="2" sample="12">
+			<file id="572">0034012.jpg</file>
+			<data type="color" file-ref="572" />
+		</instance>
+		<instance actor="34" camera="2" sample="13">
+			<file id="573">0034013.jpg</file>
+			<data type="color" file-ref="573" />
+		</instance>
+		<instance actor="34" camera="2" sample="14">
+			<file id="574">0034014.jpg</file>
+			<data type="color" file-ref="574" />
+		</instance>
+		<instance actor="34" camera="2" sample="15">
+			<file id="575">0034015.jpg</file>
+			<data type="color" file-ref="575" />
+		</instance>
+		<instance actor="34" camera="2" sample="16">
+			<file id="576">0034016.jpg</file>
+			<data type="color" file-ref="576" />
+		</instance>
+		<instance actor="34" camera="2" sample="17">
+			<file id="577">0034017.jpg</file>
+			<data type="color" file-ref="577" />
+		</instance>
+		<instance actor="34" camera="2" sample="18">
+			<file id="578">0034018.jpg</file>
+			<data type="color" file-ref="578" />
+		</instance>
+		<instance actor="34" camera="2" sample="19">
+			<file id="579">0034019.jpg</file>
+			<data type="color" file-ref="579" />
+		</instance>
+		<instance actor="34" camera="2" sample="20">
+			<file id="580">0034020.jpg</file>
+			<data type="color" file-ref="580" />
+		</instance>
+		<instance actor="35" camera="1" sample="1">
+			<file id="581">0035001.jpg</file>
+			<data type="color" file-ref="581" />
+		</instance>
+		<instance actor="35" camera="1" sample="2">
+			<file id="582">0035002.jpg</file>
+			<data type="color" file-ref="582" />
+		</instance>
+		<instance actor="35" camera="1" sample="3">
+			<file id="583">0035003.jpg</file>
+			<data type="color" file-ref="583" />
+		</instance>
+		<instance actor="35" camera="1" sample="4">
+			<file id="584">0035004.jpg</file>
+			<data type="color" file-ref="584" />
+		</instance>
+		<instance actor="35" camera="1" sample="5">
+			<file id="585">0035005.jpg</file>
+			<data type="color" file-ref="585" />
+		</instance>
+		<instance actor="35" camera="1" sample="6">
+			<file id="586">0035006.jpg</file>
+			<data type="color" file-ref="586" />
+		</instance>
+		<instance actor="35" camera="1" sample="7">
+			<file id="587">0035007.jpg</file>
+			<data type="color" file-ref="587" />
+		</instance>
+		<instance actor="35" camera="1" sample="8">
+			<file id="588">0035008.jpg</file>
+			<data type="color" file-ref="588" />
+		</instance>
+		<instance actor="35" camera="1" sample="9">
+			<file id="589">0035009.jpg</file>
+			<data type="color" file-ref="589" />
+		</instance>
+		<instance actor="35" camera="1" sample="10">
+			<file id="590">0035010.jpg</file>
+			<data type="color" file-ref="590" />
+		</instance>
+		<instance actor="35" camera="2" sample="11">
+			<file id="591">0035011.jpg</file>
+			<data type="color" file-ref="591" />
+		</instance>
+		<instance actor="35" camera="2" sample="12">
+			<file id="592">0035012.jpg</file>
+			<data type="color" file-ref="592" />
+		</instance>
+		<instance actor="35" camera="2" sample="13">
+			<file id="593">0035013.jpg</file>
+			<data type="color" file-ref="593" />
+		</instance>
+		<instance actor="35" camera="2" sample="14">
+			<file id="594">0035014.jpg</file>
+			<data type="color" file-ref="594" />
+		</instance>
+		<instance actor="35" camera="2" sample="15">
+			<file id="595">0035015.jpg</file>
+			<data type="color" file-ref="595" />
+		</instance>
+		<instance actor="35" camera="2" sample="16">
+			<file id="596">0035016.jpg</file>
+			<data type="color" file-ref="596" />
+		</instance>
+		<instance actor="35" camera="2" sample="17">
+			<file id="597">0035017.jpg</file>
+			<data type="color" file-ref="597" />
+		</instance>
+		<instance actor="35" camera="2" sample="18">
+			<file id="598">0035018.jpg</file>
+			<data type="color" file-ref="598" />
+		</instance>
+		<instance actor="35" camera="2" sample="19">
+			<file id="599">0035019.jpg</file>
+			<data type="color" file-ref="599" />
+		</instance>
+		<instance actor="35" camera="2" sample="20">
+			<file id="600">0035020.jpg</file>
+			<data type="color" file-ref="600" />
+		</instance>
+		<instance actor="36" camera="1" sample="1">
+			<file id="601">0036001.jpg</file>
+			<data type="color" file-ref="601" />
+		</instance>
+		<instance actor="36" camera="1" sample="2">
+			<file id="602">0036002.jpg</file>
+			<data type="color" file-ref="602" />
+		</instance>
+		<instance actor="36" camera="1" sample="3">
+			<file id="603">0036003.jpg</file>
+			<data type="color" file-ref="603" />
+		</instance>
+		<instance actor="36" camera="1" sample="4">
+			<file id="604">0036004.jpg</file>
+			<data type="color" file-ref="604" />
+		</instance>
+		<instance actor="36" camera="1" sample="5">
+			<file id="605">0036005.jpg</file>
+			<data type="color" file-ref="605" />
+		</instance>
+		<instance actor="36" camera="1" sample="6">
+			<file id="606">0036006.jpg</file>
+			<data type="color" file-ref="606" />
+		</instance>
+		<instance actor="36" camera="1" sample="7">
+			<file id="607">0036007.jpg</file>
+			<data type="color" file-ref="607" />
+		</instance>
+		<instance actor="36" camera="1" sample="8">
+			<file id="608">0036008.jpg</file>
+			<data type="color" file-ref="608" />
+		</instance>
+		<instance actor="36" camera="1" sample="9">
+			<file id="609">0036009.jpg</file>
+			<data type="color" file-ref="609" />
+		</instance>
+		<instance actor="36" camera="1" sample="10">
+			<file id="610">0036010.jpg</file>
+			<data type="color" file-ref="610" />
+		</instance>
+		<instance actor="36" camera="2" sample="11">
+			<file id="611">0036011.jpg</file>
+			<data type="color" file-ref="611" />
+		</instance>
+		<instance actor="36" camera="2" sample="12">
+			<file id="612">0036012.jpg</file>
+			<data type="color" file-ref="612" />
+		</instance>
+		<instance actor="36" camera="2" sample="13">
+			<file id="613">0036013.jpg</file>
+			<data type="color" file-ref="613" />
+		</instance>
+		<instance actor="36" camera="2" sample="14">
+			<file id="614">0036014.jpg</file>
+			<data type="color" file-ref="614" />
+		</instance>
+		<instance actor="36" camera="2" sample="15">
+			<file id="615">0036015.jpg</file>
+			<data type="color" file-ref="615" />
+		</instance>
+		<instance actor="36" camera="2" sample="16">
+			<file id="616">0036016.jpg</file>
+			<data type="color" file-ref="616" />
+		</instance>
+		<instance actor="36" camera="2" sample="17">
+			<file id="617">0036017.jpg</file>
+			<data type="color" file-ref="617" />
+		</instance>
+		<instance actor="36" camera="2" sample="18">
+			<file id="618">0036018.jpg</file>
+			<data type="color" file-ref="618" />
+		</instance>
+		<instance actor="36" camera="2" sample="19">
+			<file id="619">0036019.jpg</file>
+			<data type="color" file-ref="619" />
+		</instance>
+		<instance actor="36" camera="2" sample="20">
+			<file id="620">0036020.jpg</file>
+			<data type="color" file-ref="620" />
+		</instance>
+		<instance actor="37" camera="1" sample="1">
+			<file id="621">0037001.jpg</file>
+			<data type="color" file-ref="621" />
+		</instance>
+		<instance actor="37" camera="1" sample="2">
+			<file id="622">0037002.jpg</file>
+			<data type="color" file-ref="622" />
+		</instance>
+		<instance actor="37" camera="1" sample="3">
+			<file id="623">0037003.jpg</file>
+			<data type="color" file-ref="623" />
+		</instance>
+		<instance actor="37" camera="1" sample="4">
+			<file id="624">0037004.jpg</file>
+			<data type="color" file-ref="624" />
+		</instance>
+		<instance actor="37" camera="1" sample="5">
+			<file id="625">0037005.jpg</file>
+			<data type="color" file-ref="625" />
+		</instance>
+		<instance actor="37" camera="1" sample="6">
+			<file id="626">0037006.jpg</file>
+			<data type="color" file-ref="626" />
+		</instance>
+		<instance actor="37" camera="1" sample="7">
+			<file id="627">0037007.jpg</file>
+			<data type="color" file-ref="627" />
+		</instance>
+		<instance actor="37" camera="1" sample="8">
+			<file id="628">0037008.jpg</file>
+			<data type="color" file-ref="628" />
+		</instance>
+		<instance actor="37" camera="1" sample="9">
+			<file id="629">0037009.jpg</file>
+			<data type="color" file-ref="629" />
+		</instance>
+		<instance actor="37" camera="1" sample="10">
+			<file id="630">0037010.jpg</file>
+			<data type="color" file-ref="630" />
+		</instance>
+		<instance actor="37" camera="2" sample="11">
+			<file id="631">0037011.jpg</file>
+			<data type="color" file-ref="631" />
+		</instance>
+		<instance actor="37" camera="2" sample="12">
+			<file id="632">0037012.jpg</file>
+			<data type="color" file-ref="632" />
+		</instance>
+		<instance actor="37" camera="2" sample="13">
+			<file id="633">0037013.jpg</file>
+			<data type="color" file-ref="633" />
+		</instance>
+		<instance actor="37" camera="2" sample="14">
+			<file id="634">0037014.jpg</file>
+			<data type="color" file-ref="634" />
+		</instance>
+		<instance actor="37" camera="2" sample="15">
+			<file id="635">0037015.jpg</file>
+			<data type="color" file-ref="635" />
+		</instance>
+		<instance actor="37" camera="2" sample="16">
+			<file id="636">0037016.jpg</file>
+			<data type="color" file-ref="636" />
+		</instance>
+		<instance actor="37" camera="2" sample="17">
+			<file id="637">0037017.jpg</file>
+			<data type="color" file-ref="637" />
+		</instance>
+		<instance actor="37" camera="2" sample="18">
+			<file id="638">0037018.jpg</file>
+			<data type="color" file-ref="638" />
+		</instance>
+		<instance actor="37" camera="2" sample="19">
+			<file id="639">0037019.jpg</file>
+			<data type="color" file-ref="639" />
+		</instance>
+		<instance actor="37" camera="2" sample="20">
+			<file id="640">0037020.jpg</file>
+			<data type="color" file-ref="640" />
+		</instance>
+		<instance actor="38" camera="1" sample="1">
+			<file id="641">0038001.jpg</file>
+			<data type="color" file-ref="641" />
+		</instance>
+		<instance actor="38" camera="1" sample="2">
+			<file id="642">0038002.jpg</file>
+			<data type="color" file-ref="642" />
+		</instance>
+		<instance actor="38" camera="1" sample="3">
+			<file id="643">0038003.jpg</file>
+			<data type="color" file-ref="643" />
+		</instance>
+		<instance actor="38" camera="1" sample="4">
+			<file id="644">0038004.jpg</file>
+			<data type="color" file-ref="644" />
+		</instance>
+		<instance actor="38" camera="1" sample="5">
+			<file id="645">0038005.jpg</file>
+			<data type="color" file-ref="645" />
+		</instance>
+		<instance actor="38" camera="1" sample="6">
+			<file id="646">0038006.jpg</file>
+			<data type="color" file-ref="646" />
+		</instance>
+		<instance actor="38" camera="1" sample="7">
+			<file id="647">0038007.jpg</file>
+			<data type="color" file-ref="647" />
+		</instance>
+		<instance actor="38" camera="1" sample="8">
+			<file id="648">0038008.jpg</file>
+			<data type="color" file-ref="648" />
+		</instance>
+		<instance actor="38" camera="1" sample="9">
+			<file id="649">0038009.jpg</file>
+			<data type="color" file-ref="649" />
+		</instance>
+		<instance actor="38" camera="1" sample="10">
+			<file id="650">0038010.jpg</file>
+			<data type="color" file-ref="650" />
+		</instance>
+		<instance actor="38" camera="2" sample="11">
+			<file id="651">0038011.jpg</file>
+			<data type="color" file-ref="651" />
+		</instance>
+		<instance actor="38" camera="2" sample="12">
+			<file id="652">0038012.jpg</file>
+			<data type="color" file-ref="652" />
+		</instance>
+		<instance actor="38" camera="2" sample="13">
+			<file id="653">0038013.jpg</file>
+			<data type="color" file-ref="653" />
+		</instance>
+		<instance actor="38" camera="2" sample="14">
+			<file id="654">0038014.jpg</file>
+			<data type="color" file-ref="654" />
+		</instance>
+		<instance actor="38" camera="2" sample="15">
+			<file id="655">0038015.jpg</file>
+			<data type="color" file-ref="655" />
+		</instance>
+		<instance actor="38" camera="2" sample="16">
+			<file id="656">0038016.jpg</file>
+			<data type="color" file-ref="656" />
+		</instance>
+		<instance actor="38" camera="2" sample="17">
+			<file id="657">0038017.jpg</file>
+			<data type="color" file-ref="657" />
+		</instance>
+		<instance actor="38" camera="2" sample="18">
+			<file id="658">0038018.jpg</file>
+			<data type="color" file-ref="658" />
+		</instance>
+		<instance actor="38" camera="2" sample="19">
+			<file id="659">0038019.jpg</file>
+			<data type="color" file-ref="659" />
+		</instance>
+		<instance actor="38" camera="2" sample="20">
+			<file id="660">0038020.jpg</file>
+			<data type="color" file-ref="660" />
+		</instance>
+		<instance actor="39" camera="1" sample="1">
+			<file id="661">0039001.jpg</file>
+			<data type="color" file-ref="661" />
+		</instance>
+		<instance actor="39" camera="1" sample="2">
+			<file id="662">0039002.jpg</file>
+			<data type="color" file-ref="662" />
+		</instance>
+		<instance actor="39" camera="1" sample="3">
+			<file id="663">0039003.jpg</file>
+			<data type="color" file-ref="663" />
+		</instance>
+		<instance actor="39" camera="1" sample="4">
+			<file id="664">0039004.jpg</file>
+			<data type="color" file-ref="664" />
+		</instance>
+		<instance actor="39" camera="1" sample="5">
+			<file id="665">0039005.jpg</file>
+			<data type="color" file-ref="665" />
+		</instance>
+		<instance actor="39" camera="1" sample="6">
+			<file id="666">0039006.jpg</file>
+			<data type="color" file-ref="666" />
+		</instance>
+		<instance actor="39" camera="1" sample="7">
+			<file id="667">0039007.jpg</file>
+			<data type="color" file-ref="667" />
+		</instance>
+		<instance actor="39" camera="1" sample="8">
+			<file id="668">0039008.jpg</file>
+			<data type="color" file-ref="668" />
+		</instance>
+		<instance actor="39" camera="1" sample="9">
+			<file id="669">0039009.jpg</file>
+			<data type="color" file-ref="669" />
+		</instance>
+		<instance actor="39" camera="1" sample="10">
+			<file id="670">0039010.jpg</file>
+			<data type="color" file-ref="670" />
+		</instance>
+		<instance actor="40" camera="1" sample="1">
+			<file id="671">0040001.jpg</file>
+			<data type="color" file-ref="671" />
+		</instance>
+		<instance actor="40" camera="1" sample="2">
+			<file id="672">0040002.jpg</file>
+			<data type="color" file-ref="672" />
+		</instance>
+		<instance actor="40" camera="1" sample="3">
+			<file id="673">0040003.jpg</file>
+			<data type="color" file-ref="673" />
+		</instance>
+		<instance actor="40" camera="1" sample="4">
+			<file id="674">0040004.jpg</file>
+			<data type="color" file-ref="674" />
+		</instance>
+		<instance actor="40" camera="1" sample="5">
+			<file id="675">0040005.jpg</file>
+			<data type="color" file-ref="675" />
+		</instance>
+		<instance actor="40" camera="1" sample="6">
+			<file id="676">0040006.jpg</file>
+			<data type="color" file-ref="676" />
+		</instance>
+		<instance actor="40" camera="1" sample="7">
+			<file id="677">0040007.jpg</file>
+			<data type="color" file-ref="677" />
+		</instance>
+		<instance actor="40" camera="1" sample="8">
+			<file id="678">0040008.jpg</file>
+			<data type="color" file-ref="678" />
+		</instance>
+		<instance actor="40" camera="1" sample="9">
+			<file id="679">0040009.jpg</file>
+			<data type="color" file-ref="679" />
+		</instance>
+		<instance actor="40" camera="1" sample="10">
+			<file id="680">0040010.jpg</file>
+			<data type="color" file-ref="680" />
+		</instance>
+		<instance actor="40" camera="2" sample="11">
+			<file id="681">0040011.jpg</file>
+			<data type="color" file-ref="681" />
+		</instance>
+		<instance actor="40" camera="2" sample="12">
+			<file id="682">0040012.jpg</file>
+			<data type="color" file-ref="682" />
+		</instance>
+		<instance actor="40" camera="2" sample="13">
+			<file id="683">0040013.jpg</file>
+			<data type="color" file-ref="683" />
+		</instance>
+		<instance actor="40" camera="2" sample="14">
+			<file id="684">0040014.jpg</file>
+			<data type="color" file-ref="684" />
+		</instance>
+		<instance actor="40" camera="2" sample="15">
+			<file id="685">0040015.jpg</file>
+			<data type="color" file-ref="685" />
+		</instance>
+		<instance actor="40" camera="2" sample="16">
+			<file id="686">0040016.jpg</file>
+			<data type="color" file-ref="686" />
+		</instance>
+		<instance actor="40" camera="2" sample="17">
+			<file id="687">0040017.jpg</file>
+			<data type="color" file-ref="687" />
+		</instance>
+		<instance actor="40" camera="2" sample="18">
+			<file id="688">0040018.jpg</file>
+			<data type="color" file-ref="688" />
+		</instance>
+		<instance actor="40" camera="2" sample="19">
+			<file id="689">0040019.jpg</file>
+			<data type="color" file-ref="689" />
+		</instance>
+		<instance actor="40" camera="2" sample="20">
+			<file id="690">0040020.jpg</file>
+			<data type="color" file-ref="690" />
+		</instance>
+		<instance actor="41" camera="1" sample="1">
+			<file id="691">0041001.jpg</file>
+			<data type="color" file-ref="691" />
+		</instance>
+		<instance actor="41" camera="1" sample="2">
+			<file id="692">0041002.jpg</file>
+			<data type="color" file-ref="692" />
+		</instance>
+		<instance actor="41" camera="1" sample="3">
+			<file id="693">0041003.jpg</file>
+			<data type="color" file-ref="693" />
+		</instance>
+		<instance actor="41" camera="1" sample="4">
+			<file id="694">0041004.jpg</file>
+			<data type="color" file-ref="694" />
+		</instance>
+		<instance actor="41" camera="1" sample="5">
+			<file id="695">0041005.jpg</file>
+			<data type="color" file-ref="695" />
+		</instance>
+		<instance actor="41" camera="1" sample="6">
+			<file id="696">0041006.jpg</file>
+			<data type="color" file-ref="696" />
+		</instance>
+		<instance actor="41" camera="1" sample="7">
+			<file id="697">0041007.jpg</file>
+			<data type="color" file-ref="697" />
+		</instance>
+		<instance actor="41" camera="1" sample="8">
+			<file id="698">0041008.jpg</file>
+			<data type="color" file-ref="698" />
+		</instance>
+		<instance actor="41" camera="1" sample="9">
+			<file id="699">0041009.jpg</file>
+			<data type="color" file-ref="699" />
+		</instance>
+		<instance actor="41" camera="1" sample="10">
+			<file id="700">0041010.jpg</file>
+			<data type="color" file-ref="700" />
+		</instance>
+		<instance actor="41" camera="2" sample="11">
+			<file id="701">0041011.jpg</file>
+			<data type="color" file-ref="701" />
+		</instance>
+		<instance actor="41" camera="2" sample="12">
+			<file id="702">0041012.jpg</file>
+			<data type="color" file-ref="702" />
+		</instance>
+		<instance actor="41" camera="2" sample="13">
+			<file id="703">0041013.jpg</file>
+			<data type="color" file-ref="703" />
+		</instance>
+		<instance actor="41" camera="2" sample="14">
+			<file id="704">0041014.jpg</file>
+			<data type="color" file-ref="704" />
+		</instance>
+		<instance actor="41" camera="2" sample="15">
+			<file id="705">0041015.jpg</file>
+			<data type="color" file-ref="705" />
+		</instance>
+		<instance actor="41" camera="2" sample="16">
+			<file id="706">0041016.jpg</file>
+			<data type="color" file-ref="706" />
+		</instance>
+		<instance actor="41" camera="2" sample="17">
+			<file id="707">0041017.jpg</file>
+			<data type="color" file-ref="707" />
+		</instance>
+		<instance actor="41" camera="2" sample="18">
+			<file id="708">0041018.jpg</file>
+			<data type="color" file-ref="708" />
+		</instance>
+		<instance actor="41" camera="2" sample="19">
+			<file id="709">0041019.jpg</file>
+			<data type="color" file-ref="709" />
+		</instance>
+		<instance actor="41" camera="2" sample="20">
+			<file id="710">0041020.jpg</file>
+			<data type="color" file-ref="710" />
+		</instance>
+		<instance actor="42" camera="1" sample="1">
+			<file id="711">0042001.jpg</file>
+			<data type="color" file-ref="711" />
+		</instance>
+		<instance actor="42" camera="1" sample="2">
+			<file id="712">0042002.jpg</file>
+			<data type="color" file-ref="712" />
+		</instance>
+		<instance actor="42" camera="1" sample="3">
+			<file id="713">0042003.jpg</file>
+			<data type="color" file-ref="713" />
+		</instance>
+		<instance actor="42" camera="1" sample="4">
+			<file id="714">0042004.jpg</file>
+			<data type="color" file-ref="714" />
+		</instance>
+		<instance actor="42" camera="1" sample="5">
+			<file id="715">0042005.jpg</file>
+			<data type="color" file-ref="715" />
+		</instance>
+		<instance actor="42" camera="1" sample="6">
+			<file id="716">0042006.jpg</file>
+			<data type="color" file-ref="716" />
+		</instance>
+		<instance actor="42" camera="1" sample="7">
+			<file id="717">0042007.jpg</file>
+			<data type="color" file-ref="717" />
+		</instance>
+		<instance actor="42" camera="1" sample="8">
+			<file id="718">0042008.jpg</file>
+			<data type="color" file-ref="718" />
+		</instance>
+		<instance actor="42" camera="1" sample="9">
+			<file id="719">0042009.jpg</file>
+			<data type="color" file-ref="719" />
+		</instance>
+		<instance actor="42" camera="1" sample="10">
+			<file id="720">0042010.jpg</file>
+			<data type="color" file-ref="720" />
+		</instance>
+		<instance actor="43" camera="1" sample="1">
+			<file id="721">0043001.jpg</file>
+			<data type="color" file-ref="721" />
+		</instance>
+		<instance actor="43" camera="1" sample="2">
+			<file id="722">0043002.jpg</file>
+			<data type="color" file-ref="722" />
+		</instance>
+		<instance actor="43" camera="1" sample="3">
+			<file id="723">0043003.jpg</file>
+			<data type="color" file-ref="723" />
+		</instance>
+		<instance actor="43" camera="1" sample="4">
+			<file id="724">0043004.jpg</file>
+			<data type="color" file-ref="724" />
+		</instance>
+		<instance actor="43" camera="1" sample="5">
+			<file id="725">0043005.jpg</file>
+			<data type="color" file-ref="725" />
+		</instance>
+		<instance actor="43" camera="1" sample="6">
+			<file id="726">0043006.jpg</file>
+			<data type="color" file-ref="726" />
+		</instance>
+		<instance actor="43" camera="1" sample="7">
+			<file id="727">0043007.jpg</file>
+			<data type="color" file-ref="727" />
+		</instance>
+		<instance actor="43" camera="1" sample="8">
+			<file id="728">0043008.jpg</file>
+			<data type="color" file-ref="728" />
+		</instance>
+		<instance actor="43" camera="1" sample="9">
+			<file id="729">0043009.jpg</file>
+			<data type="color" file-ref="729" />
+		</instance>
+		<instance actor="43" camera="1" sample="10">
+			<file id="730">0043010.jpg</file>
+			<data type="color" file-ref="730" />
+		</instance>
+		<instance actor="44" camera="1" sample="1">
+			<file id="731">0044001.jpg</file>
+			<data type="color" file-ref="731" />
+		</instance>
+		<instance actor="44" camera="1" sample="2">
+			<file id="732">0044002.jpg</file>
+			<data type="color" file-ref="732" />
+		</instance>
+		<instance actor="44" camera="1" sample="3">
+			<file id="733">0044003.jpg</file>
+			<data type="color" file-ref="733" />
+		</instance>
+		<instance actor="44" camera="1" sample="4">
+			<file id="734">0044004.jpg</file>
+			<data type="color" file-ref="734" />
+		</instance>
+		<instance actor="44" camera="1" sample="5">
+			<file id="735">0044005.jpg</file>
+			<data type="color" file-ref="735" />
+		</instance>
+		<instance actor="44" camera="1" sample="6">
+			<file id="736">0044006.jpg</file>
+			<data type="color" file-ref="736" />
+		</instance>
+		<instance actor="44" camera="1" sample="7">
+			<file id="737">0044007.jpg</file>
+			<data type="color" file-ref="737" />
+		</instance>
+		<instance actor="44" camera="1" sample="8">
+			<file id="738">0044008.jpg</file>
+			<data type="color" file-ref="738" />
+		</instance>
+		<instance actor="44" camera="1" sample="9">
+			<file id="739">0044009.jpg</file>
+			<data type="color" file-ref="739" />
+		</instance>
+		<instance actor="44" camera="1" sample="10">
+			<file id="740">0044010.jpg</file>
+			<data type="color" file-ref="740" />
+		</instance>
+		<instance actor="44" camera="2" sample="11">
+			<file id="741">0044011.jpg</file>
+			<data type="color" file-ref="741" />
+		</instance>
+		<instance actor="44" camera="2" sample="12">
+			<file id="742">0044012.jpg</file>
+			<data type="color" file-ref="742" />
+		</instance>
+		<instance actor="44" camera="2" sample="13">
+			<file id="743">0044013.jpg</file>
+			<data type="color" file-ref="743" />
+		</instance>
+		<instance actor="44" camera="2" sample="14">
+			<file id="744">0044014.jpg</file>
+			<data type="color" file-ref="744" />
+		</instance>
+		<instance actor="44" camera="2" sample="15">
+			<file id="745">0044015.jpg</file>
+			<data type="color" file-ref="745" />
+		</instance>
+		<instance actor="44" camera="2" sample="16">
+			<file id="746">0044016.jpg</file>
+			<data type="color" file-ref="746" />
+		</instance>
+		<instance actor="44" camera="2" sample="17">
+			<file id="747">0044017.jpg</file>
+			<data type="color" file-ref="747" />
+		</instance>
+		<instance actor="44" camera="2" sample="18">
+			<file id="748">0044018.jpg</file>
+			<data type="color" file-ref="748" />
+		</instance>
+		<instance actor="44" camera="2" sample="19">
+			<file id="749">0044019.jpg</file>
+			<data type="color" file-ref="749" />
+		</instance>
+		<instance actor="44" camera="2" sample="20">
+			<file id="750">0044020.jpg</file>
+			<data type="color" file-ref="750" />
+		</instance>
+		<instance actor="45" camera="1" sample="1">
+			<file id="751">0045001.jpg</file>
+			<data type="color" file-ref="751" />
+		</instance>
+		<instance actor="45" camera="1" sample="2">
+			<file id="752">0045002.jpg</file>
+			<data type="color" file-ref="752" />
+		</instance>
+		<instance actor="45" camera="1" sample="3">
+			<file id="753">0045003.jpg</file>
+			<data type="color" file-ref="753" />
+		</instance>
+		<instance actor="45" camera="1" sample="4">
+			<file id="754">0045004.jpg</file>
+			<data type="color" file-ref="754" />
+		</instance>
+		<instance actor="45" camera="1" sample="5">
+			<file id="755">0045005.jpg</file>
+			<data type="color" file-ref="755" />
+		</instance>
+		<instance actor="45" camera="1" sample="6">
+			<file id="756">0045006.jpg</file>
+			<data type="color" file-ref="756" />
+		</instance>
+		<instance actor="45" camera="1" sample="7">
+			<file id="757">0045007.jpg</file>
+			<data type="color" file-ref="757" />
+		</instance>
+		<instance actor="45" camera="1" sample="8">
+			<file id="758">0045008.jpg</file>
+			<data type="color" file-ref="758" />
+		</instance>
+		<instance actor="45" camera="1" sample="9">
+			<file id="759">0045009.jpg</file>
+			<data type="color" file-ref="759" />
+		</instance>
+		<instance actor="45" camera="1" sample="10">
+			<file id="760">0045010.jpg</file>
+			<data type="color" file-ref="760" />
+		</instance>
+		<instance actor="45" camera="2" sample="11">
+			<file id="761">0045011.jpg</file>
+			<data type="color" file-ref="761" />
+		</instance>
+		<instance actor="45" camera="2" sample="12">
+			<file id="762">0045012.jpg</file>
+			<data type="color" file-ref="762" />
+		</instance>
+		<instance actor="45" camera="2" sample="13">
+			<file id="763">0045013.jpg</file>
+			<data type="color" file-ref="763" />
+		</instance>
+		<instance actor="45" camera="2" sample="14">
+			<file id="764">0045014.jpg</file>
+			<data type="color" file-ref="764" />
+		</instance>
+		<instance actor="45" camera="2" sample="15">
+			<file id="765">0045015.jpg</file>
+			<data type="color" file-ref="765" />
+		</instance>
+		<instance actor="45" camera="2" sample="16">
+			<file id="766">0045016.jpg</file>
+			<data type="color" file-ref="766" />
+		</instance>
+		<instance actor="45" camera="2" sample="17">
+			<file id="767">0045017.jpg</file>
+			<data type="color" file-ref="767" />
+		</instance>
+		<instance actor="45" camera="2" sample="18">
+			<file id="768">0045018.jpg</file>
+			<data type="color" file-ref="768" />
+		</instance>
+		<instance actor="45" camera="2" sample="19">
+			<file id="769">0045019.jpg</file>
+			<data type="color" file-ref="769" />
+		</instance>
+		<instance actor="45" camera="2" sample="20">
+			<file id="770">0045020.jpg</file>
+			<data type="color" file-ref="770" />
+		</instance>
+		<instance actor="46" camera="1" sample="1">
+			<file id="771">0046001.jpg</file>
+			<data type="color" file-ref="771" />
+		</instance>
+		<instance actor="46" camera="1" sample="2">
+			<file id="772">0046002.jpg</file>
+			<data type="color" file-ref="772" />
+		</instance>
+		<instance actor="46" camera="1" sample="3">
+			<file id="773">0046003.jpg</file>
+			<data type="color" file-ref="773" />
+		</instance>
+		<instance actor="46" camera="1" sample="4">
+			<file id="774">0046004.jpg</file>
+			<data type="color" file-ref="774" />
+		</instance>
+		<instance actor="46" camera="1" sample="5">
+			<file id="775">0046005.jpg</file>
+			<data type="color" file-ref="775" />
+		</instance>
+		<instance actor="46" camera="1" sample="6">
+			<file id="776">0046006.jpg</file>
+			<data type="color" file-ref="776" />
+		</instance>
+		<instance actor="46" camera="1" sample="7">
+			<file id="777">0046007.jpg</file>
+			<data type="color" file-ref="777" />
+		</instance>
+		<instance actor="46" camera="1" sample="8">
+			<file id="778">0046008.jpg</file>
+			<data type="color" file-ref="778" />
+		</instance>
+		<instance actor="46" camera="1" sample="9">
+			<file id="779">0046009.jpg</file>
+			<data type="color" file-ref="779" />
+		</instance>
+		<instance actor="46" camera="1" sample="10">
+			<file id="780">0046010.jpg</file>
+			<data type="color" file-ref="780" />
+		</instance>
+		<instance actor="46" camera="2" sample="11">
+			<file id="781">0046011.jpg</file>
+			<data type="color" file-ref="781" />
+		</instance>
+		<instance actor="46" camera="2" sample="12">
+			<file id="782">0046012.jpg</file>
+			<data type="color" file-ref="782" />
+		</instance>
+		<instance actor="46" camera="2" sample="13">
+			<file id="783">0046013.jpg</file>
+			<data type="color" file-ref="783" />
+		</instance>
+		<instance actor="46" camera="2" sample="14">
+			<file id="784">0046014.jpg</file>
+			<data type="color" file-ref="784" />
+		</instance>
+		<instance actor="46" camera="2" sample="15">
+			<file id="785">0046015.jpg</file>
+			<data type="color" file-ref="785" />
+		</instance>
+		<instance actor="46" camera="2" sample="16">
+			<file id="786">0046016.jpg</file>
+			<data type="color" file-ref="786" />
+		</instance>
+		<instance actor="46" camera="2" sample="17">
+			<file id="787">0046017.jpg</file>
+			<data type="color" file-ref="787" />
+		</instance>
+		<instance actor="46" camera="2" sample="18">
+			<file id="788">0046018.jpg</file>
+			<data type="color" file-ref="788" />
+		</instance>
+		<instance actor="46" camera="2" sample="19">
+			<file id="789">0046019.jpg</file>
+			<data type="color" file-ref="789" />
+		</instance>
+		<instance actor="46" camera="2" sample="20">
+			<file id="790">0046020.jpg</file>
+			<data type="color" file-ref="790" />
+		</instance>
+		<instance actor="47" camera="1" sample="1">
+			<file id="791">0047001.jpg</file>
+			<data type="color" file-ref="791" />
+		</instance>
+		<instance actor="47" camera="1" sample="2">
+			<file id="792">0047002.jpg</file>
+			<data type="color" file-ref="792" />
+		</instance>
+		<instance actor="47" camera="1" sample="3">
+			<file id="793">0047003.jpg</file>
+			<data type="color" file-ref="793" />
+		</instance>
+		<instance actor="47" camera="1" sample="4">
+			<file id="794">0047004.jpg</file>
+			<data type="color" file-ref="794" />
+		</instance>
+		<instance actor="47" camera="1" sample="5">
+			<file id="795">0047005.jpg</file>
+			<data type="color" file-ref="795" />
+		</instance>
+		<instance actor="47" camera="1" sample="6">
+			<file id="796">0047006.jpg</file>
+			<data type="color" file-ref="796" />
+		</instance>
+		<instance actor="47" camera="1" sample="7">
+			<file id="797">0047007.jpg</file>
+			<data type="color" file-ref="797" />
+		</instance>
+		<instance actor="47" camera="1" sample="8">
+			<file id="798">0047008.jpg</file>
+			<data type="color" file-ref="798" />
+		</instance>
+		<instance actor="47" camera="1" sample="9">
+			<file id="799">0047009.jpg</file>
+			<data type="color" file-ref="799" />
+		</instance>
+		<instance actor="47" camera="1" sample="10">
+			<file id="800">0047010.jpg</file>
+			<data type="color" file-ref="800" />
+		</instance>
+		<instance actor="47" camera="2" sample="11">
+			<file id="801">0047011.jpg</file>
+			<data type="color" file-ref="801" />
+		</instance>
+		<instance actor="47" camera="2" sample="12">
+			<file id="802">0047012.jpg</file>
+			<data type="color" file-ref="802" />
+		</instance>
+		<instance actor="47" camera="2" sample="13">
+			<file id="803">0047013.jpg</file>
+			<data type="color" file-ref="803" />
+		</instance>
+		<instance actor="47" camera="2" sample="14">
+			<file id="804">0047014.jpg</file>
+			<data type="color" file-ref="804" />
+		</instance>
+		<instance actor="47" camera="2" sample="15">
+			<file id="805">0047015.jpg</file>
+			<data type="color" file-ref="805" />
+		</instance>
+		<instance actor="47" camera="2" sample="16">
+			<file id="806">0047016.jpg</file>
+			<data type="color" file-ref="806" />
+		</instance>
+		<instance actor="47" camera="2" sample="17">
+			<file id="807">0047017.jpg</file>
+			<data type="color" file-ref="807" />
+		</instance>
+		<instance actor="47" camera="2" sample="18">
+			<file id="808">0047018.jpg</file>
+			<data type="color" file-ref="808" />
+		</instance>
+		<instance actor="47" camera="2" sample="19">
+			<file id="809">0047019.jpg</file>
+			<data type="color" file-ref="809" />
+		</instance>
+		<instance actor="47" camera="2" sample="20">
+			<file id="810">0047020.jpg</file>
+			<data type="color" file-ref="810" />
+		</instance>
+		<instance actor="48" camera="1" sample="1">
+			<file id="811">0048001.jpg</file>
+			<data type="color" file-ref="811" />
+		</instance>
+		<instance actor="48" camera="1" sample="2">
+			<file id="812">0048002.jpg</file>
+			<data type="color" file-ref="812" />
+		</instance>
+		<instance actor="48" camera="1" sample="3">
+			<file id="813">0048003.jpg</file>
+			<data type="color" file-ref="813" />
+		</instance>
+		<instance actor="48" camera="1" sample="4">
+			<file id="814">0048004.jpg</file>
+			<data type="color" file-ref="814" />
+		</instance>
+		<instance actor="48" camera="1" sample="5">
+			<file id="815">0048005.jpg</file>
+			<data type="color" file-ref="815" />
+		</instance>
+		<instance actor="48" camera="1" sample="6">
+			<file id="816">0048006.jpg</file>
+			<data type="color" file-ref="816" />
+		</instance>
+		<instance actor="48" camera="1" sample="7">
+			<file id="817">0048007.jpg</file>
+			<data type="color" file-ref="817" />
+		</instance>
+		<instance actor="48" camera="1" sample="8">
+			<file id="818">0048008.jpg</file>
+			<data type="color" file-ref="818" />
+		</instance>
+		<instance actor="48" camera="1" sample="9">
+			<file id="819">0048009.jpg</file>
+			<data type="color" file-ref="819" />
+		</instance>
+		<instance actor="48" camera="1" sample="10">
+			<file id="820">0048010.jpg</file>
+			<data type="color" file-ref="820" />
+		</instance>
+		<instance actor="49" camera="1" sample="1">
+			<file id="821">0049001.jpg</file>
+			<data type="color" file-ref="821" />
+		</instance>
+		<instance actor="49" camera="1" sample="2">
+			<file id="822">0049002.jpg</file>
+			<data type="color" file-ref="822" />
+		</instance>
+		<instance actor="49" camera="1" sample="3">
+			<file id="823">0049003.jpg</file>
+			<data type="color" file-ref="823" />
+		</instance>
+		<instance actor="49" camera="1" sample="4">
+			<file id="824">0049004.jpg</file>
+			<data type="color" file-ref="824" />
+		</instance>
+		<instance actor="49" camera="1" sample="5">
+			<file id="825">0049005.jpg</file>
+			<data type="color" file-ref="825" />
+		</instance>
+		<instance actor="49" camera="1" sample="6">
+			<file id="826">0049006.jpg</file>
+			<data type="color" file-ref="826" />
+		</instance>
+		<instance actor="49" camera="1" sample="7">
+			<file id="827">0049007.jpg</file>
+			<data type="color" file-ref="827" />
+		</instance>
+		<instance actor="49" camera="1" sample="8">
+			<file id="828">0049008.jpg</file>
+			<data type="color" file-ref="828" />
+		</instance>
+		<instance actor="49" camera="1" sample="9">
+			<file id="829">0049009.jpg</file>
+			<data type="color" file-ref="829" />
+		</instance>
+		<instance actor="49" camera="1" sample="10">
+			<file id="830">0049010.jpg</file>
+			<data type="color" file-ref="830" />
+		</instance>
+		<instance actor="50" camera="1" sample="1">
+			<file id="831">0050001.jpg</file>
+			<data type="color" file-ref="831" />
+		</instance>
+		<instance actor="50" camera="1" sample="2">
+			<file id="832">0050002.jpg</file>
+			<data type="color" file-ref="832" />
+		</instance>
+		<instance actor="50" camera="1" sample="3">
+			<file id="833">0050003.jpg</file>
+			<data type="color" file-ref="833" />
+		</instance>
+		<instance actor="50" camera="1" sample="4">
+			<file id="834">0050004.jpg</file>
+			<data type="color" file-ref="834" />
+		</instance>
+		<instance actor="50" camera="1" sample="5">
+			<file id="835">0050005.jpg</file>
+			<data type="color" file-ref="835" />
+		</instance>
+		<instance actor="50" camera="1" sample="6">
+			<file id="836">0050006.jpg</file>
+			<data type="color" file-ref="836" />
+		</instance>
+		<instance actor="50" camera="1" sample="7">
+			<file id="837">0050007.jpg</file>
+			<data type="color" file-ref="837" />
+		</instance>
+		<instance actor="50" camera="1" sample="8">
+			<file id="838">0050008.jpg</file>
+			<data type="color" file-ref="838" />
+		</instance>
+		<instance actor="50" camera="1" sample="9">
+			<file id="839">0050009.jpg</file>
+			<data type="color" file-ref="839" />
+		</instance>
+		<instance actor="50" camera="1" sample="10">
+			<file id="840">0050010.jpg</file>
+			<data type="color" file-ref="840" />
+		</instance>
+		<instance actor="50" camera="2" sample="11">
+			<file id="841">0050011.jpg</file>
+			<data type="color" file-ref="841" />
+		</instance>
+		<instance actor="50" camera="2" sample="12">
+			<file id="842">0050012.jpg</file>
+			<data type="color" file-ref="842" />
+		</instance>
+		<instance actor="50" camera="2" sample="13">
+			<file id="843">0050013.jpg</file>
+			<data type="color" file-ref="843" />
+		</instance>
+		<instance actor="50" camera="2" sample="14">
+			<file id="844">0050014.jpg</file>
+			<data type="color" file-ref="844" />
+		</instance>
+		<instance actor="50" camera="2" sample="15">
+			<file id="845">0050015.jpg</file>
+			<data type="color" file-ref="845" />
+		</instance>
+		<instance actor="50" camera="2" sample="16">
+			<file id="846">0050016.jpg</file>
+			<data type="color" file-ref="846" />
+		</instance>
+		<instance actor="50" camera="2" sample="17">
+			<file id="847">0050017.jpg</file>
+			<data type="color" file-ref="847" />
+		</instance>
+		<instance actor="50" camera="2" sample="18">
+			<file id="848">0050018.jpg</file>
+			<data type="color" file-ref="848" />
+		</instance>
+		<instance actor="50" camera="2" sample="19">
+			<file id="849">0050019.jpg</file>
+			<data type="color" file-ref="849" />
+		</instance>
+		<instance actor="50" camera="2" sample="20">
+			<file id="850">0050020.jpg</file>
+			<data type="color" file-ref="850" />
+		</instance>
+		<instance actor="51" camera="1" sample="1">
+			<file id="851">0051001.jpg</file>
+			<data type="color" file-ref="851" />
+		</instance>
+		<instance actor="51" camera="1" sample="2">
+			<file id="852">0051002.jpg</file>
+			<data type="color" file-ref="852" />
+		</instance>
+		<instance actor="51" camera="1" sample="3">
+			<file id="853">0051003.jpg</file>
+			<data type="color" file-ref="853" />
+		</instance>
+		<instance actor="51" camera="1" sample="4">
+			<file id="854">0051004.jpg</file>
+			<data type="color" file-ref="854" />
+		</instance>
+		<instance actor="51" camera="1" sample="5">
+			<file id="855">0051005.jpg</file>
+			<data type="color" file-ref="855" />
+		</instance>
+		<instance actor="51" camera="1" sample="6">
+			<file id="856">0051006.jpg</file>
+			<data type="color" file-ref="856" />
+		</instance>
+		<instance actor="51" camera="1" sample="7">
+			<file id="857">0051007.jpg</file>
+			<data type="color" file-ref="857" />
+		</instance>
+		<instance actor="51" camera="1" sample="8">
+			<file id="858">0051008.jpg</file>
+			<data type="color" file-ref="858" />
+		</instance>
+		<instance actor="51" camera="1" sample="9">
+			<file id="859">0051009.jpg</file>
+			<data type="color" file-ref="859" />
+		</instance>
+		<instance actor="51" camera="1" sample="10">
+			<file id="860">0051010.jpg</file>
+			<data type="color" file-ref="860" />
+		</instance>
+		<instance actor="52" camera="1" sample="1">
+			<file id="861">0052001.jpg</file>
+			<data type="color" file-ref="861" />
+		</instance>
+		<instance actor="52" camera="1" sample="2">
+			<file id="862">0052002.jpg</file>
+			<data type="color" file-ref="862" />
+		</instance>
+		<instance actor="52" camera="1" sample="3">
+			<file id="863">0052003.jpg</file>
+			<data type="color" file-ref="863" />
+		</instance>
+		<instance actor="52" camera="1" sample="4">
+			<file id="864">0052004.jpg</file>
+			<data type="color" file-ref="864" />
+		</instance>
+		<instance actor="52" camera="1" sample="5">
+			<file id="865">0052005.jpg</file>
+			<data type="color" file-ref="865" />
+		</instance>
+		<instance actor="52" camera="1" sample="6">
+			<file id="866">0052006.jpg</file>
+			<data type="color" file-ref="866" />
+		</instance>
+		<instance actor="52" camera="1" sample="7">
+			<file id="867">0052007.jpg</file>
+			<data type="color" file-ref="867" />
+		</instance>
+		<instance actor="52" camera="1" sample="8">
+			<file id="868">0052008.jpg</file>
+			<data type="color" file-ref="868" />
+		</instance>
+		<instance actor="52" camera="1" sample="9">
+			<file id="869">0052009.jpg</file>
+			<data type="color" file-ref="869" />
+		</instance>
+		<instance actor="52" camera="1" sample="10">
+			<file id="870">0052010.jpg</file>
+			<data type="color" file-ref="870" />
+		</instance>
+		<instance actor="52" camera="2" sample="11">
+			<file id="871">0052011.jpg</file>
+			<data type="color" file-ref="871" />
+		</instance>
+		<instance actor="52" camera="2" sample="12">
+			<file id="872">0052012.jpg</file>
+			<data type="color" file-ref="872" />
+		</instance>
+		<instance actor="52" camera="2" sample="13">
+			<file id="873">0052013.jpg</file>
+			<data type="color" file-ref="873" />
+		</instance>
+		<instance actor="52" camera="2" sample="14">
+			<file id="874">0052014.jpg</file>
+			<data type="color" file-ref="874" />
+		</instance>
+		<instance actor="52" camera="2" sample="15">
+			<file id="875">0052015.jpg</file>
+			<data type="color" file-ref="875" />
+		</instance>
+		<instance actor="52" camera="2" sample="16">
+			<file id="876">0052016.jpg</file>
+			<data type="color" file-ref="876" />
+		</instance>
+		<instance actor="52" camera="2" sample="17">
+			<file id="877">0052017.jpg</file>
+			<data type="color" file-ref="877" />
+		</instance>
+		<instance actor="52" camera="2" sample="18">
+			<file id="878">0052018.jpg</file>
+			<data type="color" file-ref="878" />
+		</instance>
+		<instance actor="52" camera="2" sample="19">
+			<file id="879">0052019.jpg</file>
+			<data type="color" file-ref="879" />
+		</instance>
+		<instance actor="52" camera="2" sample="20">
+			<file id="880">0052020.jpg</file>
+			<data type="color" file-ref="880" />
+		</instance>
+		<instance actor="53" camera="1" sample="1">
+			<file id="881">0053001.jpg</file>
+			<data type="color" file-ref="881" />
+		</instance>
+		<instance actor="53" camera="1" sample="2">
+			<file id="882">0053002.jpg</file>
+			<data type="color" file-ref="882" />
+		</instance>
+		<instance actor="53" camera="1" sample="3">
+			<file id="883">0053003.jpg</file>
+			<data type="color" file-ref="883" />
+		</instance>
+		<instance actor="53" camera="1" sample="4">
+			<file id="884">0053004.jpg</file>
+			<data type="color" file-ref="884" />
+		</instance>
+		<instance actor="53" camera="1" sample="5">
+			<file id="885">0053005.jpg</file>
+			<data type="color" file-ref="885" />
+		</instance>
+		<instance actor="53" camera="1" sample="6">
+			<file id="886">0053006.jpg</file>
+			<data type="color" file-ref="886" />
+		</instance>
+		<instance actor="53" camera="1" sample="7">
+			<file id="887">0053007.jpg</file>
+			<data type="color" file-ref="887" />
+		</instance>
+		<instance actor="53" camera="1" sample="8">
+			<file id="888">0053008.jpg</file>
+			<data type="color" file-ref="888" />
+		</instance>
+		<instance actor="53" camera="1" sample="9">
+			<file id="889">0053009.jpg</file>
+			<data type="color" file-ref="889" />
+		</instance>
+		<instance actor="53" camera="1" sample="10">
+			<file id="890">0053010.jpg</file>
+			<data type="color" file-ref="890" />
+		</instance>
+		<instance actor="54" camera="1" sample="1">
+			<file id="891">0054001.jpg</file>
+			<data type="color" file-ref="891" />
+		</instance>
+		<instance actor="54" camera="1" sample="2">
+			<file id="892">0054002.jpg</file>
+			<data type="color" file-ref="892" />
+		</instance>
+		<instance actor="54" camera="1" sample="3">
+			<file id="893">0054003.jpg</file>
+			<data type="color" file-ref="893" />
+		</instance>
+		<instance actor="54" camera="1" sample="4">
+			<file id="894">0054004.jpg</file>
+			<data type="color" file-ref="894" />
+		</instance>
+		<instance actor="54" camera="1" sample="5">
+			<file id="895">0054005.jpg</file>
+			<data type="color" file-ref="895" />
+		</instance>
+		<instance actor="54" camera="1" sample="6">
+			<file id="896">0054006.jpg</file>
+			<data type="color" file-ref="896" />
+		</instance>
+		<instance actor="54" camera="1" sample="7">
+			<file id="897">0054007.jpg</file>
+			<data type="color" file-ref="897" />
+		</instance>
+		<instance actor="54" camera="1" sample="8">
+			<file id="898">0054008.jpg</file>
+			<data type="color" file-ref="898" />
+		</instance>
+		<instance actor="54" camera="1" sample="9">
+			<file id="899">0054009.jpg</file>
+			<data type="color" file-ref="899" />
+		</instance>
+		<instance actor="54" camera="1" sample="10">
+			<file id="900">0054010.jpg</file>
+			<data type="color" file-ref="900" />
+		</instance>
+		<instance actor="55" camera="1" sample="1">
+			<file id="901">0055001.jpg</file>
+			<data type="color" file-ref="901" />
+		</instance>
+		<instance actor="55" camera="1" sample="2">
+			<file id="902">0055002.jpg</file>
+			<data type="color" file-ref="902" />
+		</instance>
+		<instance actor="55" camera="1" sample="3">
+			<file id="903">0055003.jpg</file>
+			<data type="color" file-ref="903" />
+		</instance>
+		<instance actor="55" camera="1" sample="4">
+			<file id="904">0055004.jpg</file>
+			<data type="color" file-ref="904" />
+		</instance>
+		<instance actor="55" camera="1" sample="5">
+			<file id="905">0055005.jpg</file>
+			<data type="color" file-ref="905" />
+		</instance>
+		<instance actor="55" camera="1" sample="6">
+			<file id="906">0055006.jpg</file>
+			<data type="color" file-ref="906" />
+		</instance>
+		<instance actor="55" camera="1" sample="7">
+			<file id="907">0055007.jpg</file>
+			<data type="color" file-ref="907" />
+		</instance>
+		<instance actor="55" camera="1" sample="8">
+			<file id="908">0055008.jpg</file>
+			<data type="color" file-ref="908" />
+		</instance>
+		<instance actor="55" camera="1" sample="9">
+			<file id="909">0055009.jpg</file>
+			<data type="color" file-ref="909" />
+		</instance>
+		<instance actor="55" camera="1" sample="10">
+			<file id="910">0055010.jpg</file>
+			<data type="color" file-ref="910" />
+		</instance>
+		<instance actor="55" camera="2" sample="11">
+			<file id="911">0055011.jpg</file>
+			<data type="color" file-ref="911" />
+		</instance>
+		<instance actor="55" camera="2" sample="12">
+			<file id="912">0055012.jpg</file>
+			<data type="color" file-ref="912" />
+		</instance>
+		<instance actor="55" camera="2" sample="13">
+			<file id="913">0055013.jpg</file>
+			<data type="color" file-ref="913" />
+		</instance>
+		<instance actor="55" camera="2" sample="14">
+			<file id="914">0055014.jpg</file>
+			<data type="color" file-ref="914" />
+		</instance>
+		<instance actor="55" camera="2" sample="15">
+			<file id="915">0055015.jpg</file>
+			<data type="color" file-ref="915" />
+		</instance>
+		<instance actor="55" camera="2" sample="16">
+			<file id="916">0055016.jpg</file>
+			<data type="color" file-ref="916" />
+		</instance>
+		<instance actor="55" camera="2" sample="17">
+			<file id="917">0055017.jpg</file>
+			<data type="color" file-ref="917" />
+		</instance>
+		<instance actor="55" camera="2" sample="18">
+			<file id="918">0055018.jpg</file>
+			<data type="color" file-ref="918" />
+		</instance>
+		<instance actor="55" camera="2" sample="19">
+			<file id="919">0055019.jpg</file>
+			<data type="color" file-ref="919" />
+		</instance>
+		<instance actor="55" camera="2" sample="20">
+			<file id="920">0055020.jpg</file>
+			<data type="color" file-ref="920" />
+		</instance>
+		<instance actor="56" camera="1" sample="1">
+			<file id="921">0056001.jpg</file>
+			<data type="color" file-ref="921" />
+		</instance>
+		<instance actor="56" camera="1" sample="2">
+			<file id="922">0056002.jpg</file>
+			<data type="color" file-ref="922" />
+		</instance>
+		<instance actor="56" camera="1" sample="3">
+			<file id="923">0056003.jpg</file>
+			<data type="color" file-ref="923" />
+		</instance>
+		<instance actor="56" camera="1" sample="4">
+			<file id="924">0056004.jpg</file>
+			<data type="color" file-ref="924" />
+		</instance>
+		<instance actor="56" camera="1" sample="5">
+			<file id="925">0056005.jpg</file>
+			<data type="color" file-ref="925" />
+		</instance>
+		<instance actor="56" camera="1" sample="6">
+			<file id="926">0056006.jpg</file>
+			<data type="color" file-ref="926" />
+		</instance>
+		<instance actor="56" camera="1" sample="7">
+			<file id="927">0056007.jpg</file>
+			<data type="color" file-ref="927" />
+		</instance>
+		<instance actor="56" camera="1" sample="8">
+			<file id="928">0056008.jpg</file>
+			<data type="color" file-ref="928" />
+		</instance>
+		<instance actor="56" camera="1" sample="9">
+			<file id="929">0056009.jpg</file>
+			<data type="color" file-ref="929" />
+		</instance>
+		<instance actor="56" camera="1" sample="10">
+			<file id="930">0056010.jpg</file>
+			<data type="color" file-ref="930" />
+		</instance>
+		<instance actor="57" camera="1" sample="1">
+			<file id="931">0057001.jpg</file>
+			<data type="color" file-ref="931" />
+		</instance>
+		<instance actor="57" camera="1" sample="2">
+			<file id="932">0057002.jpg</file>
+			<data type="color" file-ref="932" />
+		</instance>
+		<instance actor="57" camera="1" sample="3">
+			<file id="933">0057003.jpg</file>
+			<data type="color" file-ref="933" />
+		</instance>
+		<instance actor="57" camera="1" sample="4">
+			<file id="934">0057004.jpg</file>
+			<data type="color" file-ref="934" />
+		</instance>
+		<instance actor="57" camera="1" sample="5">
+			<file id="935">0057005.jpg</file>
+			<data type="color" file-ref="935" />
+		</instance>
+		<instance actor="57" camera="1" sample="6">
+			<file id="936">0057006.jpg</file>
+			<data type="color" file-ref="936" />
+		</instance>
+		<instance actor="57" camera="1" sample="7">
+			<file id="937">0057007.jpg</file>
+			<data type="color" file-ref="937" />
+		</instance>
+		<instance actor="57" camera="1" sample="8">
+			<file id="938">0057008.jpg</file>
+			<data type="color" file-ref="938" />
+		</instance>
+		<instance actor="57" camera="1" sample="9">
+			<file id="939">0057009.jpg</file>
+			<data type="color" file-ref="939" />
+		</instance>
+		<instance actor="57" camera="1" sample="10">
+			<file id="940">0057010.jpg</file>
+			<data type="color" file-ref="940" />
+		</instance>
+		<instance actor="57" camera="2" sample="11">
+			<file id="941">0057011.jpg</file>
+			<data type="color" file-ref="941" />
+		</instance>
+		<instance actor="57" camera="2" sample="12">
+			<file id="942">0057012.jpg</file>
+			<data type="color" file-ref="942" />
+		</instance>
+		<instance actor="57" camera="2" sample="13">
+			<file id="943">0057013.jpg</file>
+			<data type="color" file-ref="943" />
+		</instance>
+		<instance actor="57" camera="2" sample="14">
+			<file id="944">0057014.jpg</file>
+			<data type="color" file-ref="944" />
+		</instance>
+		<instance actor="57" camera="2" sample="15">
+			<file id="945">0057015.jpg</file>
+			<data type="color" file-ref="945" />
+		</instance>
+		<instance actor="57" camera="2" sample="16">
+			<file id="946">0057016.jpg</file>
+			<data type="color" file-ref="946" />
+		</instance>
+		<instance actor="57" camera="2" sample="17">
+			<file id="947">0057017.jpg</file>
+			<data type="color" file-ref="947" />
+		</instance>
+		<instance actor="57" camera="2" sample="18">
+			<file id="948">0057018.jpg</file>
+			<data type="color" file-ref="948" />
+		</instance>
+		<instance actor="57" camera="2" sample="19">
+			<file id="949">0057019.jpg</file>
+			<data type="color" file-ref="949" />
+		</instance>
+		<instance actor="57" camera="2" sample="20">
+			<file id="950">0057020.jpg</file>
+			<data type="color" file-ref="950" />
+		</instance>
+		<instance actor="58" camera="1" sample="1">
+			<file id="951">0058001.jpg</file>
+			<data type="color" file-ref="951" />
+		</instance>
+		<instance actor="58" camera="1" sample="2">
+			<file id="952">0058002.jpg</file>
+			<data type="color" file-ref="952" />
+		</instance>
+		<instance actor="58" camera="1" sample="3">
+			<file id="953">0058003.jpg</file>
+			<data type="color" file-ref="953" />
+		</instance>
+		<instance actor="58" camera="1" sample="4">
+			<file id="954">0058004.jpg</file>
+			<data type="color" file-ref="954" />
+		</instance>
+		<instance actor="58" camera="1" sample="5">
+			<file id="955">0058005.jpg</file>
+			<data type="color" file-ref="955" />
+		</instance>
+		<instance actor="58" camera="1" sample="6">
+			<file id="956">0058006.jpg</file>
+			<data type="color" file-ref="956" />
+		</instance>
+		<instance actor="58" camera="1" sample="7">
+			<file id="957">0058007.jpg</file>
+			<data type="color" file-ref="957" />
+		</instance>
+		<instance actor="58" camera="1" sample="8">
+			<file id="958">0058008.jpg</file>
+			<data type="color" file-ref="958" />
+		</instance>
+		<instance actor="58" camera="1" sample="9">
+			<file id="959">0058009.jpg</file>
+			<data type="color" file-ref="959" />
+		</instance>
+		<instance actor="58" camera="1" sample="10">
+			<file id="960">0058010.jpg</file>
+			<data type="color" file-ref="960" />
+		</instance>
+		<instance actor="58" camera="2" sample="11">
+			<file id="961">0058011.jpg</file>
+			<data type="color" file-ref="961" />
+		</instance>
+		<instance actor="58" camera="2" sample="12">
+			<file id="962">0058012.jpg</file>
+			<data type="color" file-ref="962" />
+		</instance>
+		<instance actor="58" camera="2" sample="13">
+			<file id="963">0058013.jpg</file>
+			<data type="color" file-ref="963" />
+		</instance>
+		<instance actor="58" camera="2" sample="14">
+			<file id="964">0058014.jpg</file>
+			<data type="color" file-ref="964" />
+		</instance>
+		<instance actor="58" camera="2" sample="15">
+			<file id="965">0058015.jpg</file>
+			<data type="color" file-ref="965" />
+		</instance>
+		<instance actor="58" camera="2" sample="16">
+			<file id="966">0058016.jpg</file>
+			<data type="color" file-ref="966" />
+		</instance>
+		<instance actor="58" camera="2" sample="17">
+			<file id="967">0058017.jpg</file>
+			<data type="color" file-ref="967" />
+		</instance>
+		<instance actor="58" camera="2" sample="18">
+			<file id="968">0058018.jpg</file>
+			<data type="color" file-ref="968" />
+		</instance>
+		<instance actor="58" camera="2" sample="19">
+			<file id="969">0058019.jpg</file>
+			<data type="color" file-ref="969" />
+		</instance>
+		<instance actor="58" camera="2" sample="20">
+			<file id="970">0058020.jpg</file>
+			<data type="color" file-ref="970" />
+		</instance>
+		<instance actor="59" camera="1" sample="1">
+			<file id="971">0059001.jpg</file>
+			<data type="color" file-ref="971" />
+		</instance>
+		<instance actor="59" camera="1" sample="2">
+			<file id="972">0059002.jpg</file>
+			<data type="color" file-ref="972" />
+		</instance>
+		<instance actor="59" camera="1" sample="3">
+			<file id="973">0059003.jpg</file>
+			<data type="color" file-ref="973" />
+		</instance>
+		<instance actor="59" camera="1" sample="4">
+			<file id="974">0059004.jpg</file>
+			<data type="color" file-ref="974" />
+		</instance>
+		<instance actor="59" camera="1" sample="5">
+			<file id="975">0059005.jpg</file>
+			<data type="color" file-ref="975" />
+		</instance>
+		<instance actor="59" camera="1" sample="6">
+			<file id="976">0059006.jpg</file>
+			<data type="color" file-ref="976" />
+		</instance>
+		<instance actor="59" camera="1" sample="7">
+			<file id="977">0059007.jpg</file>
+			<data type="color" file-ref="977" />
+		</instance>
+		<instance actor="59" camera="1" sample="8">
+			<file id="978">0059008.jpg</file>
+			<data type="color" file-ref="978" />
+		</instance>
+		<instance actor="59" camera="1" sample="9">
+			<file id="979">0059009.jpg</file>
+			<data type="color" file-ref="979" />
+		</instance>
+		<instance actor="59" camera="1" sample="10">
+			<file id="980">0059010.jpg</file>
+			<data type="color" file-ref="980" />
+		</instance>
+		<instance actor="59" camera="2" sample="11">
+			<file id="981">0059011.jpg</file>
+			<data type="color" file-ref="981" />
+		</instance>
+		<instance actor="59" camera="2" sample="12">
+			<file id="982">0059012.jpg</file>
+			<data type="color" file-ref="982" />
+		</instance>
+		<instance actor="59" camera="2" sample="13">
+			<file id="983">0059013.jpg</file>
+			<data type="color" file-ref="983" />
+		</instance>
+		<instance actor="59" camera="2" sample="14">
+			<file id="984">0059014.jpg</file>
+			<data type="color" file-ref="984" />
+		</instance>
+		<instance actor="59" camera="2" sample="15">
+			<file id="985">0059015.jpg</file>
+			<data type="color" file-ref="985" />
+		</instance>
+		<instance actor="59" camera="2" sample="16">
+			<file id="986">0059016.jpg</file>
+			<data type="color" file-ref="986" />
+		</instance>
+		<instance actor="59" camera="2" sample="17">
+			<file id="987">0059017.jpg</file>
+			<data type="color" file-ref="987" />
+		</instance>
+		<instance actor="59" camera="2" sample="18">
+			<file id="988">0059018.jpg</file>
+			<data type="color" file-ref="988" />
+		</instance>
+		<instance actor="59" camera="2" sample="19">
+			<file id="989">0059019.jpg</file>
+			<data type="color" file-ref="989" />
+		</instance>
+		<instance actor="59" camera="2" sample="20">
+			<file id="990">0059020.jpg</file>
+			<data type="color" file-ref="990" />
+		</instance>
+		<instance actor="60" camera="1" sample="1">
+			<file id="991">0060001.jpg</file>
+			<data type="color" file-ref="991" />
+		</instance>
+		<instance actor="60" camera="1" sample="2">
+			<file id="992">0060002.jpg</file>
+			<data type="color" file-ref="992" />
+		</instance>
+		<instance actor="60" camera="1" sample="3">
+			<file id="993">0060003.jpg</file>
+			<data type="color" file-ref="993" />
+		</instance>
+		<instance actor="60" camera="1" sample="4">
+			<file id="994">0060004.jpg</file>
+			<data type="color" file-ref="994" />
+		</instance>
+		<instance actor="60" camera="1" sample="5">
+			<file id="995">0060005.jpg</file>
+			<data type="color" file-ref="995" />
+		</instance>
+		<instance actor="60" camera="1" sample="6">
+			<file id="996">0060006.jpg</file>
+			<data type="color" file-ref="996" />
+		</instance>
+		<instance actor="60" camera="1" sample="7">
+			<file id="997">0060007.jpg</file>
+			<data type="color" file-ref="997" />
+		</instance>
+		<instance actor="60" camera="1" sample="8">
+			<file id="998">0060008.jpg</file>
+			<data type="color" file-ref="998" />
+		</instance>
+		<instance actor="60" camera="1" sample="9">
+			<file id="999">0060009.jpg</file>
+			<data type="color" file-ref="999" />
+		</instance>
+		<instance actor="60" camera="1" sample="10">
+			<file id="1000">0060010.jpg</file>
+			<data type="color" file-ref="1000" />
+		</instance>
+		<instance actor="60" camera="2" sample="11">
+			<file id="1001">0060011.jpg</file>
+			<data type="color" file-ref="1001" />
+		</instance>
+		<instance actor="60" camera="2" sample="12">
+			<file id="1002">0060012.jpg</file>
+			<data type="color" file-ref="1002" />
+		</instance>
+		<instance actor="60" camera="2" sample="13">
+			<file id="1003">0060013.jpg</file>
+			<data type="color" file-ref="1003" />
+		</instance>
+		<instance actor="60" camera="2" sample="14">
+			<file id="1004">0060014.jpg</file>
+			<data type="color" file-ref="1004" />
+		</instance>
+		<instance actor="60" camera="2" sample="15">
+			<file id="1005">0060015.jpg</file>
+			<data type="color" file-ref="1005" />
+		</instance>
+		<instance actor="60" camera="2" sample="16">
+			<file id="1006">0060016.jpg</file>
+			<data type="color" file-ref="1006" />
+		</instance>
+		<instance actor="60" camera="2" sample="17">
+			<file id="1007">0060017.jpg</file>
+			<data type="color" file-ref="1007" />
+		</instance>
+		<instance actor="60" camera="2" sample="18">
+			<file id="1008">0060018.jpg</file>
+			<data type="color" file-ref="1008" />
+		</instance>
+		<instance actor="60" camera="2" sample="19">
+			<file id="1009">0060019.jpg</file>
+			<data type="color" file-ref="1009" />
+		</instance>
+		<instance actor="60" camera="2" sample="20">
+			<file id="1010">0060020.jpg</file>
+			<data type="color" file-ref="1010" />
+		</instance>
+		<instance actor="61" camera="1" sample="1">
+			<file id="1011">0061001.jpg</file>
+			<data type="color" file-ref="1011" />
+		</instance>
+		<instance actor="61" camera="1" sample="2">
+			<file id="1012">0061002.jpg</file>
+			<data type="color" file-ref="1012" />
+		</instance>
+		<instance actor="61" camera="1" sample="3">
+			<file id="1013">0061003.jpg</file>
+			<data type="color" file-ref="1013" />
+		</instance>
+		<instance actor="61" camera="1" sample="4">
+			<file id="1014">0061004.jpg</file>
+			<data type="color" file-ref="1014" />
+		</instance>
+		<instance actor="61" camera="1" sample="5">
+			<file id="1015">0061005.jpg</file>
+			<data type="color" file-ref="1015" />
+		</instance>
+		<instance actor="61" camera="1" sample="6">
+			<file id="1016">0061006.jpg</file>
+			<data type="color" file-ref="1016" />
+		</instance>
+		<instance actor="61" camera="1" sample="7">
+			<file id="1017">0061007.jpg</file>
+			<data type="color" file-ref="1017" />
+		</instance>
+		<instance actor="61" camera="1" sample="8">
+			<file id="1018">0061008.jpg</file>
+			<data type="color" file-ref="1018" />
+		</instance>
+		<instance actor="61" camera="1" sample="9">
+			<file id="1019">0061009.jpg</file>
+			<data type="color" file-ref="1019" />
+		</instance>
+		<instance actor="61" camera="1" sample="10">
+			<file id="1020">0061010.jpg</file>
+			<data type="color" file-ref="1020" />
+		</instance>
+		<instance actor="62" camera="1" sample="1">
+			<file id="1021">0062001.jpg</file>
+			<data type="color" file-ref="1021" />
+		</instance>
+		<instance actor="62" camera="1" sample="2">
+			<file id="1022">0062002.jpg</file>
+			<data type="color" file-ref="1022" />
+		</instance>
+		<instance actor="62" camera="1" sample="3">
+			<file id="1023">0062003.jpg</file>
+			<data type="color" file-ref="1023" />
+		</instance>
+		<instance actor="62" camera="1" sample="4">
+			<file id="1024">0062004.jpg</file>
+			<data type="color" file-ref="1024" />
+		</instance>
+		<instance actor="62" camera="1" sample="5">
+			<file id="1025">0062005.jpg</file>
+			<data type="color" file-ref="1025" />
+		</instance>
+		<instance actor="62" camera="1" sample="6">
+			<file id="1026">0062006.jpg</file>
+			<data type="color" file-ref="1026" />
+		</instance>
+		<instance actor="62" camera="1" sample="7">
+			<file id="1027">0062007.jpg</file>
+			<data type="color" file-ref="1027" />
+		</instance>
+		<instance actor="62" camera="1" sample="8">
+			<file id="1028">0062008.jpg</file>
+			<data type="color" file-ref="1028" />
+		</instance>
+		<instance actor="62" camera="1" sample="9">
+			<file id="1029">0062009.jpg</file>
+			<data type="color" file-ref="1029" />
+		</instance>
+		<instance actor="62" camera="1" sample="10">
+			<file id="1030">0062010.jpg</file>
+			<data type="color" file-ref="1030" />
+		</instance>
+		<instance actor="62" camera="2" sample="11">
+			<file id="1031">0062011.jpg</file>
+			<data type="color" file-ref="1031" />
+		</instance>
+		<instance actor="62" camera="2" sample="12">
+			<file id="1032">0062012.jpg</file>
+			<data type="color" file-ref="1032" />
+		</instance>
+		<instance actor="62" camera="2" sample="13">
+			<file id="1033">0062013.jpg</file>
+			<data type="color" file-ref="1033" />
+		</instance>
+		<instance actor="62" camera="2" sample="14">
+			<file id="1034">0062014.jpg</file>
+			<data type="color" file-ref="1034" />
+		</instance>
+		<instance actor="62" camera="2" sample="15">
+			<file id="1035">0062015.jpg</file>
+			<data type="color" file-ref="1035" />
+		</instance>
+		<instance actor="62" camera="2" sample="16">
+			<file id="1036">0062016.jpg</file>
+			<data type="color" file-ref="1036" />
+		</instance>
+		<instance actor="62" camera="2" sample="17">
+			<file id="1037">0062017.jpg</file>
+			<data type="color" file-ref="1037" />
+		</instance>
+		<instance actor="62" camera="2" sample="18">
+			<file id="1038">0062018.jpg</file>
+			<data type="color" file-ref="1038" />
+		</instance>
+		<instance actor="62" camera="2" sample="19">
+			<file id="1039">0062019.jpg</file>
+			<data type="color" file-ref="1039" />
+		</instance>
+		<instance actor="62" camera="2" sample="20">
+			<file id="1040">0062020.jpg</file>
+			<data type="color" file-ref="1040" />
+		</instance>
+		<instance actor="63" camera="1" sample="1">
+			<file id="1041">0063001.jpg</file>
+			<data type="color" file-ref="1041" />
+		</instance>
+		<instance actor="63" camera="1" sample="2">
+			<file id="1042">0063002.jpg</file>
+			<data type="color" file-ref="1042" />
+		</instance>
+		<instance actor="63" camera="1" sample="3">
+			<file id="1043">0063003.jpg</file>
+			<data type="color" file-ref="1043" />
+		</instance>
+		<instance actor="63" camera="1" sample="4">
+			<file id="1044">0063004.jpg</file>
+			<data type="color" file-ref="1044" />
+		</instance>
+		<instance actor="63" camera="1" sample="5">
+			<file id="1045">0063005.jpg</file>
+			<data type="color" file-ref="1045" />
+		</instance>
+		<instance actor="63" camera="1" sample="6">
+			<file id="1046">0063006.jpg</file>
+			<data type="color" file-ref="1046" />
+		</instance>
+		<instance actor="63" camera="1" sample="7">
+			<file id="1047">0063007.jpg</file>
+			<data type="color" file-ref="1047" />
+		</instance>
+		<instance actor="63" camera="1" sample="8">
+			<file id="1048">0063008.jpg</file>
+			<data type="color" file-ref="1048" />
+		</instance>
+		<instance actor="63" camera="1" sample="9">
+			<file id="1049">0063009.jpg</file>
+			<data type="color" file-ref="1049" />
+		</instance>
+		<instance actor="63" camera="1" sample="10">
+			<file id="1050">0063010.jpg</file>
+			<data type="color" file-ref="1050" />
+		</instance>
+		<instance actor="64" camera="1" sample="1">
+			<file id="1051">0064001.jpg</file>
+			<data type="color" file-ref="1051" />
+		</instance>
+		<instance actor="64" camera="1" sample="2">
+			<file id="1052">0064002.jpg</file>
+			<data type="color" file-ref="1052" />
+		</instance>
+		<instance actor="64" camera="1" sample="3">
+			<file id="1053">0064003.jpg</file>
+			<data type="color" file-ref="1053" />
+		</instance>
+		<instance actor="64" camera="1" sample="4">
+			<file id="1054">0064004.jpg</file>
+			<data type="color" file-ref="1054" />
+		</instance>
+		<instance actor="64" camera="1" sample="5">
+			<file id="1055">0064005.jpg</file>
+			<data type="color" file-ref="1055" />
+		</instance>
+		<instance actor="64" camera="1" sample="6">
+			<file id="1056">0064006.jpg</file>
+			<data type="color" file-ref="1056" />
+		</instance>
+		<instance actor="64" camera="1" sample="7">
+			<file id="1057">0064007.jpg</file>
+			<data type="color" file-ref="1057" />
+		</instance>
+		<instance actor="64" camera="1" sample="8">
+			<file id="1058">0064008.jpg</file>
+			<data type="color" file-ref="1058" />
+		</instance>
+		<instance actor="64" camera="1" sample="9">
+			<file id="1059">0064009.jpg</file>
+			<data type="color" file-ref="1059" />
+		</instance>
+		<instance actor="64" camera="1" sample="10">
+			<file id="1060">0064010.jpg</file>
+			<data type="color" file-ref="1060" />
+		</instance>
+		<instance actor="64" camera="2" sample="11">
+			<file id="1061">0064011.jpg</file>
+			<data type="color" file-ref="1061" />
+		</instance>
+		<instance actor="64" camera="2" sample="12">
+			<file id="1062">0064012.jpg</file>
+			<data type="color" file-ref="1062" />
+		</instance>
+		<instance actor="64" camera="2" sample="13">
+			<file id="1063">0064013.jpg</file>
+			<data type="color" file-ref="1063" />
+		</instance>
+		<instance actor="64" camera="2" sample="14">
+			<file id="1064">0064014.jpg</file>
+			<data type="color" file-ref="1064" />
+		</instance>
+		<instance actor="64" camera="2" sample="15">
+			<file id="1065">0064015.jpg</file>
+			<data type="color" file-ref="1065" />
+		</instance>
+		<instance actor="64" camera="2" sample="16">
+			<file id="1066">0064016.jpg</file>
+			<data type="color" file-ref="1066" />
+		</instance>
+		<instance actor="64" camera="2" sample="17">
+			<file id="1067">0064017.jpg</file>
+			<data type="color" file-ref="1067" />
+		</instance>
+		<instance actor="64" camera="2" sample="18">
+			<file id="1068">0064018.jpg</file>
+			<data type="color" file-ref="1068" />
+		</instance>
+		<instance actor="64" camera="2" sample="19">
+			<file id="1069">0064019.jpg</file>
+			<data type="color" file-ref="1069" />
+		</instance>
+		<instance actor="64" camera="2" sample="20">
+			<file id="1070">0064020.jpg</file>
+			<data type="color" file-ref="1070" />
+		</instance>
+		<instance actor="65" camera="1" sample="1">
+			<file id="1071">0065001.jpg</file>
+			<data type="color" file-ref="1071" />
+		</instance>
+		<instance actor="65" camera="1" sample="2">
+			<file id="1072">0065002.jpg</file>
+			<data type="color" file-ref="1072" />
+		</instance>
+		<instance actor="65" camera="1" sample="3">
+			<file id="1073">0065003.jpg</file>
+			<data type="color" file-ref="1073" />
+		</instance>
+		<instance actor="65" camera="1" sample="4">
+			<file id="1074">0065004.jpg</file>
+			<data type="color" file-ref="1074" />
+		</instance>
+		<instance actor="65" camera="1" sample="5">
+			<file id="1075">0065005.jpg</file>
+			<data type="color" file-ref="1075" />
+		</instance>
+		<instance actor="65" camera="1" sample="6">
+			<file id="1076">0065006.jpg</file>
+			<data type="color" file-ref="1076" />
+		</instance>
+		<instance actor="65" camera="1" sample="7">
+			<file id="1077">0065007.jpg</file>
+			<data type="color" file-ref="1077" />
+		</instance>
+		<instance actor="65" camera="1" sample="8">
+			<file id="1078">0065008.jpg</file>
+			<data type="color" file-ref="1078" />
+		</instance>
+		<instance actor="65" camera="1" sample="9">
+			<file id="1079">0065009.jpg</file>
+			<data type="color" file-ref="1079" />
+		</instance>
+		<instance actor="65" camera="1" sample="10">
+			<file id="1080">0065010.jpg</file>
+			<data type="color" file-ref="1080" />
+		</instance>
+		<instance actor="65" camera="2" sample="11">
+			<file id="1081">0065011.jpg</file>
+			<data type="color" file-ref="1081" />
+		</instance>
+		<instance actor="65" camera="2" sample="12">
+			<file id="1082">0065012.jpg</file>
+			<data type="color" file-ref="1082" />
+		</instance>
+		<instance actor="65" camera="2" sample="13">
+			<file id="1083">0065013.jpg</file>
+			<data type="color" file-ref="1083" />
+		</instance>
+		<instance actor="65" camera="2" sample="14">
+			<file id="1084">0065014.jpg</file>
+			<data type="color" file-ref="1084" />
+		</instance>
+		<instance actor="65" camera="2" sample="15">
+			<file id="1085">0065015.jpg</file>
+			<data type="color" file-ref="1085" />
+		</instance>
+		<instance actor="65" camera="2" sample="16">
+			<file id="1086">0065016.jpg</file>
+			<data type="color" file-ref="1086" />
+		</instance>
+		<instance actor="65" camera="2" sample="17">
+			<file id="1087">0065017.jpg</file>
+			<data type="color" file-ref="1087" />
+		</instance>
+		<instance actor="65" camera="2" sample="18">
+			<file id="1088">0065018.jpg</file>
+			<data type="color" file-ref="1088" />
+		</instance>
+		<instance actor="65" camera="2" sample="19">
+			<file id="1089">0065019.jpg</file>
+			<data type="color" file-ref="1089" />
+		</instance>
+		<instance actor="65" camera="2" sample="20">
+			<file id="1090">0065020.jpg</file>
+			<data type="color" file-ref="1090" />
+		</instance>
+		<instance actor="66" camera="1" sample="1">
+			<file id="1091">0066001.jpg</file>
+			<data type="color" file-ref="1091" />
+		</instance>
+		<instance actor="66" camera="1" sample="2">
+			<file id="1092">0066002.jpg</file>
+			<data type="color" file-ref="1092" />
+		</instance>
+		<instance actor="66" camera="1" sample="3">
+			<file id="1093">0066003.jpg</file>
+			<data type="color" file-ref="1093" />
+		</instance>
+		<instance actor="66" camera="1" sample="4">
+			<file id="1094">0066004.jpg</file>
+			<data type="color" file-ref="1094" />
+		</instance>
+		<instance actor="66" camera="1" sample="5">
+			<file id="1095">0066005.jpg</file>
+			<data type="color" file-ref="1095" />
+		</instance>
+		<instance actor="66" camera="1" sample="6">
+			<file id="1096">0066006.jpg</file>
+			<data type="color" file-ref="1096" />
+		</instance>
+		<instance actor="66" camera="1" sample="7">
+			<file id="1097">0066007.jpg</file>
+			<data type="color" file-ref="1097" />
+		</instance>
+		<instance actor="66" camera="1" sample="8">
+			<file id="1098">0066008.jpg</file>
+			<data type="color" file-ref="1098" />
+		</instance>
+		<instance actor="66" camera="1" sample="9">
+			<file id="1099">0066009.jpg</file>
+			<data type="color" file-ref="1099" />
+		</instance>
+		<instance actor="66" camera="1" sample="10">
+			<file id="1100">0066010.jpg</file>
+			<data type="color" file-ref="1100" />
+		</instance>
+		<instance actor="66" camera="2" sample="11">
+			<file id="1101">0066011.jpg</file>
+			<data type="color" file-ref="1101" />
+		</instance>
+		<instance actor="66" camera="2" sample="12">
+			<file id="1102">0066012.jpg</file>
+			<data type="color" file-ref="1102" />
+		</instance>
+		<instance actor="66" camera="2" sample="13">
+			<file id="1103">0066013.jpg</file>
+			<data type="color" file-ref="1103" />
+		</instance>
+		<instance actor="66" camera="2" sample="14">
+			<file id="1104">0066014.jpg</file>
+			<data type="color" file-ref="1104" />
+		</instance>
+		<instance actor="66" camera="2" sample="15">
+			<file id="1105">0066015.jpg</file>
+			<data type="color" file-ref="1105" />
+		</instance>
+		<instance actor="66" camera="2" sample="16">
+			<file id="1106">0066016.jpg</file>
+			<data type="color" file-ref="1106" />
+		</instance>
+		<instance actor="66" camera="2" sample="17">
+			<file id="1107">0066017.jpg</file>
+			<data type="color" file-ref="1107" />
+		</instance>
+		<instance actor="66" camera="2" sample="18">
+			<file id="1108">0066018.jpg</file>
+			<data type="color" file-ref="1108" />
+		</instance>
+		<instance actor="66" camera="2" sample="19">
+			<file id="1109">0066019.jpg</file>
+			<data type="color" file-ref="1109" />
+		</instance>
+		<instance actor="66" camera="2" sample="20">
+			<file id="1110">0066020.jpg</file>
+			<data type="color" file-ref="1110" />
+		</instance>
+		<instance actor="67" camera="1" sample="1">
+			<file id="1111">0067001.jpg</file>
+			<data type="color" file-ref="1111" />
+		</instance>
+		<instance actor="67" camera="1" sample="2">
+			<file id="1112">0067002.jpg</file>
+			<data type="color" file-ref="1112" />
+		</instance>
+		<instance actor="67" camera="1" sample="3">
+			<file id="1113">0067003.jpg</file>
+			<data type="color" file-ref="1113" />
+		</instance>
+		<instance actor="67" camera="1" sample="4">
+			<file id="1114">0067004.jpg</file>
+			<data type="color" file-ref="1114" />
+		</instance>
+		<instance actor="67" camera="1" sample="5">
+			<file id="1115">0067005.jpg</file>
+			<data type="color" file-ref="1115" />
+		</instance>
+		<instance actor="67" camera="1" sample="6">
+			<file id="1116">0067006.jpg</file>
+			<data type="color" file-ref="1116" />
+		</instance>
+		<instance actor="67" camera="1" sample="7">
+			<file id="1117">0067007.jpg</file>
+			<data type="color" file-ref="1117" />
+		</instance>
+		<instance actor="67" camera="1" sample="8">
+			<file id="1118">0067008.jpg</file>
+			<data type="color" file-ref="1118" />
+		</instance>
+		<instance actor="67" camera="1" sample="9">
+			<file id="1119">0067009.jpg</file>
+			<data type="color" file-ref="1119" />
+		</instance>
+		<instance actor="67" camera="1" sample="10">
+			<file id="1120">0067010.jpg</file>
+			<data type="color" file-ref="1120" />
+		</instance>
+		<instance actor="67" camera="2" sample="11">
+			<file id="1121">0067011.jpg</file>
+			<data type="color" file-ref="1121" />
+		</instance>
+		<instance actor="67" camera="2" sample="12">
+			<file id="1122">0067012.jpg</file>
+			<data type="color" file-ref="1122" />
+		</instance>
+		<instance actor="67" camera="2" sample="13">
+			<file id="1123">0067013.jpg</file>
+			<data type="color" file-ref="1123" />
+		</instance>
+		<instance actor="67" camera="2" sample="14">
+			<file id="1124">0067014.jpg</file>
+			<data type="color" file-ref="1124" />
+		</instance>
+		<instance actor="67" camera="2" sample="15">
+			<file id="1125">0067015.jpg</file>
+			<data type="color" file-ref="1125" />
+		</instance>
+		<instance actor="67" camera="2" sample="16">
+			<file id="1126">0067016.jpg</file>
+			<data type="color" file-ref="1126" />
+		</instance>
+		<instance actor="67" camera="2" sample="17">
+			<file id="1127">0067017.jpg</file>
+			<data type="color" file-ref="1127" />
+		</instance>
+		<instance actor="67" camera="2" sample="18">
+			<file id="1128">0067018.jpg</file>
+			<data type="color" file-ref="1128" />
+		</instance>
+		<instance actor="67" camera="2" sample="19">
+			<file id="1129">0067019.jpg</file>
+			<data type="color" file-ref="1129" />
+		</instance>
+		<instance actor="67" camera="2" sample="20">
+			<file id="1130">0067020.jpg</file>
+			<data type="color" file-ref="1130" />
+		</instance>
+		<instance actor="68" camera="1" sample="1">
+			<file id="1131">0068001.jpg</file>
+			<data type="color" file-ref="1131" />
+		</instance>
+		<instance actor="68" camera="1" sample="2">
+			<file id="1132">0068002.jpg</file>
+			<data type="color" file-ref="1132" />
+		</instance>
+		<instance actor="68" camera="1" sample="3">
+			<file id="1133">0068003.jpg</file>
+			<data type="color" file-ref="1133" />
+		</instance>
+		<instance actor="68" camera="1" sample="4">
+			<file id="1134">0068004.jpg</file>
+			<data type="color" file-ref="1134" />
+		</instance>
+		<instance actor="68" camera="1" sample="5">
+			<file id="1135">0068005.jpg</file>
+			<data type="color" file-ref="1135" />
+		</instance>
+		<instance actor="68" camera="1" sample="6">
+			<file id="1136">0068006.jpg</file>
+			<data type="color" file-ref="1136" />
+		</instance>
+		<instance actor="68" camera="1" sample="7">
+			<file id="1137">0068007.jpg</file>
+			<data type="color" file-ref="1137" />
+		</instance>
+		<instance actor="68" camera="1" sample="8">
+			<file id="1138">0068008.jpg</file>
+			<data type="color" file-ref="1138" />
+		</instance>
+		<instance actor="68" camera="1" sample="9">
+			<file id="1139">0068009.jpg</file>
+			<data type="color" file-ref="1139" />
+		</instance>
+		<instance actor="68" camera="1" sample="10">
+			<file id="1140">0068010.jpg</file>
+			<data type="color" file-ref="1140" />
+		</instance>
+		<instance actor="68" camera="2" sample="11">
+			<file id="1141">0068011.jpg</file>
+			<data type="color" file-ref="1141" />
+		</instance>
+		<instance actor="68" camera="2" sample="12">
+			<file id="1142">0068012.jpg</file>
+			<data type="color" file-ref="1142" />
+		</instance>
+		<instance actor="68" camera="2" sample="13">
+			<file id="1143">0068013.jpg</file>
+			<data type="color" file-ref="1143" />
+		</instance>
+		<instance actor="68" camera="2" sample="14">
+			<file id="1144">0068014.jpg</file>
+			<data type="color" file-ref="1144" />
+		</instance>
+		<instance actor="68" camera="2" sample="15">
+			<file id="1145">0068015.jpg</file>
+			<data type="color" file-ref="1145" />
+		</instance>
+		<instance actor="68" camera="2" sample="16">
+			<file id="1146">0068016.jpg</file>
+			<data type="color" file-ref="1146" />
+		</instance>
+		<instance actor="68" camera="2" sample="17">
+			<file id="1147">0068017.jpg</file>
+			<data type="color" file-ref="1147" />
+		</instance>
+		<instance actor="68" camera="2" sample="18">
+			<file id="1148">0068018.jpg</file>
+			<data type="color" file-ref="1148" />
+		</instance>
+		<instance actor="68" camera="2" sample="19">
+			<file id="1149">0068019.jpg</file>
+			<data type="color" file-ref="1149" />
+		</instance>
+		<instance actor="68" camera="2" sample="20">
+			<file id="1150">0068020.jpg</file>
+			<data type="color" file-ref="1150" />
+		</instance>
+		<instance actor="69" camera="1" sample="1">
+			<file id="1151">0069001.jpg</file>
+			<data type="color" file-ref="1151" />
+		</instance>
+		<instance actor="69" camera="1" sample="2">
+			<file id="1152">0069002.jpg</file>
+			<data type="color" file-ref="1152" />
+		</instance>
+		<instance actor="69" camera="1" sample="3">
+			<file id="1153">0069003.jpg</file>
+			<data type="color" file-ref="1153" />
+		</instance>
+		<instance actor="69" camera="1" sample="4">
+			<file id="1154">0069004.jpg</file>
+			<data type="color" file-ref="1154" />
+		</instance>
+		<instance actor="69" camera="1" sample="5">
+			<file id="1155">0069005.jpg</file>
+			<data type="color" file-ref="1155" />
+		</instance>
+		<instance actor="69" camera="1" sample="6">
+			<file id="1156">0069006.jpg</file>
+			<data type="color" file-ref="1156" />
+		</instance>
+		<instance actor="69" camera="1" sample="7">
+			<file id="1157">0069007.jpg</file>
+			<data type="color" file-ref="1157" />
+		</instance>
+		<instance actor="69" camera="1" sample="8">
+			<file id="1158">0069008.jpg</file>
+			<data type="color" file-ref="1158" />
+		</instance>
+		<instance actor="69" camera="1" sample="9">
+			<file id="1159">0069009.jpg</file>
+			<data type="color" file-ref="1159" />
+		</instance>
+		<instance actor="69" camera="1" sample="10">
+			<file id="1160">0069010.jpg</file>
+			<data type="color" file-ref="1160" />
+		</instance>
+		<instance actor="69" camera="2" sample="11">
+			<file id="1161">0069011.jpg</file>
+			<data type="color" file-ref="1161" />
+		</instance>
+		<instance actor="69" camera="2" sample="12">
+			<file id="1162">0069012.jpg</file>
+			<data type="color" file-ref="1162" />
+		</instance>
+		<instance actor="69" camera="2" sample="13">
+			<file id="1163">0069013.jpg</file>
+			<data type="color" file-ref="1163" />
+		</instance>
+		<instance actor="69" camera="2" sample="14">
+			<file id="1164">0069014.jpg</file>
+			<data type="color" file-ref="1164" />
+		</instance>
+		<instance actor="69" camera="2" sample="15">
+			<file id="1165">0069015.jpg</file>
+			<data type="color" file-ref="1165" />
+		</instance>
+		<instance actor="69" camera="2" sample="16">
+			<file id="1166">0069016.jpg</file>
+			<data type="color" file-ref="1166" />
+		</instance>
+		<instance actor="69" camera="2" sample="17">
+			<file id="1167">0069017.jpg</file>
+			<data type="color" file-ref="1167" />
+		</instance>
+		<instance actor="69" camera="2" sample="18">
+			<file id="1168">0069018.jpg</file>
+			<data type="color" file-ref="1168" />
+		</instance>
+		<instance actor="69" camera="2" sample="19">
+			<file id="1169">0069019.jpg</file>
+			<data type="color" file-ref="1169" />
+		</instance>
+		<instance actor="69" camera="2" sample="20">
+			<file id="1170">0069020.jpg</file>
+			<data type="color" file-ref="1170" />
+		</instance>
+		<instance actor="70" camera="1" sample="1">
+			<file id="1171">0070001.jpg</file>
+			<data type="color" file-ref="1171" />
+		</instance>
+		<instance actor="70" camera="1" sample="2">
+			<file id="1172">0070002.jpg</file>
+			<data type="color" file-ref="1172" />
+		</instance>
+		<instance actor="70" camera="1" sample="3">
+			<file id="1173">0070003.jpg</file>
+			<data type="color" file-ref="1173" />
+		</instance>
+		<instance actor="70" camera="1" sample="4">
+			<file id="1174">0070004.jpg</file>
+			<data type="color" file-ref="1174" />
+		</instance>
+		<instance actor="70" camera="1" sample="5">
+			<file id="1175">0070005.jpg</file>
+			<data type="color" file-ref="1175" />
+		</instance>
+		<instance actor="70" camera="1" sample="6">
+			<file id="1176">0070006.jpg</file>
+			<data type="color" file-ref="1176" />
+		</instance>
+		<instance actor="70" camera="1" sample="7">
+			<file id="1177">0070007.jpg</file>
+			<data type="color" file-ref="1177" />
+		</instance>
+		<instance actor="70" camera="1" sample="8">
+			<file id="1178">0070008.jpg</file>
+			<data type="color" file-ref="1178" />
+		</instance>
+		<instance actor="70" camera="1" sample="9">
+			<file id="1179">0070009.jpg</file>
+			<data type="color" file-ref="1179" />
+		</instance>
+		<instance actor="70" camera="1" sample="10">
+			<file id="1180">0070010.jpg</file>
+			<data type="color" file-ref="1180" />
+		</instance>
+		<instance actor="70" camera="2" sample="11">
+			<file id="1181">0070011.jpg</file>
+			<data type="color" file-ref="1181" />
+		</instance>
+		<instance actor="70" camera="2" sample="12">
+			<file id="1182">0070012.jpg</file>
+			<data type="color" file-ref="1182" />
+		</instance>
+		<instance actor="70" camera="2" sample="13">
+			<file id="1183">0070013.jpg</file>
+			<data type="color" file-ref="1183" />
+		</instance>
+		<instance actor="70" camera="2" sample="14">
+			<file id="1184">0070014.jpg</file>
+			<data type="color" file-ref="1184" />
+		</instance>
+		<instance actor="70" camera="2" sample="15">
+			<file id="1185">0070015.jpg</file>
+			<data type="color" file-ref="1185" />
+		</instance>
+		<instance actor="70" camera="2" sample="16">
+			<file id="1186">0070016.jpg</file>
+			<data type="color" file-ref="1186" />
+		</instance>
+		<instance actor="70" camera="2" sample="17">
+			<file id="1187">0070017.jpg</file>
+			<data type="color" file-ref="1187" />
+		</instance>
+		<instance actor="70" camera="2" sample="18">
+			<file id="1188">0070018.jpg</file>
+			<data type="color" file-ref="1188" />
+		</instance>
+		<instance actor="70" camera="2" sample="19">
+			<file id="1189">0070019.jpg</file>
+			<data type="color" file-ref="1189" />
+		</instance>
+		<instance actor="70" camera="2" sample="20">
+			<file id="1190">0070020.jpg</file>
+			<data type="color" file-ref="1190" />
+		</instance>
+		<instance actor="71" camera="1" sample="1">
+			<file id="1191">0071001.jpg</file>
+			<data type="color" file-ref="1191" />
+		</instance>
+		<instance actor="71" camera="1" sample="2">
+			<file id="1192">0071002.jpg</file>
+			<data type="color" file-ref="1192" />
+		</instance>
+		<instance actor="71" camera="1" sample="3">
+			<file id="1193">0071003.jpg</file>
+			<data type="color" file-ref="1193" />
+		</instance>
+		<instance actor="71" camera="1" sample="4">
+			<file id="1194">0071004.jpg</file>
+			<data type="color" file-ref="1194" />
+		</instance>
+		<instance actor="71" camera="1" sample="5">
+			<file id="1195">0071005.jpg</file>
+			<data type="color" file-ref="1195" />
+		</instance>
+		<instance actor="71" camera="1" sample="6">
+			<file id="1196">0071006.jpg</file>
+			<data type="color" file-ref="1196" />
+		</instance>
+		<instance actor="71" camera="1" sample="7">
+			<file id="1197">0071007.jpg</file>
+			<data type="color" file-ref="1197" />
+		</instance>
+		<instance actor="71" camera="1" sample="8">
+			<file id="1198">0071008.jpg</file>
+			<data type="color" file-ref="1198" />
+		</instance>
+		<instance actor="71" camera="1" sample="9">
+			<file id="1199">0071009.jpg</file>
+			<data type="color" file-ref="1199" />
+		</instance>
+		<instance actor="71" camera="1" sample="10">
+			<file id="1200">0071010.jpg</file>
+			<data type="color" file-ref="1200" />
+		</instance>
+		<instance actor="71" camera="2" sample="11">
+			<file id="1201">0071011.jpg</file>
+			<data type="color" file-ref="1201" />
+		</instance>
+		<instance actor="71" camera="2" sample="12">
+			<file id="1202">0071012.jpg</file>
+			<data type="color" file-ref="1202" />
+		</instance>
+		<instance actor="71" camera="2" sample="13">
+			<file id="1203">0071013.jpg</file>
+			<data type="color" file-ref="1203" />
+		</instance>
+		<instance actor="71" camera="2" sample="14">
+			<file id="1204">0071014.jpg</file>
+			<data type="color" file-ref="1204" />
+		</instance>
+		<instance actor="71" camera="2" sample="15">
+			<file id="1205">0071015.jpg</file>
+			<data type="color" file-ref="1205" />
+		</instance>
+		<instance actor="71" camera="2" sample="16">
+			<file id="1206">0071016.jpg</file>
+			<data type="color" file-ref="1206" />
+		</instance>
+		<instance actor="71" camera="2" sample="17">
+			<file id="1207">0071017.jpg</file>
+			<data type="color" file-ref="1207" />
+		</instance>
+		<instance actor="71" camera="2" sample="18">
+			<file id="1208">0071018.jpg</file>
+			<data type="color" file-ref="1208" />
+		</instance>
+		<instance actor="71" camera="2" sample="19">
+			<file id="1209">0071019.jpg</file>
+			<data type="color" file-ref="1209" />
+		</instance>
+		<instance actor="71" camera="2" sample="20">
+			<file id="1210">0071020.jpg</file>
+			<data type="color" file-ref="1210" />
+		</instance>
+		<instance actor="72" camera="1" sample="1">
+			<file id="1211">0072001.jpg</file>
+			<data type="color" file-ref="1211" />
+		</instance>
+		<instance actor="72" camera="1" sample="2">
+			<file id="1212">0072002.jpg</file>
+			<data type="color" file-ref="1212" />
+		</instance>
+		<instance actor="72" camera="1" sample="3">
+			<file id="1213">0072003.jpg</file>
+			<data type="color" file-ref="1213" />
+		</instance>
+		<instance actor="72" camera="1" sample="4">
+			<file id="1214">0072004.jpg</file>
+			<data type="color" file-ref="1214" />
+		</instance>
+		<instance actor="72" camera="1" sample="5">
+			<file id="1215">0072005.jpg</file>
+			<data type="color" file-ref="1215" />
+		</instance>
+		<instance actor="72" camera="1" sample="6">
+			<file id="1216">0072006.jpg</file>
+			<data type="color" file-ref="1216" />
+		</instance>
+		<instance actor="72" camera="1" sample="7">
+			<file id="1217">0072007.jpg</file>
+			<data type="color" file-ref="1217" />
+		</instance>
+		<instance actor="72" camera="1" sample="8">
+			<file id="1218">0072008.jpg</file>
+			<data type="color" file-ref="1218" />
+		</instance>
+		<instance actor="72" camera="1" sample="9">
+			<file id="1219">0072009.jpg</file>
+			<data type="color" file-ref="1219" />
+		</instance>
+		<instance actor="72" camera="1" sample="10">
+			<file id="1220">0072010.jpg</file>
+			<data type="color" file-ref="1220" />
+		</instance>
+	</instances>
+</dataset>

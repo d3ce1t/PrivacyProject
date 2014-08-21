@@ -1,6 +1,8 @@
 #include "CAVIAR4REIDInstance.h"
 #include "dataset/DatasetMetadata.h"
 #include <QFile>
+#include "Utils.h"
+#include <QDebug>
 
 namespace dai {
 
@@ -21,7 +23,7 @@ CAVIAR4REIDInstance::~CAVIAR4REIDInstance()
 
 bool CAVIAR4REIDInstance::is_open() const
 {
-    return !m_frameBuffer.isNull();
+    return m_frameBuffer.data != nullptr;
 }
 
 bool CAVIAR4REIDInstance::hasNext() const
@@ -37,10 +39,22 @@ bool CAVIAR4REIDInstance::openInstance()
 
     if (file.exists())
     {
-        if (!m_frameBuffer.load(instancePath))
-            return result;
+        m_frameBuffer = cv::imread(instancePath.toStdString());        
 
-        result = true;
+        if (m_frameBuffer.data)
+        {
+            cv::cvtColor(m_frameBuffer, m_frameBuffer, CV_BGR2RGB);
+
+            // Scale
+            if (m_frameBuffer.cols < 64)
+            {
+                double scale_factor = 64.0 / m_frameBuffer.cols;
+                cv::Size size(64, scale_factor*m_frameBuffer.rows);
+                cv::resize(m_frameBuffer, m_frameBuffer, size);//resize image
+            }
+
+            result = true;
+        }
     }
 
     return result;
@@ -57,7 +71,7 @@ void CAVIAR4REIDInstance::restartInstance()
 QList<shared_ptr<DataFrame> > CAVIAR4REIDInstance::nextFrame()
 {
     QList<shared_ptr<DataFrame>> result;
-    m_colorFrame->setDataPtr(m_frameBuffer.width(), m_frameBuffer.height(), (RGBColor*) m_frameBuffer.constBits());
+    m_colorFrame->setDataPtr(m_frameBuffer.cols, m_frameBuffer.rows, (RGBColor*) m_frameBuffer.data);
     result.append(m_colorFrame);
     return result;
 }

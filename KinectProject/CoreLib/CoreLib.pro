@@ -126,7 +126,8 @@ HEADERS += \
     types/Point.h \
     ml/KMeans.h \
     dataset/CAVIAR4REID/CAVIAR4REID.h \
-    dataset/CAVIAR4REID/CAVIAR4REIDInstance.h
+    dataset/CAVIAR4REID/CAVIAR4REIDInstance.h \
+    opencv_utils.h
 
 OTHER_FILES +=
 

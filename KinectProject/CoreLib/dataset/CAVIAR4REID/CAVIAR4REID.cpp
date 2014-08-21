@@ -4,7 +4,7 @@
 namespace dai {
 
 CAVIAR4REID::CAVIAR4REID()
-    : Dataset(":/data/MSRDailyActivity3D.xml")
+    : Dataset(":/data/CAVIAR4REID.xml")
 {
 }
 

@@ -1,6 +1,7 @@
 #include "InstanceInfo.h"
 #include "exceptions/NotImplementedException.h"
 #include <dataset/DatasetMetadata.h>
+#include <QDebug>
 
 using namespace dai;
 
