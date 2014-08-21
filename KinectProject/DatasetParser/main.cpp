@@ -4,11 +4,135 @@
 #include <iostream>
 #include "dataset/InstanceInfo.h"
 #include "dataset/DatasetMetadata.h"
-#include <QMap>
+#include <QMultiMap>
 
 using namespace std;
 
-dai::InstanceInfo* findInstance(int activity, int actor, int sample, QMap<int, QMap<int, QMap<int, dai::InstanceInfo *> > > list);
+dai::InstanceInfo* findInstance(QString activity, int actor, int sample, QMap<int, QMap<int, QMap<int, dai::InstanceInfo *> > > list);
+
+void parseCAVIAR4REID(const QString datasetPath)
+{
+    cout << "<dataset name=\"CAVIAR4REID\">" << endl << endl;
+
+    QDir datasetDir(datasetPath);
+    datasetDir.setFilter(QDir::Files);
+
+    // Parse Dataset
+    struct CaviarSample {
+        int actorId;
+        int sampleId;
+        int cameraId;
+        QString file;
+    };
+
+    QMap<int, QString> actors;
+    QList<CaviarSample> samples;
+    int num_samples = 0;
+
+
+    QStringList sampleEntries = datasetDir.entryList();
+
+    for (auto it = sampleEntries.constBegin(); it != sampleEntries.constEnd(); ++it)
+    {
+        QString fileName = *it;
+        CaviarSample sample;
+        sample.actorId = fileName.mid(0, 4).toInt();
+        sample.sampleId = fileName.mid(4, 3).toInt();
+        sample.cameraId = (sample.sampleId - 1) / 10 + 1;
+        sample.file = fileName;
+        samples << sample;
+        actors.insert(sample.actorId, "Actor " + QString::number(sample.actorId) );
+        num_samples++;
+    }
+
+    // Cameras
+    cout << "\t" << "<cameras size=\"2\">" << endl;
+    cout << "\t\t" << "<camera key=\"1\">Camera 1</camera>" << endl;
+    cout << "\t\t" << "<camera key=\"2\">Camera 2</camera>" << endl;
+    cout << "\t" << "</cameras>" << endl << endl;
+
+    // Actors
+    cout << "\t" << "<actors size=\"" << actors.size() << "\">" << endl;
+    for (auto it = actors.constBegin(); it != actors.constEnd(); ++it) {
+        cout << "\t\t" << "<actor key=\"" << it.key() << "\">" << it.value().toStdString() << "</actor>" << endl;
+    }
+
+    cout << "\t" << "</actors>" << endl;
+
+    // Samples
+    int file_id = 1;
+    cout << "\t" << "<instances>" << endl;
+    foreach (CaviarSample sample, samples) {
+        cout << "\t\t" << "<instance actor=\"" << sample.actorId << "\" camera=\"" << sample.cameraId << "\" sample=\"" << sample.sampleId << "\">" << endl;
+        cout << "\t\t\t" << "<file id=\"" << file_id << "\">" << sample.file.toStdString() << "</file>" << endl;
+        cout << "\t\t\t" << "<data type=\"color\" file-ref=\"" << file_id << "\" />" << endl;
+        cout << "\t\t" << "</instance>" << endl;
+        file_id++;
+    }
+
+    cout << "\t" << "</instances>" << endl;
+
+    cout << "</dataset>" << endl;
+}
+
+void parseETHC(const QString datasetPath)
+{
+    QDir datasetDir(datasetPath);
+    datasetDir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
+    QStringList seqEntries = datasetDir.entryList();
+
+    int num_samples = 0;
+
+    /*cout << "<dataset name=\"ETHZ\">" << endl << endl;
+    cout << "\t" << "<activities size=\"3\">" << endl;
+    cout << "\t\t" << "<activity key=\"1\">Sequence 1</activity>" << endl;
+    cout << "\t\t" << "<activity key=\"2\">Sequence 2</activity>" << endl;
+    cout << "\t\t" << "<activity key=\"3\">Sequence 3</activity>" << endl;
+    cout << "\t" << "</activities>" << endl << endl;*/
+
+    QMultiMap<int, QString> actors;
+
+    for (QStringList::ConstIterator seq_it = seqEntries.constBegin(); seq_it != seqEntries.constEnd(); ++seq_it)
+    {
+        QDir personsDir = datasetDir;
+        personsDir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
+        personsDir.cd(*seq_it);
+
+        QStringList personEntries = personsDir.entryList();
+
+        for (QStringList::ConstIterator person_it = personEntries.constBegin(); person_it != personEntries.constEnd(); ++person_it)
+        {
+            QDir personSamples = personsDir;
+            personSamples.setFilter(QDir::Files);
+            personSamples.cd(*person_it);
+
+            QStringList sampleEntries = personSamples.entryList();
+            QString actor = (*seq_it) + "#" + (*person_it);
+            actors.insert(sampleEntries.size(), actor);
+
+
+            /*for (QStringList::ConstIterator sample_it = sampleEntries.constBegin(); sample_it != sampleEntries.constEnd(); ++sample_it)
+            {
+                num_samples++;
+                //cout << (*seq_it).toStdString() << " " << (*person_it).toStdString() << " " << (*sample_it).toStdString() << endl;
+            }*/
+        }
+    }
+
+    auto it = actors.constEnd();
+    const int max_actors = 10;
+    int i = 0;
+
+    while (it != actors.constBegin() && i < max_actors)
+    {
+        --it;
+        qDebug() << it.value() << it.key();
+        ++i;
+    }
+
+    //cout << "</dataset>" << endl;
+    //cout << "Num.Samples" << num_samples;
+}
 
 void parseMSRDailyActivity3D(const QStringList& entries)
 {   
@@ -41,36 +165,109 @@ void parseMSRDailyActivity3D(const QStringList& entries)
     }
 }
 
-void parseMSRAction3D(const QStringList& entries)
+void parseMSRAction3D(const QString datasetPath)
 {
+    QDir datasetDir(datasetPath);
+    QStringList filters;
+    filters << "*.bin";
+    datasetDir.setNameFilters(filters);
+    QStringList entries = datasetDir.entryList();
+
+    cout << "<dataset name=\"MSRAction3D\">" << endl;
+
+    cout << "\t" << "<description>20 action types, 10 subjects, each subject performs each action 2 or 3 times. There are 567 depth map sequences "
+         << "in total. The resolution is 320x240. The data was recorded with a depth sensor similar to the Kinect device.</description>" << endl;
+
+    // Cameras
+    cout << "\t" << "<cameras size=\"1\">" << endl;
+    cout << "\t\t" << "<camera key=\"1\">Camera 1</camera>" << endl;
+    cout << "\t" << "</cameras>" << endl << endl;
+
+    // Actors
+    cout << "\t" << "<actors size=\"10\">" << endl;
+    cout << "\t\t" << "<actor key=\"1\">Actor 1</actor>" << endl;
+    cout << "\t\t" << "<actor key=\"2\">Actor 2</actor>" << endl;
+    cout << "\t\t" << "<actor key=\"3\">Actor 3</actor>" << endl;
+    cout << "\t\t" << "<actor key=\"4\">Actor 4</actor>" << endl;
+    cout << "\t\t" << "<actor key=\"5\">Actor 5</actor>" << endl;
+    cout << "\t\t" << "<actor key=\"6\">Actor 6</actor>" << endl;
+    cout << "\t\t" << "<actor key=\"7\">Actor 7</actor>" << endl;
+    cout << "\t\t" << "<actor key=\"8\">Actor 8</actor>" << endl;
+    cout << "\t\t" << "<actor key=\"9\">Actor 9</actor>" << endl;
+    cout << "\t\t" << "<actor key=\"10\">Actor 10</actor>" << endl;
+    cout << "\t" << "</actors>" << endl << endl;
+
+    // Labels for activities
+    cout << "\t" << "<labels name=\"activities\" size=\"20\">" << endl;
+    cout << "\t\t" << "<label key=\"act1\">High arm wave</label>" << endl;
+    cout << "\t\t" << "<label key=\"act2\">Horizontal arm wave</label>" << endl;
+    cout << "\t\t" << "<label key=\"act3\">Hammer</label>" << endl;
+    cout << "\t\t" << "<label key=\"act4\">Hand catch</label>" << endl;
+    cout << "\t\t" << "<label key=\"act5\">Forward punch</label>" << endl;
+    cout << "\t\t" << "<label key=\"act6\">High throw</label>" << endl;
+    cout << "\t\t" << "<label key=\"act7\">Draw x</label>" << endl;
+    cout << "\t\t" << "<label key=\"act8\">Draw tick</label>" << endl;
+    cout << "\t\t" << "<label key=\"act9\">Draw circle</label>" << endl;
+    cout << "\t\t" << "<label key=\"act10\">Hand clap</label>" << endl;
+    cout << "\t\t" << "<label key=\"act11\">Two hand wave</label>" << endl;
+    cout << "\t\t" << "<label key=\"act12\">Side-boxing</label>" << endl;
+    cout << "\t\t" << "<label key=\"act13\">Bend</label>" << endl;
+    cout << "\t\t" << "<label key=\"act14\">Forward kick</label>" << endl;
+    cout << "\t\t" << "<label key=\"act15\">Side kick</label>" << endl;
+    cout << "\t\t" << "<label key=\"act16\">Jogging</label>" << endl;
+    cout << "\t\t" << "<label key=\"act17\">Tennis swing</label>" << endl;
+    cout << "\t\t" << "<label key=\"act18\">Tennis serve</label>" << endl;
+    cout << "\t\t" << "<label key=\"act19\">Gold swing</label>" << endl;
+    cout << "\t\t" << "<label key=\"act20\">Pickup and throw</label>" << endl;
+    cout << "\t" << "</labels>" << endl;
+
+    // Labels for repetitions
+    cout << "\t" << "<labels name=\"repetition\" size=\"3\">" << endl;
+    cout << "\t\t" << "<label key=\"rep1\">First repetition</label>" << endl;
+    cout << "\t\t" << "<label key=\"rep2\">Second repetition</label>" << endl;
+    cout << "\t\t" << "<label key=\"rep3\">Third repetition</label>" << endl;
+    cout << "\t" << "</labels>" << endl;
+
+    // Instances
+    cout << "\t" << "<instances>" << endl;
+
+    int file_id = 1;
+
     for( QStringList::ConstIterator entry=entries.begin(); entry!=entries.end(); ++entry )
     {
         // a01_s01_e01_sdepth.bin
         QString fileEntry = *entry;
-        QString activity = fileEntry.mid(1, 2);
-        QString subject = fileEntry.mid(5, 2);
-        QString extension = fileEntry.mid(fileEntry.indexOf(".")+1);
-        QString sample = fileEntry.mid(fileEntry.indexOf("_e")+2, 2);
+        int activity = fileEntry.mid(1, 2).toInt();
+        int subject = fileEntry.mid(5, 2).toInt();
+        int sample = fileEntry.mid(fileEntry.indexOf("_e")+2, 2).toInt();
+        QString strAct = "act" + QString::number(activity);
+        QString repetition = "rep" + QString::number(sample);
 
-        QString type = "unknown";
 
-        if (extension == "bin") {
-            type = "depth";
-        } else if (extension == "txt") {
-            type = "skeleton";
+        cout << "\t\t" << "<instance actor=\"" << subject << "\" camera=\"1\" sample=\"" << sample << "\" label=\"" << strAct.toStdString() << "," << repetition.toStdString() << "\">" << endl;
+        cout << "\t\t\t" << "<file id=\"" << file_id << "\">" << fileEntry.toStdString() << "</file>" << endl;
+
+        QString skelFileName = fileEntry.replace("sdepth.bin", "skeleton3D.txt");
+        QFile skelFile(datasetPath + "/" + skelFileName);
+        bool skelExist = false;
+
+        if (skelFile.exists()) {
+            cout << "\t\t\t" << "<file id=\"" << file_id+1 << "\">" << skelFileName.toStdString() << "</file>" << endl;
+            skelExist = true;
         }
 
-        if (type == "unknown")
-            continue;
+        cout << "\t\t\t" << "<data type=\"depth\" file-ref=\"" << file_id << "\" />" << endl;
+        if (skelExist)
+                cout << "\t\t\t" << "<data type=\"skeleton\" file-ref=\"" << file_id+1 << "\" />" << endl;
+        //        "activity=\"" << activity.toStdString() << "\" " <<
 
-        cout << "<instance " <<
-                "type=\"" << type.toStdString() << "\" " <<
-                "activity=\"" << activity.toStdString() << "\" " <<
-                "actor=\"" << subject.toStdString() << "\" " <<
-                "sample=\"" << sample.toStdString()<< "\">" << endl;
-        cout << "\t<file>" << fileEntry.toStdString() << "</file>" << endl;
-        cout << "</instance>" << endl;
+        cout << "\t\t" << "</instance>" << endl;
+        file_id+=2;
     }
+
+    cout << "\t" << "</instances>" << endl;
+
+    cout << "</dataset>" << endl;
 }
 
 void parseHuDaAct(const QStringList& entries)
@@ -132,11 +329,12 @@ void parseHuDaAct(const QStringList& entries)
         }
 
         // Build Object Model
-        dai::InstanceInfo* instanceInfo = findInstance(map[activity], subject, sample, list);
+        dai::InstanceInfo* instanceInfo = findInstance(QString::number(map[activity]), subject, sample, list);
 
         if (!instanceInfo) {
             instanceInfo = new dai::InstanceInfo;
-            instanceInfo->setActivity(map[activity]);
+            instanceInfo->addLabel(QString::number(map[activity]));
+            instanceInfo->setCamera(1);
             instanceInfo->setActor(subject);
             instanceInfo->setSample(sample);
             list[map[activity]][subject][sample] = instanceInfo;
@@ -176,7 +374,7 @@ void parseHuDaAct(const QStringList& entries)
                 */
 
                 cout << "<instance " <<
-                        "activity=\"" << info->getActivity() << "\" " <<
+                        "activity=\"" << info->getLabels().at(0).toStdString() << "\" " <<
                         "actor=\"" << info->getActor() << "\" " <<
                         "sample=\"" << info->getSample() << "\">" << endl;
 
@@ -197,7 +395,7 @@ void parseHuDaAct(const QStringList& entries)
     }
 }
 
-dai::InstanceInfo* findInstance(int activity, int actor, int sample, QMap<int, QMap<int, QMap<int, dai::InstanceInfo*> > > list)
+dai::InstanceInfo* findInstance(QString activity, int actor, int sample, QMap<int, QMap<int, QMap<int, dai::InstanceInfo*> > > list)
 {
     using namespace dai;
 
@@ -223,7 +421,7 @@ dai::InstanceInfo* findInstance(int activity, int actor, int sample, QMap<int, Q
                 it3.next();
                 InstanceInfo* instance = it3.value();
 
-                if (instance->getActivity() == activity && instance->getActor() == actor && instance->getSample() == sample) {
+                if (instance->hasLabels({activity}) && instance->getActor() == actor && instance->getSample() == sample) {
                     found = true;
                     result = instance;
                 }
@@ -238,15 +436,7 @@ dai::InstanceInfo* findInstance(int activity, int actor, int sample, QMap<int, Q
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication a(argc, argv);
-    QString currentDataSetDir = argv[1];
-
-    QDir currentDir(currentDataSetDir);
-    currentDir.setFilter(QDir::Files);
-
-    QStringList entries = currentDir.entryList();
-    parseHuDaAct(entries);
-
-    return a.exec();
+    //parseMSRAction3D(argv[1]);
+    parseCAVIAR4REID(argv[1]);
 }
 
