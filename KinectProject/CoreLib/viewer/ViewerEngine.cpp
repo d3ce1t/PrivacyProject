@@ -3,6 +3,9 @@
 #include "playback/PlaybackControl.h"
 #include "viewer/InstanceViewer.h"
 #include "viewer/SkeletonItem.h"
+#include "Utils.h"
+
+#define MIN_TEXTURE_SIZE 64
 
 ViewerEngine::ViewerEngine()
     : m_quickWindow(nullptr)
@@ -24,6 +27,8 @@ ViewerEngine::ViewerEngine()
     m_needLoading[0] = false;
     m_needLoading[1] = false;
 
+    m_width = 640.0f;
+    m_height = 480.0f;
     m_matrix.setToIdentity();
     m_matrix.ortho(0, 640, 480, 0, -1.0, 1.0);
 }
@@ -68,6 +73,7 @@ void ViewerEngine::prepareScene(dai::QHashDataFrames dataFrames)
         return;
 
     m_dataLock.lock();
+
     if (dataFrames.contains(DataFrame::Color)) {
         m_colorFrame = static_pointer_cast<ColorFrame>(dataFrames.value(DataFrame::Color));
         m_needLoading[0] = true;
@@ -101,7 +107,7 @@ void ViewerEngine::renderOpenGLScene(QOpenGLFramebufferObject* fbo)
     glEnable(GL_BLEND);
 
     // Configure ViewPort and Clear Screen
-    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClearDepth(1.0f);
     glViewport(0, 0, 640, 480);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -118,15 +124,35 @@ void ViewerEngine::renderOpenGLScene(QOpenGLFramebufferObject* fbo)
         glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        //glPixelStorei(GL_UNPACK_ROW_LENGTH, m_colorFrame->getStride() / sizeof(RGBColor));
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_colorFrame->getWidth(),  m_colorFrame->getHeight(),
                      0, GL_RGB, GL_UNSIGNED_BYTE, (void *) m_colorFrame->getDataPtr());
+        //glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
         glBindTexture(GL_TEXTURE_2D, 0);
+
+        // Estimate size
+        double w_scale_factor = 640.0 / m_colorFrame->getWidth();
+        double h_scale_factor = 480.0 / m_colorFrame->getHeight();
+        double scale_factor = dai::min<double>(w_scale_factor, h_scale_factor);
+        m_height = m_colorFrame->getHeight() * scale_factor;
+        m_width = m_colorFrame->getWidth() * scale_factor;
         m_needLoading[0] = false;
     }
 
     m_dataLock.unlock();
 
+    float vertexData[] = {
+        0.0, m_height,
+        m_width, m_height,
+        m_width, 0,
+        0.0, 0.0
+    };
+
     m_vao.bind();
+
+    m_positionsBuffer.bind();
+    m_positionsBuffer.write(0, vertexData, 4*2*sizeof(float));
+    m_positionsBuffer.release();
 
     glActiveTexture(GL_TEXTURE0 + 0);
     glBindTexture(GL_TEXTURE_2D, m_colorTextureId);
@@ -136,6 +162,7 @@ void ViewerEngine::renderOpenGLScene(QOpenGLFramebufferObject* fbo)
     m_vao.release();
     m_shaderProgram->release();
 
+    // Bounding Box
     if (m_metadataFrame && m_showMode.testFlag(BoundingBox)) {
         renderBoundingBoxes();
     }

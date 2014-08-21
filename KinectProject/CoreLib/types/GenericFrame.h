@@ -9,6 +9,12 @@ namespace dai {
 template <class T, DataFrame::FrameType frameType>
 class GenericFrame : public DataFrame
 {
+    T*   m_data;
+    uint m_stride; // Size of a row in bytes
+    int m_width;
+    int m_height;
+    bool m_managedData;
+
 public:
     // Constructor, Destructors and Copy Constructor
     GenericFrame();
@@ -17,54 +23,32 @@ public:
      * Creates a GenericFrame using pData as storage data. This constructor does
      * not create memory, so the caller is responsible of destroying pData memory when
      * is finished.
-     *
-     * @brief GenericFrame
-     * @param width
-     * @param height
-     * @param pData
-     * @param type
      */
-    GenericFrame(int width, int height, T* pData, int stride = 0);
-    GenericFrame(const GenericFrame& other);
+    GenericFrame(int width, int height, T* pData, uint stride = 0);
     virtual ~GenericFrame();
-    shared_ptr<DataFrame> clone() const override;
-    void setDataPtr(int width, int height, T* pData, int stride = 0);
-    void setDataPtr(T* pData);
-    shared_ptr<GenericFrame> subFrame(int row, int column, int width, int height) const;
+    GenericFrame(const GenericFrame& other);
+    GenericFrame& operator=(const GenericFrame& other);
+    virtual shared_ptr<DataFrame> clone() const override;
 
-    // Member Methods
+    void setDataPtr(int width, int height, T* pData, uint stride);
+    void setDataPtr(int width, int height, T* pData);
+    void setItem(int row, int column, T value);
+
+    shared_ptr<GenericFrame> subFrame(int row, int column, int width, int height) const;
     int getWidth() const;
     int getHeight() const;
 
     /**
      * Return the number of bytes that should be skipped to go to the first element of the next row
      * from the first element of the previous row.
-     * @brief getStride
-     * @return
      */
-    int getStep() const;
+    uint getStride() const;
     T getItem(int row, int column) const;
     T* getRowPtr(int row) const;
     const T* getDataPtr() const;
-    void setItem(int row, int column, T value);
-
-    // Overriden Operators
-    GenericFrame& operator=(const GenericFrame& other);
-
-    /**
-     * Write the depth frame into the output stream
-     * @brief write
-     * @param of
-     */
-    //void write(QFile &of) const;
-
 
 private:
-    T*  m_data;
-    int m_padding;
-    int m_width;
-    int m_height;
-    bool m_managedData;
+    void setDataPtr(T* pData);
 };
 
 template <class T, DataFrame::FrameType frameType>
@@ -73,7 +57,7 @@ GenericFrame<T, frameType>::GenericFrame()
     , m_managedData(false)
 {
     this->m_data = nullptr;
-    this->m_padding = 0;
+    this->m_stride = 0;
     this->m_width = 0;
     this->m_height = 0;
 }
@@ -86,74 +70,40 @@ GenericFrame<T, frameType>::GenericFrame(int width, int height)
     this->m_width = width;
     this->m_height = height;
     this->m_data = new T[width * height];
+    this->m_stride = width * sizeof(T);
     memset(this->m_data, 0, width*height*sizeof(T));
-    this->m_padding = 0;
+
+    //qDebug() << (width*height*sizeof(T)) << (this->m_stride * height);
 }
 
 template <class T, DataFrame::FrameType frameType>
-GenericFrame<T, frameType>::GenericFrame(int width, int height, T* pData, int stride)
+GenericFrame<T, frameType>::GenericFrame(int width, int height, T* pData, uint stride)
     : DataFrame(frameType)
     , m_managedData(false)
 {
     this->m_width = width;
     this->m_height = height;
     this->m_data = pData;
-    this->m_padding = stride;
+    this->m_stride = stride;
 }
 
 template <class T, DataFrame::FrameType frameType>
 GenericFrame<T, frameType>::GenericFrame(const GenericFrame &other)
     : DataFrame(other)
 {
-    Q_ASSERT(other.m_padding == 0); // By now I do not allow copy with stride
+    Q_ASSERT(other.m_stride == other.m_width * sizeof(T)); // By now I do not allow copy with stride
     this->m_width = other.m_width;
     this->m_height = other.m_height;
     this->m_data = new T[this->m_width * this->m_height];
-    this->m_padding = other.m_padding;
+    this->m_stride = other.m_stride;
     this->m_managedData = true;
-    memcpy(this->m_data, other.m_data, this->m_width * this->m_height * sizeof(T));
-}
-
-template <class T, DataFrame::FrameType frameType>
-GenericFrame<T, frameType>::~GenericFrame()
-{
-    if (m_managedData && m_data != nullptr) {
-        delete[] this->m_data;
-        this->m_data = nullptr;
-    }
-}
-
-template <class T, DataFrame::FrameType frameType>
-shared_ptr<DataFrame> GenericFrame<T, frameType>::clone() const
-{
-    return shared_ptr<GenericFrame<T, frameType>>(new GenericFrame<T, frameType>(*this));
-}
-
-template <class T, DataFrame::FrameType frameType>
-void GenericFrame<T, frameType>::setDataPtr(int width, int height, T *pData, int stride)
-{
-    this->m_width = width;
-    this->m_height = height;
-    this->m_padding = stride;
-    setDataPtr(pData);
-}
-
-template <class T, DataFrame::FrameType frameType>
-inline void GenericFrame<T, frameType>::setDataPtr(T* pData)
-{
-    if (m_managedData && m_data != nullptr) {
-        delete[] this->m_data;
-        this->m_data = nullptr;
-    }
-
-    this->m_data = pData;
-    this->m_managedData = false;
+    memcpy(this->m_data, other.m_data, this->m_stride * this->m_height);
 }
 
 template <class T, DataFrame::FrameType frameType>
 GenericFrame<T, frameType>& GenericFrame<T, frameType>::operator=(const GenericFrame<T,frameType>& other)
 {
-    Q_ASSERT(other.m_padding == 0); // By now I do not allow copy with stride
+    Q_ASSERT(other.m_stride == other.m_width * sizeof(T)); // By now I do not allow copy with stride
 
     DataFrame::operator=(other);
 
@@ -172,24 +122,69 @@ GenericFrame<T, frameType>& GenericFrame<T, frameType>::operator=(const GenericF
     }
 
     memcpy(this->m_data, other.m_data, this->m_width * this->m_height * sizeof(T));
-    this->m_padding = other.m_padding;
+    this->m_stride = other.m_stride;
     return *this;
+}
+
+template <class T, DataFrame::FrameType frameType>
+shared_ptr<DataFrame> GenericFrame<T, frameType>::clone() const
+{
+    return shared_ptr<GenericFrame<T, frameType>>(new GenericFrame<T, frameType>(*this));
+}
+
+template <class T, DataFrame::FrameType frameType>
+GenericFrame<T, frameType>::~GenericFrame()
+{
+    if (m_managedData && m_data != nullptr) {
+        delete[] this->m_data;
+        this->m_data = nullptr;
+    }
+}
+
+template <class T, DataFrame::FrameType frameType>
+void GenericFrame<T, frameType>::setDataPtr(int width, int height, T *pData, uint stride)
+{
+    this->m_width = width;
+    this->m_height = height;
+    this->m_stride = stride;
+    setDataPtr(pData);
+}
+
+template <class T, DataFrame::FrameType frameType>
+void GenericFrame<T, frameType>::setDataPtr(int width, int height, T *pData)
+{
+    this->m_width = width;
+    this->m_height = height;
+    this->m_stride = width*sizeof(T);
+    setDataPtr(pData);
+}
+
+template <class T, DataFrame::FrameType frameType>
+inline void GenericFrame<T, frameType>::setDataPtr(T* pData)
+{
+    if (m_managedData && m_data != nullptr) {
+        delete[] this->m_data;
+        this->m_data = nullptr;
+    }
+
+    this->m_data = pData;
+    this->m_managedData = false;
 }
 
 template <class T, DataFrame::FrameType frameType>
 shared_ptr<GenericFrame<T,frameType>> GenericFrame<T,frameType>::subFrame(int row, int column, int width, int height) const
 {
-    if (row < 0 || row >= this->m_height || column < 0 || column >= this->m_width ||
-            row+height > this->m_height || column+width > this->m_width)
-        throw 1;
+    Q_ASSERT(row >= 0 && row < this->m_height && column >= 0 && column < this->m_width &&
+            row+height <= this->m_height && column+width <= this->m_width);
 
-    T* dataPtr = this->m_data + (row * this->m_width + column);
-    int stride = this->m_width - width;
-    return make_shared<GenericFrame<T,frameType>>(width, height, dataPtr, stride);
+    uchar* dataPtr = (uchar*) this->m_data;
+    dataPtr += row * this->m_stride + column * sizeof(T);
+
+    return make_shared<GenericFrame<T,frameType>>(width, height, (T*) dataPtr, this->m_stride);
 }
 
 template <class T,DataFrame::FrameType frameType>
-int GenericFrame<T,frameType>::getWidth() const
+int GenericFrame<T, frameType>::getWidth() const
 {
     return this->m_width;
 }
@@ -201,9 +196,9 @@ int GenericFrame<T, frameType>::getHeight() const
 }
 
 template <class T,DataFrame::FrameType frameType>
-int GenericFrame<T, frameType>::getStep() const
+uint GenericFrame<T, frameType>::getStride() const
 {
-    return (m_padding + m_width)*sizeof(T);
+    return m_stride;
 }
 
 template <class T,DataFrame::FrameType frameType>
@@ -212,7 +207,9 @@ T GenericFrame<T,frameType>::getItem(int row, int column) const
     if (row < 0 || row >= this->m_height || column < 0 || column >= this->m_width )
         throw 1;
 
-    return this->m_data[row * (this->m_width + this->m_padding) + column];
+    uchar* ptr = (uchar*) this->m_data;
+    ptr += row * this->m_stride + column * sizeof(T);
+    return *((T*) ptr);
 }
 
 template <class T,DataFrame::FrameType frameType>
@@ -221,7 +218,9 @@ void GenericFrame<T,frameType>::setItem(int row, int column, T value)
     if (row < 0 || row >= this->m_height || column < 0 || column >= this->m_width )
         throw 1;
 
-    this->m_data[row * (this->m_width + this->m_padding) + column] = value;
+    uchar* ptr = (uchar*) this->m_data;
+    ptr += row * this->m_stride + column * sizeof(T);
+    *((T*) ptr) = value;
 }
 
 template <class T,DataFrame::FrameType frameType>
@@ -233,16 +232,10 @@ const T* GenericFrame<T,frameType>::getDataPtr() const
 template <class T,DataFrame::FrameType frameType>
 T *GenericFrame<T, frameType>::getRowPtr(int row) const
 {
-     return m_data + row * (this->m_width + this->m_padding);
+    uchar* ptr = (uchar*) this->m_data;
+    ptr += row * this->m_stride;
+    return (T*) ptr;
 }
-
-/*template <class T,DataFrame::FrameType frameType>
-void GenericFrame<T,frameType>::write(QFile& of) const
-{
-    char* buffer = (char *) this->m_data;
-    of.write(buffer, this->m_width * this->m_height * sizeof(T));
-    of.flush();
-}*/
 
 } // End Namespace
 

@@ -4,12 +4,14 @@
 #include "dataset/Dataset.h"
 #include "dataset/InstanceInfo.h"
 #include "types/MaskFrame.h"
-#include <QQmlContext>
+#include "types/MetadataFrame.h"
 #include "CustomItem.h"
+#include <QQmlContext>
+#include <QListWidget>
 #include <QMetaEnum>
 #include <QDebug>
 #include "InstanceViewer.h"
-#include "types/MetadataFrame.h"
+
 
 namespace dai {
 
@@ -117,6 +119,16 @@ void InstanceViewerWindow::setDelay(qint64 milliseconds)
 void InstanceViewerWindow::setDrawMode(ViewerEngine::DrawMode mode)
 {
     m_viewerEngine->setDrawMode(mode);
+}
+
+void InstanceViewerWindow::showFrame(shared_ptr<ColorFrame> frame)
+{
+    // Do task
+    QHashDataFrames frames;
+    frames.insert(DataFrame::Color, frame);
+    m_viewerEngine->prepareScene(frames);
+    //m_fps = producerHandler()->getFrameRate();
+    //emit changeOfStatus();
 }
 
 void InstanceViewerWindow::newFrames(const QHashDataFrames dataFrames)

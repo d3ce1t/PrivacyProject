@@ -17,6 +17,7 @@ public:
     FrameListener();
     virtual ~FrameListener();
 
+protected:
     /**
      * This method is called from the ListenerNotifier thread assigned to each PlaybackListener
      *
@@ -27,8 +28,6 @@ public:
      */
     virtual void newFrames(const QHashDataFrames dataFrames) = 0;
 
-
-protected:
     bool hasExpired();
     virtual void afterStop() {}
     FrameGenerator* producerHandler();

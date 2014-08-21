@@ -11,8 +11,9 @@
 #include "playback/PlaybackControl.h"
 #include "playback/FrameListener.h"
 #include "viewer/ViewerEngine.h"
-#include <QListWidget>
 #include <QTableView>
+
+class QListWidget;
 
 namespace dai {
 
@@ -22,6 +23,26 @@ class InstanceViewerWindow : public QObject, public FrameListener
 
     Q_PROPERTY(float fps READ getFPS NOTIFY changeOfStatus)
 
+    bool                    m_initialised;
+    float                   m_fps;
+    long                    m_frameCounter;
+    unsigned long           m_delayInMs;
+
+    ViewerEngine*           m_viewerEngine;
+    QQmlApplicationEngine   m_qmlEngine;
+    QQuickWindow*           m_quickWindow;
+
+    // Windows and models for Skeleton data
+    QTableView              m_joints_table_view;
+    QTableView              m_distances_table_view;
+    QTableView              m_quaternions_table_view;
+    QStandardItemModel      m_joints_model;
+    QStandardItemModel      m_distances_model;
+    QStandardItemModel      m_quaternions_model;
+    Quaternion              m_lastQuaternions[20];
+    bool                    m_modelsInitialised;
+    QMutex                  m_modelsLock;
+
 public:
     InstanceViewerWindow();
     virtual ~InstanceViewerWindow();
@@ -30,9 +51,12 @@ public:
     void show();
     QQmlApplicationEngine& qmlEngine();
     QQuickWindow* quickWindow();
-    void newFrames(const QHashDataFrames dataFrames) override;
     void setDelay(qint64 milliseconds);
     void setDrawMode(ViewerEngine::DrawMode mode);
+    void showFrame(shared_ptr<ColorFrame> frame);
+
+protected:
+    void newFrames(const QHashDataFrames dataFrames) override;
 
 signals:
     void changeOfStatus();
@@ -56,26 +80,6 @@ private:
     void feedDistancesModel(const dai::Skeleton& skeleton, QStandardItemModel& model);
     void feedQuaternionsModel(const dai::Skeleton &skeleton, QStandardItemModel& model);
     float colorIntensity(float value);
-
-    bool                    m_initialised;
-    float                   m_fps;
-    long                    m_frameCounter;
-    unsigned long           m_delayInMs;
-
-    ViewerEngine*           m_viewerEngine;
-    QQmlApplicationEngine   m_qmlEngine;
-    QQuickWindow*           m_quickWindow;
-
-    // Windows and models for Skeleton data
-    QTableView              m_joints_table_view;
-    QTableView              m_distances_table_view;
-    QTableView              m_quaternions_table_view;
-    QStandardItemModel      m_joints_model;
-    QStandardItemModel      m_distances_model;
-    QStandardItemModel      m_quaternions_model;
-    Quaternion              m_lastQuaternions[20];
-    bool                    m_modelsInitialised;
-    QMutex                  m_modelsLock;
 };
 
 } // End Namespace

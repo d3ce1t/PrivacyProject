@@ -4,23 +4,33 @@
 #include <QList>
 #include <memory>
 #include <boost/random.hpp>
+#include <QList>
+#include <QVector>
 
 namespace dai {
 
 using namespace std;
 
+// Cluster
+template <typename T>
+class Cluster {
+public:
+    shared_ptr<T> centroid;
+    QList<shared_ptr<T>> samples;
+};
+
+// KMeans
 template <typename T>
 class KMeans
 {
+private:
     const QList<shared_ptr<T>> m_samples;
     const int m_k; // Number of clusters
-    QList<shared_ptr<T>> m_centroid; // Centroids
-    QList<QList<shared_ptr<T>>> m_clusters; // Clusters with classified samples
+    QList<Cluster<T>> m_clusters; // Clusters with classified samples
     QVector<int> m_samples_label;
     float m_compactness;
 
 public:
-
     static shared_ptr<KMeans> execute(const QList<shared_ptr<T>> samples, const int k, int times = 5)
     {
         if (times <= 0)
@@ -44,25 +54,31 @@ public:
                 kmeans_best = kmeans;
                 kmeans = nullptr;
             } else {
-                kmeans->initialise();
+                kmeans->initialise_centroids();
             }
         }
 
         return kmeans_best;
     }
 
+    static shared_ptr<KMeans> execute(const QList<shared_ptr<T>> samples, const int k,  const QList<shared_ptr<T>>& centroids)
+    {
+        shared_ptr<KMeans> kmeans = make_shared<KMeans>(samples, k, centroids);
+        kmeans->execute();
+        kmeans->compute_compactness();
+        return kmeans;
+    }
+
     float compute_compactness()
     {
-        feed_clusters();
-
         float sum = 0;
 
         for (int i=0; i<m_k; ++i)
         {
-            QList<shared_ptr<T>>& cluster_samples = m_clusters[i];
+            const Cluster<T>& cluster = m_clusters[i];
 
-            for (auto it=cluster_samples.constBegin(); it!=cluster_samples.constEnd(); ++it) {
-                sum += (*it)->distance(*m_centroid[i]);
+            for (auto it=cluster.samples.constBegin(); it!=cluster.samples.constEnd(); ++it) {
+                sum += (*it)->distance(*(cluster.centroid));
             }
         }
 
@@ -78,14 +94,21 @@ public:
             throw 0;
 
         for (int i=0; i<m_k; ++i)
-            m_clusters << QList<shared_ptr<T>>();
+            m_clusters << Cluster<T>();
 
-        initialise();
+        initialise_centroids();
     }
 
-    virtual ~KMeans()
+    KMeans(const QList<shared_ptr<T>> samples, const int k, const QList<shared_ptr<T>>& centroids)
+        : m_samples(samples), m_k(k), m_samples_label(samples.size())
     {
-        m_centroid.clear();
+        if (k > m_samples.size())
+            throw 0;
+
+        for (int i=0; i<m_k; ++i) {
+            m_clusters << Cluster<T>();
+            m_clusters[i].centroid = centroids[i];
+        }
     }
 
     const QVector<int> getLabels() const
@@ -93,7 +116,7 @@ public:
         return m_samples_label;
     }
 
-    const QList<QList<shared_ptr<T>>> getClusters() const
+    const QList<Cluster<T>>& getClusters() const
     {
         return m_clusters;
     }
@@ -101,11 +124,6 @@ public:
     const QList<shared_ptr<T>> getSamples() const
     {
         return m_samples;
-    }
-
-    const QList<shared_ptr<T>> getCentroids() const
-    {
-        return m_centroid;
     }
 
     int getNumSamples() const
@@ -125,7 +143,7 @@ public:
 
 private:
 
-    void initialise()
+    void initialise_centroids()
     {
         boost::random::mt19937 gen;
         gen.seed(time(0));
@@ -138,11 +156,11 @@ private:
 
         while (i<m_k)
         {
-            m_centroid[i] = m_samples[uniform_rnd()]; // Asign the pointer
+            m_clusters[i].centroid = m_samples[uniform_rnd()]; // Asign the pointer
             bool exists = false;
 
             for (int j=0; j<i && !exists; ++j) {
-                if (*m_centroid[i] == *m_centroid[j]) {
+                if (*(m_clusters[i].centroid) == *(m_clusters[j].centroid)) {
                     exists = true;
                 }
             }
@@ -157,11 +175,9 @@ private:
         for (auto item = m_samples_label.begin(); item != m_samples_label.end(); ++item)
             *item = -1;
 
-        m_centroid.clear();
-
         for (auto it = m_clusters.begin(); it != m_clusters.end(); ++it) {
-            (*it).clear();
-            m_centroid << nullptr;
+            (*it).samples.clear();
+            (*it).centroid = nullptr;
         }
     }
 
@@ -173,7 +189,7 @@ private:
             num_changes = kmeans_clustering();
 
             if (num_changes > 0) {
-                kmeans_recalculate_centroids();
+                recalculate_centroids();
             }
         }
         while (num_changes > 0);
@@ -183,37 +199,23 @@ private:
     {
         int num_changes = 0;
 
+        // Empty clusters
+        for (int i=0; i<m_k; ++i)
+            m_clusters[i].samples.clear();
+
+        // Create new clusters
         int i = 0;
 
         for (auto sample = m_samples.constBegin(); sample != m_samples.constEnd(); ++sample)
         {
-            float min_distance = std::numeric_limits<float>::max();
-            int cluster_index = -1;
+            int cluster_id = searchClosestCluster(*sample);
 
-            for (int j=0; j<m_k; ++j)
-            {
-                shared_ptr<T> centroid = m_centroid[j];
+            // Add to the cluster
+            m_clusters[cluster_id].samples << *sample;
 
-                if (centroid == nullptr) {
-                    qDebug() << "Super error 3";
-                    throw 3;
-                }
-
-                float distance = (*sample)->distance(*centroid);
-
-                if (distance < min_distance) {
-                    min_distance = distance;
-                    cluster_index = j;
-                }
-
-                if (cluster_index == -1) {
-                    qDebug() << "Super error 4" << "distance" << distance;
-                    throw 3;
-                }
-            }
-
-            if (m_samples_label[i] != cluster_index) {
-                m_samples_label[i] = cluster_index;
+            // Count changes
+            if (m_samples_label[i] != cluster_id) {
+                m_samples_label[i] = cluster_id;
                 num_changes++;
             }
 
@@ -225,21 +227,20 @@ private:
 
     // Recalculate centroids using the item of each cluster that minimices its distance
     // to the rest of the items of the cluster.
-    void kmeans_recalculate_centroids()
+    void recalculate_centroids()
     {
-        feed_clusters();
-
         for (int i=0; i<m_k; ++i) {
             shared_ptr<T> item = minItem(i);
-            if (item)
-                m_centroid[i] = item;
+            if (item) {
+                m_clusters[i].centroid = item;
+            }
             // else cluster is empty (but is not an error)
         }
     }
 
     shared_ptr<T> minItem(int cluster_id) const
     {
-        const QList<shared_ptr<T>>& items = m_clusters[cluster_id];
+        const QList<shared_ptr<T>>& items = m_clusters[cluster_id].samples;
         float minDistance = std::numeric_limits<float>::max();
         shared_ptr<T> minItem = nullptr;
         float sum = 0;
@@ -261,25 +262,34 @@ private:
         return minItem;
     }
 
-    void feed_clusters()
+    int searchClosestCluster(shared_ptr<T> sample)
     {
+        float min_distance = std::numeric_limits<float>::max();
+        int closest_cluster = -1;
+
         for (int i=0; i<m_k; ++i)
-            m_clusters[i].clear();
-
-        for (int i=0; i<m_samples.size(); ++i)
         {
-            int cluster_index = m_samples_label[i];
+            shared_ptr<T> centroid = m_clusters[i].centroid;
 
-            if (cluster_index == -1) {
-                qDebug() << "Super error 1";
-                throw 3;
-            } else if (cluster_index >= m_k) {
-                qDebug() << "Super error 2";
+            if (centroid == nullptr) {
+                qDebug() << "Super error 3";
                 throw 3;
             }
 
-            m_clusters[cluster_index] << m_samples[i];
+            float distance = sample->distance(*centroid);
+
+            if (distance < min_distance) {
+                min_distance = distance;
+                closest_cluster = i;
+            }
         }
+
+        if (closest_cluster == -1) {
+            qDebug() << "Super error 4";
+            throw 3;
+        }
+
+        return closest_cluster;
     }
 
 };

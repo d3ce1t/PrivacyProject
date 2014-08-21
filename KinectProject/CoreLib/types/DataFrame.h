@@ -25,17 +25,13 @@ public:
 
     static FrameType getType(SupportedFrames type);
 
-    // Constructor
     DataFrame(FrameType type);
     DataFrame(const DataFrame& other);
-
     virtual shared_ptr<DataFrame> clone() const = 0;
+    DataFrame& operator=(const DataFrame& other);
     void setIndex(unsigned int index);
     unsigned int getIndex() const;
     FrameType getType() const;
-
-    // Overriden operators
-    DataFrame& operator=(const DataFrame& other);
 
 protected:
     unsigned int m_index;

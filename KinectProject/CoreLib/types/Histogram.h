@@ -7,6 +7,7 @@
 #include <opencv2/opencv.hpp>
 #include <memory>
 #include <cmath>
+#include <climits>
 #include <QString>
 #include <QObject>
 #include "Utils.h"
@@ -48,7 +49,7 @@ class HistBin {
 public:
     Point<T, N> point;
     int value = 0;
-    float dist = 0;
+    double dist = 0;
     uint key = 0;
 
     bool operator==(const HistBin& other) const
@@ -63,9 +64,9 @@ public:
 
     inline static float distanceSize(const HistBin<T,N>& item1, const HistBin<T,N>& item2)
     {
-        float higher = dai::max<float>(item1.dist, item2.dist);
-        float lower = dai::min<float>(item1.dist, item2.dist);
-        return 1 - (lower / higher);
+        double higher = dai::max<double>(item1.dist, item2.dist);
+        double lower = dai::min<double>(item1.dist, item2.dist);
+        return 1.0 - (lower / higher);
     }
 
     inline static float distance(const HistBin<T,N>& item1, const HistBin<T,N>& item2)
@@ -92,13 +93,13 @@ class Histogram
 
     inline void computeStats()
     {
-        int min_freq = 999999, max_freq = 0;
+        int min_freq = std::numeric_limits<int>::max(), max_freq = 0;
         HistBin<T,N> min_item, max_item;
 
         for (auto it = m_matrix.begin(); it != m_matrix.end(); ++it) {
 
             // Dist normalised
-            (*it).dist = float((*it).value) / float(m_accumulated_freq);
+            (*it).dist = double((*it).value) / double(m_accumulated_freq);
 
             // Min
             if ((*it).value < min_freq) {
@@ -132,7 +133,7 @@ public:
         m_max_range = 0;
     }
 
-    Histogram(const Histogram& other)
+    /*Histogram(const Histogram& other)
     {
         m_min_freq = other.m_min_freq;
         m_max_freq = other.m_max_freq;
@@ -143,9 +144,9 @@ public:
         m_min_range = other.m_min_range;
         m_max_range = other.m_max_range;
         m_matrix = other.m_matrix; // Implicit sharing
-    }
+    }*/
 
-    Histogram& operator=(const Histogram& other)
+    /*Histogram& operator=(const Histogram& other)
     {
         m_min_freq = other.m_min_freq;
         m_max_freq = other.m_max_freq;
@@ -157,7 +158,7 @@ public:
         m_max_range = other.m_max_range;
         m_matrix = other.m_matrix; // Implicit sharing
         return *this;
-    }
+    }*/
 
     Histogram<T,N>& operator+=(const Histogram<T,N>& right)
     {
@@ -237,10 +238,7 @@ public:
     }
 
     /**
-     * Get bins from the histogram sorted from lower key to higher key
-     * @brief items
-     * @param n_elements
-     * @return
+     * Get n bins from the histogram sorted from lower key to higher key
      */
     QList<const HistBin<T,N>*> bins(int n = 0) const
     {
@@ -263,9 +261,6 @@ public:
 
     /**
      * Get the n bins of higher frequency
-     * @brief higherFreqBins
-     * @param n_elements
-     * @return
      */
     QList<const HistBin<T,N>*> higherFreqBins(int n = 0) const
     {
@@ -291,7 +286,7 @@ public:
         return list;
     }
 
-    float distance(const Histogram<T,N>& other) const
+    double distance(const Histogram<T,N>& other) const
     {
         return Histogram<T,N>::intersection(*this, other);
     }
@@ -399,11 +394,6 @@ public:
 
     /**
      * Compute the distance as the average distance element by element.
-     * @brief distance
-     * @param hist1
-     * @param hist2
-     * @param n_elements
-     * @return
      */
     static float distance1(const Histogram<T,N>& hist1, const Histogram<T,N>& hist2, int n_elements = 0)
     {
@@ -501,16 +491,10 @@ public:
 
     /**
      * Intersection similarity measure between two histograms
-     *
-     * @brief distance4
-     * @param hist1
-     * @param hist2
-     * @param n_elements
-     * @return
      */
-    static float intersection(const Histogram<T,N>& hist1, const Histogram<T,N>& hist2)
+    static double intersection(const Histogram<T,N>& hist1, const Histogram<T,N>& hist2)
     {
-        float distance = 0;
+        double distance = 0;
 
         for (auto it = hist1.m_matrix.constBegin(); it != hist1.m_matrix.constEnd(); ++it)
         {
@@ -518,11 +502,12 @@ public:
 
             if (hist2.m_matrix.contains(it.key())) {
                 const HistBin<T,N>& item2 = hist2.m_matrix[it.key()];
-                distance += dai::min<float>(item1.dist, item2.dist);
+                distance += dai::min<double>(item1.dist, item2.dist);
             }
         }
 
-        return 1 - distance;
+        distance = 1.0 - distance;
+        return distance;
     }
 
 }; // End Histogram
@@ -540,6 +525,7 @@ using Histogram3D = Histogram<T, 3>;
 using Histogram3f = Histogram<float, 3>;
 using Histogram3c = Histogram<uchar, 3>;
 using Histogram1c = Histogram<uchar, 1>;
+using Histogram1s = Histogram<ushort, 1>;
 
 // HistItem definitions
 template<typename T>
@@ -554,6 +540,7 @@ using HistBin3D = HistBin<T, 3>;
 using HistBin3f = HistBin<float, 3>;
 using HistBin3c = HistBin<uchar, 3>;
 using HistBin1c = HistBin<uchar, 1>;
+using HistBin1s = HistBin<ushort, 1>;
 
 } // End Namespace
 

@@ -180,7 +180,7 @@ QHashDataFrames PlaybackWorker::produceFrames()
 
             if (instance->hasNext())
             {
-                instance->readNextFrames();
+                instance->readNextFrame();
                 QList<shared_ptr<DataFrame>> frames = instance->frames();
 
                 foreach (shared_ptr<DataFrame> frame, frames) {

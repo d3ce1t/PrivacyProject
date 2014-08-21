@@ -63,6 +63,8 @@ private:
     QMatrix4x4               m_matrix;
     InstanceViewer*          m_viewer;
     DrawMode                 m_showMode;
+    float                    m_width;
+    float                    m_height;
 
     // Shader identifiers
     GLuint                   m_colorTextureId;
