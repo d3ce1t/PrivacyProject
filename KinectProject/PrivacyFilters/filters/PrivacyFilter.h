@@ -43,38 +43,10 @@ private:
     template <typename T, int N>
     static bool compare(const cv::Mat& inputImg, const QList<Point<T,N>>& point_list, const cv::Mat& mask = cv::Mat());
 
-    template <class T>
-    static int count_pixels_nz(const cv::Mat& inputImg);
-
-    template <class T, int N>
-    cv::Mat randomSamplingAsMat(const cv::Mat& inputImg, int n, const cv::Mat& mask = cv::Mat());
-
-    template <class T, int N>
-    QList<Point<T,N>> randomSampling(const cv::Mat& inputImg, int n, const cv::Mat& mask = cv::Mat());
-
-    template <class T, int N>
-    cv::Mat samplingAsMat(const cv::Mat& inputImg, const cv::Mat& mask = cv::Mat());
-
-    template <class T, int N>
-    QList<Point<T,N>> samplingAsList(const cv::Mat& inputImg, const cv::Mat& mask = cv::Mat());
-
-    cv::Mat convertRGB2Log2DAsMat(const cv::Mat &inputImg);
-
-    QList<Point2f> convertRGB2Log2DAsList(const QList<Point3b>& list);
-
-    cv::Mat calcHistogram(shared_ptr<ColorFrame> colorFrame, shared_ptr<MaskFrame> mask);
-
     std::vector<cv::Rect> faceDetection(cv::Mat frameGray, bool equalised = false);
-
-    cv::Mat computeIntegralImage(cv::Mat image);
 
     template <class T, int N>
     void printHistogram(const Histogram<T, N>& hist, int n_elems = 0) const;
-
-    template <class T>
-    cv::Mat interleaveMatChannels(cv::Mat inputMat, cv::Mat mask = cv::Mat(), int type = CV_32SC1);
-
-    double computeOccupancy(shared_ptr<MaskFrame> mask, int *outNumPixels = nullptr);
 
     template <class T>
     void create2DCoordImage(cv::Mat input_img, cv::Mat& output_img, int size[], float input_range[],
@@ -94,10 +66,6 @@ private:
     void create2DColorPalette(const QList<const HistBin3D<T>*>& upper_hist, const QList<const HistBin3D<T>*>& lower_hist, cv::Mat& output_img) const;
 
     cv::Mat createMask(cv::Mat input_img, int min_value, int *nonzero_counter = nullptr, bool filter = false) const;
-
-    void denoiseImage(cv::Mat input_img, cv::Mat output_img) const;
-
-    void discretiseRGBImage(cv::Mat input_img, cv::Mat output_img) const;
 
     QHashDataFrames m_frames;
     QOpenGLContext* m_glContext;

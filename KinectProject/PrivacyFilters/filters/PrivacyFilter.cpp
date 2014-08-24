@@ -157,6 +157,7 @@ void PrivacyFilter::newFrames(const QHashDataFrames dataFrames)
 void PrivacyFilter::afterStop()
 {
     freeResources();
+    qDebug() << "PrivacyFilter::afterStop";
 }
 
 void PrivacyFilter::enableFilter(ColorFilter filterType)
@@ -781,54 +782,6 @@ void PrivacyFilter::printHistogram(const Histogram<T, N> &hist, int n_elems) con
     }
 }
 
-void PrivacyFilter::denoiseImage(cv::Mat input_img, cv::Mat output_img) const
-{
-    // without filter: u.min 7 u.max 4466 u.nz 505 l.min 0 l.max 1473 l.nz 331
-    // filter:         u.min 7 u.max 3976 u.nz 577 l.min 0 l.max 1490 l.nz 323
-    medianBlur(input_img, output_img, 7);
-    //GaussianBlur(input_img, output_img, cv::Size(7, 7), 0, 0);
-    //GaussianBlur(output_img, output_img, cv::Size(7, 7), 0, 0);
-    //bilateralFilter(image, denoiseImage, 9, 18, 4.5f);
-}
-
-void PrivacyFilter::discretiseRGBImage(cv::Mat input_img, cv::Mat output_img) const
-{
-    using namespace cv;
-
-    const int module = 5;
-
-    for (int i=0; i<input_img.rows; ++i)
-    {
-        Vec3b* in_pixel = input_img.ptr<Vec3b>(i);
-        Vec3b* out_pixel = output_img.ptr<Vec3b>(i);
-
-        for (int j=0; j<input_img.cols; ++j)
-        {
-            int rest_r = in_pixel[j][0] % module;
-            int rest_g = in_pixel[j][1] % module;
-            int rest_b = in_pixel[j][2] % module;
-
-            if (rest_r > 0) {
-                out_pixel[j][0] = in_pixel[j][0] + (module - rest_r);
-            } else {
-                out_pixel[j][0] = in_pixel[j][0];
-            }
-
-            if (rest_g > 0) {
-                out_pixel[j][1] = in_pixel[j][1] + (module - rest_g);
-            } else {
-                out_pixel[j][1] = in_pixel[j][1];
-            }
-
-            if (rest_b > 0) {
-                out_pixel[j][2] = in_pixel[j][2] + (module - rest_b);
-            } else {
-                out_pixel[j][2] = in_pixel[j][2];
-            }
-        }
-    }
-}
-
 QHashDataFrames PrivacyFilter::produceFrames()
 {
     Q_ASSERT(m_frames.contains(DataFrame::Color) && m_frames.contains(DataFrame::Mask) &&
@@ -842,25 +795,24 @@ QHashDataFrames PrivacyFilter::produceFrames()
     //approach3();
     //approach4();
     //approach5();
-    approach6();
+    //approach6();
 
     // Dilate mask to create a wide border (value = 255)
-    /*shared_ptr<MaskFrame> inputMask = static_pointer_cast<MaskFrame>(m_frames.value(DataFrame::Mask));
-    shared_ptr<MaskFrame> outputMask = static_pointer_cast<MaskFrame>(inputMask->clone());
+    shared_ptr<MaskFrame> outputMask = static_pointer_cast<MaskFrame>(maskFrame->clone());
     dilateUserMask(const_cast<uint8_t*>(outputMask->getDataPtr()));
 
-    for (int i=0; i<inputMask->getHeight(); ++i)
+    for (int i=0; i<maskFrame->getHeight(); ++i)
     {
-        for (int j=0; j<inputMask->getWidth(); ++j)
+        for (int j=0; j<maskFrame->getWidth(); ++j)
         {
-            uint8_t inputValue = inputMask->getItem(i,j);
+            uint8_t inputValue = maskFrame->getItem(i,j);
             uint8_t outputValue = outputMask->getItem(i,j);
 
             if (inputValue == 0 && outputValue > 0) {
-                inputMask->setItem(i, j, uint8_t(255));
+                maskFrame->setItem(i, j, uint8_t(255));
             }
         }
-    }*/
+    }
 
     //
     // Prepare Scene
@@ -872,7 +824,7 @@ QHashDataFrames PrivacyFilter::produceFrames()
     m_scene->clearItems();
 
     // Background of Scene
-    m_scene->setBackground(m_frames.value(DataFrame::Color));
+    m_scene->setBackground(colorFrame);
     m_scene->setMask(maskFrame);
 
     // Add silhuette item to the scene
@@ -950,238 +902,6 @@ cv::Mat PrivacyFilter::createMask(cv::Mat input_img, int min_value, int* nonzero
         *nonzero_counter = counter;
 
     return output_mask;
-}
-
-cv::Mat PrivacyFilter::convertRGB2Log2DAsMat(const cv::Mat &inputImg)
-{
-    cv::Mat outputImg = cv::Mat::zeros(inputImg.rows, inputImg.cols, CV_32FC2);
-
-    for (int i=0; i<inputImg.rows; ++i)
-    {
-        const cv::Vec3b* inPixel = inputImg.ptr<cv::Vec3b>(i);
-        cv::Vec2f* outPixel = outputImg.ptr<cv::Vec2f>(i);
-
-        for (int j=0; j<inputImg.cols; ++j) {
-            // Approach: Consider RGB colors from 1 to 256
-            // min color: log(1/256) ~ -5.6
-            // max color: log(256/1) ~ 5.6
-            outPixel[j][0] = std::log( float(inPixel[j][0]+1) / float(inPixel[j][1]+1) ); // log ( R/G )
-            outPixel[j][1] = std::log( float(inPixel[j][2]+1) / float(inPixel[j][1]+1) ); // log ( B/G )
-        }
-    }
-
-    return outputImg;
-}
-
-QList<Point2f> PrivacyFilter::convertRGB2Log2DAsList(const QList<Point3b>& list)
-{
-    QList<Point2f> result;
-
-    for (auto it = list.constBegin(); it != list.constEnd(); ++it)
-    {
-        const Point3b& point = *it;
-        float log_rg = std::log10( float( point[0]+1 ) / float( point[1]+1 ) ); // log ( R/G )
-        float log_bg = std::log10( float( point[2]+1 ) / float( point[1]+1 ) ); // log ( B/G )
-        result.append( Point2f(log_rg, log_bg) );
-    }
-
-    return result;
-}
-
-template <class T>
-int PrivacyFilter::count_pixels_nz(const cv::Mat& inputImg)
-{
-    Q_ASSERT(inputImg.channels() == 1);
-
-    int counter = 0;
-
-    for (int i=0; i<inputImg.rows; ++i) {
-        const T* pixel = inputImg.ptr<T>(i);
-        for (int j=0; j<inputImg.cols; ++j) {
-            if (pixel[j] > 0)
-                counter++;
-        }
-    }
-
-    return counter;
-}
-
-template <class T, int N>
-cv::Mat PrivacyFilter::randomSamplingAsMat(const cv::Mat &inputImg, int n, const cv::Mat &mask)
-{
-    Q_ASSERT( (mask.rows == 0 && mask.cols == 0) || (mask.rows == inputImg.rows && mask.cols == inputImg.cols) );
-
-    using namespace cv;
-
-    Mat sampledImage = Mat::zeros(inputImg.rows, inputImg.cols, inputImg.type());
-    QSet<int> used_samples;
-    int k = inputImg.rows * inputImg.cols - 1;
-    bool useMask = mask.rows > 0 && mask.cols > 0;
-    int n_mask_pixels = 0;
-
-    boost::mt19937 generator;
-    generator.seed(time(0));
-    boost::uniform_int<> uniform_dist(0, k);
-    boost::variate_generator<boost::mt19937&, boost::uniform_int<>> uniform_rnd(generator, uniform_dist);
-
-    if (useMask) {
-        // There are no guarantee that n pixels will sample
-        n = dai::min<int>(n, count_pixels_nz<uchar>(mask));
-    }
-
-    n = dai::min<int>(n, k);
-
-    int i = 0;
-    int attempts = 0;
-
-    while (i < n)
-    {
-        int z = uniform_rnd();
-
-        if (!used_samples.contains(z)) {
-
-            int row = z / inputImg.cols;
-            int col = z % inputImg.cols;
-
-            if (useMask && mask.at<uchar>(row,col) <= 0) {
-                attempts++;
-                continue;
-            }
-
-            sampledImage.at<Vec<T,N>>(row,col) = inputImg.at<Vec<T,N>>(row,col);
-            used_samples << z;
-            i++;
-            attempts = 0;
-        }
-        else {
-            attempts++;
-        }
-
-        if (attempts > 0 && attempts % 1000 == 0) {
-            qDebug() << "Privacy Filter Stalled" << "attempts" << attempts << "i" << i << "n" << n << "k" << k << "mask pixels" << n_mask_pixels;
-        }
-    }
-
-    return sampledImage;
-}
-
-template <class T, int N>
-QList<Point<T,N>> PrivacyFilter::randomSampling(const cv::Mat &inputImg, int n, const cv::Mat &mask)
-{
-    Q_ASSERT( (mask.rows == 0 && mask.cols == 0) || (mask.rows == inputImg.rows && mask.cols == inputImg.cols) );
-
-    QList<Point<T,N> > result;
-    bool useMask = mask.rows > 0 && mask.cols > 0;
-    int n_mask_pixels = 0;
-    QSet<int> used_samples;
-    int k = inputImg.rows * inputImg.cols - 1;
-
-    boost::mt19937 generator;
-    generator.seed(time(0));
-    boost::uniform_int<> uniform_dist(0, k);
-    boost::variate_generator<boost::mt19937&, boost::uniform_int<>> uniform_rnd(generator, uniform_dist);
-
-    if (useMask) {
-        // There are no guarantee that n pixels will sample
-        n = dai::min<int>(n, count_pixels_nz<uchar>(mask));
-    }
-
-    n = dai::min<int>(n, k);
-
-    int i = 0;
-    int attempts = 0;
-
-    while (i < n)
-    {
-        int z = uniform_rnd();
-
-        if (!used_samples.contains(z)) {
-
-            int row = z / inputImg.cols;
-            int col = z % inputImg.cols;
-
-            if (useMask && mask.at<uchar>(row,col) <= 0) {
-                attempts++;
-                continue;
-            }
-
-            Point<T,N> point;
-            const cv::Vec<T,N>& pixel = inputImg.at<cv::Vec<T,N>>(row,col);
-            for (int j=0; j<N; ++j) {
-                point[j] = pixel[j];
-            }
-
-            result.append(point);
-            used_samples << z;
-            i++;
-            attempts = 0;
-        }
-        else {
-            attempts++;
-        }
-
-        if (attempts > 0 && attempts % 1000 == 0) {
-            qDebug() << "Privacy Filter Stalled" << "attempts" << attempts << "i" << i << "n" << n << "k" << k << "mask pixels" << n_mask_pixels;
-        }
-    }
-
-    return result;
-}
-
-template <class T, int N>
-cv::Mat PrivacyFilter::samplingAsMat(const cv::Mat &inputImg, const cv::Mat &mask)
-{
-    Q_ASSERT( (mask.rows == 0 && mask.cols == 0) || (mask.rows == inputImg.rows && mask.cols == inputImg.cols) );
-
-    using namespace cv;
-
-    Mat sampledImage = Mat::zeros(inputImg.rows, inputImg.cols, inputImg.type());
-    bool useMask = mask.rows > 0 && mask.cols > 0;
-
-    for (int i=0; i<inputImg.rows; ++i)
-    {
-        const Vec<T,N>* pixel = inputImg.ptr<Vec<T,N>>(i);
-        Vec<T,N>* outPixel = sampledImage.ptr<Vec<T,N>>(i);
-        const uchar* pMask = useMask ? mask.ptr<uchar>(i) : nullptr;
-
-        for (int j=0; j<inputImg.cols; ++j)
-        {
-            if (useMask && pMask[j] <= 0)
-                continue;
-
-            outPixel[j] = pixel[j];
-        }
-    }
-
-    return sampledImage;
-}
-
-template <class T, int N>
-QList<Point<T,N>> PrivacyFilter::samplingAsList(const cv::Mat& inputImg, const cv::Mat& mask)
-{
-    Q_ASSERT( (mask.rows == 0 && mask.cols == 0) || (mask.rows == inputImg.rows && mask.cols == inputImg.cols) );
-
-    QList<Point<T,N> > result;
-    bool useMask = mask.rows > 0 && mask.cols > 0;
-
-    for (int i=0; i<inputImg.rows; ++i)
-    {
-        const cv::Vec<T,N>* pixel = inputImg.ptr<cv::Vec<T,N>>(i);
-        const uchar* pMask = useMask ? mask.ptr<uchar>(i) : nullptr;
-
-        for (int j=0; j<inputImg.cols; ++j)
-        {
-            if (useMask && pMask[j] <= 0)
-                continue;
-
-            Point<T,N> point;
-            for (int k=0; k<N; ++k)
-                point[k] = pixel[j][k];
-            result.append(point);
-        }
-    }
-
-    return result;
 }
 
 template <class T>
@@ -1383,237 +1103,6 @@ std::vector<cv::Rect> PrivacyFilter::faceDetection(cv::Mat frameGray, bool equal
     //m_face_cascade.detectMultiScale( frameGray, faces, 1.1, 2, 0 | CV_HAAR_SCALE_IMAGE, Size(30, 30) );
 
     return faces;
-}
-
-cv::Mat PrivacyFilter::calcHistogram(shared_ptr<ColorFrame> colorFrame, shared_ptr<MaskFrame> maskFrame = nullptr)
-{
-    using namespace cv;
-
-    // Use my data with OpenCV Mat
-    Mat inputImg = Mat(colorFrame->getHeight(), colorFrame->getWidth(),
-                    CV_8UC3, (void*)colorFrame->getDataPtr(), colorFrame->getStride());
-    Mat mask;
-
-    // Set Mask if it exists
-    if (maskFrame) {
-        mask = Mat(maskFrame->getHeight(), maskFrame->getWidth(), CV_8UC1, (void*)maskFrame->getDataPtr(), maskFrame->getStride());
-    }
-
-    // Convert from RGB to CIE L*a*b*
-    // L = [0, 100] -> [0,255]
-    // a = [-127, 127] -> [0, 255]
-    // b = [-127, 127] -> [0, 255]
-    Mat image;
-    cvtColor(inputImg, image, CV_RGB2Lab);
-
-    // Image denoising
-    Mat denoiseImage;
-    GaussianBlur(image, denoiseImage, cv::Size(7, 7), 0, 0);
-    //bilateralFilter(image, denoiseImage, 9, 18, 4.5f);
-
-    // Split image in L*, a* and b* channels
-    vector<Mat> lab_planes;
-    split(denoiseImage, lab_planes);
-
-    // Create interleave image
-    Mat intImage = interleaveMatChannels<Vec3b>(denoiseImage, mask);
-    normalize(intImage, intImage, 0, 65536, NORM_MINMAX, -1, Mat());
-    intImage.convertTo(intImage, CV_16UC1);
-
-    // Establish the number of bins
-    int histSize = 256;
-
-    // Set the ranges ( for L,a,b) )
-    float range[] = {0, 256};
-    float myRange[] = {0, 65536};
-    const float* histRange = { range };
-    const float* myHistRanges = { myRange };
-    bool uniform = true;
-    bool accumulate = false;
-
-    // Compute the histograms:
-    Mat l_hist, a_hist, b_hist, int_hist;
-    calcHist( &lab_planes[0], 1, 0, mask, l_hist, 1, &histSize, &histRange, uniform, accumulate );
-    calcHist( &lab_planes[1], 1, 0, mask, a_hist, 1, &histSize, &histRange, uniform, accumulate );
-    calcHist( &lab_planes[2], 1, 0, mask, b_hist, 1, &histSize, &histRange, uniform, accumulate );
-    calcHist( &intImage, 1, 0, mask, int_hist, 1, &histSize, &myHistRanges, uniform, accumulate);
-
-    // Compute histogram for each row
-    int numBins = 1;
-    int numLines = cvCeil(denoiseImage.rows / numBins);
-    if (denoiseImage.rows % numBins > 0) numBins++;
-    Mat h_hist = Mat::zeros(numLines, 256, CV_16UC1);
-
-    for (int i=0; i<denoiseImage.rows; ++i) {
-        Vec3b* pixel = denoiseImage.ptr<Vec3b>(i);
-        uchar* maskPixel = mask.ptr<uchar>(i);
-        int lineIndex = i / numBins;
-        for (int j=0; j<image.cols; ++j) {
-            if (maskPixel[j] > 0) {
-                h_hist.at<ushort>(lineIndex, pixel[j][0]) = h_hist.at<ushort>(lineIndex, pixel[j][0]) + 1;
-            }
-        }
-    }
-
-    /*double minValue, maxValue;
-    minMaxLoc(iwImage, &minValue, &maxValue);
-    qDebug() << "min" << minValue << "max" << maxValue;*/
-
-    // Draw the histograms for L, a and b
-    int hist_w = 512; int hist_h = 400;
-    int bin_w = cvRound( (double) hist_w/histSize );
-
-    Mat histImage( hist_h, hist_w, CV_8UC3, Scalar( 0,0,0) );
-
-    // Normalize the result to [ 0, histImage.rows ]
-    normalize(l_hist, l_hist, 0, histImage.rows, NORM_MINMAX, -1, Mat() );
-    normalize(a_hist, a_hist, 0, histImage.rows, NORM_MINMAX, -1, Mat() );
-    normalize(b_hist, b_hist, 0, histImage.rows, NORM_MINMAX, -1, Mat() );
-    normalize(int_hist, int_hist, 0, histImage.rows, NORM_MINMAX, -1, Mat());
-    normalize(h_hist, h_hist, 30000, 65535, NORM_MINMAX, -1, Mat());
-
-    // Draw for each channel
-    for( int i=1; i < histSize; i++ )
-    {
-        // This is OpenCV blue channel (Red in real because of BGR)
-        line(histImage,
-             cv::Point( bin_w*(i-1), hist_h - cvRound(l_hist.at<float>(i-1)) ) ,
-             cv::Point( bin_w*(i), hist_h - cvRound(l_hist.at<float>(i)) ),
-             Scalar( 0, 0, 255), 1, 8, 0  );
-        line(histImage,
-             cv::Point( bin_w*(i-1), hist_h - cvRound(a_hist.at<float>(i-1)) ) ,
-             cv::Point( bin_w*(i), hist_h - cvRound(a_hist.at<float>(i)) ),
-             Scalar( 0, 255, 0), 1, 8, 0  );
-        line(histImage,
-             cv::Point( bin_w*(i-1), hist_h - cvRound(b_hist.at<float>(i-1)) ) ,
-             cv::Point( bin_w*(i), hist_h - cvRound(b_hist.at<float>(i)) ),
-             Scalar( 255, 0, 0), 1, 8, 0  );
-        line(histImage,
-             cv::Point( bin_w*(i-1), hist_h - cvRound(int_hist.at<float>(i-1)) ) ,
-             cv::Point( bin_w*(i), hist_h - cvRound(int_hist.at<float>(i)) ),
-             Scalar( 0, 255, 255), 1, 8, 0  );
-    }
-
-    // Display
-    namedWindow("calcHist", CV_WINDOW_AUTOSIZE);
-    imshow("calcHist", histImage);
-    imshow("L-image", lab_planes[0]);
-    imshow("a-image", lab_planes[1]);
-    imshow("b-image", lab_planes[2]);
-    imshow("Int-Image", intImage);
-    imshow("Denoise-Image", denoiseImage);
-    cv::waitKey(1);
-
-    return Mat();
-}
-
-template <class T>
-cv::Mat PrivacyFilter::interleaveMatChannels(cv::Mat inputMat, cv::Mat mask, int type)
-{
-    Q_ASSERT(inputMat.channels() == 2 || inputMat.channels() == 3);
-    Q_ASSERT( (mask.rows == 0 && mask.cols == 0) || (mask.rows == inputMat.rows && mask.cols == inputMat.cols) );
-
-    using namespace cv;
-
-    bool useMask = mask.rows > 0 && mask.cols > 0;
-    Mat intImage(inputMat.rows, inputMat.cols, type);
-    int nChannels = inputMat.channels();
-
-    for (int i=0; i<inputMat.rows; ++i)
-    {
-        T* inPixel = inputMat.ptr<T>(i);
-        uchar* maskPixel = mask.ptr<uchar>(i);
-        uint32_t* outPixel = intImage.ptr<uint32_t>(i);
-
-        for (int j=0; j<inputMat.cols; ++j)
-        {
-            if (useMask && maskPixel[j] <= 0) {
-                outPixel[j] = 0;
-                continue;
-            }
-
-            T pixel_tmp = inPixel[j];
-            uint32_t pixel24b = 0;
-
-            for (int k=0; k<24; k+=3) {
-                pixel24b |= (pixel_tmp[0] & 0x01) << k;
-                pixel_tmp[0] >>= 1;
-
-                pixel24b |= (pixel_tmp[1] & 0x01) << (k+1);
-                pixel_tmp[1] >>= 1;
-
-                if (nChannels == 3) {
-                    pixel24b |= (pixel_tmp[2] & 0x01) << (k+2);
-                    pixel_tmp[2] >>= 1;
-                }
-            }
-
-            outPixel[j] = pixel24b;
-        }
-    }
-
-    return intImage;
-}
-
-// Count number of pixels of the silhouette / number of pixels of the bounding box
-double PrivacyFilter::computeOccupancy(shared_ptr<MaskFrame> mask, int* outNumPixels)
-{
-    double occupancy;
-    int n_pixels = 0;
-
-    for (int i=0; i<mask->getHeight(); ++i) {
-        const uint8_t* pixelMask =  mask->getRowPtr(i);
-        for (int j=0; j<mask->getWidth(); ++j) {
-            if (pixelMask[j] > 0 && pixelMask[j] < 255) {
-                n_pixels++;
-            }
-        }
-    }
-
-    occupancy = (float) n_pixels / (float) (mask->getHeight() * mask->getWidth());
-
-    if (outNumPixels) {
-        *outNumPixels = n_pixels;
-    }
-
-    return occupancy;
-}
-
-cv::Mat PrivacyFilter::computeIntegralImage(cv::Mat image)
-{
-    using namespace cv;
-    Mat lookup = Mat::zeros(image.rows, image.cols, CV_32SC1);
-
-    // Compute first row
-    Vec3b* pixel = image.ptr<Vec3b>(0);
-    uint32_t* value = lookup.ptr<uint32_t>(0);
-    value[0] = pixel[0][0];
-
-    for (int i=1; i<image.cols; ++i) {
-        value[i] = pixel[i][0] + value[i-1];
-    }
-
-    // Compute first column
-    for (int i=1; i<image.rows; ++i) {
-        lookup.at<uint32_t>(i, 0) = image.at<Vec3b>(i, 0)[0] + lookup.at<uint32_t>(i-1, 0);
-    }
-
-    uint32_t* prevMatrixRow = value;
-
-    // Compute Matrix
-    for (int i=1; i<image.rows; ++i)
-    {
-        Vec3b* pPixelRow = image.ptr<Vec3b>(i);
-        uint32_t* pMatrixRow = lookup.ptr<uint32_t>(i);
-
-        for (int j=1; j<image.cols; ++j) {
-            pMatrixRow[j] = pPixelRow[j][0] + pMatrixRow[j-1] + prevMatrixRow[j] - prevMatrixRow[j-1];
-        }
-
-        prevMatrixRow = pMatrixRow;
-    }
-
-    return lookup;
 }
 
 } // End Namespace

@@ -4,6 +4,7 @@
 #include <opencv2/opencv.hpp>
 #include <QList>
 #include "types/Histogram.h"
+#include "types/MaskFrame.h"
 
 namespace dai {
 
@@ -32,6 +33,67 @@ void colorImageWithMask(cv::Mat input_img, cv::Mat output_img, cv::Mat upper_mas
             }
         }
     }
+}
+
+cv::Mat computeIntegralImage(cv::Mat image)
+{
+    using namespace cv;
+    Mat lookup = Mat::zeros(image.rows, image.cols, CV_32SC1);
+
+    // Compute first row
+    Vec3b* pixel = image.ptr<Vec3b>(0);
+    uint32_t* value = lookup.ptr<uint32_t>(0);
+    value[0] = pixel[0][0];
+
+    for (int i=1; i<image.cols; ++i) {
+        value[i] = pixel[i][0] + value[i-1];
+    }
+
+    // Compute first column
+    for (int i=1; i<image.rows; ++i) {
+        lookup.at<uint32_t>(i, 0) = image.at<Vec3b>(i, 0)[0] + lookup.at<uint32_t>(i-1, 0);
+    }
+
+    uint32_t* prevMatrixRow = value;
+
+    // Compute Matrix
+    for (int i=1; i<image.rows; ++i)
+    {
+        Vec3b* pPixelRow = image.ptr<Vec3b>(i);
+        uint32_t* pMatrixRow = lookup.ptr<uint32_t>(i);
+
+        for (int j=1; j<image.cols; ++j) {
+            pMatrixRow[j] = pPixelRow[j][0] + pMatrixRow[j-1] + prevMatrixRow[j] - prevMatrixRow[j-1];
+        }
+
+        prevMatrixRow = pMatrixRow;
+    }
+
+    return lookup;
+}
+
+// Count number of pixels of the silhouette / number of pixels of the bounding box
+double computeOccupancy(shared_ptr<MaskFrame> mask, int *outNumPixels = nullptr)
+{
+    double occupancy;
+    int n_pixels = 0;
+
+    for (int i=0; i<mask->getHeight(); ++i) {
+        const uint8_t* pixelMask =  mask->getRowPtr(i);
+        for (int j=0; j<mask->getWidth(); ++j) {
+            if (pixelMask[j] > 0 && pixelMask[j] < 255) {
+                n_pixels++;
+            }
+        }
+    }
+
+    occupancy = (float) n_pixels / (float) (mask->getHeight() * mask->getWidth());
+
+    if (outNumPixels) {
+        *outNumPixels = n_pixels;
+    }
+
+    return occupancy;
 }
 
 void computeUpperAndLowerMasks(const cv::Mat& input_img, cv::Mat& upper_mask, cv::Mat& lower_mask, const cv::Mat mask = cv::Mat())
@@ -188,6 +250,60 @@ cv::Mat convertRGB2Indexed161616(const cv::Mat& inputImg)
     return outputImg;
 }
 
+cv::Mat convertRGB2Log2DAsMat(const cv::Mat &inputImg)
+{
+    cv::Mat outputImg = cv::Mat::zeros(inputImg.rows, inputImg.cols, CV_32FC2);
+
+    for (int i=0; i<inputImg.rows; ++i)
+    {
+        const cv::Vec3b* inPixel = inputImg.ptr<cv::Vec3b>(i);
+        cv::Vec2f* outPixel = outputImg.ptr<cv::Vec2f>(i);
+
+        for (int j=0; j<inputImg.cols; ++j) {
+            // Approach: Consider RGB colors from 1 to 256
+            // min color: log(1/256) ~ -5.6
+            // max color: log(256/1) ~ 5.6
+            outPixel[j][0] = std::log( float(inPixel[j][0]+1) / float(inPixel[j][1]+1) ); // log ( R/G )
+            outPixel[j][1] = std::log( float(inPixel[j][2]+1) / float(inPixel[j][1]+1) ); // log ( B/G )
+        }
+    }
+
+    return outputImg;
+}
+
+QList<Point2f> convertRGB2Log2DAsList(const QList<Point3b>& list)
+{
+    QList<Point2f> result;
+
+    for (auto it = list.constBegin(); it != list.constEnd(); ++it)
+    {
+        const Point3b& point = *it;
+        float log_rg = std::log10( float( point[0]+1 ) / float( point[1]+1 ) ); // log ( R/G )
+        float log_bg = std::log10( float( point[2]+1 ) / float( point[1]+1 ) ); // log ( B/G )
+        result.append( Point2f(log_rg, log_bg) );
+    }
+
+    return result;
+}
+
+template <class T>
+int count_pixels_nz(const cv::Mat& inputImg)
+{
+    Q_ASSERT(inputImg.channels() == 1);
+
+    int counter = 0;
+
+    for (int i=0; i<inputImg.rows; ++i) {
+        const T* pixel = inputImg.ptr<T>(i);
+        for (int j=0; j<inputImg.cols; ++j) {
+            if (pixel[j] > 0)
+                counter++;
+        }
+    }
+
+    return counter;
+}
+
 template <class T, int N>
 void createHistDistImage(const QList<Histogram<T,N>*>& hist_list, const QList<cv::Scalar> &color_list, cv::Mat& output_img)
 {
@@ -237,6 +353,280 @@ void createHistDistImage(const QList<Histogram<T,N>*>& hist_list, const QList<cv
 
         ++color_idx;
     }
+}
+
+void denoiseImage(cv::Mat input_img, cv::Mat output_img)
+{
+    // without filter: u.min 7 u.max 4466 u.nz 505 l.min 0 l.max 1473 l.nz 331
+    // filter:         u.min 7 u.max 3976 u.nz 577 l.min 0 l.max 1490 l.nz 323
+    medianBlur(input_img, output_img, 7);
+    //GaussianBlur(input_img, output_img, cv::Size(7, 7), 0, 0);
+    //GaussianBlur(output_img, output_img, cv::Size(7, 7), 0, 0);
+    //bilateralFilter(image, denoiseImage, 9, 18, 4.5f);
+}
+
+void discretiseRGBImage(cv::Mat input_img, cv::Mat output_img)
+{
+    using namespace cv;
+
+    const int module = 5;
+
+    for (int i=0; i<input_img.rows; ++i)
+    {
+        Vec3b* in_pixel = input_img.ptr<Vec3b>(i);
+        Vec3b* out_pixel = output_img.ptr<Vec3b>(i);
+
+        for (int j=0; j<input_img.cols; ++j)
+        {
+            int rest_r = in_pixel[j][0] % module;
+            int rest_g = in_pixel[j][1] % module;
+            int rest_b = in_pixel[j][2] % module;
+
+            if (rest_r > 0) {
+                out_pixel[j][0] = in_pixel[j][0] + (module - rest_r);
+            } else {
+                out_pixel[j][0] = in_pixel[j][0];
+            }
+
+            if (rest_g > 0) {
+                out_pixel[j][1] = in_pixel[j][1] + (module - rest_g);
+            } else {
+                out_pixel[j][1] = in_pixel[j][1];
+            }
+
+            if (rest_b > 0) {
+                out_pixel[j][2] = in_pixel[j][2] + (module - rest_b);
+            } else {
+                out_pixel[j][2] = in_pixel[j][2];
+            }
+        }
+    }
+}
+
+template <class T>
+cv::Mat interleaveMatChannels(cv::Mat inputMat, cv::Mat mask = cv::Mat(), int type = CV_32SC1)
+{
+    Q_ASSERT(inputMat.channels() == 2 || inputMat.channels() == 3);
+    Q_ASSERT( (mask.rows == 0 && mask.cols == 0) || (mask.rows == inputMat.rows && mask.cols == inputMat.cols) );
+
+    using namespace cv;
+
+    bool useMask = mask.rows > 0 && mask.cols > 0;
+    Mat intImage(inputMat.rows, inputMat.cols, type);
+    int nChannels = inputMat.channels();
+
+    for (int i=0; i<inputMat.rows; ++i)
+    {
+        T* inPixel = inputMat.ptr<T>(i);
+        uchar* maskPixel = mask.ptr<uchar>(i);
+        uint32_t* outPixel = intImage.ptr<uint32_t>(i);
+
+        for (int j=0; j<inputMat.cols; ++j)
+        {
+            if (useMask && maskPixel[j] <= 0) {
+                outPixel[j] = 0;
+                continue;
+            }
+
+            T pixel_tmp = inPixel[j];
+            uint32_t pixel24b = 0;
+
+            for (int k=0; k<24; k+=3) {
+                pixel24b |= (pixel_tmp[0] & 0x01) << k;
+                pixel_tmp[0] >>= 1;
+
+                pixel24b |= (pixel_tmp[1] & 0x01) << (k+1);
+                pixel_tmp[1] >>= 1;
+
+                if (nChannels == 3) {
+                    pixel24b |= (pixel_tmp[2] & 0x01) << (k+2);
+                    pixel_tmp[2] >>= 1;
+                }
+            }
+
+            outPixel[j] = pixel24b;
+        }
+    }
+
+    return intImage;
+}
+
+template <class T, int N>
+cv::Mat randomSamplingAsMat(const cv::Mat &inputImg, int n, const cv::Mat &mask = cv::Mat())
+{
+    Q_ASSERT( (mask.rows == 0 && mask.cols == 0) || (mask.rows == inputImg.rows && mask.cols == inputImg.cols) );
+
+    using namespace cv;
+
+    Mat sampledImage = Mat::zeros(inputImg.rows, inputImg.cols, inputImg.type());
+    QSet<int> used_samples;
+    int k = inputImg.rows * inputImg.cols - 1;
+    bool useMask = mask.rows > 0 && mask.cols > 0;
+    int n_mask_pixels = 0;
+
+    boost::mt19937 generator;
+    generator.seed(time(0));
+    boost::uniform_int<> uniform_dist(0, k);
+    boost::variate_generator<boost::mt19937&, boost::uniform_int<>> uniform_rnd(generator, uniform_dist);
+
+    if (useMask) {
+        // There are no guarantee that n pixels will sample
+        n = dai::min<int>(n, count_pixels_nz<uchar>(mask));
+    }
+
+    n = dai::min<int>(n, k);
+
+    int i = 0;
+    int attempts = 0;
+
+    while (i < n)
+    {
+        int z = uniform_rnd();
+
+        if (!used_samples.contains(z)) {
+
+            int row = z / inputImg.cols;
+            int col = z % inputImg.cols;
+
+            if (useMask && mask.at<uchar>(row,col) <= 0) {
+                attempts++;
+                continue;
+            }
+
+            sampledImage.at<Vec<T,N>>(row,col) = inputImg.at<Vec<T,N>>(row,col);
+            used_samples << z;
+            i++;
+            attempts = 0;
+        }
+        else {
+            attempts++;
+        }
+
+        if (attempts > 0 && attempts % 1000 == 0) {
+            qDebug() << "Privacy Filter Stalled" << "attempts" << attempts << "i" << i << "n" << n << "k" << k << "mask pixels" << n_mask_pixels;
+        }
+    }
+
+    return sampledImage;
+}
+
+template <class T, int N>
+QList<Point<T,N>> randomSampling(const cv::Mat &inputImg, int n, const cv::Mat &mask = cv::Mat())
+{
+    Q_ASSERT( (mask.rows == 0 && mask.cols == 0) || (mask.rows == inputImg.rows && mask.cols == inputImg.cols) );
+
+    QList<Point<T,N> > result;
+    bool useMask = mask.rows > 0 && mask.cols > 0;
+    int n_mask_pixels = 0;
+    QSet<int> used_samples;
+    int k = inputImg.rows * inputImg.cols - 1;
+
+    boost::mt19937 generator;
+    generator.seed(time(0));
+    boost::uniform_int<> uniform_dist(0, k);
+    boost::variate_generator<boost::mt19937&, boost::uniform_int<>> uniform_rnd(generator, uniform_dist);
+
+    if (useMask) {
+        // There are no guarantee that n pixels will sample
+        n = dai::min<int>(n, count_pixels_nz<uchar>(mask));
+    }
+
+    n = dai::min<int>(n, k);
+
+    int i = 0;
+    int attempts = 0;
+
+    while (i < n)
+    {
+        int z = uniform_rnd();
+
+        if (!used_samples.contains(z)) {
+
+            int row = z / inputImg.cols;
+            int col = z % inputImg.cols;
+
+            if (useMask && mask.at<uchar>(row,col) <= 0) {
+                attempts++;
+                continue;
+            }
+
+            Point<T,N> point;
+            const cv::Vec<T,N>& pixel = inputImg.at<cv::Vec<T,N>>(row,col);
+            for (int j=0; j<N; ++j) {
+                point[j] = pixel[j];
+            }
+
+            result.append(point);
+            used_samples << z;
+            i++;
+            attempts = 0;
+        }
+        else {
+            attempts++;
+        }
+
+        if (attempts > 0 && attempts % 1000 == 0) {
+            qDebug() << "Privacy Filter Stalled" << "attempts" << attempts << "i" << i << "n" << n << "k" << k << "mask pixels" << n_mask_pixels;
+        }
+    }
+
+    return result;
+}
+
+template <class T, int N>
+cv::Mat samplingAsMat(const cv::Mat &inputImg, const cv::Mat &mask = cv::Mat())
+{
+    Q_ASSERT( (mask.rows == 0 && mask.cols == 0) || (mask.rows == inputImg.rows && mask.cols == inputImg.cols) );
+
+    using namespace cv;
+
+    Mat sampledImage = Mat::zeros(inputImg.rows, inputImg.cols, inputImg.type());
+    bool useMask = mask.rows > 0 && mask.cols > 0;
+
+    for (int i=0; i<inputImg.rows; ++i)
+    {
+        const Vec<T,N>* pixel = inputImg.ptr<Vec<T,N>>(i);
+        Vec<T,N>* outPixel = sampledImage.ptr<Vec<T,N>>(i);
+        const uchar* pMask = useMask ? mask.ptr<uchar>(i) : nullptr;
+
+        for (int j=0; j<inputImg.cols; ++j)
+        {
+            if (useMask && pMask[j] <= 0)
+                continue;
+
+            outPixel[j] = pixel[j];
+        }
+    }
+
+    return sampledImage;
+}
+
+template <class T, int N>
+QList<Point<T,N>> samplingAsList(const cv::Mat& inputImg, const cv::Mat& mask = cv::Mat())
+{
+    Q_ASSERT( (mask.rows == 0 && mask.cols == 0) || (mask.rows == inputImg.rows && mask.cols == inputImg.cols) );
+
+    QList<Point<T,N> > result;
+    bool useMask = mask.rows > 0 && mask.cols > 0;
+
+    for (int i=0; i<inputImg.rows; ++i)
+    {
+        const cv::Vec<T,N>* pixel = inputImg.ptr<cv::Vec<T,N>>(i);
+        const uchar* pMask = useMask ? mask.ptr<uchar>(i) : nullptr;
+
+        for (int j=0; j<inputImg.cols; ++j)
+        {
+            if (useMask && pMask[j] <= 0)
+                continue;
+
+            Point<T,N> point;
+            for (int k=0; k<N; ++k)
+                point[k] = pixel[j][k];
+            result.append(point);
+        }
+    }
+
+    return result;
 }
 
 } // End Namespace
