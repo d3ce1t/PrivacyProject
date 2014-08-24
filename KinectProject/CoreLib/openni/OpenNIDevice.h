@@ -16,8 +16,9 @@ namespace dai {
 class OpenNIDevice
 {
 public:
+    static const QString ANY_DEVICE;
     static void copySkeleton(const nite::Skeleton& srcSkeleton, dai::Skeleton& dstSkeleton);
-    static OpenNIDevice* create(const QString devicePath = "ANY_DEVICE");
+    static OpenNIDevice* create(const QString devicePath = OpenNIDevice::ANY_DEVICE);
 
     ~OpenNIDevice();
     void open();
@@ -32,6 +33,7 @@ public:
     nite::UserTracker& getUserTracker();
     void depth2color(shared_ptr<DepthFrame> depthFrame, shared_ptr<MaskFrame> mask = nullptr);
     void setRegistration(bool flag);
+    bool isFile() const;
 
 private:
     OpenNIDevice(const QString devicePath);

@@ -29,6 +29,7 @@ QHash<QString, OpenNIDevice*> OpenNIDevice::_created_instances;
 int OpenNIDevice::_instance_counter = 0;
 bool OpenNIDevice::_initialised = false;
 QMutex OpenNIDevice::_mutex_counter;
+const QString OpenNIDevice::ANY_DEVICE = "ANY_DEVICE";
 
 OpenNIDevice::OpenNIDevice(const QString devicePath)
     : m_devicePath(devicePath)
@@ -86,7 +87,7 @@ void OpenNIDevice::open()
         const char* deviceURI = openni::ANY_DEVICE;
         std::string deviceURIStr = m_devicePath.toStdString();
 
-        if (m_devicePath != "ANY_DEVICE")
+        if (m_devicePath != OpenNIDevice::ANY_DEVICE)
             deviceURI = deviceURIStr.c_str();
 
         if (m_device.open(deviceURI) != openni::STATUS_OK)
@@ -470,6 +471,11 @@ void OpenNIDevice::shutdownOpenNI()
     openni::OpenNI::shutdown();
 
     _initialised = false;
+}
+
+bool OpenNIDevice::isFile() const
+{
+    return m_device.isFile();
 }
 
 } // End Namespace
