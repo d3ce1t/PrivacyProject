@@ -21,7 +21,7 @@ unsigned int DataInstance::getTotalFrames() const
 
 bool DataInstance::hasNext() const
 {
-    if (this->is_open() && (this->getFrameIndex() + 1 < m_nFrames))
+    if (this->is_open() && (this->getFrameCounter() + 1 < m_nFrames))
         return true;
 
     return false;

@@ -1,13 +1,12 @@
 #include "FrameGenerator.h"
 #include "FrameListener.h"
 #include "FrameNotifier.h"
-#include <QDebug>
+
 
 namespace dai {
 
 FrameGenerator::FrameGenerator()
     : m_frameCounter(0)
-    , m_lastTime(0)
 {
     m_timer.start();
 }
@@ -46,8 +45,7 @@ void FrameGenerator::removeListener(FrameListener* listener)
     }
 }
 
-// Devuelve true si hay listeners a los que notificar, false en caso contrario.
-void FrameGenerator::notifyListeners(const QHashDataFrames dataFrames, qint64 frameId)
+void FrameGenerator::notifyListeners(const QHashDataFrames& dataFrames, qint64 frameId)
 {
     // Notify listeners (Time is measured since this method is called and until the notification is received)
     // signals and slots, debug,   25 fps, Max 29.46 (ms), Min 0.05 (ms), Avg 14.44 (ms)
@@ -65,9 +63,10 @@ bool FrameGenerator::generate()
 {
     bool hasProduced = false;
 
-    qint64 timeBetweenInvocations = m_timer.nsecsElapsed() - m_lastTime;
-    m_lastTime = m_timer.nsecsElapsed();
-    m_productionRate = 1000000000 / timeBetweenInvocations;
+    // Stats 1
+    qint64 timeBetweenInvocations = m_timer.nsecsElapsed();
+    m_timer.start();
+    m_productionRate = 1000000000.0f / timeBetweenInvocations;
 
     // Frames counter
     m_counterLock.lockForWrite();
@@ -82,8 +81,9 @@ bool FrameGenerator::generate()
         hasProduced = true;
     }
 
-    qint64 spentTime = m_timer.nsecsElapsed() - m_lastTime;
-    m_instantProductionRate = 1000000000 / spentTime;
+    // Stats 2
+    qint64 spentTime = m_timer.nsecsElapsed();
+    m_instantProductionRate = 1000000000.0f / spentTime;
     return hasProduced;
 }
 
@@ -92,17 +92,6 @@ void FrameGenerator::restartStats()
     m_counterLock.lockForWrite();
     m_frameCounter = 0;
     m_counterLock.unlock();
-    m_lastTime = 0;
-}
-
-float FrameGenerator::getGeneratorCapacity() const
-{
-    return m_instantProductionRate;
-}
-
-float FrameGenerator::getFrameRate() const
-{
-    return m_productionRate;
 }
 
 qint64 FrameGenerator::productsCount()

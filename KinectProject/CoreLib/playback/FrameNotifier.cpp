@@ -49,7 +49,7 @@ void FrameNotifier::run()
 }
 
 // While the notifier is working, new notifications are ignored
-void FrameNotifier::notifyListener(const QHashDataFrames data, const qint64 frameId)
+void FrameNotifier::notifyListener(const QHashDataFrames& data, const qint64 frameId)
 {
     m_syncLock.lock();
     if (!m_workInProgress) {

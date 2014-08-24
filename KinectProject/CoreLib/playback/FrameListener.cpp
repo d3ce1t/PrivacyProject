@@ -41,8 +41,9 @@ void FrameListener::stopListener()
 void FrameListener::newFrames(const QHashDataFrames dataFrames, const qint64 frameId)
 {
     // Check the received frames are valid because we could have been called out of time
+    // frameId is the frame counter of the frame generator.
     if (!m_worker->isValidFrame(frameId)) {
-        qDebug() << "Frame Id:" << frameId << "Skipped";
+        qDebug() << "FrameListener - Frame" << frameId << "Skipped";
         return;
     }
 

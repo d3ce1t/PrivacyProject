@@ -10,11 +10,7 @@ class DataInstance : public StreamInstance
 {
 public:
     explicit DataInstance(const InstanceInfo& info);
-
-#if (!defined _MSC_VER)
     DataInstance(const DataInstance& other) = delete;
-#endif
-
     const InstanceInfo& getMetadata() const;
     unsigned int getTotalFrames() const;
     bool hasNext() const override;
@@ -22,12 +18,6 @@ public:
 protected:
     InstanceInfo m_info;
     unsigned int m_nFrames;
-
-private:
-#if (defined _MSC_VER)
-    DataInstance(const DataInstance&)
-        :StreamInstance(DataFrame::Unknown){}
-#endif
 }
 ;
 } // End Namespace

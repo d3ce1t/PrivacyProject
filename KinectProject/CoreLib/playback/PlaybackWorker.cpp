@@ -78,52 +78,60 @@ void PlaybackWorker::setFPS(float fps)
 void PlaybackWorker::run()
 {
     QElapsedTimer timer;
-    qint64 availableTime;
     qint64 remainingTime = 0;
-    qint64 averageTime = 0;
-    qint64 offsetTime = 0;
+    qint64 totalTime = 0;
+    qint64 global_deviation = 0;
+    qint64 skip_counter = 0;
 
     restartStats();
     openAllInstances();
     m_running = true;
 
+    timer.start();
+
     while (m_running)
     {
-        // Time: How much time I have?
+        if (global_deviation >= -m_slotTime)
+        {
+            // Do something
+            bool hasProduced = generate();
+
+            if (!hasProduced || subscribersCount() == 0)
+                m_running = false;
+
+            // Time management: Do I have free time?
+            remainingTime = m_slotTime - timer.nsecsElapsed();
+
+            if (remainingTime > 1500000) {
+                QThread::currentThread()->usleep((remainingTime - 1000000) / 1000); // FIX: usleep resolution is between 1 ms
+            }
+        }
+        else {
+            qDebug() << "PlaybackWorker - Skip Frame" << productsCount();
+            skip_counter++;
+        }
+
+        totalTime += timer.nsecsElapsed();
+        global_deviation += m_slotTime - timer.nsecsElapsed();
+
+        if ( (productsCount() + skip_counter) % 100 == 0) {
+            qDebug() << "PlaybackWorker is running" << productsCount() << "fps" << getFrameRate()
+                     << "capacity" << getGeneratorCapacity();
+
+            /*qDebug() << "Available Time (ms)" << m_slotTime / 1000000.0f
+                     << "Remaining (ms)" << remainingTime / 1000000.0f
+                     << "Deviation (ms)" << global_deviation / 1000000.0f;*/
+        }
+
         timer.start();
-        availableTime = m_slotTime + offsetTime;
-
-        // Do something
-        bool hasProduced = generate();
-
-        if (!hasProduced || subscribersCount() == 0)
-            m_running = false;
-
-        // Time management: Do I have free time?
-        remainingTime = availableTime - timer.nsecsElapsed();
-
-        if (remainingTime > 0) {
-            QThread::currentThread()->usleep(remainingTime / 1000);
-        }
-
-        averageTime += timer.nsecsElapsed();
-        offsetTime = availableTime - timer.nsecsElapsed();
-
-        /*qDebug() << "Available Time (ms)" << availableTime / 1000000.0f <<
-                    "Remaining (ms)" << remainingTime / 1000000.0f <<
-                    "Offset (ms)" << offsetTime / 1000000.0f;*/
-
-        if (productsCount() % 100 == 0) {
-            qDebug() << "PlaybackWorker is running" << productsCount();
-        }
     }
 
     closeAllInstances();
 
-    qint64 pCounter = productsCount();
+    qint64 pCounter = productsCount() + skip_counter;
 
     if (pCounter > 0)
-        qDebug() << "Average Time:" << (averageTime / pCounter) / 1000 << "Frame Count:" << pCounter;
+        qDebug() << "Average Time:" << (totalTime / pCounter) / 1000 << "Frame Count:" << pCounter << "Skip" << skip_counter;
 }
 
 void PlaybackWorker::stop()
@@ -173,24 +181,24 @@ QHashDataFrames PlaybackWorker::produceFrames()
 
     foreach (shared_ptr<StreamInstance> instance, instances)
     {
-        if (instance->is_open())
-        {
-            if (!instance->hasNext() && m_playloop_enabled)
-                instance->restart();
+        bool hasNext = instance->hasNext();
 
-            if (instance->hasNext())
-            {
-                instance->readNextFrame();
-                QList<shared_ptr<DataFrame>> frames = instance->frames();
+        if (!hasNext && m_playloop_enabled) {
+            instance->restart();
+            hasNext = instance->hasNext();
+        }
 
-                foreach (shared_ptr<DataFrame> frame, frames) {
-                    readFrames.insert(frame->getType(), frame);
-                }
+        if (hasNext) {
+            instance->readNextFrame();
+            QList<shared_ptr<DataFrame>> frames = instance->frames();
+
+            foreach (shared_ptr<DataFrame> frame, frames) {
+                readFrames.insert(frame->getType(), frame);
             }
-            else {
-                instance->close();
-                qDebug() << "Closed";
-            }
+        }
+        else {
+            instance->close();
+            qDebug() << "Closed";
         }
     }
 

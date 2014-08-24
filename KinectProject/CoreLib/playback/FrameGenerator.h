@@ -21,8 +21,13 @@ public:
     void addListener(FrameListener* listener);
     void removeListener(FrameListener* listener);
     bool generate();
-    float getGeneratorCapacity() const; // Frames que pueden ser generados por segundo
-    float getFrameRate() const; // Frames generados por segundo
+
+    // Frames que pueden ser generados por segundo
+    inline float getGeneratorCapacity() const {return m_instantProductionRate;}
+
+    // Frames generados por segundo
+    inline float getFrameRate() const {return m_productionRate;}
+
     QElapsedTimer superTimer;
 
 protected:
@@ -32,7 +37,7 @@ protected:
     virtual QHashDataFrames produceFrames() = 0;
 
 private:
-    void notifyListeners(const QHashDataFrames dataFrames, qint64 frameId);
+    inline void notifyListeners(const QHashDataFrames &dataFrames, qint64 frameId);
     bool isValidFrame(qint64 frameIndex);
 
     QReadWriteLock        m_listenersLock;
@@ -40,7 +45,6 @@ private:
     QReadWriteLock        m_counterLock;
     qint64                m_frameCounter;
     QElapsedTimer         m_timer;
-    qint64                m_lastTime;
     float                 m_instantProductionRate; // 1 / Spent Time
     float                 m_productionRate; // 1 / Time between two calls
 };

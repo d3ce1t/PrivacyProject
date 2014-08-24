@@ -15,7 +15,7 @@ class FrameNotifier : public QThread
 public:
     FrameNotifier(FrameListener* listener);
     ~FrameNotifier();
-    void notifyListener(const QHashDataFrames data, const qint64 frameId);
+    void notifyListener(const QHashDataFrames &data, const qint64 frameId);
     void stop();
 
 protected:
