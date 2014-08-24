@@ -6,9 +6,8 @@
 namespace dai {
 
 MSRDailyColorInstance::MSRDailyColorInstance(const InstanceInfo &info)
-    : DataInstance(info)
+    : DataInstance(info, 640, 480)
 {
-    m_frameBuffer = make_shared<ColorFrame>(640, 480);
     m_width = 0;
     m_height = 0;
     m_newFrameGenerated = false;
@@ -60,35 +59,30 @@ void MSRDailyColorInstance::restartInstance()
     QThread::msleep(200);
 }
 
-QList<shared_ptr<DataFrame> > MSRDailyColorInstance::nextFrame()
+void MSRDailyColorInstance::nextFrame(QHashDataFrames &output)
 {
-    QList<shared_ptr<DataFrame>> result;
+    Q_ASSERT(output.size() > 0);
+    shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(output.value(DataFrame::Color));
 
     // Wait for new frame
     waitForNewFrame();
 
     // Read this frame
     QMutexLocker locker(&m_lockFrame);
-    result.append(m_frameBuffer);
-    return result;
+
+    if (m_readFrame->isValid()) {
+        m_readFrame->map(QAbstractVideoBuffer::ReadOnly);
+        if (m_readFrame->isMapped()) {
+            memcpy( (void*) colorFrame->getDataPtr(), m_readFrame->bits(), m_readFrame->mappedBytes());
+            m_readFrame->unmap();
+        }
+    }
 }
 
 bool MSRDailyColorInstance::present(const QVideoFrame &frame)
 {
     m_lockFrame.lock();
-
-    QVideoFrame* readFrame = const_cast<QVideoFrame*>(&frame);
-
-    if (readFrame->isValid())
-    {
-        readFrame->map(QAbstractVideoBuffer::ReadOnly);
-
-        if (readFrame->isMapped()) {
-            memcpy( (void*) m_frameBuffer->getDataPtr(), readFrame->bits(), readFrame->mappedBytes());
-            readFrame->unmap();
-        }
-    }
-
+    m_readFrame = const_cast<QVideoFrame*>(&frame);
     m_lockFrame.unlock();
     notifyNewFrame();
     return true;

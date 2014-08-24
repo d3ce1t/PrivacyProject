@@ -16,30 +16,6 @@ class QListWidgetItem;
 class DatasetBrowser : public QMainWindow
 {
     Q_OBJECT
-    
-public:
-    explicit DatasetBrowser(QWidget *parent = 0);
-    virtual ~DatasetBrowser();
-
-public slots:
-    void openSettings();
-    void openDatasetSelector();
-    void closeDataset();
-
-private slots:
-    void listItemChange(QListWidgetItem * item);
-    void instanceItemActivated(QListWidgetItem * item);
-    void comboBoxChange(int index);
-    void loadDataset(dai::Dataset::DatasetType type);
-    void on_btnSelectAllActivities_clicked();
-    void on_btnUnselectAllActivities_clicked();
-    void on_btnSelectAllActors_clicked();
-    void on_btnUnselectAllActors_clicked();
-    void on_btnSelectAllSamples_clicked();
-    void on_btnUnselectAllSamples_clicked();
-
-private:
-    void loadInstances();
 
     Ui::DatasetBrowser*     ui;
     dai::Dataset*           m_dataset;
@@ -47,6 +23,26 @@ private:
     dai::DepthFilter        m_depthFilter;
     SettingsDialog          m_settings;
     dai::DataFrame::FrameType m_showType;
+    
+public:
+    explicit DatasetBrowser(QWidget *parent = 0);
+    virtual ~DatasetBrowser();
+
+public slots:
+    void closeDataset();
+
+private slots:
+    void instanceItemActivated(QListWidgetItem * item);
+    void on_btnSelectAllActivities_clicked();
+    void on_btnUnselectAllActivities_clicked();
+    void on_btnSelectAllActors_clicked();
+    void on_btnUnselectAllActors_clicked();
+    void on_btnSelectAllSamples_clicked();
+    void on_btnUnselectAllSamples_clicked();
+    void loadInstances();
+
+private:
+    void loadDataset(dai::Dataset::DatasetType type);
 };
 
 #endif // DATASETBROWSER_H

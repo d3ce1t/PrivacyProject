@@ -27,7 +27,7 @@ protected:
     bool openInstance() override;
     void closeInstance() override;
     void restartInstance() override;
-    QList<shared_ptr<DataFrame>> nextFrame() override;
+    void nextFrame(QHashDataFrames& output) override;
 
 private:
     void notifyNewFrame();
@@ -37,7 +37,7 @@ private:
     QMediaPlayer            m_player;
     int                     m_width;
     int                     m_height;
-    shared_ptr<ColorFrame>  m_frameBuffer;
+    QVideoFrame*            m_readFrame;
     QMutex                  m_lockFrame;
     QMutex                  m_lockSync;
     QWaitCondition          m_sync;

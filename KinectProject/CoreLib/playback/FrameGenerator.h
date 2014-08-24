@@ -26,7 +26,7 @@ public:
     inline float getGeneratorCapacity() const {return m_instantProductionRate;}
 
     // Frames generados por segundo
-    inline float getFrameRate() const {return m_productionRate;}
+    float getFrameRate() const {return m_productionRate;}
 
     QElapsedTimer superTimer;
 
@@ -38,7 +38,16 @@ protected:
 
 private:
     inline void notifyListeners(const QHashDataFrames &dataFrames, qint64 frameId);
-    bool isValidFrame(qint64 frameIndex);
+
+    inline bool isValidFrame(qint64 frameIndex)
+    {
+        bool result = false;
+        m_counterLock.lockForRead();
+        if (frameIndex == m_frameCounter)
+            result = true;
+        m_counterLock.unlock();
+        return result;
+    }
 
     QReadWriteLock        m_listenersLock;
     QHash<FrameListener*, FrameNotifier*> m_listeners;

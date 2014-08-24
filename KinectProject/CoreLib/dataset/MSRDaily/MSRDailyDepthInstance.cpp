@@ -11,10 +11,8 @@ using namespace std;
 namespace dai {
 
 MSRDailyDepthInstance::MSRDailyDepthInstance(const InstanceInfo &info)
-    : DataInstance(info)
+    : DataInstance(info, 320, 240)
 {
-    m_frameBuffer = make_shared<DepthFrame>(320, 240);
-    m_frameBuffer->setDistanceUnits(DepthFrame::MILIMETERS);
     m_width = 0;
     m_height = 0;
 }
@@ -71,9 +69,11 @@ void MSRDailyDepthInstance::restartInstance()
     }
 }
 
-QList<shared_ptr<DataFrame>> MSRDailyDepthInstance::nextFrame()
+void MSRDailyDepthInstance::nextFrame(QHashDataFrames &output)
 {
-    QList<shared_ptr<DataFrame>> result;
+    Q_ASSERT(output.size() > 0);
+    shared_ptr<DepthFrame> depthFrame = static_pointer_cast<DepthFrame>(output.value(DataFrame::Depth));
+    depthFrame->setDistanceUnits(DepthFrame::MILIMETERS);
 
     // Read Data from File
     m_file.read( (char *) m_readBuffer, sizeof(m_readBuffer) );
@@ -83,12 +83,9 @@ QList<shared_ptr<DataFrame>> MSRDailyDepthInstance::nextFrame()
         {
             // I assume data is captured with Kinect SDK, so...
             // Kinect SDK provide depth values between 0 and 4000 in mm.
-            m_frameBuffer->setItem(y, x, m_readBuffer[y].depthRow[x]);
+            depthFrame->setItem(y, x, m_readBuffer[y].depthRow[x]);
         }
     }
-
-    result.append(m_frameBuffer);
-    return result;
 }
 
 } // End Namespace

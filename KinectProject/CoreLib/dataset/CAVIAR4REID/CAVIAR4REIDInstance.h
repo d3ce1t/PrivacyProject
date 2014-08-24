@@ -24,7 +24,7 @@ protected:
     bool openInstance() override;
     void closeInstance() override;
     void restartInstance() override;
-    QList<shared_ptr<DataFrame>> nextFrame() override;    
+    void nextFrame(QHashDataFrames& output) override;
 };
 
 } // End namespace

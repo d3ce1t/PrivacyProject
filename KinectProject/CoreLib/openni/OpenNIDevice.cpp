@@ -44,12 +44,6 @@ OpenNIDevice::OpenNIDevice(const QString devicePath)
     }
     _mutex_counter.unlock();
 
-    // Create buffers for data
-    m_colorFrame = make_shared<ColorFrame>();
-    m_depthFrame = make_shared<DepthFrame>();
-    m_depthFrame->setDistanceUnits(DepthFrame::MILIMETERS);
-    m_maskFrame = make_shared<MaskFrame>(640, 480);
-
     // Videostreams
     m_depthStreams = new openni::VideoStream*[1];
     m_depthStreams[0] = &m_oniDepthStream;
@@ -171,22 +165,12 @@ openni::PlaybackControl* OpenNIDevice::playbackControl()
     return m_device.getPlaybackControl();
 }
 
-shared_ptr<DepthFrame> OpenNIDevice::depthFrame() const
-{
-    return m_depthFrame;
-}
-
-shared_ptr<MaskFrame> OpenNIDevice::maskFrame() const
-{
-    return m_maskFrame;
-}
-
 void OpenNIDevice::setRegistration(bool flag)
 {
     m_manual_registration = flag;
 }
 
-shared_ptr<ColorFrame> OpenNIDevice::readColorFrame()
+void OpenNIDevice::readColorFrame(shared_ptr<ColorFrame> colorFrame)
 {
     if (m_oniColorStream.readFrame(&m_oniColorFrame) != openni::STATUS_OK)
         throw 1;
@@ -201,12 +185,11 @@ shared_ptr<ColorFrame> OpenNIDevice::readColorFrame()
         throw 3;
     }
 
-    m_colorFrame->setDataPtr(640, 480, (RGBColor*) m_oniColorFrame.getData());
-    m_colorFrame->setIndex(m_oniColorFrame.getFrameIndex());
-    return m_colorFrame;
+    colorFrame->setDataPtr(640, 480, (RGBColor*) m_oniColorFrame.getData());
+    colorFrame->setIndex(m_oniColorFrame.getFrameIndex());
 }
 
-shared_ptr<DepthFrame> OpenNIDevice::readDepthFrame()
+void OpenNIDevice::readDepthFrame(shared_ptr<DepthFrame> depthFrame)
 {
     if (m_oniDepthStream.readFrame(&m_oniDepthFrame) != openni::STATUS_OK) {
         throw 1;
@@ -223,14 +206,13 @@ shared_ptr<DepthFrame> OpenNIDevice::readDepthFrame()
         throw 3;
     }
 
-    m_depthFrame->setDataPtr(640, 480, (uint16_t*) m_oniDepthFrame.getData());
-    m_depthFrame->setIndex(m_oniDepthFrame.getFrameIndex());
+    depthFrame->setDataPtr(640, 480, (uint16_t*) m_oniDepthFrame.getData());
+    depthFrame->setIndex(m_oniDepthFrame.getFrameIndex());
+    depthFrame->setDistanceUnits(DepthFrame::MILIMETERS);
 
     if (m_manual_registration) {
-        depth2color(m_depthFrame);
+        depth2color(depthFrame);
     }
-
-    return m_depthFrame;
 }
 
 /* Old Version
@@ -266,7 +248,10 @@ shared_ptr<DepthFrame> OpenNIDevice::readDepthFrame()
     return m_depthFrame;
 }*/
 
-nite::UserTrackerFrameRef OpenNIDevice::readUserTrackerFrame()
+void OpenNIDevice::readUserTrackerFrame(shared_ptr<DepthFrame> depthFrame,
+                                                             shared_ptr<MaskFrame> maskFrame,
+                                                             shared_ptr<SkeletonFrame> skeletonFrame,
+                                                             shared_ptr<MetadataFrame> metadataFrame)
 {
     nite::UserTrackerFrameRef oniUserTrackerFrame;
 
@@ -288,8 +273,9 @@ nite::UserTrackerFrameRef OpenNIDevice::readUserTrackerFrame()
         throw 3;
     }
 
-    m_depthFrame->setDataPtr(640, 480, (uint16_t*) m_oniDepthFrame.getData());
-    m_depthFrame->setIndex(m_oniDepthFrame.getFrameIndex());
+    depthFrame->setDataPtr(640, 480, (uint16_t*) m_oniDepthFrame.getData());
+    depthFrame->setIndex(m_oniDepthFrame.getFrameIndex());
+    depthFrame->setDistanceUnits(DepthFrame::MILIMETERS);
 
     // Load User Labels
     const nite::UserMap& userMap = oniUserTrackerFrame.getUserMap();
@@ -304,24 +290,69 @@ nite::UserTrackerFrameRef OpenNIDevice::readUserTrackerFrame()
     const nite::UserId* pLabel = userMap.getPixels();
 
     for (int i=0; i < userMap.getHeight(); ++i) {
-        uint8_t* pMask = m_maskFrame->getRowPtr(i);
+        uint8_t* pMask = maskFrame->getRowPtr(i);
         for (int j=0; j < userMap.getWidth(); ++j) {
             pMask[j] = *pLabel;
             pLabel++;
         }
     }
 
-    m_maskFrame->setIndex(oniUserTrackerFrame.getFrameIndex());
+    maskFrame->setIndex(oniUserTrackerFrame.getFrameIndex());
 
     // Registration
     if (m_manual_registration) {
-        depth2color(m_depthFrame, m_maskFrame);
+        depth2color(depthFrame, maskFrame);
     }
 
-    return oniUserTrackerFrame;
+    // Process Users
+    skeletonFrame->clear();
+    skeletonFrame->setIndex(oniUserTrackerFrame.getFrameIndex());
+    metadataFrame->boundingBoxes().clear();
+    metadataFrame->setIndex(oniUserTrackerFrame.getFrameIndex());
+
+    const nite::Array<nite::UserData>& users = oniUserTrackerFrame.getUsers();
+
+    for (int i=0; i<users.getSize(); ++i)
+    {
+        const nite::UserData& user = users[i];
+
+        if (user.isNew()) {
+            m_oniUserTracker.startSkeletonTracking(user.getId());
+        }
+        else if (user.isVisible())
+        {
+            // Get Boundingbox
+            const nite::BoundingBox niteBoundingBox = user.getBoundingBox();
+            const NitePoint3f bbMin = niteBoundingBox.min;
+            const NitePoint3f bbMax = niteBoundingBox.max;
+            dai::BoundingBox boundingBox(dai::Point3f(bbMin.x, bbMin.y, bbMin.z),
+                                         dai::Point3f(bbMax.x, bbMax.y, bbMax.z));
+            metadataFrame->boundingBoxes().append(boundingBox);
+
+            // Get Skeleton
+            const nite::Skeleton& oniSkeleton = user.getSkeleton();
+            const nite::SkeletonJoint& head = user.getSkeleton().getJoint(nite::JOINT_HEAD);
+
+            if (oniSkeleton.getState() == nite::SKELETON_TRACKED && head.getPositionConfidence() > 0.5)
+            {
+                auto daiSkeleton = skeletonFrame->getSkeleton(user.getId());
+
+                if (daiSkeleton == nullptr) {
+                    daiSkeleton = make_shared<dai::Skeleton>(dai::Skeleton::SKELETON_OPENNI);
+                    skeletonFrame->setSkeleton(user.getId(), daiSkeleton);
+                }
+
+                OpenNIDevice::copySkeleton(oniSkeleton, *(daiSkeleton.get()));
+                daiSkeleton->computeQuaternions();
+            }
+        }
+        else if (user.isLost()) {
+            m_oniUserTracker.stopSkeletonTracking(user.getId());
+        }
+    } // End for
 }
 
-void OpenNIDevice::depth2color(shared_ptr<DepthFrame> depthFrame, shared_ptr<MaskFrame> mask)
+void OpenNIDevice::depth2color(shared_ptr<DepthFrame> depthFrame, shared_ptr<MaskFrame> mask) const
 {
     // RGB Intrinsics
     const double fx_rgb = 529.21508098293293;
@@ -405,11 +436,6 @@ void OpenNIDevice::depth2color(shared_ptr<DepthFrame> depthFrame, shared_ptr<Mas
     if (mask) {
         *mask = *outputMask; // Copy
     }
-}
-
-nite::UserTracker& OpenNIDevice::getUserTracker()
-{
-    return m_oniUserTracker;
 }
 
 void OpenNIDevice::copySkeleton(const nite::Skeleton& srcSkeleton, dai::Skeleton& dstSkeleton)

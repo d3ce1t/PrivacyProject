@@ -10,6 +10,7 @@ using namespace std;
 namespace dai {
 
 const QList<QList<QString>> DatasetMetadata::ANY_LABEL = QList<QList<QString>>();
+const QList<int> DatasetMetadata::ALL_ACTORS = QList<int>();
 
 DatasetMetadata::~DatasetMetadata()
 {

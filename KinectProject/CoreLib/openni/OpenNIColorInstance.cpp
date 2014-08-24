@@ -7,13 +7,13 @@ using namespace std;
 namespace dai {
 
 OpenNIColorInstance::OpenNIColorInstance()
-    : StreamInstance(DataFrame::Color)
+    : StreamInstance(DataFrame::Color, 640, 480)
 {
     m_device = nullptr;
 }
 
 OpenNIColorInstance::OpenNIColorInstance(OpenNIDevice* device)
-    : StreamInstance(DataFrame::Color)
+    : StreamInstance(DataFrame::Color, 640, 480)
 {
     m_device = device;
 }
@@ -55,12 +55,11 @@ void OpenNIColorInstance::restartInstance()
 {
 }
 
-QList<shared_ptr<DataFrame>> OpenNIColorInstance::nextFrame()
+void OpenNIColorInstance::nextFrame(QHashDataFrames &output)
 {
-    QList<shared_ptr<DataFrame>> result;
-    shared_ptr<ColorFrame> colorFrame = m_device->readColorFrame();
-    result.append(colorFrame);
-    return result;
+    Q_ASSERT(output.size() > 0);
+    shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(output.value(DataFrame::Color));
+    m_device->readColorFrame(colorFrame);
 }
 
 } // End namespace

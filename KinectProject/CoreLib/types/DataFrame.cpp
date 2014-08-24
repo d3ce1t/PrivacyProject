@@ -1,6 +1,34 @@
 #include "DataFrame.h"
+#include "types/ColorFrame.h"
+#include "types/DepthFrame.h"
+#include "types/SkeletonFrame.h"
+#include "types/MaskFrame.h"
+#include "types/MetadataFrame.h"
 
 namespace dai {
+
+shared_ptr<DataFrame> DataFrame::create(FrameType type, int width, int height)
+{
+    shared_ptr<DataFrame> result = nullptr;
+
+    if (type == Color) {
+        result = make_shared<ColorFrame>(width, height);
+    }
+    else if (type == Depth) {
+        result = make_shared<DepthFrame>(width, height);
+    }
+    else if (type == Skeleton) {
+        result = make_shared<SkeletonFrame>();
+    }
+    else if (type == Mask) {
+        result = make_shared<MaskFrame>(width, height);
+    }
+    else if (type == Metadata) {
+        result = make_shared<MetadataFrame>();
+    }
+
+    return result;
+}
 
 DataFrame::DataFrame(FrameType type)
 {
@@ -34,27 +62,6 @@ unsigned int DataFrame::getIndex() const
 void DataFrame::setIndex(unsigned int index)
 {
     m_index = index;
-}
-
-DataFrame::FrameType DataFrame::getType(DataFrame::SupportedFrames type)
-{
-    FrameType all_types[] = {Color, Depth, Skeleton, Mask, Metadata};
-    FrameType result = Unknown;
-
-    int matches = 0;
-
-    for (int i=0; i<5; ++i) {
-        if (type.testFlag(all_types[i])) {
-            result = all_types[i];
-            matches++;
-        }
-    }
-
-    if (matches > 1) {
-        result = Unknown;
-    }
-
-    return result;
 }
 
 } // End Namespace

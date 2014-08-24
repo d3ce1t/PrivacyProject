@@ -31,9 +31,8 @@ SkeletonJoint::JointType MSRActionSkeletonInstance::staticMap[20] = {
 };
 
 MSRActionSkeletonInstance::MSRActionSkeletonInstance(const InstanceInfo& info)
-    : DataInstance(info)
+    : DataInstance(info, 320, 240)
 {
-    m_frameBuffer = make_shared<SkeletonFrame>();
     m_nJoints = 0;
 }
 
@@ -94,14 +93,15 @@ void MSRActionSkeletonInstance::restartInstance()
     }
 }
 
-QList<shared_ptr<DataFrame>> MSRActionSkeletonInstance::nextFrame()
+void MSRActionSkeletonInstance::nextFrame(QHashDataFrames &output)
 {
-    QList<shared_ptr<DataFrame>> result;
-    auto skeleton = m_frameBuffer->getSkeleton(1);
+    Q_ASSERT(output.size() > 0);
+    shared_ptr<SkeletonFrame> skeletonFrame = static_pointer_cast<SkeletonFrame>(output.value(DataFrame::Skeleton));
+    auto skeleton = skeletonFrame->getSkeleton(1);
 
     if (skeleton == nullptr) {
         skeleton = make_shared<Skeleton>(Skeleton::SKELETON_KINECT);
-        m_frameBuffer->setSkeleton(1, skeleton);
+        skeletonFrame->setSkeleton(1, skeleton);
     }
 
     // Read Data from File
@@ -123,9 +123,6 @@ QList<shared_ptr<DataFrame>> MSRActionSkeletonInstance::nextFrame()
     }
 
     skeleton->computeQuaternions();
-
-    result.append(m_frameBuffer);
-    return result;
 }
 
 } // End Namespace

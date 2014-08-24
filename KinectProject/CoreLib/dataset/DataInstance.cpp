@@ -9,6 +9,13 @@ DataInstance::DataInstance(const InstanceInfo &info)
     m_nFrames = 0;
 }
 
+DataInstance::DataInstance(const InstanceInfo &info, int width, int height)
+    : StreamInstance(info.getType(), width, height)
+    , m_info(info)
+{
+    m_nFrames = 0;
+}
+
 const InstanceInfo& DataInstance::getMetadata() const
 {
     return m_info;

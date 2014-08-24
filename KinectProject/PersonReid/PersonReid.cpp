@@ -39,6 +39,7 @@ void PersonReid::execute()
     //
     // Training
     //
+    QHashDataFrames readFrames;
 
     // For each actor, compute the feature that minimises the distance to each other sample of
     // the same actor.
@@ -62,8 +63,8 @@ void PersonReid::execute()
             // Get Sample
             shared_ptr<StreamInstance> instance = dataset->getInstance(*instance_info, DataFrame::Color);
             instance->open();
-            instance->readNextFrame();
-            shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(instance->frames().at(0));
+            instance->readNextFrame(readFrames);
+            shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(readFrames.values().at(0));
 
             // Feature Extraction
             shared_ptr<Feature> feature = featureExtraction(colorFrame, *instance_info);
@@ -115,8 +116,8 @@ void PersonReid::execute()
         // Get Sample
         shared_ptr<StreamInstance> instance = dataset->getInstance(*instance_info, DataFrame::Color);
         instance->open();
-        instance->readNextFrame();
-        shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(instance->frames().at(0));
+        instance->readNextFrame(readFrames);
+        shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(readFrames.values().at(0));
 
         // Feature Extraction
         shared_ptr<Feature> query = featureExtraction(colorFrame, *instance_info);

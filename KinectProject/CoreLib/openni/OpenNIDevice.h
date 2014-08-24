@@ -8,6 +8,7 @@
 #include "types/ColorFrame.h"
 #include "types/SkeletonFrame.h"
 #include "types/MaskFrame.h"
+#include "types/MetadataFrame.h"
 #include <QMutex>
 #include <QHash>
 
@@ -15,31 +16,6 @@ namespace dai {
 
 class OpenNIDevice
 {
-public:
-    static const QString ANY_DEVICE;
-    static void copySkeleton(const nite::Skeleton& srcSkeleton, dai::Skeleton& dstSkeleton);
-    static OpenNIDevice* create(const QString devicePath = OpenNIDevice::ANY_DEVICE);
-
-    ~OpenNIDevice();
-    void open();
-    void close();
-    bool is_open() const;
-    shared_ptr<ColorFrame> readColorFrame();
-    shared_ptr<DepthFrame> readDepthFrame();
-    shared_ptr<DepthFrame> depthFrame() const;
-    shared_ptr<MaskFrame>  maskFrame() const;
-    nite::UserTrackerFrameRef readUserTrackerFrame();
-    openni::PlaybackControl* playbackControl();
-    nite::UserTracker& getUserTracker();
-    void depth2color(shared_ptr<DepthFrame> depthFrame, shared_ptr<MaskFrame> mask = nullptr);
-    void setRegistration(bool flag);
-    bool isFile() const;
-
-private:
-    OpenNIDevice(const QString devicePath);
-    void initOpenNI();
-    void shutdownOpenNI();
-
     static QHash<QString, OpenNIDevice*> _created_instances;
     static SkeletonJoint::JointType _staticMap[15];
     static QMutex                   _mutex_counter;
@@ -54,13 +30,33 @@ private:
     openni::VideoStream**	   m_colorStreams;
     nite::UserTracker          m_oniUserTracker;
     openni::VideoFrameRef      m_oniDepthFrame;
-    shared_ptr<DepthFrame>     m_depthFrame;
     openni::VideoFrameRef      m_oniColorFrame;
-    shared_ptr<ColorFrame>     m_colorFrame;
-    shared_ptr<MaskFrame>      m_maskFrame;
     QMutex                     m_mutex;
     bool                       m_opened;
     bool                       m_manual_registration;
+
+public:
+    static const QString ANY_DEVICE;
+    static void copySkeleton(const nite::Skeleton& srcSkeleton, dai::Skeleton& dstSkeleton);
+    static OpenNIDevice* create(const QString devicePath = OpenNIDevice::ANY_DEVICE);
+
+    ~OpenNIDevice();
+    void open();
+    void close();
+    bool is_open() const;
+    void readColorFrame(shared_ptr<ColorFrame> colorFrame);
+    void readDepthFrame(shared_ptr<DepthFrame> depthFrame);
+    void readUserTrackerFrame(shared_ptr<DepthFrame> depthFrame, shared_ptr<MaskFrame> maskFrame, shared_ptr<SkeletonFrame> skeletonFrame, shared_ptr<MetadataFrame> metadataFrame);
+    openni::PlaybackControl* playbackControl();
+    bool isFile() const;
+    void setRegistration(bool flag);
+
+
+private:
+    OpenNIDevice(const QString devicePath);
+    void initOpenNI();
+    void shutdownOpenNI();
+    void depth2color(shared_ptr<DepthFrame> depthFrame, shared_ptr<MaskFrame> mask = nullptr) const;
 };
 
 } // End Namespace

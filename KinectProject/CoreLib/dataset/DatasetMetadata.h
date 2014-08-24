@@ -33,6 +33,7 @@ class DatasetMetadata
 public:
 
     static const QList<QList<QString>> ANY_LABEL;
+    static const QList<int> ALL_ACTORS;
 
     static shared_ptr<DatasetMetadata> load(QString xmlPath);
     static shared_ptr<DatasetMetadata> load_version1(QString xmlPath);

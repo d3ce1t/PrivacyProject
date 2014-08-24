@@ -7,13 +7,13 @@ using namespace std;
 namespace dai {
 
 OpenNIDepthInstance::OpenNIDepthInstance()
-    : StreamInstance(DataFrame::Depth)
+    : StreamInstance(DataFrame::Depth, 640, 480)
 {
     m_device = nullptr;
 }
 
 OpenNIDepthInstance::OpenNIDepthInstance(OpenNIDevice* device)
-    : StreamInstance(DataFrame::Depth)
+    : StreamInstance(DataFrame::Depth, 640, 480)
 {
     m_device = device;
 }
@@ -55,12 +55,11 @@ void OpenNIDepthInstance::restartInstance()
 {
 }
 
-QList<shared_ptr<DataFrame>> OpenNIDepthInstance::nextFrame()
+void OpenNIDepthInstance::nextFrame(QHashDataFrames &output)
 {
-    QList<shared_ptr<DataFrame>> result;
-    shared_ptr<DepthFrame> depthFrame = m_device->readDepthFrame();
-    result.append(depthFrame);
-    return result;
+    Q_ASSERT(output.size() > 0);
+    shared_ptr<DepthFrame> depthFrame = static_pointer_cast<DepthFrame>(output.value(DataFrame::Depth));
+    m_device->readDepthFrame(depthFrame);
 }
 
 } // End namespace

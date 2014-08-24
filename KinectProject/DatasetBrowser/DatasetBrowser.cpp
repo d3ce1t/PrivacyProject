@@ -27,15 +27,44 @@ DatasetBrowser::DatasetBrowser(QWidget *parent) :
         QTimer::singleShot(1, &m_settings, SLOT(show()));
     }
 
-    // Connect Signals
+    // Close Dataset
     connect(ui->actionClose_dataset, SIGNAL(triggered()), this, SLOT(closeDataset()));
-    connect(ui->actionOpen_dataset, SIGNAL(triggered()), this, SLOT(openDatasetSelector()));
-    connect(ui->actionSettings, SIGNAL(triggered()), this, SLOT(openSettings()));
-    connect(ui->listActivities, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(listItemChange(QListWidgetItem*)));
-    connect(ui->listActors, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(listItemChange(QListWidgetItem*)));
-    connect(ui->listSamples, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(listItemChange(QListWidgetItem*)));
+
+    // Open Dataset
+    connect(ui->actionOpen_dataset, &QAction::triggered, [=]() {
+        DatasetSelector* window = new DatasetSelector(this);
+        if (window->exec() != QDialog::Rejected) {
+            loadDataset( (Dataset::DatasetType) (window->result()-1) );
+        }
+    });
+
+    // Open Settings
+    connect(ui->actionSettings, &QAction::triggered, [=]() {
+        if (m_settings.exec() == QDialog::Accepted) {
+            closeDataset();
+        }
+    });
+
+    // Activity change
+    connect(ui->listActivities, &QListWidget::itemChanged, [=]() {
+        loadInstances();
+    });
+
+    // Actors change
+    connect(ui->listActors, &QListWidget::itemChanged, [=]() {
+        loadInstances();
+    });
+
+    // Samples change
+    connect(ui->listSamples, &QListWidget::itemChanged, [=]() {
+        loadInstances();
+    });
+
+    // Select instance type
+    connect(ui->comboType, SIGNAL(currentIndexChanged(int)), this, SLOT(loadInstances()));
+
+    // Activate item
     connect(ui->listInstances, SIGNAL(itemActivated(QListWidgetItem*)), this, SLOT(instanceItemActivated(QListWidgetItem*)));
-    connect(ui->comboType, SIGNAL(currentIndexChanged(int)), this, SLOT(comboBoxChange(int)));
 }
 
 DatasetBrowser::~DatasetBrowser()
@@ -48,22 +77,6 @@ DatasetBrowser::~DatasetBrowser()
 
     closeDataset();
     delete ui;
-}
-
-void DatasetBrowser::openSettings()
-{
-    if (m_settings.exec() == QDialog::Accepted) {
-        closeDataset();
-    }
-}
-
-void DatasetBrowser::openDatasetSelector()
-{
-    DatasetSelector* window = new DatasetSelector(this);
-
-    if (window->exec() != QDialog::Rejected) {
-        loadDataset( (Dataset::DatasetType) (window->result()-1) );
-    }
 }
 
 void DatasetBrowser::closeDataset()
@@ -82,18 +95,6 @@ void DatasetBrowser::closeDataset()
     ui->comboType->clear();
 
     ui->comboType->blockSignals(false);
-}
-
-void DatasetBrowser::listItemChange(QListWidgetItem * item)
-{
-    Q_UNUSED(item);
-    loadInstances();
-}
-
-void DatasetBrowser::comboBoxChange(int index)
-{
-    Q_UNUSED(index);
-    loadInstances();
 }
 
 void DatasetBrowser::instanceItemActivated(QListWidgetItem * item)

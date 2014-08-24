@@ -7,7 +7,7 @@
 namespace dai {
 
 CAVIAR4REIDInstance::CAVIAR4REIDInstance(const InstanceInfo &info)
-    : DataInstance(info)
+    : DataInstance(info, -1, -1)
 {
     m_colorFrame = make_shared<ColorFrame>();
     m_width = 0;
@@ -37,24 +37,8 @@ bool CAVIAR4REIDInstance::openInstance()
     QString instancePath = m_info.parent().getPath() + "/" + m_info.getFileName(DataFrame::Color);
     QFile file(instancePath);
 
-    if (file.exists())
-    {
-        m_frameBuffer = cv::imread(instancePath.toStdString());        
-
-        if (m_frameBuffer.data)
-        {
-            cv::cvtColor(m_frameBuffer, m_frameBuffer, CV_BGR2RGB);
-
-            // Scale
-            if (m_frameBuffer.cols < 64)
-            {
-                double scale_factor = 64.0 / m_frameBuffer.cols;
-                cv::Size size(64, scale_factor*m_frameBuffer.rows);
-                cv::resize(m_frameBuffer, m_frameBuffer, size);//resize image
-            }
-
-            result = true;
-        }
+    if (file.exists()) {
+        result = true;
     }
 
     return result;
@@ -68,12 +52,30 @@ void CAVIAR4REIDInstance::restartInstance()
 {
 }
 
-QList<shared_ptr<DataFrame> > CAVIAR4REIDInstance::nextFrame()
+void CAVIAR4REIDInstance::nextFrame(QHashDataFrames &output)
 {
-    QList<shared_ptr<DataFrame>> result;
-    m_colorFrame->setDataPtr(m_frameBuffer.cols, m_frameBuffer.rows, (RGBColor*) m_frameBuffer.data);
-    result.append(m_colorFrame);
-    return result;
+    QString instancePath = m_info.parent().getPath() + "/" + m_info.getFileName(DataFrame::Color);
+    m_frameBuffer = cv::imread(instancePath.toStdString());
+
+    if (m_frameBuffer.data) {
+        cv::cvtColor(m_frameBuffer, m_frameBuffer, CV_BGR2RGB);
+
+        // Scale
+        if (m_frameBuffer.cols < 64) {
+            double scale_factor = 64.0 / m_frameBuffer.cols;
+            cv::Size size(64, scale_factor*m_frameBuffer.rows);
+            cv::resize(m_frameBuffer, m_frameBuffer, size);//resize image
+        }
+
+        m_colorFrame->setDataPtr(m_frameBuffer.cols, m_frameBuffer.rows, (RGBColor*) m_frameBuffer.data);
+    }
+
+    if (output.size() == 0) {
+        output.insert(DataFrame::Color, m_colorFrame);
+    } else {
+        shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(output.value(DataFrame::Color));
+        *colorFrame = *m_colorFrame; // Copy
+    }
 }
 
 } // End namespace

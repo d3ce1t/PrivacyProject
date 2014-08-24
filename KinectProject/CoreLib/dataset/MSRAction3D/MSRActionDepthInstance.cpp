@@ -11,7 +11,7 @@ bool MSRActionDepthInstance::_initialised = false;
 QMutex MSRActionDepthInstance::_mutex;
 
 MSRActionDepthInstance::MSRActionDepthInstance(const InstanceInfo &info)
-    : DataInstance(info)
+    : DataInstance(info, 320, 240)
 {
     // Compute distances look up table (shared between all instances)
     _mutex.lock();
@@ -23,8 +23,6 @@ MSRActionDepthInstance::MSRActionDepthInstance(const InstanceInfo &info)
     }
     _mutex.unlock();
 
-    m_frameBuffer = make_shared<DepthFrame>(320, 240);
-    m_frameBuffer->setDistanceUnits(DepthFrame::MILIMETERS);
     m_width = 0;
     m_height = 0;
 }
@@ -82,9 +80,11 @@ void MSRActionDepthInstance::restartInstance()
     }
 }
 
-QList<shared_ptr<DataFrame>> MSRActionDepthInstance::nextFrame()
+void MSRActionDepthInstance::nextFrame(QHashDataFrames &output)
 {
-    QList<shared_ptr<DataFrame>> result;
+    Q_ASSERT(output.size() > 0);
+    shared_ptr<DepthFrame> depthFrame = static_pointer_cast<DepthFrame>(output.value(DataFrame::Depth));
+    depthFrame->setDistanceUnits(DepthFrame::MILIMETERS);
 
     // Read Data from File
     m_file.read( (char *) m_readBuffer, sizeof(m_readBuffer) );
@@ -113,12 +113,9 @@ QList<shared_ptr<DataFrame>> MSRActionDepthInstance::nextFrame()
                 value = 2.0 + normalise<float>(m_readBuffer[y].depthRow[x], 290, 649, 0, 0.9f);
             }*/
 
-            m_frameBuffer->setItem(y, x, value);
+            depthFrame->setItem(y, x, value);
         }
     }
-
-    result.append(m_frameBuffer);
-    return result;
 }
 
 } // End Namespace

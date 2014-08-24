@@ -23,7 +23,7 @@ public:
     };
     Q_DECLARE_FLAGS(SupportedFrames, FrameType)
 
-    static FrameType getType(SupportedFrames type);
+    static shared_ptr<DataFrame> create(FrameType type, int width = 0, int height = 0);
 
     DataFrame(FrameType type);
     DataFrame(const DataFrame& other);

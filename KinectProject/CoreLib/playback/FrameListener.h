@@ -3,6 +3,7 @@
 
 #include "types/DataFrame.h"
 #include "FrameGenerator.h"
+#include <QDebug>
 
 namespace dai {
 
@@ -12,6 +13,9 @@ class FrameListener
 {
     friend class FrameGenerator;
     friend class FrameNotifier;
+
+    FrameGenerator* m_worker;  // PlaybackWorker::addListener sets this attribute
+    qint64 m_lastFrameId;
 
 public:
     FrameListener();
@@ -34,9 +38,17 @@ protected:
     void stopListener();
 
 private:
-    void newFrames(const QHashDataFrames dataFrames, const qint64 frameId);
-    FrameGenerator* m_worker;  // PlaybackWorker::addListener sets this attribute
-    qint64 m_lastFrameId;
+    inline void newFrames(const QHashDataFrames dataFrames, const qint64 frameId) {
+        // Check the received frames are valid because we could have been called out of time
+        // frameId is the frame counter of the frame generator.
+        if (!m_worker->isValidFrame(frameId)) {
+            qDebug() << "FrameListener - Frame" << frameId << "received but discarded";
+            return;
+        }
+
+        m_lastFrameId = frameId;
+        newFrames(dataFrames);
+    }
 };
 
 } // End Namespace

@@ -69,11 +69,15 @@ GenericFrame<T, frameType>::GenericFrame(int width, int height)
 {
     this->m_width = width;
     this->m_height = height;
-    this->m_data = new T[width * height];
-    this->m_stride = width * sizeof(T);
-    memset(this->m_data, 0, width*height*sizeof(T));
 
-    //qDebug() << (width*height*sizeof(T)) << (this->m_stride * height);
+    if (width > 0 && height > 0) {
+        this->m_data = new T[width * height];
+        this->m_stride = width * sizeof(T);
+        memset(this->m_data, 0, width*height*sizeof(T));
+    } else {
+        this->m_data = nullptr;
+        this->m_stride = 0;
+    }
 }
 
 template <class T, DataFrame::FrameType frameType>

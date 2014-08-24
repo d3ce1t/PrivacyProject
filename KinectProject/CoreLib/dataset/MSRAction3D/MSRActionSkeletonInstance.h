@@ -20,14 +20,13 @@ protected:
     bool openInstance() override;
     void closeInstance() override;
     void restartInstance() override;
-    QList<shared_ptr<DataFrame>> nextFrame() override;
+    void nextFrame( QHashDataFrames& output) override;
 
 private:
     static SkeletonJoint::JointType staticMap[20];
 
     ifstream         m_file;
     int              m_nJoints;
-    shared_ptr<SkeletonFrame> m_frameBuffer;
 };
 
 } // End of namespace

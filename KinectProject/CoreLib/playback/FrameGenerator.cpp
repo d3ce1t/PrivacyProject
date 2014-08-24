@@ -100,17 +100,4 @@ qint64 FrameGenerator::productsCount()
     return m_frameCounter;
 }
 
-bool FrameGenerator::isValidFrame(qint64 frameIndex)
-{
-    bool result = false;
-
-    m_counterLock.lockForRead();
-    if (frameIndex == m_frameCounter) {
-        result = true;
-    }
-    m_counterLock.unlock();
-
-    return result;
-}
-
 } // End Namespace

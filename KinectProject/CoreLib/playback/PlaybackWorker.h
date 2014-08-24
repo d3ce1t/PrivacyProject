@@ -37,6 +37,7 @@ private:
     bool addInstance(shared_ptr<StreamInstance> instance);
     void removeInstance(shared_ptr<StreamInstance> instance);
     void clearInstances();
+    void allocateMemory();
     void openAllInstances();
     void closeAllInstances();
 
@@ -45,6 +46,7 @@ private:
     qint64                             m_slotTime;
     bool                               m_running;
     DataFrame::SupportedFrames         m_supportedFrames;
+    QHashDataFrames                    m_frames;
 };
 
 } // End Namespace
