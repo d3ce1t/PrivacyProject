@@ -26,19 +26,28 @@ void PersonReid::execute()
     QList<shared_ptr<Feature>> samples;
     QList<shared_ptr<Feature>> actor_samples;
     QList<shared_ptr<Feature>> centroids;
+    QList<int> actors = {
+         3,  4,  6,  7,  8,  9, 12, 15, 16, 18,
+        19, 20, 21, 22, 23, 24, 27, 28, 29, 30,
+        31, 32, 33, 34, 35, 36, 37, 38, 40, 41,
+        44, 45, 46, 47, 50, 52, 55, 57, 58, 59,
+        60, 62, 64, 65, 66, 67, 68, 69, 70, 71
+    };
+
     const int num_actors = 50;
 
     //
     // Training
     //
 
-    // For each actor 1-10, compute the feature that minimises the distance to each other sample of
+    // For each actor, compute the feature that minimises the distance to each other sample of
     // the same actor.
-    for (int i=1; i<=num_actors; ++i)
+    foreach (int actor, actors)
     {
         QList<shared_ptr<InstanceInfo>> instances = metadata.instances(DataFrame::Color,
-                                                                       {i}, {1},
-                                                                       QList<QList<QString>>());
+                                                                       {actor},
+                                                                       {1},
+                                                                       DatasetMetadata::ANY_LABEL);
 
         actor_samples.clear();
 
@@ -69,18 +78,19 @@ void PersonReid::execute()
             std::fflush(stdout);
             QCoreApplication::processEvents();
             //cv::waitKey(600);
-            //QThread::msleep(1);
+            QThread::msleep(600);
         }
 
         shared_ptr<Feature> selectedFeature = Feature::minFeature(actor_samples);
         centroids << selectedFeature;
-        /*printf("Init. Centroid %i = actor %i %i\n", i, selectedFeature->label().getActor(),
-                                                       selectedFeature->label().getSample());*/
+        printf("Init. Centroid %i = actor %i %i\n", actor, selectedFeature->label().getActor(),
+                                                       selectedFeature->label().getSample());
     }
 
-    // Learn a feature for each actor (the centroid of the cluster)
-    auto kmeans = KMeans<Feature>::execute(samples, num_actors, centroids);
-    //printClusters(kmeans->getClusters());
+    // Learn A: Learning a signature is the same as clustering the input data into num_actor sets
+    // and use the centroid of each cluster as model.
+    auto kmeans = KMeans<Feature>::execute(samples, actors.size(), centroids);
+    printClusters(kmeans->getClusters());
 
     QList<shared_ptr<Feature>> gallery;
 
@@ -88,13 +98,17 @@ void PersonReid::execute()
         gallery << cluster.centroid;
     }
 
+    // Learn B: Use the signature that minimises the distance to the rest of signatures
+    // of each actor.
+    //QList<shared_ptr<Feature>> gallery = centroids;
+
     // Validation
     QList<shared_ptr<InstanceInfo>> instances = metadata.instances(DataFrame::Color,
-                                                                   {1,2,3,4,5,6,7,8,9,10},
-                                                                   {1},
+                                                                   actors,
+                                                                   {2},
                                                                    DatasetMetadata::ANY_LABEL);
     int results[num_actors];
-    memset(results, 0, sizeof(int) * num_actors);
+    memset(results, 0, sizeof(int) * actors.size());
 
     foreach (shared_ptr<InstanceInfo> instance_info, instances)
     {
@@ -130,24 +144,24 @@ void PersonReid::execute()
         }
 
         // Accumulate for ranks
-        for (int i=pos; i<num_actors; ++i) {
+        for (int i=pos; i<actors.size(); ++i) {
             results[i]++;
         }
 
-        /*i = 0;
+        i = 0;
         cout << "Results for actor " << instance_info->getActor() << " " << instance_info->getSample() << endl;
         for (auto it = query_results.constBegin(); it != query_results.constEnd(); ++it) {
             if (i == pos) cout << "*";
             cout << "dist " << it.key() << " actor " << it.value() << endl;
             ++i;
         }
-        cout << "--------------------------" << endl;*/
+        cout << "--------------------------" << endl;
     }
 
     // Show Results
     cout << "Rank" << "\t" << "Matching Rate" << endl;
-    for (int i=0; i<num_actors; ++i) {
-        cout << (i+1) << "\t" << results[i] << endl;
+    for (int i=0; i<actors.size(); ++i) {
+        cout << (i+1) << "\t" << results[i] / float(instances.size()) << endl;
     }
 
     QCoreApplication::instance()->quit();
