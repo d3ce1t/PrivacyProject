@@ -9,6 +9,10 @@ FrameGenerator::FrameGenerator()
     : m_frameCounter(0)
 {
     m_timer.start();
+    m_doubleBuffer = false;
+    m_readBuffer = nullptr;
+    m_writeBuffer = nullptr;
+    m_initialised = false;
 }
 
 FrameGenerator::~FrameGenerator()
@@ -58,9 +62,24 @@ void FrameGenerator::notifyListeners(const QHashDataFrames& dataFrames, qint64 f
     }
 }
 
+void FrameGenerator::begin(bool doubleBuffer)
+{
+    if (doubleBuffer) {
+        m_readBuffer = allocateMemory();
+        m_writeBuffer = allocateMemory();
+    } else {
+        m_readBuffer = allocateMemory();
+    }
+
+    m_doubleBuffer = doubleBuffer;
+    m_initialised = true;
+}
+
 // Devuelve True si ha producido y false en caso contrario
 bool FrameGenerator::generate()
 {
+    Q_ASSERT(m_initialised == true);
+
     bool hasProduced = false;
 
     // Stats 1
@@ -69,15 +88,24 @@ bool FrameGenerator::generate()
     m_productionRate = 1000000000.0f / timeBetweenInvocations;
 
     // Frames counter
-    m_counterLock.lockForWrite();
-    m_frameCounter++;
-    m_counterLock.unlock();
-
-    QHashDataFrames readFrames = produceFrames();
+    if (m_doubleBuffer)
+    {
+        produceFrames(*m_writeBuffer);
+        m_counterLock.lockForWrite();
+        swapBuffers();
+        m_frameCounter++;
+        m_counterLock.unlock();
+    }
+    else {
+        m_counterLock.lockForWrite();
+        m_frameCounter++;
+        m_counterLock.unlock();
+        produceFrames(*m_readBuffer);
+    }
 
     // Notify listeners
-    if (readFrames.size() > 0) {
-        notifyListeners(readFrames, m_frameCounter);
+    if (m_readBuffer->size() > 0) {
+        notifyListeners(*m_readBuffer, m_frameCounter);
         hasProduced = true;
     }
 
@@ -85,6 +113,13 @@ bool FrameGenerator::generate()
     qint64 spentTime = m_timer.nsecsElapsed();
     m_instantProductionRate = 1000000000.0f / spentTime;
     return hasProduced;
+}
+
+void FrameGenerator::swapBuffers()
+{
+    shared_ptr<QHashDataFrames> tmp = m_readBuffer;
+    m_readBuffer = m_writeBuffer;
+    m_writeBuffer = tmp;
 }
 
 void FrameGenerator::restartStats()

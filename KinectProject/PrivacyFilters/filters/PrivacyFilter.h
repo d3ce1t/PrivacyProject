@@ -27,16 +27,17 @@ public:
 
 protected:
     void afterStop() override;
-    QHashDataFrames produceFrames() override;
+    shared_ptr<QHashDataFrames> allocateMemory() override;
+    void produceFrames(QHashDataFrames& output) override;
     void freeResources();
 
 private:
-    void approach1();
-    void approach2();
-    void approach3();
-    void approach4();
-    void approach5();
-    void approach6();
+    void approach1(QHashDataFrames& frames);
+    void approach2(QHashDataFrames& frames);
+    void approach3(QHashDataFrames& frames);
+    void approach4(QHashDataFrames& frames);
+    void approach5(QHashDataFrames& frames);
+    void approach6(QHashDataFrames& frames);
     void dilateUserMask(uint8_t *labels);
 
 
@@ -67,7 +68,7 @@ private:
 
     cv::Mat createMask(cv::Mat input_img, int min_value, int *nonzero_counter = nullptr, bool filter = false) const;
 
-    QHashDataFrames m_frames;
+    shared_ptr<QHashDataFrames> m_frames;
     QOpenGLContext* m_glContext;
     QOpenGLFunctions* m_gles;
     QOffscreenSurface m_surface;

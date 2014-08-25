@@ -93,11 +93,6 @@ void DepthFilter::freeResources()
             m_skelItem = nullptr;
         }
 
-        /*if (m_scene) {
-            delete m_scene;
-            m_scene = nullptr;
-        }*/
-
         if (m_fboDisplay) {
             m_fboDisplay->release();
             delete m_fboDisplay;
@@ -114,18 +109,25 @@ void DepthFilter::freeResources()
     m_initialised = false;
 }
 
+shared_ptr<QHashDataFrames> DepthFilter::allocateMemory()
+{
+    m_frames = make_shared<QHashDataFrames>();
+    return m_frames;
+}
+
 void DepthFilter::newFrames(const QHashDataFrames dataFrames)
 {
     if (!m_initialised) {
         initialise();
+        FrameGenerator::begin(false);
     }
 
     // Copy frames (1 ms)
-    m_frames.clear();
+    m_frames->clear();
 
     foreach (DataFrame::FrameType key, dataFrames.keys()) {
         shared_ptr<DataFrame> frame = dataFrames.value(key);
-        m_frames.insert(key, frame->clone());
+        m_frames->insert(key, frame->clone());
     }
 
     // Check if the frames has been copied correctly
@@ -143,6 +145,84 @@ void DepthFilter::newFrames(const QHashDataFrames dataFrames)
 void DepthFilter::afterStop()
 {
     freeResources();
+}
+
+void DepthFilter::produceFrames(QHashDataFrames& output)
+{
+    bool background = false;
+
+    // Convert Depth Frame to Color
+    if (output.contains(DataFrame::Depth))
+    {
+        shared_ptr<DepthFrame> depthFrame = static_pointer_cast<DepthFrame>(output.value(DataFrame::Depth));
+        shared_ptr<ColorFrame> colorFrame;
+
+        if (output.contains(DataFrame::Color)) {
+            colorFrame = static_pointer_cast<ColorFrame>(output.value(DataFrame::Color));
+        } else {
+            colorFrame = make_shared<ColorFrame>(depthFrame->getWidth(), depthFrame->getHeight());
+            output.insert(DataFrame::Color, colorFrame);
+        }
+
+        QMap<uint16_t, float> colorHistogram;
+        DepthFrame::calculateHistogram(colorHistogram, *(depthFrame.get()));
+
+        for (int i=0; i<depthFrame->getHeight(); ++i)
+        {
+            const uint16_t* pDepth = depthFrame->getRowPtr(i);
+            RGBColor* pColor = colorFrame->getRowPtr(i);
+
+            for (int j=0; j<depthFrame->getWidth(); ++j)
+            {
+               uint16_t color = colorHistogram[pDepth[j]];
+               pColor[j].red = color;
+               pColor[j].green = color;
+               pColor[j].blue = 0;
+            }
+        }
+
+        background = true;
+    }
+
+    // Render Skeleton
+    if (output.contains(DataFrame::Skeleton))
+    {
+        shared_ptr<SkeletonFrame> skelFrame = static_pointer_cast<SkeletonFrame>(output.value(DataFrame::Skeleton));
+        shared_ptr<ColorFrame> colorFrame;
+
+        if (output.contains(DataFrame::Color)) {
+            colorFrame = static_pointer_cast<ColorFrame>(output.value(DataFrame::Color));
+        } else {
+            colorFrame = make_shared<ColorFrame>(640, 480);
+            output.insert(DataFrame::Color, colorFrame);
+        }
+
+        // Render
+        m_glContext->makeCurrent(&m_surface);
+        m_fboDisplay->bind();
+
+        // Clear Screen
+        m_gles->glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        m_gles->glClearDepthf(1.0f);
+        m_gles->glViewport(0, 0, 640, 480);
+        m_gles->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        if (background) {
+            // Render Background
+            m_bgItem->setBackground(colorFrame);
+            m_bgItem->renderItem();
+        }
+
+        // Render Item
+        m_skelItem->setSkeleton(skelFrame);
+        m_skelItem->renderItem();
+
+        // Copy data back to ColorFrame
+        m_gles->glFlush();
+        m_gles->glReadPixels(0,0, 640, 480, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*) colorFrame->getDataPtr());
+        m_fboDisplay->release();
+        m_glContext->doneCurrent();
+    }
 }
 
 // Render a 3D Scene (old version)
@@ -192,85 +272,5 @@ void DepthFilter::afterStop()
     m_fboDisplay->release();
     m_glContext->doneCurrent();
 }*/
-
-QHashDataFrames DepthFilter::produceFrames()
-{
-    bool background = false;
-
-    // Convert Depth Frame to Color
-    if (m_frames.contains(DataFrame::Depth))
-    {
-        shared_ptr<DepthFrame> depthFrame = static_pointer_cast<DepthFrame>(m_frames.value(DataFrame::Depth));
-        shared_ptr<ColorFrame> colorFrame;
-
-        if (m_frames.contains(DataFrame::Color)) {
-            colorFrame = static_pointer_cast<ColorFrame>(m_frames.value(DataFrame::Color));
-        } else {
-            colorFrame = make_shared<ColorFrame>(depthFrame->getWidth(), depthFrame->getHeight());
-            m_frames.insert(DataFrame::Color, colorFrame);
-        }
-
-        QMap<uint16_t, float> colorHistogram;
-        DepthFrame::calculateHistogram(colorHistogram, *(depthFrame.get()));
-
-        for (int i=0; i<depthFrame->getHeight(); ++i)
-        {
-            const uint16_t* pDepth = depthFrame->getRowPtr(i);
-            RGBColor* pColor = colorFrame->getRowPtr(i);
-
-            for (int j=0; j<depthFrame->getWidth(); ++j)
-            {
-               uint16_t color = colorHistogram[pDepth[j]];
-               pColor[j].red = color;
-               pColor[j].green = color;
-               pColor[j].blue = 0;
-            }
-        }
-
-        background = true;
-    }
-
-    // Render Skeleton
-    if (m_frames.contains(DataFrame::Skeleton))
-    {
-        shared_ptr<SkeletonFrame> skelFrame = static_pointer_cast<SkeletonFrame>(m_frames.value(DataFrame::Skeleton));
-        shared_ptr<ColorFrame> colorFrame;
-
-        if (m_frames.contains(DataFrame::Color)) {
-            colorFrame = static_pointer_cast<ColorFrame>(m_frames.value(DataFrame::Color));
-        } else {
-            colorFrame = make_shared<ColorFrame>(640, 480);
-            m_frames.insert(DataFrame::Color, colorFrame);
-        }
-
-        // Render
-        m_glContext->makeCurrent(&m_surface);
-        m_fboDisplay->bind();
-
-        // Clear Screen
-        m_gles->glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-        m_gles->glClearDepthf(1.0f);
-        m_gles->glViewport(0, 0, 640, 480);
-        m_gles->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        if (background) {
-            // Render Background
-            m_bgItem->setBackground(colorFrame);
-            m_bgItem->renderItem();
-        }
-
-        // Render Item
-        m_skelItem->setSkeleton(skelFrame);
-        m_skelItem->renderItem();
-
-        // Copy data back to ColorFrame
-        m_gles->glFlush();
-        m_gles->glReadPixels(0,0, 640, 480, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*) colorFrame->getDataPtr());
-        m_fboDisplay->release();
-        m_glContext->doneCurrent();
-    }
-
-    return m_frames;
-}
 
 } // End Namespace

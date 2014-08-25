@@ -277,7 +277,7 @@ void OpenNIDevice::readUserTrackerFrame(shared_ptr<DepthFrame> depthFrame,
     depthFrame->setIndex(m_oniDepthFrame.getFrameIndex());
     depthFrame->setDistanceUnits(DepthFrame::MILIMETERS);
 
-    // Load User Labels
+    // Load User Labels (copy)
     const nite::UserMap& userMap = oniUserTrackerFrame.getUserMap();
 
     int strideUser = userMap.getStride() / sizeof(nite::UserId) - userMap.getWidth();

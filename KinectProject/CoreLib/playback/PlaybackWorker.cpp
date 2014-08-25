@@ -84,7 +84,7 @@ void PlaybackWorker::run()
     qint64 skip_counter = 0;
 
     restartStats();
-    allocateMemory();
+    FrameGenerator::begin(true);
     openAllInstances();
     m_running = true;
 
@@ -140,15 +140,19 @@ void PlaybackWorker::stop()
     m_running = false;
 }
 
-void PlaybackWorker::allocateMemory()
+shared_ptr<QHashDataFrames> PlaybackWorker::allocateMemory()
 {
+    shared_ptr<QHashDataFrames> result = make_shared<QHashDataFrames>();
+
     foreach (shared_ptr<StreamInstance> instance, m_instances) {
         QList<DataFrame::FrameType> types = StreamInstance::getTypes(instance->getSupportedFrames());
         const StreamInfo& info = instance->getStreamInfo();
         foreach (DataFrame::FrameType type, types) {
-            m_frames.insert(type, DataFrame::create(type, info.width, info.height));
+            result->insert(type, DataFrame::create(type, info.width, info.height));
         }
     }
+
+    return result;
 }
 
 inline void PlaybackWorker::openAllInstances()
@@ -186,7 +190,7 @@ inline void PlaybackWorker::closeAllInstances()
 
 // Debug:   20 ms
 // Release: 10 ms
-QHashDataFrames PlaybackWorker::produceFrames()
+void PlaybackWorker::produceFrames(QHashDataFrames& output)
 {
     QList<shared_ptr<StreamInstance>> instances = m_instances; // implicit sharing
 
@@ -200,15 +204,13 @@ QHashDataFrames PlaybackWorker::produceFrames()
         }
 
         if (hasNext) {
-            instance->readNextFrame(m_frames);
+            instance->readNextFrame(output);
         }
         else {
             instance->close();
             qDebug() << "Closed";
         }
     }
-
-    return m_frames;
 }
 
 } // End Namespace

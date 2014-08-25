@@ -24,12 +24,13 @@ public:
     void newFrames(const QHashDataFrames dataFrames) override;
 
 protected:
+    shared_ptr<QHashDataFrames> allocateMemory() override;
     void afterStop() override;
-    QHashDataFrames produceFrames() override;
+    void produceFrames(QHashDataFrames& output) override;
     void freeResources();
 
 private:
-    QHashDataFrames m_frames;
+    shared_ptr<QHashDataFrames> m_frames;
     SkeletonItem* m_skelItem;
     BackgroundItem* m_bgItem;
     QOpenGLContext* m_glContext;

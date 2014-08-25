@@ -126,19 +126,26 @@ void PrivacyFilter::freeResources()
     m_initialised = false;
 }
 
-// This method is called from a thread from the PlaybackControl
+shared_ptr<QHashDataFrames> PrivacyFilter::allocateMemory()
+{
+    m_frames = make_shared<QHashDataFrames>();
+    return m_frames;
+}
+
+// This method is called from a thread
 void PrivacyFilter::newFrames(const QHashDataFrames dataFrames)
 {
     if (!m_initialised) {
         initialise();
+        FrameGenerator::begin(false);
     }
 
     // Copy frames (1 ms)
-    m_frames.clear();
+    m_frames->clear();
 
     foreach (DataFrame::FrameType key, dataFrames.keys()) {
         shared_ptr<DataFrame> frame = dataFrames.value(key);
-        m_frames.insert(key, frame->clone());
+        m_frames->insert(key, frame->clone());
     }
 
     // Check if the frames has been copied correctly
@@ -150,8 +157,100 @@ void PrivacyFilter::newFrames(const QHashDataFrames dataFrames)
         }
     }
     else {
-        qDebug() << "Frame has expired!";
+        qDebug() << "PrivacyFilter - Frame copied out of time";
     }
+}
+
+void PrivacyFilter::produceFrames(QHashDataFrames &output)
+{
+    Q_ASSERT(output.contains(DataFrame::Color) && output.contains(DataFrame::Mask) &&
+             output.contains(DataFrame::Skeleton) && output.contains(DataFrame::Metadata));
+
+    shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(output.value(DataFrame::Color));
+    shared_ptr<MaskFrame> maskFrame = static_pointer_cast<MaskFrame>(output.value(DataFrame::Mask));
+
+    //approach1();
+    //approach2();
+    //approach3();
+    //approach4();
+    //approach5();
+    //approach6();
+
+    // Dilate mask to create a wide border (value = 255)
+    shared_ptr<MaskFrame> outputMask = static_pointer_cast<MaskFrame>(maskFrame->clone());
+    dilateUserMask(const_cast<uint8_t*>(outputMask->getDataPtr()));
+
+    for (int i=0; i<maskFrame->getHeight(); ++i)
+    {
+        for (int j=0; j<maskFrame->getWidth(); ++j)
+        {
+            uint8_t inputValue = maskFrame->getItem(i,j);
+            uint8_t outputValue = outputMask->getItem(i,j);
+
+            if (inputValue == 0 && outputValue > 0) {
+                maskFrame->setItem(i, j, uint8_t(255));
+            }
+        }
+    }
+
+    //
+    // Prepare Scene
+    //
+    shared_ptr<SilhouetteItem> silhouetteItem = static_pointer_cast<SilhouetteItem>(m_scene->getFirstItem(ITEM_SILHOUETTE));
+    shared_ptr<SkeletonItem> skeletonItem = static_pointer_cast<SkeletonItem>(m_scene->getFirstItem(ITEM_SKELETON));
+
+    // Clear items of the scene
+    m_scene->clearItems();
+
+    // Background of Scene
+    m_scene->setBackground(colorFrame);
+    m_scene->setMask(maskFrame);
+
+    // Add silhuette item to the scene
+    if (!silhouetteItem)
+        silhouetteItem.reset(new SilhouetteItem);
+
+    silhouetteItem->setUser(maskFrame);
+    m_scene->addItem(silhouetteItem);
+
+    // Add skeleton item to the scene
+    if (!skeletonItem)
+        skeletonItem.reset(new SkeletonItem);
+
+    skeletonItem->setSkeleton( static_pointer_cast<SkeletonFrame>(output.value(DataFrame::Skeleton)) );
+    m_scene->addItem(skeletonItem);
+
+    // Enable Filter
+    m_scene->enableFilter(m_filter);
+    if (m_filter == FILTER_3DMODEL)
+        m_ogreScene->enableFilter(true);
+    else
+        m_ogreScene->enableFilter(false);
+
+    // Prepare Data of the OgreScene
+    m_ogreScene->prepareData(output);
+    m_scene->markAsDirty();
+
+    //
+    // Render scene offscreen
+    //
+
+    // Render Avatar
+    m_ogreScene->render();
+
+    // Render and compose rest of the scene
+    m_glContext->makeCurrent(&m_surface);
+    m_scene->setSize(m_fboDisplay->width(), m_fboDisplay->height());
+    m_scene->renderScene(m_fboDisplay);
+
+    m_fboDisplay->bind();
+
+    // Copy data back to ColorFrame
+    m_gles->glReadPixels(0,0, m_fboDisplay->width(), m_fboDisplay->height(), GL_RGB, GL_UNSIGNED_BYTE,
+                         (GLvoid*) colorFrame->getDataPtr());
+
+    m_fboDisplay->release();
+    m_glContext->doneCurrent();
 }
 
 void PrivacyFilter::afterStop()
@@ -167,14 +266,14 @@ void PrivacyFilter::enableFilter(ColorFilter filterType)
 
 // Approach 1: log color space (2 channels) without Histogram!!
 // Paper: Color Invariants for Person Reidentification
-void PrivacyFilter::approach1()
+void PrivacyFilter::approach1(QHashDataFrames &frames)
 {
-    Q_ASSERT(m_frames.contains(DataFrame::Color) && m_frames.contains(DataFrame::Mask) &&
-             m_frames.contains(DataFrame::Skeleton) && m_frames.contains(DataFrame::Metadata));
+    Q_ASSERT(frames.contains(DataFrame::Color) && frames.contains(DataFrame::Mask) &&
+             frames.contains(DataFrame::Skeleton) && frames.contains(DataFrame::Metadata));
 
-    shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(m_frames.value(DataFrame::Color));
-    shared_ptr<MaskFrame> maskFrame = static_pointer_cast<MaskFrame>(m_frames.value(DataFrame::Mask));
-    shared_ptr<MetadataFrame> metadataFrame = static_pointer_cast<MetadataFrame>(m_frames.value(DataFrame::Metadata));
+    shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(frames.value(DataFrame::Color));
+    shared_ptr<MaskFrame> maskFrame = static_pointer_cast<MaskFrame>(frames.value(DataFrame::Mask));
+    shared_ptr<MetadataFrame> metadataFrame = static_pointer_cast<MetadataFrame>(frames.value(DataFrame::Metadata));
 
     // Work in the Bounding Box
     if (metadataFrame->boundingBoxes().isEmpty())
@@ -221,14 +320,14 @@ void PrivacyFilter::approach1()
 
 // Approach 2: CIElab (2 channels)
 // Paper: Color Invariants for Person Reidentification
-void PrivacyFilter::approach2()
+void PrivacyFilter::approach2(QHashDataFrames &frames)
 {
-    Q_ASSERT(m_frames.contains(DataFrame::Color) && m_frames.contains(DataFrame::Mask) &&
-             m_frames.contains(DataFrame::Skeleton) && m_frames.contains(DataFrame::Metadata));
+    Q_ASSERT(frames.contains(DataFrame::Color) && frames.contains(DataFrame::Mask) &&
+             frames.contains(DataFrame::Skeleton) && frames.contains(DataFrame::Metadata));
 
-    shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(m_frames.value(DataFrame::Color));
-    shared_ptr<MaskFrame> maskFrame = static_pointer_cast<MaskFrame>(m_frames.value(DataFrame::Mask));
-    shared_ptr<MetadataFrame> metadataFrame = static_pointer_cast<MetadataFrame>(m_frames.value(DataFrame::Metadata));
+    shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(frames.value(DataFrame::Color));
+    shared_ptr<MaskFrame> maskFrame = static_pointer_cast<MaskFrame>(frames.value(DataFrame::Mask));
+    shared_ptr<MetadataFrame> metadataFrame = static_pointer_cast<MetadataFrame>(frames.value(DataFrame::Metadata));
 
     // Work in the Bounding Box
     if (metadataFrame->boundingBoxes().isEmpty())
@@ -311,14 +410,14 @@ void PrivacyFilter::approach2()
 
 // Approach 3: YUV (2 channels)
 // Paper: Color Invariants for Person Reidentification
-void PrivacyFilter::approach3()
+void PrivacyFilter::approach3(QHashDataFrames& frames)
 {
-    Q_ASSERT(m_frames.contains(DataFrame::Color) && m_frames.contains(DataFrame::Mask) &&
-             m_frames.contains(DataFrame::Skeleton) && m_frames.contains(DataFrame::Metadata));
+    Q_ASSERT(frames.contains(DataFrame::Color) && frames.contains(DataFrame::Mask) &&
+             frames.contains(DataFrame::Skeleton) && frames.contains(DataFrame::Metadata));
 
-    shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(m_frames.value(DataFrame::Color));
-    shared_ptr<MaskFrame> maskFrame = static_pointer_cast<MaskFrame>(m_frames.value(DataFrame::Mask));
-    shared_ptr<MetadataFrame> metadataFrame = static_pointer_cast<MetadataFrame>(m_frames.value(DataFrame::Metadata));
+    shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(frames.value(DataFrame::Color));
+    shared_ptr<MaskFrame> maskFrame = static_pointer_cast<MaskFrame>(frames.value(DataFrame::Mask));
+    shared_ptr<MetadataFrame> metadataFrame = static_pointer_cast<MetadataFrame>(frames.value(DataFrame::Metadata));
 
     // Work in the Bounding Box
     if (metadataFrame->boundingBoxes().isEmpty())
@@ -404,14 +503,14 @@ void PrivacyFilter::approach3()
 
 // Approach 4: RGB
 // Paper: Color Invariants for Person Reidentification
-void PrivacyFilter::approach4()
+void PrivacyFilter::approach4(QHashDataFrames &frames)
 {
-    Q_ASSERT(m_frames.contains(DataFrame::Color) && m_frames.contains(DataFrame::Mask) &&
-             m_frames.contains(DataFrame::Skeleton) && m_frames.contains(DataFrame::Metadata));
+    Q_ASSERT(frames.contains(DataFrame::Color) && frames.contains(DataFrame::Mask) &&
+             frames.contains(DataFrame::Skeleton) && frames.contains(DataFrame::Metadata));
 
-    shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(m_frames.value(DataFrame::Color));
-    shared_ptr<MaskFrame> maskFrame = static_pointer_cast<MaskFrame>(m_frames.value(DataFrame::Mask));
-    shared_ptr<MetadataFrame> metadataFrame = static_pointer_cast<MetadataFrame>(m_frames.value(DataFrame::Metadata));
+    shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(frames.value(DataFrame::Color));
+    shared_ptr<MaskFrame> maskFrame = static_pointer_cast<MaskFrame>(frames.value(DataFrame::Mask));
+    shared_ptr<MetadataFrame> metadataFrame = static_pointer_cast<MetadataFrame>(frames.value(DataFrame::Metadata));
 
     // Work in the Bounding Box
     if (metadataFrame->boundingBoxes().isEmpty())
@@ -478,14 +577,14 @@ void PrivacyFilter::approach4()
 
 // Approach 5: RGB with buffering
 // Paper: Color Invariants for Person Reidentification
-void PrivacyFilter::approach5()
+void PrivacyFilter::approach5(QHashDataFrames& frames)
 {
-    Q_ASSERT(m_frames.contains(DataFrame::Color) && m_frames.contains(DataFrame::Mask) &&
-             m_frames.contains(DataFrame::Skeleton) && m_frames.contains(DataFrame::Metadata));
+    Q_ASSERT(frames.contains(DataFrame::Color) && frames.contains(DataFrame::Mask) &&
+             frames.contains(DataFrame::Skeleton) && frames.contains(DataFrame::Metadata));
 
-    shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(m_frames.value(DataFrame::Color));
-    shared_ptr<MaskFrame> maskFrame = static_pointer_cast<MaskFrame>(m_frames.value(DataFrame::Mask));
-    shared_ptr<MetadataFrame> metadataFrame = static_pointer_cast<MetadataFrame>(m_frames.value(DataFrame::Metadata));
+    shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(frames.value(DataFrame::Color));
+    shared_ptr<MaskFrame> maskFrame = static_pointer_cast<MaskFrame>(frames.value(DataFrame::Mask));
+    shared_ptr<MetadataFrame> metadataFrame = static_pointer_cast<MetadataFrame>(frames.value(DataFrame::Metadata));
 
     // Work in the Bounding Box
     if (metadataFrame->boundingBoxes().isEmpty())
@@ -587,14 +686,14 @@ void PrivacyFilter::approach5()
 }
 
 // Approach 6: Indexed colors
-void PrivacyFilter::approach6()
+void PrivacyFilter::approach6(QHashDataFrames &frames)
 {
-    Q_ASSERT(m_frames.contains(DataFrame::Color) && m_frames.contains(DataFrame::Mask) &&
-             m_frames.contains(DataFrame::Skeleton) && m_frames.contains(DataFrame::Metadata));
+    Q_ASSERT(frames.contains(DataFrame::Color) && frames.contains(DataFrame::Mask) &&
+             frames.contains(DataFrame::Skeleton) && frames.contains(DataFrame::Metadata));
 
-    shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(m_frames.value(DataFrame::Color));
-    shared_ptr<MaskFrame> maskFrame = static_pointer_cast<MaskFrame>(m_frames.value(DataFrame::Mask));
-    shared_ptr<MetadataFrame> metadataFrame = static_pointer_cast<MetadataFrame>(m_frames.value(DataFrame::Metadata));
+    shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(frames.value(DataFrame::Color));
+    shared_ptr<MaskFrame> maskFrame = static_pointer_cast<MaskFrame>(frames.value(DataFrame::Mask));
+    shared_ptr<MetadataFrame> metadataFrame = static_pointer_cast<MetadataFrame>(frames.value(DataFrame::Metadata));
 
     // Work in the Bounding Box
     if (metadataFrame->boundingBoxes().isEmpty())
@@ -780,100 +879,6 @@ void PrivacyFilter::printHistogram(const Histogram<T, N> &hist, int n_elems) con
     foreach (auto item, hist.higherFreqBins(n_elems)) {
         qDebug() << i++ << "(" << item->point.toString() << ")" << item->value << item->dist;
     }
-}
-
-QHashDataFrames PrivacyFilter::produceFrames()
-{
-    Q_ASSERT(m_frames.contains(DataFrame::Color) && m_frames.contains(DataFrame::Mask) &&
-             m_frames.contains(DataFrame::Skeleton) && m_frames.contains(DataFrame::Metadata));
-
-    shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(m_frames.value(DataFrame::Color));
-    shared_ptr<MaskFrame> maskFrame = static_pointer_cast<MaskFrame>(m_frames.value(DataFrame::Mask));
-
-    //approach1();
-    //approach2();
-    //approach3();
-    //approach4();
-    //approach5();
-    //approach6();
-
-    // Dilate mask to create a wide border (value = 255)
-    shared_ptr<MaskFrame> outputMask = static_pointer_cast<MaskFrame>(maskFrame->clone());
-    dilateUserMask(const_cast<uint8_t*>(outputMask->getDataPtr()));
-
-    for (int i=0; i<maskFrame->getHeight(); ++i)
-    {
-        for (int j=0; j<maskFrame->getWidth(); ++j)
-        {
-            uint8_t inputValue = maskFrame->getItem(i,j);
-            uint8_t outputValue = outputMask->getItem(i,j);
-
-            if (inputValue == 0 && outputValue > 0) {
-                maskFrame->setItem(i, j, uint8_t(255));
-            }
-        }
-    }
-
-    //
-    // Prepare Scene
-    //
-    shared_ptr<SilhouetteItem> silhouetteItem = static_pointer_cast<SilhouetteItem>(m_scene->getFirstItem(ITEM_SILHOUETTE));
-    shared_ptr<SkeletonItem> skeletonItem = static_pointer_cast<SkeletonItem>(m_scene->getFirstItem(ITEM_SKELETON));
-
-    // Clear items of the scene
-    m_scene->clearItems();
-
-    // Background of Scene
-    m_scene->setBackground(colorFrame);
-    m_scene->setMask(maskFrame);
-
-    // Add silhuette item to the scene
-    if (!silhouetteItem)
-        silhouetteItem.reset(new SilhouetteItem);
-
-    silhouetteItem->setUser(maskFrame);
-    m_scene->addItem(silhouetteItem);
-
-    // Add skeleton item to the scene
-    if (!skeletonItem)
-        skeletonItem.reset(new SkeletonItem);
-
-    skeletonItem->setSkeleton( static_pointer_cast<SkeletonFrame>(m_frames.value(DataFrame::Skeleton)) );
-    m_scene->addItem(skeletonItem);
-
-    // Enable Filter
-    m_scene->enableFilter(m_filter);
-    if (m_filter == FILTER_3DMODEL)
-        m_ogreScene->enableFilter(true);
-    else
-        m_ogreScene->enableFilter(false);
-
-    // Prepare Data of the OgreScene
-    m_ogreScene->prepareData(m_frames);
-    m_scene->markAsDirty();
-
-    //
-    // Render scene offscreen
-    //
-
-    // Render Avatar
-    m_ogreScene->render();
-
-    // Render and compose rest of the scene
-    m_glContext->makeCurrent(&m_surface);
-    m_scene->setSize(m_fboDisplay->width(), m_fboDisplay->height());
-    m_scene->renderScene(m_fboDisplay);
-
-    m_fboDisplay->bind();
-
-    // Copy data back to ColorFrame
-    m_gles->glReadPixels(0,0, m_fboDisplay->width(), m_fboDisplay->height(), GL_RGB, GL_UNSIGNED_BYTE,
-                         (GLvoid*) colorFrame->getDataPtr());
-
-    m_fboDisplay->release();
-    m_glContext->doneCurrent();
-
-    return m_frames;
 }
 
 cv::Mat PrivacyFilter::createMask(cv::Mat input_img, int min_value, int* nonzero_counter, bool filter) const
@@ -1082,7 +1087,7 @@ void PrivacyFilter::create2DCoordImage(cv::Mat input_img, cv::Mat& output_img, i
 
 void PrivacyFilter::dilateUserMask(uint8_t *labels)
 {
-    int dilationSize = 15;
+    int dilationSize = 18;
     cv::Mat newImag(480, 640, cv::DataType<uint8_t>::type, labels);
     cv::Mat kernel = cv::getStructuringElement(cv::MORPH_CROSS,
                                                cv::Size(2*dilationSize + 1, 2*dilationSize+1),
