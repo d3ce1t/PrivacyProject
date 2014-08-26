@@ -2,6 +2,7 @@
 #define DEPTHFRAME_H
 
 #include "GenericFrame.h"
+#include "types/Enums.h"
 #include <stdint.h>
 #include <QMap>
 #include <fstream>
@@ -18,12 +19,6 @@ namespace dai {
 class DepthFrame : public GenericFrame<uint16_t, DataFrame::Depth>
 {
 public:
-
-    enum DistanceUnits {
-        MILIMETERS,
-        METERS
-    };
-
     // Static Class Methods
     static void calculateHistogram(QMap<uint16_t, float> &pHistogram, const DepthFrame &frame);
 

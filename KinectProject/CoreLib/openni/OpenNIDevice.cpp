@@ -87,21 +87,13 @@ void OpenNIDevice::open()
         if (m_device.open(deviceURI) != openni::STATUS_OK)
             throw 2;
 
-        // Enable Depth to Color image registration
-        if (m_device.isImageRegistrationModeSupported(openni::IMAGE_REGISTRATION_DEPTH_TO_COLOR)) {
-            if (m_device.getImageRegistrationMode() == openni::IMAGE_REGISTRATION_OFF) {
-                if (m_device.setImageRegistrationMode(openni::IMAGE_REGISTRATION_DEPTH_TO_COLOR) != openni::STATUS_OK)
-                    qDebug() << "Depth to Color registration cannot be set";
-            }
-        } else {
-            qDebug() << "Depth to Color registration isn't supported";
-        }
-
         // Enable Depth and Color sync
-        if (!m_device.getDepthColorSyncEnabled())
+        if (!m_device.getDepthColorSyncEnabled()) {
             m_device.setDepthColorSyncEnabled(true);
-
-        qDebug() << "Sync Enabled:" << m_device.getDepthColorSyncEnabled();
+            qDebug() << "Enabling sync:" << m_device.getDepthColorSyncEnabled();
+        } else {
+            qDebug() << "Sync Enabled:" << m_device.getDepthColorSyncEnabled();
+        }
 
         // Create Color Stream and Setup Mode
         if (m_oniColorStream.create(m_device, openni::SENSOR_COLOR) != openni::STATUS_OK)
@@ -119,6 +111,23 @@ void OpenNIDevice::open()
         videoMode = m_oniDepthStream.getVideoMode();
         videoMode.setResolution(640, 480);
         m_oniDepthStream.setVideoMode(videoMode);
+
+        // Enable Depth to Color image registration
+        if (m_device.isImageRegistrationModeSupported(openni::IMAGE_REGISTRATION_DEPTH_TO_COLOR))
+        {
+            if (m_device.getImageRegistrationMode() != openni::IMAGE_REGISTRATION_DEPTH_TO_COLOR) {
+                if (m_device.setImageRegistrationMode(openni::IMAGE_REGISTRATION_DEPTH_TO_COLOR) == openni::STATUS_OK) {
+                    qDebug() << "Image registration enabled";
+                } else {
+                    qDebug() << "Image registration cannot be set";
+                }
+            } else {
+                qDebug() << "Image registration is enabled";
+            }
+        }
+        else {
+            qDebug() << "Image registration isn't supported";
+        }
 
         // Start
         if (m_oniColorStream.start() != openni::STATUS_OK)
@@ -208,7 +217,7 @@ void OpenNIDevice::readDepthFrame(shared_ptr<DepthFrame> depthFrame)
 
     depthFrame->setDataPtr(640, 480, (uint16_t*) m_oniDepthFrame.getData());
     depthFrame->setIndex(m_oniDepthFrame.getFrameIndex());
-    depthFrame->setDistanceUnits(DepthFrame::MILIMETERS);
+    depthFrame->setDistanceUnits(dai::MILIMETERS);
 
     if (m_manual_registration) {
         depth2color(depthFrame);
@@ -264,40 +273,44 @@ void OpenNIDevice::readUserTrackerFrame(shared_ptr<DepthFrame> depthFrame,
     }
 
     // Depth Frame
-    m_oniDepthFrame = oniUserTrackerFrame.getDepthFrame();
+    if (depthFrame) {
+        m_oniDepthFrame = oniUserTrackerFrame.getDepthFrame();
 
-    int strideDepth = m_oniDepthFrame.getStrideInBytes() / sizeof(openni::DepthPixel) - m_oniDepthFrame.getWidth();
+        int strideDepth = m_oniDepthFrame.getStrideInBytes() / sizeof(openni::DepthPixel) - m_oniDepthFrame.getWidth();
 
-    if (strideDepth > 0) {
-        qWarning() << "WARNING: OpenNIDevice - Not managed depth stride!!!";
-        throw 3;
+        if (strideDepth > 0) {
+            qWarning() << "WARNING: OpenNIDevice - Not managed depth stride!!!";
+            throw 3;
+        }
+
+        depthFrame->setDataPtr(640, 480, (uint16_t*) m_oniDepthFrame.getData());
+        depthFrame->setIndex(m_oniDepthFrame.getFrameIndex());
+        depthFrame->setDistanceUnits(dai::MILIMETERS);
     }
-
-    depthFrame->setDataPtr(640, 480, (uint16_t*) m_oniDepthFrame.getData());
-    depthFrame->setIndex(m_oniDepthFrame.getFrameIndex());
-    depthFrame->setDistanceUnits(DepthFrame::MILIMETERS);
 
     // Load User Labels (copy)
-    const nite::UserMap& userMap = oniUserTrackerFrame.getUserMap();
+    if (maskFrame) {
+        const nite::UserMap& userMap = oniUserTrackerFrame.getUserMap();
 
-    int strideUser = userMap.getStride() / sizeof(nite::UserId) - userMap.getWidth();
+        int strideUser = userMap.getStride() / sizeof(nite::UserId) - userMap.getWidth();
 
-    if (strideUser > 0) {
-        qWarning() << "WARNING: OpenNIRuntime - Not managed user stride!!!";
-        throw 1;
-    }
-
-    const nite::UserId* pLabel = userMap.getPixels();
-
-    for (int i=0; i < userMap.getHeight(); ++i) {
-        uint8_t* pMask = maskFrame->getRowPtr(i);
-        for (int j=0; j < userMap.getWidth(); ++j) {
-            pMask[j] = *pLabel;
-            pLabel++;
+        if (strideUser > 0) {
+            qWarning() << "WARNING: OpenNIRuntime - Not managed user stride!!!";
+            throw 1;
         }
-    }
 
-    maskFrame->setIndex(oniUserTrackerFrame.getFrameIndex());
+        const nite::UserId* pLabel = userMap.getPixels();
+
+        for (int i=0; i < userMap.getHeight(); ++i) {
+            uint8_t* pMask = maskFrame->getRowPtr(i);
+            for (int j=0; j < userMap.getWidth(); ++j) {
+                pMask[j] = *pLabel;
+                pLabel++;
+            }
+        }
+
+        maskFrame->setIndex(oniUserTrackerFrame.getFrameIndex());
+    }
 
     // Registration
     if (m_manual_registration) {
@@ -305,10 +318,15 @@ void OpenNIDevice::readUserTrackerFrame(shared_ptr<DepthFrame> depthFrame,
     }
 
     // Process Users
-    skeletonFrame->clear();
-    skeletonFrame->setIndex(oniUserTrackerFrame.getFrameIndex());
-    metadataFrame->boundingBoxes().clear();
-    metadataFrame->setIndex(oniUserTrackerFrame.getFrameIndex());
+    if (skeletonFrame) {
+        skeletonFrame->clear();
+        skeletonFrame->setIndex(oniUserTrackerFrame.getFrameIndex());
+    }
+
+    if (metadataFrame) {
+        metadataFrame->boundingBoxes().clear();
+        metadataFrame->setIndex(oniUserTrackerFrame.getFrameIndex());
+    }
 
     const nite::Array<nite::UserData>& users = oniUserTrackerFrame.getUsers();
 
@@ -322,28 +340,33 @@ void OpenNIDevice::readUserTrackerFrame(shared_ptr<DepthFrame> depthFrame,
         else if (user.isVisible())
         {
             // Get Boundingbox
-            const nite::BoundingBox niteBoundingBox = user.getBoundingBox();
-            const NitePoint3f bbMin = niteBoundingBox.min;
-            const NitePoint3f bbMax = niteBoundingBox.max;
-            dai::BoundingBox boundingBox(dai::Point3f(bbMin.x, bbMin.y, bbMin.z),
-                                         dai::Point3f(bbMax.x, bbMax.y, bbMax.z));
-            metadataFrame->boundingBoxes().append(boundingBox);
+            if (metadataFrame) {
+                const nite::BoundingBox niteBoundingBox = user.getBoundingBox();
+                const NitePoint3f bbMin = niteBoundingBox.min;
+                const NitePoint3f bbMax = niteBoundingBox.max;
+                dai::BoundingBox boundingBox(dai::Point3f(bbMin.x, bbMin.y, bbMin.z),
+                                             dai::Point3f(bbMax.x, bbMax.y, bbMax.z));
+                metadataFrame->boundingBoxes().append(boundingBox);
+            }
 
             // Get Skeleton
-            const nite::Skeleton& oniSkeleton = user.getSkeleton();
-            const nite::SkeletonJoint& head = user.getSkeleton().getJoint(nite::JOINT_HEAD);
+            if (skeletonFrame) {
+                const nite::Skeleton& oniSkeleton = user.getSkeleton();
+                const nite::SkeletonJoint& head = user.getSkeleton().getJoint(nite::JOINT_HEAD);
 
-            if (oniSkeleton.getState() == nite::SKELETON_TRACKED && head.getPositionConfidence() > 0.5)
-            {
-                auto daiSkeleton = skeletonFrame->getSkeleton(user.getId());
+                if (oniSkeleton.getState() == nite::SKELETON_TRACKED && head.getPositionConfidence() > 0.5)
+                {
+                    auto daiSkeleton = skeletonFrame->getSkeleton(user.getId());
 
-                if (daiSkeleton == nullptr) {
-                    daiSkeleton = make_shared<dai::Skeleton>(dai::Skeleton::SKELETON_OPENNI);
-                    skeletonFrame->setSkeleton(user.getId(), daiSkeleton);
+                    if (daiSkeleton == nullptr) {
+                        daiSkeleton = make_shared<dai::Skeleton>(dai::Skeleton::SKELETON_OPENNI);
+                        skeletonFrame->setSkeleton(user.getId(), daiSkeleton);
+                    }
+
+                    OpenNIDevice::copySkeleton(oniSkeleton, *(daiSkeleton.get()));
+
+                    daiSkeleton->computeQuaternions();
                 }
-
-                OpenNIDevice::copySkeleton(oniSkeleton, *(daiSkeleton.get()));
-                daiSkeleton->computeQuaternions();
             }
         }
         else if (user.isLost()) {
@@ -448,7 +471,7 @@ void OpenNIDevice::copySkeleton(const nite::Skeleton& srcSkeleton, dai::Skeleton
         const nite::Quaternion& niteOrientation = niteJoint.getOrientation();
 
         // Copy nite joint pos to my own Joint converting from nite milimeters to meters
-        SkeletonJoint joint(Point3f(nitePos.x / 1000, nitePos.y / 1000, nitePos.z / 1000), _staticMap[j]);
+        SkeletonJoint joint(Point3f(nitePos.x, nitePos.y, nitePos.z), _staticMap[j]);
         joint.setOrientation(Quaternion(niteOrientation.w, niteOrientation.x,
                                                            niteOrientation.y,
                                                            niteOrientation.z));
@@ -457,6 +480,8 @@ void OpenNIDevice::copySkeleton(const nite::Skeleton& srcSkeleton, dai::Skeleton
         joint.setOrientationConfidence(niteJoint.getOrientationConfidence());
         dstSkeleton.setJoint(_staticMap[j], joint);
     }
+
+    dstSkeleton.setDistanceUnits(dai::MILIMETERS);
 }
 
 OpenNIDevice* OpenNIDevice::create(const QString devicePath)

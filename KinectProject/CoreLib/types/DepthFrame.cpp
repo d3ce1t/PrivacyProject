@@ -52,7 +52,7 @@ unsigned int DepthFrame::getNumOfNonZeroPoints() const
     return m_nNonZeroOfPoints;
 }
 
-DepthFrame::DistanceUnits DepthFrame::distanceUnits() const
+DistanceUnits DepthFrame::distanceUnits() const
 {
     return m_units;
 }

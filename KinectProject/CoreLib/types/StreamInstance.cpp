@@ -60,7 +60,7 @@ void StreamInstance::restart()
 
 bool StreamInstance::hasNext() const
 {
-    return true;
+    return is_open();
 }
 
 QList<DataFrame::FrameType> StreamInstance::getTypes(DataFrame::SupportedFrames type)
