@@ -61,7 +61,7 @@ public:
     float getOrientationConfidence() const;
 
 private:
-    Point3f     m_realworld_point;    // Real World pos in meters
+    Point3f     m_realworld_point;    // Real World pos in millimeters or meters
     Quaternion  m_orientation;        // Orientation
     JointType   m_type;               // Joint Type
     float       m_position_confidence;

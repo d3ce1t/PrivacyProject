@@ -3,6 +3,7 @@
 
 #include "SkeletonJoint.h"
 #include "Quaternion.h"
+#include "types/Enums.h"
 #include <QVector3D>
 
 #define MAX_JOINTS 20
@@ -17,6 +18,15 @@ namespace dai {
  */
 class Skeleton
 {
+    SkeletonJoint m_joints[MAX_JOINTS]; // joints with real world coordinates in meters
+    Quaternion m_quaternions[MAX_JOINTS];
+    SkeletonLimb m_limbs[MAX_LIMBS];
+    short m_jointsCount;
+    short m_limbsSize;
+    SkeletonType m_type;
+    SkeletonState m_state;
+    DistanceUnits m_units;
+
 public:
     enum SkeletonType {
         SKELETON_KINECT,
@@ -33,6 +43,8 @@ public:
         SkeletonJoint::JointType joint2;
     };
 
+    static void convertJointCoordinatesToDepth(float x, float y, float z, float* pOutX, float* pOutY);
+
     // Constructors
     Skeleton(SkeletonType type = SKELETON_OPENNI);
     Skeleton(const Skeleton& other);
@@ -44,8 +56,10 @@ public:
     short getJointsCount() const;
     short getLimbsCount() const;
     SkeletonType getType() const;
+    DistanceUnits distanceUnits() const;
     void setJoint(SkeletonJoint::JointType type, const SkeletonJoint& joint);
     void computeQuaternions();
+    void setDistanceUnits(DistanceUnits units);
 
     // Operators Overload
     Skeleton& operator=(const Skeleton& other);
@@ -55,13 +69,7 @@ private:
     static SkeletonLimb staticKinectLimbsMap[MAX_LIMBS];
     static SkeletonLimb staticOpenNILimbsMap[16];
 
-    SkeletonJoint m_joints[MAX_JOINTS]; // joints with real world coordinates in meters
-    Quaternion m_quaternions[MAX_JOINTS];
-    SkeletonLimb m_limbs[MAX_LIMBS];
-    short m_jointsCount;
-    short m_limbsSize;
-    SkeletonType m_type;
-    SkeletonState m_state;
+
 };
 
 } // End Namespace

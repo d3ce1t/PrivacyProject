@@ -1,4 +1,5 @@
 #include "Skeleton.h"
+#include <cmath>
 
 namespace dai {
 
@@ -150,9 +151,19 @@ Skeleton::SkeletonType Skeleton::getType() const
     return m_type;
 }
 
+DistanceUnits Skeleton::distanceUnits() const
+{
+    return m_units;
+}
+
 void Skeleton::setJoint(SkeletonJoint::JointType type, const SkeletonJoint& joint)
 {
     m_joints[type] = joint; // copy
+}
+
+void Skeleton::setDistanceUnits(DistanceUnits units)
+{
+    m_units = units;
 }
 
 void Skeleton::computeQuaternions()
@@ -166,6 +177,16 @@ void Skeleton::computeQuaternions()
                                                           m_joints[joint3].getPosition(),
                                                           m_joints[joint2].getPosition());
     }
+}
+
+void Skeleton::convertJointCoordinatesToDepth(float x, float y, float z, float* pOutX, float* pOutY)
+{
+    const double fd_x = 1.0 / 5.9421434211923247e+02;
+    const double fd_y = 1.0 / 5.9104053696870778e+02;
+    const double cd_x = 640 / 2.0;
+    const double cd_y = 480 / 2.0;
+    *pOutX = x / (std::abs(z) * fd_x) + cd_x;
+    *pOutY = y / (std::abs(z) * fd_y) + cd_y;
 }
 
 } // End Namespace
