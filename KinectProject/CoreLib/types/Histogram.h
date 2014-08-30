@@ -348,7 +348,7 @@ public:
         return result;
     }
 
-    const static std::shared_ptr<Histogram<T,N> > create(cv::Mat inputImg, std::vector<int> ranges, cv::Mat mask = cv::Mat())
+    const static std::shared_ptr<Histogram<T,N> > create(cv::Mat inputImg, std::vector<int> ranges, cv::Mat mask = cv::Mat(), uchar value = 1)
     {
         Q_ASSERT(inputImg.channels() == N);
         Q_ASSERT( (mask.rows == 0 && mask.cols == 0) || (mask.rows == inputImg.rows && mask.cols == inputImg.cols && mask.depth() == CV_8U) );
@@ -366,7 +366,7 @@ public:
 
             for (int j=0; j<inputImg.cols; ++j)
             {
-                if (useMask && maskPixel[j] <= 0)
+                if (useMask && maskPixel[j] != value)
                     continue;
 
                 uint hash = hashItem<T,N>(pPixel[j]);

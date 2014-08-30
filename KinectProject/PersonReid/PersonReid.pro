@@ -67,9 +67,22 @@ win32 {
         else:CONFIG(debug, debug|release):LIBS += -L$$BOOSTLIB -lboost_date_time-vc120-mt-gd-1_55 -lboost_thread-vc120-mt-gd-1_55
     }
 
+    # OpenNI2
+    #LIBS += -L$$(OPENNI2_LIB) -lOpenNI2
+    INCLUDEPATH += $$(OPENNI2_INCLUDE)
+    DEPENDPATH += $$(OPENNI2_INCLUDE)
+
+    # NiTE2
+    #LIBS += -L$$(NITE2_LIB) -lNiTE2
+    INCLUDEPATH += $$(NITE2_INCLUDE)
+    DEPENDPATH += $$(NITE2_INCLUDE)
+
     # OpenCV2
     INCLUDEPATH += $$(OPENCV2_INCLUDE)
     DEPENDPATH += $$(OPENCV2_INCLUDE)
     CONFIG(release, debug|release):LIBS += -L$$(OPENCV2_LIB) -lopencv_core249 -lopencv_imgproc249 -lopencv_highgui249 -lopencv_objdetect249 -lopencv_photo249
     else:CONFIG(debug, debug|release):LIBS += -L$$(OPENCV2_LIB) -lopencv_core249d -lopencv_imgproc249d -lopencv_highgui249d -lopencv_objdetect249d -lopencv_photo249d
 }
+
+CONFIG(release, debug|release): DESTDIR = $$OUT_PWD/release
+else:CONFIG(debug, debug|release): DESTDIR = $$OUT_PWD/debug

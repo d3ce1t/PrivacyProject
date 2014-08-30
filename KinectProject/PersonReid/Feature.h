@@ -3,20 +3,22 @@
 
 #include "dataset/InstanceInfo.h"
 #include "types/Histogram.h"
+#include <QList>
 
 namespace dai {
 
 class Feature
 {
-    Histogram1s m_upper_hist;
-    Histogram1s m_lower_hist;
+    QList<Histogram1s> m_histograms;
     InstanceInfo m_label;
 
 public:
 
     static shared_ptr<Feature> minFeature(const QList<shared_ptr<Feature> > &features);
 
-    Feature(const Histogram1s& upper, const Histogram1s& lower, InstanceInfo label);
+    Feature() {}
+    Feature(InstanceInfo label);
+    void addHistogram(const Histogram1s& hist);
     float distance(const Feature& other) const;
     bool operator==(const Feature& other) const;
     const InstanceInfo& label() const;

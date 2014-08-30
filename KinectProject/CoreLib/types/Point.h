@@ -60,6 +60,18 @@ public:
         return sqrt(sum);
     }
 
+    static float euclideanDistanceSquared(const Point& point1, const Point& point2)
+    {
+        float sum = 0;
+
+        for (int i=0; i<N; ++i) {
+            float diff = point2.val(i) - point1.val(i);
+            sum += pow(diff, 2);
+        }
+
+        return sum;
+    }
+
     /**
      * Return the distance between 0 (close) and 1 (far)
      * @brief distanceNorm
@@ -169,6 +181,7 @@ using Point3b = Point<uchar, 3>;
 template<typename T>
 using Point2D = Point<T, 2>;
 using Point2f = Point<float, 2>;
+using Point2i = Point<int, 2>;
 using Point2b = Point<uchar, 2>;
 
 } // End Namepsace

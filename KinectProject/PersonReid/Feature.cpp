@@ -26,23 +26,53 @@ shared_ptr<Feature> Feature::minFeature(const QList<shared_ptr<Feature>>& featur
     return selectedFeature;
 }
 
-Feature::Feature(const Histogram1s& upper, const Histogram1s& lower, InstanceInfo label)
+Feature::Feature(InstanceInfo label)
 {
-    m_upper_hist = upper;
-    m_lower_hist = lower;
     m_label = label;
+}
+
+void Feature::addHistogram(const Histogram1s& hist)
+{
+    m_histograms.append(hist); // copy
 }
 
 bool Feature::operator==(const Feature& other) const
 {
-    return m_upper_hist == other.m_upper_hist && m_lower_hist == other.m_lower_hist;
+    if (m_histograms.size() == other.m_histograms.size())
+        return false;
+
+    bool equal = true;
+    auto it1 = m_histograms.constBegin();
+    auto it2 = other.m_histograms.constBegin();
+
+    while (equal && it1 != m_histograms.constEnd() && it2 != other.m_histograms.constEnd())
+    {
+        equal = *it1 == *it2;
+        ++it1;
+        ++it2;
+    }
+
+    return equal;
 }
 
 float Feature::distance(const Feature& other) const
 {
-    double distance = m_upper_hist.distance(other.m_upper_hist);
-    distance += m_lower_hist.distance(other.m_lower_hist);
-    return distance / 2;
+    if (m_histograms.size() != other.m_histograms.size())
+        return 1.0f;
+
+    auto it1 = m_histograms.constBegin();
+    auto it2 = other.m_histograms.constBegin();
+
+    double distance = 0;
+
+    while (it1 != m_histograms.constEnd() && it2 != other.m_histograms.constEnd())
+    {
+        distance += (*it1).distance(*it2);
+        ++it1;
+        ++it2;
+    }
+
+    return distance / m_histograms.size();
 }
 
  const InstanceInfo& Feature::label() const

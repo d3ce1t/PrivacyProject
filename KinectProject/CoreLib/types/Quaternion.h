@@ -14,7 +14,7 @@ class Quaternion : public QObject
 
 public:
     enum QuaternionType {
-        QUATERNION_Q1,
+        QUATERNION_Q1 = 0,
         QUATERNION_Q2,
         QUATERNION_Q3,
         QUATERNION_Q4,
