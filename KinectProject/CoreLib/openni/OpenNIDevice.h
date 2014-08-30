@@ -37,8 +37,8 @@ class OpenNIDevice
 
 public:
     static const QString ANY_DEVICE;
-    static void copySkeleton(const nite::Skeleton& srcSkeleton, dai::Skeleton& dstSkeleton);
     static OpenNIDevice* create(const QString devicePath = OpenNIDevice::ANY_DEVICE);
+    static void copySkeleton(const nite::Skeleton& srcSkeleton, dai::Skeleton& dstSkeleton);
 
     ~OpenNIDevice();
     void open();
@@ -50,6 +50,8 @@ public:
     openni::PlaybackControl* playbackControl();
     bool isFile() const;
     void setRegistration(bool flag);
+    void convertJointCoordinatesToDepth(float x, float y, float z, float* pOutX, float* pOutY) const;
+    void convertDepthCoordinatesToJoint(int x, int y, int z, float* pOutX, float* pOutY) const;
 
 
 private:

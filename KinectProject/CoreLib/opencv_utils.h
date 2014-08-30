@@ -78,16 +78,16 @@ double computeOccupancy(shared_ptr<MaskFrame> mask, int *outNumPixels = nullptr)
     double occupancy;
     int n_pixels = 0;
 
-    for (int i=0; i<mask->getHeight(); ++i) {
+    for (int i=0; i<mask->height(); ++i) {
         const uint8_t* pixelMask =  mask->getRowPtr(i);
-        for (int j=0; j<mask->getWidth(); ++j) {
+        for (int j=0; j<mask->width(); ++j) {
             if (pixelMask[j] > 0 && pixelMask[j] < 255) {
                 n_pixels++;
             }
         }
     }
 
-    occupancy = (float) n_pixels / (float) (mask->getHeight() * mask->getWidth());
+    occupancy = (float) n_pixels / (float) (mask->height() * mask->width());
 
     if (outNumPixels) {
         *outNumPixels = n_pixels;
@@ -305,7 +305,7 @@ int count_pixels_nz(const cv::Mat& inputImg)
 }
 
 template <class T, int N>
-void createHistDistImage(const QList<Histogram<T,N>*>& hist_list, const QList<cv::Scalar> &color_list, cv::Mat& output_img)
+void createHistImage(const QList<Histogram<T,N>*>& hist_list, const QList<cv::Scalar> &color_list, cv::Mat& output_img)
 {
     Q_ASSERT(hist_list.size() == color_list.size());
 

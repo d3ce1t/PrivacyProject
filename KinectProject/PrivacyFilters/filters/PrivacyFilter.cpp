@@ -180,9 +180,9 @@ void PrivacyFilter::produceFrames(QHashDataFrames &output)
     shared_ptr<MaskFrame> outputMask = static_pointer_cast<MaskFrame>(maskFrame->clone());
     dilateUserMask(const_cast<uint8_t*>(outputMask->getDataPtr()));
 
-    for (int i=0; i<maskFrame->getHeight(); ++i)
+    for (int i=0; i<maskFrame->height(); ++i)
     {
-        for (int j=0; j<maskFrame->getWidth(); ++j)
+        for (int j=0; j<maskFrame->width(); ++j)
         {
             uint8_t inputValue = maskFrame->getItem(i,j);
             uint8_t outputValue = outputMask->getItem(i,j);
@@ -286,10 +286,10 @@ void PrivacyFilter::approach1(QHashDataFrames &frames)
                                                              bb.size().width(), bb.size().height());
 
     // Use cv::Mat for my color frame and mask frame
-    cv::Mat inputImg(subColorFrame->getHeight(), subColorFrame->getWidth(),
+    cv::Mat inputImg(subColorFrame->height(), subColorFrame->width(),
                  CV_8UC3, (void*)subColorFrame->getDataPtr(), subColorFrame->getStride());
 
-    cv::Mat mask(subMaskFrame->getHeight(), subMaskFrame->getWidth(),
+    cv::Mat mask(subMaskFrame->height(), subMaskFrame->width(),
              CV_8UC1, (void*)subMaskFrame->getDataPtr(), subMaskFrame->getStride());
 
     // Compute Upper and Lower Masks
@@ -343,10 +343,10 @@ void PrivacyFilter::approach2(QHashDataFrames &frames)
     {using namespace cv;
 
         // Use cv::Mat for my color frame and mask frame
-        Mat inputImg(subColorFrame->getHeight(), subColorFrame->getWidth(),
+        Mat inputImg(subColorFrame->height(), subColorFrame->width(),
                      CV_8UC3, (void*)subColorFrame->getDataPtr(), subColorFrame->getStride());
 
-        Mat mask(subMaskFrame->getHeight(), subMaskFrame->getWidth(),
+        Mat mask(subMaskFrame->height(), subMaskFrame->width(),
                  CV_8UC1, (void*)subMaskFrame->getDataPtr(), subMaskFrame->getStride());
 
         // Compute Upper and Lower Masks
@@ -382,7 +382,7 @@ void PrivacyFilter::approach2(QHashDataFrames &frames)
 
         // Create an image of the distribution of the histogram
         Mat histDist;
-        createHistDistImage<uchar,2>({u_hist.get(), l_hist.get()},
+        createHistImage<uchar,2>({u_hist.get(), l_hist.get()},
                                      {Scalar(255, 0, 0), Scalar(0, 0, 255)}, // Blue (upper), Red (lower)
                                      histDist);
 
@@ -433,10 +433,10 @@ void PrivacyFilter::approach3(QHashDataFrames& frames)
     {using namespace cv;
 
         // Use cv::Mat for my color frame and mask frame
-        Mat inputImg(subColorFrame->getHeight(), subColorFrame->getWidth(),
+        Mat inputImg(subColorFrame->height(), subColorFrame->width(),
                      CV_8UC3, (void*)subColorFrame->getDataPtr(), subColorFrame->getStride());
 
-        Mat mask(subMaskFrame->getHeight(), subMaskFrame->getWidth(),
+        Mat mask(subMaskFrame->height(), subMaskFrame->width(),
                  CV_8UC1, (void*)subMaskFrame->getDataPtr(), subMaskFrame->getStride());
 
 
@@ -475,7 +475,7 @@ void PrivacyFilter::approach3(QHashDataFrames& frames)
 
         // Create an image of the distribution of the histogram
         Mat histDist;
-        createHistDistImage<uchar,2>({u_hist.get(), l_hist.get()},
+        createHistImage<uchar,2>({u_hist.get(), l_hist.get()},
                                      {Scalar(255, 0, 0), Scalar(0, 0, 255)}, // Blue (upper), Red (lower)
                                      histDist);
 
@@ -526,10 +526,10 @@ void PrivacyFilter::approach4(QHashDataFrames &frames)
     {using namespace cv;
 
         // Use cv::Mat for my color frame and mask frame
-        Mat inputImg(roiColorFrame->getHeight(), roiColorFrame->getWidth(),
+        Mat inputImg(roiColorFrame->height(), roiColorFrame->width(),
                      CV_8UC3, (void*)roiColorFrame->getDataPtr(), roiColorFrame->getStride());
 
-        Mat mask(roiMaskFrame->getHeight(), roiMaskFrame->getWidth(),
+        Mat mask(roiMaskFrame->height(), roiMaskFrame->width(),
                  CV_8UC1, (void*)roiMaskFrame->getDataPtr(), roiMaskFrame->getStride());
 
         // Denoise Image
@@ -558,7 +558,7 @@ void PrivacyFilter::approach4(QHashDataFrames &frames)
 
         // Create Distribution
         Mat distImg;
-        createHistDistImage<uchar,3>({u_hist.get(), l_hist.get()},
+        createHistImage<uchar,3>({u_hist.get(), l_hist.get()},
                                      {Scalar(0, 255, 255), Scalar(0, 0, 255)}, // Blue (upper hist), Red (lower hist)
                                      distImg);
 
@@ -607,10 +607,10 @@ void PrivacyFilter::approach5(QHashDataFrames& frames)
     {using namespace cv;
 
         // Use cv::Mat for my color frame and mask frame
-        Mat inputImg(roiColorFrame->getHeight(), roiColorFrame->getWidth(),
+        Mat inputImg(roiColorFrame->height(), roiColorFrame->width(),
                      CV_8UC3, (void*)roiColorFrame->getDataPtr(), roiColorFrame->getStride());
 
-        Mat mask(roiMaskFrame->getHeight(), roiMaskFrame->getWidth(),
+        Mat mask(roiMaskFrame->height(), roiMaskFrame->width(),
                  CV_8UC1, (void*)roiMaskFrame->getDataPtr(), roiMaskFrame->getStride());
 
         //
@@ -667,7 +667,7 @@ void PrivacyFilter::approach5(QHashDataFrames& frames)
 
             // Show Distribution
             Mat distImg;
-            createHistDistImage<uchar,3>({&u_hist_acc, &l_hist_acc},
+            createHistImage<uchar,3>({&u_hist_acc, &l_hist_acc},
                                          {Scalar(255, 0, 0), Scalar(0, 0, 255)}, // Blue (upper hist), Red (lower hist)
                                          distImg);
 
@@ -714,10 +714,10 @@ void PrivacyFilter::approach6(QHashDataFrames &frames)
     {using namespace cv;
 
         // Use cv::Mat for my color frame and mask frame
-        Mat inputImg(roiColorFrame->getHeight(), roiColorFrame->getWidth(),
+        Mat inputImg(roiColorFrame->height(), roiColorFrame->width(),
                      CV_8UC3, (void*)roiColorFrame->getDataPtr(), roiColorFrame->getStride());
 
-        Mat mask(roiMaskFrame->getHeight(), roiMaskFrame->getWidth(),
+        Mat mask(roiMaskFrame->height(), roiMaskFrame->width(),
                  CV_8UC1, (void*)roiMaskFrame->getDataPtr(), roiMaskFrame->getStride());
 
         // Color Palette with 8-8-4 levels
@@ -775,7 +775,7 @@ void PrivacyFilter::approach6(QHashDataFrames &frames)
                 if (!cluster.samples.isEmpty()) {
                     qDebug() << "Cluster" << i << "size" << cluster.samples.size();
                     shared_ptr<Histogram1c> hist = cluster.centroid;
-                    createHistDistImage<uchar,1>({hist.get()}, {Scalar(0, 0, 255)}, hist_img[i]);
+                    createHistImage<uchar,1>({hist.get()}, {Scalar(0, 0, 255)}, hist_img[i]);
                     ++i;
                 }
             }
@@ -955,46 +955,6 @@ void PrivacyFilter::create2DColorPalette(const QList<const HistBin3D<T>*>& upper
                     pixel[j][1] = item->point[1]; // u Green
                     pixel[j][2] = item->point[2]; // v Red
                 }
-            }
-        }
-    }
-}
-
-template <class T>
-void PrivacyFilter::createHistImage(const QList<const HistBin3D<T>*>& hist_items, cv::Mat& output_img) const
-{
-    using namespace cv;
-
-    int width = 400;
-    int height = 400;
-    const int num_items = hist_items.size();
-    int size = cvCeil(std::sqrt(num_items));
-    int size_offset = size % 2;
-
-    const int num_rows = size + size_offset;
-    const int num_cols = num_rows;
-    const int total_cells = num_rows * num_cols;
-    float color_height = float(height) / num_rows;
-    float color_width = float(width) / num_cols;
-    int row = 0, col = 0;
-
-    output_img = Mat::zeros(height, width, CV_8UC3);
-
-    for (int i=0; i<400; ++i)
-    {
-        Vec3b* pixel = output_img.ptr<Vec3b>(i);
-        row = i / color_height;
-
-        for (int j=0; j<400; ++j)
-        {
-            col = j / color_width;
-            int offset = row * num_rows + col;
-
-            if (offset < num_items) {
-                const HistBin3D<T>* item = hist_items.at(offset);
-                pixel[j][0] = item->point[0]; // Y Blue
-                pixel[j][1] = item->point[1]; // u Green
-                pixel[j][2] = item->point[2]; // v Red
             }
         }
     }

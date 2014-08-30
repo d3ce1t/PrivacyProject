@@ -46,11 +46,11 @@ void Scene3DPainter::render(QOpenGLFramebufferObject *target)
 
         m_shaderProgram->bind();
         m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
-        m_shaderProgram->setUniformValue(m_widthUniform, (float) bgFrame->getWidth());
-        m_shaderProgram->setUniformValue(m_heightUniform, (float) bgFrame->getHeight());
+        m_shaderProgram->setUniformValue(m_widthUniform, (float) bgFrame->width());
+        m_shaderProgram->setUniformValue(m_heightUniform, (float) bgFrame->height());
 
         m_vao.bind();
-        int count = bgFrame->getWidth() * bgFrame->getHeight();
+        int count = bgFrame->width() * bgFrame->height();
 
         m_distancesBuffer.bind();
         m_distancesBuffer.write(0, bgFrame->getDataPtr(), count * sizeof(float));

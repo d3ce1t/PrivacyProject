@@ -26,21 +26,21 @@ public:
     DepthFrame();
     DepthFrame(int width, int height);
     DepthFrame(int width, int height, uint16_t *pData);
-    virtual ~DepthFrame();
     DepthFrame(const DepthFrame& other);
     shared_ptr<DataFrame> clone() const;
 
     // Member Methods
-    DistanceUnits distanceUnits() const;
-    unsigned int getNumOfNonZeroPoints() const;
-    void setDistanceUnits(DistanceUnits units);
-    void setItem(int row, int column, uint16_t value);
+    DistanceUnits distanceUnits() const {return m_units;}
+    void setDistanceUnits(DistanceUnits units) {m_units = units;}
+    shared_ptr<DepthFrame> subFrame(int row, int column, int width, int height) const;
+    shared_ptr<DepthFrame> subFrame(const BoundingBox& bb) const {
+        return subFrame(bb.getMin()[1], bb.getMin()[0], bb.size().width(), bb.size().height());
+    }
 
     // Overriden operators
     DepthFrame& operator=(const DepthFrame& other);
 
 private:
-    unsigned int m_nNonZeroOfPoints;
     DistanceUnits m_units;
 };
 

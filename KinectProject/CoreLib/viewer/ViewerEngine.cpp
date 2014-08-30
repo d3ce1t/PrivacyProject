@@ -125,17 +125,17 @@ void ViewerEngine::renderOpenGLScene(QOpenGLFramebufferObject* fbo)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         //glPixelStorei(GL_UNPACK_ROW_LENGTH, m_colorFrame->getStride() / sizeof(RGBColor));
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_colorFrame->getWidth(),  m_colorFrame->getHeight(),
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_colorFrame->width(),  m_colorFrame->height(),
                      0, GL_RGB, GL_UNSIGNED_BYTE, (void *) m_colorFrame->getDataPtr());
         //glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
         glBindTexture(GL_TEXTURE_2D, 0);
 
         // Estimate size
-        double w_scale_factor = 640.0 / m_colorFrame->getWidth();
-        double h_scale_factor = 480.0 / m_colorFrame->getHeight();
+        double w_scale_factor = 640.0 / m_colorFrame->width();
+        double h_scale_factor = 480.0 / m_colorFrame->height();
         double scale_factor = dai::min<double>(w_scale_factor, h_scale_factor);
-        m_height = m_colorFrame->getHeight() * scale_factor;
-        m_width = m_colorFrame->getWidth() * scale_factor;
+        m_height = m_colorFrame->height() * scale_factor;
+        m_width = m_colorFrame->width() * scale_factor;
         m_needLoading[0] = false;
     }
 

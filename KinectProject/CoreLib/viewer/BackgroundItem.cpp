@@ -26,7 +26,7 @@ void BackgroundItem::setBackground(shared_ptr<ColorFrame> background)
     glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, background->getWidth(), background->getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, background->getDataPtr());
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, background->width(), background->height(), 0, GL_RGB, GL_UNSIGNED_BYTE, background->getDataPtr());
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 

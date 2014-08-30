@@ -61,9 +61,6 @@ private:
                             cv::Mat& output_img, float input_range[]) const;
 
     template <class T>
-    void createHistImage(const QList<const HistBin3D<T>*>& hist_items, cv::Mat& output_img) const;
-
-    template <class T>
     void create2DColorPalette(const QList<const HistBin3D<T>*>& upper_hist, const QList<const HistBin3D<T>*>& lower_hist, cv::Mat& output_img) const;
 
     cv::Mat createMask(cv::Mat input_img, int min_value, int *nonzero_counter = nullptr, bool filter = false) const;

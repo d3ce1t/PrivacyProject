@@ -364,8 +364,7 @@ void OpenNIDevice::readUserTrackerFrame(shared_ptr<DepthFrame> depthFrame,
                     }
 
                     OpenNIDevice::copySkeleton(oniSkeleton, *(daiSkeleton.get()));
-
-                    daiSkeleton->computeQuaternions();
+                    //daiSkeleton->computeQuaternions();
                 }
             }
         }
@@ -415,12 +414,12 @@ void OpenNIDevice::depth2color(shared_ptr<DepthFrame> depthFrame, shared_ptr<Mas
     shared_ptr<DepthFrame> outputDepth = make_shared<DepthFrame>(640, 480);
     shared_ptr<MaskFrame> outputMask = mask ? make_shared<MaskFrame>(640, 480) : nullptr;
 
-    for (int i=0; i<depthFrame->getHeight(); ++i)
+    for (int i=0; i<depthFrame->height(); ++i)
     {
         uint16_t* pDepth = depthFrame->getRowPtr(i);
         uint8_t* pMask = mask ? mask->getRowPtr(i) : nullptr;
 
-        for (int j=0; j<depthFrame->getWidth(); ++j)
+        for (int j=0; j<depthFrame->width(); ++j)
         {
             // Convert each point of the depth frame into a real world coordinate in millimeters
             // FIX: I think next formula assumes depth is given as a distance from a point to the
@@ -482,6 +481,16 @@ void OpenNIDevice::copySkeleton(const nite::Skeleton& srcSkeleton, dai::Skeleton
     }
 
     dstSkeleton.setDistanceUnits(dai::MILIMETERS);
+}
+
+void OpenNIDevice::convertJointCoordinatesToDepth(float x, float y, float z, float* pOutX, float* pOutY) const
+{
+    m_oniUserTracker.convertJointCoordinatesToDepth(x, y, z, pOutX, pOutY);
+}
+
+void OpenNIDevice::convertDepthCoordinatesToJoint(int x, int y, int z, float* pOutX, float* pOutY) const
+{
+    m_oniUserTracker.convertDepthCoordinatesToJoint(x, y, z, pOutX, pOutY);
 }
 
 OpenNIDevice* OpenNIDevice::create(const QString devicePath)

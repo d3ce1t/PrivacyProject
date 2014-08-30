@@ -160,19 +160,19 @@ void DepthFilter::produceFrames(QHashDataFrames& output)
         if (output.contains(DataFrame::Color)) {
             colorFrame = static_pointer_cast<ColorFrame>(output.value(DataFrame::Color));
         } else {
-            colorFrame = make_shared<ColorFrame>(depthFrame->getWidth(), depthFrame->getHeight());
+            colorFrame = make_shared<ColorFrame>(depthFrame->width(), depthFrame->height());
             output.insert(DataFrame::Color, colorFrame);
         }
 
         QMap<uint16_t, float> colorHistogram;
         DepthFrame::calculateHistogram(colorHistogram, *(depthFrame.get()));
 
-        for (int i=0; i<depthFrame->getHeight(); ++i)
+        for (int i=0; i<depthFrame->height(); ++i)
         {
             const uint16_t* pDepth = depthFrame->getRowPtr(i);
             RGBColor* pColor = colorFrame->getRowPtr(i);
 
-            for (int j=0; j<depthFrame->getWidth(); ++j)
+            for (int j=0; j<depthFrame->width(); ++j)
             {
                uint16_t color = colorHistogram[pDepth[j]];
                pColor[j].red = color;

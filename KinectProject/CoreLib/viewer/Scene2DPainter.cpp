@@ -114,11 +114,11 @@ void Scene2DPainter::setupTextures()
         shared_ptr<ColorFrame> frame = static_pointer_cast<ColorFrame>(m_bg);
 
         // Load Foreground
-        ScenePainter::loadVideoTexture(m_fgTextureId, frame->getWidth(), frame->getHeight(), (void *) frame->getDataPtr());
+        ScenePainter::loadVideoTexture(m_fgTextureId, frame->width(), frame->height(), (void *) frame->getDataPtr());
 
         // Load Mask
         if (m_mask) {
-            ScenePainter::loadMaskTexture(m_maskTextureId, m_mask->getWidth(), m_mask->getHeight(), (void *) m_mask->getDataPtr());
+            ScenePainter::loadMaskTexture(m_maskTextureId, m_mask->width(), m_mask->height(), (void *) m_mask->getDataPtr());
         }
 
         m_needLoading.store(0);
@@ -182,7 +182,7 @@ void Scene2DPainter::renderBackground()
     // Enable BG
     if (m_currentFilter == FILTER_INVISIBILITY
             || m_currentFilter == FILTER_SKELETON
-            || m_currentFilter == FILTER_SILHOUETTE
+            //|| m_currentFilter == FILTER_SILHOUETTE
             || m_currentFilter == FILTER_3DMODEL)
     {
         glBindTexture(GL_TEXTURE_2D, m_bgTextureId);
