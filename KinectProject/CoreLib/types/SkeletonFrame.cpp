@@ -45,7 +45,7 @@ void SkeletonFrame::clear()
     m_hashSkeletons.clear();
 }
 
-void SkeletonFrame::write(QFile &of) const
+/*void SkeletonFrame::write(QFile &of) const
 {
     // Write frame index
     of.write( (char*) &m_index, sizeof(m_index) );
@@ -67,6 +67,7 @@ void SkeletonFrame::write(QFile &of) const
         of.write( (char*) &type, sizeof(Skeleton::SkeletonType) );
 
         // Write all joints (by now, used and unused)
+
         for (int i=0; i<MAX_JOINTS; ++i) {
             const SkeletonJoint& joint = skeleton->getJoint( (SkeletonJoint::JointType) i);
             const Point3f& position = joint.getPosition();
@@ -75,6 +76,6 @@ void SkeletonFrame::write(QFile &of) const
     }
 
     of.flush();
-}
+}*/
 
 } // End Namespace

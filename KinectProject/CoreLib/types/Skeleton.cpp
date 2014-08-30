@@ -82,11 +82,9 @@ Skeleton::Skeleton(SkeletonType type)
 
     if (type == SKELETON_OPENNI) {
         memcpy(m_limbs, staticOpenNILimbsMap, 16 * sizeof(SkeletonLimb));
-        m_jointsCount = 15;
         m_limbsSize = 16;
     } else {
         memcpy(m_limbs, staticKinectLimbsMap, 19 * sizeof(SkeletonLimb));
-        m_jointsCount = 20;
         m_limbsSize = 19;
     }
 }
@@ -94,51 +92,45 @@ Skeleton::Skeleton(SkeletonType type)
 Skeleton::Skeleton(const Skeleton& other)
 {
     m_type = other.m_type;
-    m_jointsCount = other.m_jointsCount;
     m_limbsSize = other.m_limbsSize;
-
-    for (int i=0; i<other.m_jointsCount; ++i) {
-        m_joints[i] = other.m_joints[i];
-        m_quaternions[i] = other.m_quaternions[i];
-    }
-
+    m_joints = other.m_joints;  // implicit sharing
+    m_quaternions = other.m_quaternions; // implicit sharing
     memcpy(m_limbs, other.m_limbs, other.m_limbsSize * sizeof(SkeletonLimb));
 }
 
 Skeleton& Skeleton::operator=(const Skeleton& other)
 {
     m_type = other.m_type;
-    m_jointsCount = other.m_jointsCount;
     m_limbsSize = other.m_limbsSize;
-
-    for (int i=0; i<other.m_jointsCount; ++i) {
-        m_joints[i] = other.m_joints[i];
-        m_quaternions[i] = other.m_quaternions[i];
-    }
-
+    m_joints = other.m_joints;
+    m_quaternions = other.m_quaternions;
     memcpy(m_limbs, other.m_limbs, other.m_limbsSize * sizeof(SkeletonLimb));
-
     return *this;
 }
 
-const SkeletonJoint &Skeleton::getJoint(SkeletonJoint::JointType type) const
+const SkeletonJoint Skeleton::getJoint(SkeletonJoint::JointType type) const
 {
-    return m_joints[type];
+    return m_joints.value(type);
 }
 
-const Quaternion& Skeleton::getQuaternion(Quaternion::QuaternionType type) const
+QList<SkeletonJoint> Skeleton::joints() const
 {
-    return m_quaternions[type];
+    return m_joints.values();
 }
 
-const Skeleton::SkeletonLimb *Skeleton::getLimbsMap() const
+const Quaternion Skeleton::getQuaternion(Quaternion::QuaternionType type) const
+{
+    return m_quaternions.value(type);
+}
+
+const Skeleton::SkeletonLimb* Skeleton::getLimbsMap() const
 {
     return m_limbs;
 }
 
 short Skeleton::getJointsCount() const
 {
-    return m_jointsCount;
+    return m_joints.size();
 }
 
 short Skeleton::getLimbsCount() const
@@ -158,7 +150,7 @@ DistanceUnits Skeleton::distanceUnits() const
 
 void Skeleton::setJoint(SkeletonJoint::JointType type, const SkeletonJoint& joint)
 {
-    m_joints[type] = joint; // copy
+    m_joints.insert(type, joint); // copy
 }
 
 void Skeleton::setDistanceUnits(DistanceUnits units)
@@ -179,14 +171,21 @@ void Skeleton::computeQuaternions()
     }
 }
 
+// http://ksimek.github.io/2013/08/13/intrinsic/
 void Skeleton::convertJointCoordinatesToDepth(float x, float y, float z, float* pOutX, float* pOutY)
 {
-    const double fd_x = 1.0 / 5.9421434211923247e+02;
-    const double fd_y = 1.0 / 5.9104053696870778e+02;
+    //const double fd_x = 594.21434211923247;
+    //const double fd_y = 591.04053696870778;
+    const double fd_x = 594.21434211923247;
+    const double fd_y = 591.04053696870778;
     const double cd_x = 640 / 2.0;
     const double cd_y = 480 / 2.0;
-    *pOutX = x / (std::abs(z) * fd_x) + cd_x;
-    *pOutY = y / (std::abs(z) * fd_y) + cd_y;
+
+    *pOutX = x * fd_x / z + cd_x;
+    *pOutY = y * fd_y / z + cd_y;
+
+    //*pOutX = x / (std::abs(z) * fd_x) + cd_x;
+    //*pOutY = y / (std::abs(z) * fd_y) + cd_y;
 }
 
 } // End Namespace

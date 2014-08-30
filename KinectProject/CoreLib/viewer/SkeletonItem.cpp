@@ -1,5 +1,6 @@
 #include "SkeletonItem.h"
 #include "viewer/ScenePainter.h"
+#include <QVector3D>
 
 namespace dai {
 

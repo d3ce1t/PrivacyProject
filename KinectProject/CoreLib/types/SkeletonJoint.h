@@ -14,7 +14,7 @@ class SkeletonJoint : public QObject
 
 public:
     enum JointType {
-        JOINT_HEAD,
+        JOINT_HEAD = 0,
 
         JOINT_CENTER_SHOULDER, // NECK on OpenNI
         JOINT_LEFT_SHOULDER,
