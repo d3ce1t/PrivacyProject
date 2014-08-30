@@ -12,34 +12,9 @@ SinbadCharacterController::SinbadCharacterController(Ogre::Camera* cam)
     setupAnimations();
 }
 
-void SinbadCharacterController::addTime(Ogre::Real deltaTime)
-{
-    updateBody(deltaTime);
-    PSupdateBody(deltaTime);
-}
-
 void SinbadCharacterController::setSkeleton(shared_ptr<dai::Skeleton> skeleton)
 {
     m_skeleton = skeleton;
-}
-
-void SinbadCharacterController::newUser(int userId)
-{
-    Q_UNUSED(userId);
-    const dai::SkeletonJoint& jointTorso = m_skeleton->getJoint(dai::SkeletonJoint::JOINT_SPINE);
-    m_origTorsoPos.x = jointTorso.getPosition().val(0);
-    m_origTorsoPos.y = jointTorso.getPosition().val(1);
-    m_origTorsoPos.z = -jointTorso.getPosition().val(2);
-    mBodyEnt->setVisible(m_enabled);
-    m_userVisible = true;
-}
-
-void SinbadCharacterController::lostUser(int userId)
-{
-    Q_UNUSED(userId);
-    resetBonesToInitialState();
-    mBodyEnt->setVisible(false);
-    m_userVisible = false;
 }
 
 void SinbadCharacterController::setVisible(bool visible)
@@ -52,45 +27,35 @@ void SinbadCharacterController::setVisible(bool visible)
     }
 }
 
+void SinbadCharacterController::addTime(Ogre::Real deltaTime)
+{
+    updateBody(deltaTime);
+}
+
+void SinbadCharacterController::newUser(int userId)
+{
+    Q_UNUSED(userId);
+    mBodyEnt->setVisible(m_enabled);
+    m_userVisible = true;
+}
+
+void SinbadCharacterController::lostUser(int userId)
+{
+    Q_UNUSED(userId);
+    resetBonesToInitialState();
+    mBodyEnt->setVisible(false);
+    m_userVisible = false;
+}
+
 void SinbadCharacterController::setupBody(Ogre::SceneManager* sceneMgr)
 {
     // create main model
     mBodyNode = sceneMgr->getRootSceneNode()->createChildSceneNode("Human", Ogre::Vector3::UNIT_Y);
-    mBodyNode->scale(10.5, 10, 10);
+    mBodyNode->scale(10.5, 10.5, 10.5);
     mBodyNode->setPosition(0, 0, 0);
     mBodyEnt = sceneMgr->createEntity("HumanBody", "generic_male_01.mesh");
     mBodyEnt->setVisible(false);
     mBodyNode->attachObject(mBodyEnt);
-    mKeyDirection = Ogre::Vector3::ZERO;
-}
-
-void SinbadCharacterController::setupBone(const Ogre::String &name, const Ogre::Radian &angle, const Ogre::Vector3 axis)
-{
-    Ogre::Quaternion q;
-    q.FromAngleAxis(angle,axis);
-    setupBone(name, q);
-}
-
-void SinbadCharacterController::setupBone(const Ogre::String &name, const Ogre::Degree &yaw,const Ogre::Degree &pitch,const Ogre::Degree &roll)
-{
-    Ogre::Bone* bone = mBodyEnt->getSkeleton()->getBone(name);
-    bone->setManuallyControlled(true);
-    bone->setInheritOrientation(false);
-    bone->resetOrientation();
-    bone->yaw(yaw);
-    bone->pitch(pitch);
-    bone->roll(roll);
-    bone->setInitialState();
-}
-
-void SinbadCharacterController::setupBone(const Ogre::String &name, const Ogre::Quaternion &q)
-{
-    Ogre::Bone* bone = mBodyEnt->getSkeleton()->getBone(name);
-    bone->setManuallyControlled(true);
-    bone->setInheritOrientation(false);
-    bone->resetOrientation();
-    bone->setOrientation(q);
-    bone->setInitialState();
 }
 
 void SinbadCharacterController::setupAnimations()
@@ -170,6 +135,72 @@ void SinbadCharacterController::resetBonesToInitialState()
     skel->getBone("Root")->resetToInitialState();
 }
 
+void SinbadCharacterController::updateBody(Ogre::Real deltaTime)
+{
+    Q_UNUSED(deltaTime)
+
+    // Update pose
+    // Ogre Skeleton left-right is from camera perspective. DAI Skeleton left-right is from own skeleton
+    transformBone("Head", dai::SkeletonJoint::JOINT_HEAD);
+    transformBone("Back", dai::SkeletonJoint::JOINT_SPINE);
+    transformBone("Hip", dai::SkeletonJoint::JOINT_SPINE);
+    transformBone("Root", dai::SkeletonJoint::JOINT_SPINE);
+    transformBone("Upperarm.L",dai::SkeletonJoint::JOINT_LEFT_SHOULDER);
+    transformBone("Upperarm.R",dai::SkeletonJoint::JOINT_RIGHT_SHOULDER);
+    transformBone("Forearm.L",dai::SkeletonJoint::JOINT_LEFT_ELBOW);
+    transformBone("Forearm.R",dai::SkeletonJoint::JOINT_RIGHT_ELBOW);
+    transformBone("Thigh.L",dai::SkeletonJoint::JOINT_LEFT_HIP);
+    transformBone("Thigh.R",dai::SkeletonJoint::JOINT_RIGHT_HIP);
+    transformBone("Shin.L",dai::SkeletonJoint::JOINT_LEFT_KNEE);
+    transformBone("Shin.R",dai::SkeletonJoint::JOINT_RIGHT_KNEE);
+
+    // Move character
+    const dai::SkeletonJoint& torsoJoint = m_skeleton->getJoint(dai::SkeletonJoint::JOINT_SPINE);
+    Ogre::Skeleton* skel = mBodyEnt->getSkeleton();
+    Ogre::Vector3 newPos;
+
+    if (m_skeleton->distanceUnits() == dai::MILIMETERS) {
+        newPos.x = torsoJoint.getPosition().val(0) / 1000.0f;
+        newPos.y = torsoJoint.getPosition().val(1) / 1000.0f - 0.25;
+        newPos.z = -(torsoJoint.getPosition().val(2) / 1000.0f + 3.2f);
+    } else {
+        newPos.x = torsoJoint.getPosition().val(0);
+        newPos.y = torsoJoint.getPosition().val(1) - 0.25;
+        newPos.z = -(torsoJoint.getPosition().val(2) + 3.2f);
+    }
+
+    skel->getBone("Root")->setPosition(newPos);
+}
+
+void SinbadCharacterController::setupBone(const Ogre::String &name, const Ogre::Radian &angle, const Ogre::Vector3 axis)
+{
+    Ogre::Quaternion q;
+    q.FromAngleAxis(angle,axis);
+    setupBone(name, q);
+}
+
+void SinbadCharacterController::setupBone(const Ogre::String &name, const Ogre::Degree &yaw,const Ogre::Degree &pitch,const Ogre::Degree &roll)
+{
+    Ogre::Bone* bone = mBodyEnt->getSkeleton()->getBone(name);
+    bone->setManuallyControlled(true);
+    bone->setInheritOrientation(false);
+    bone->resetOrientation();
+    bone->yaw(yaw);
+    bone->pitch(pitch);
+    bone->roll(roll);
+    bone->setInitialState();
+}
+
+void SinbadCharacterController::setupBone(const Ogre::String &name, const Ogre::Quaternion &q)
+{
+    Ogre::Bone* bone = mBodyEnt->getSkeleton()->getBone(name);
+    bone->setManuallyControlled(true);
+    bone->setInheritOrientation(false);
+    bone->resetOrientation();
+    bone->setOrientation(q);
+    bone->setInitialState();
+}
+
 void SinbadCharacterController::transformBone(const Ogre::String& modelBoneName, dai::SkeletonJoint::JointType jointType)
 {
     // Get the model skeleton bone info
@@ -188,67 +219,5 @@ void SinbadCharacterController::transformBone(const Ogre::String& modelBoneName,
         bone->resetOrientation(); //in order for the conversion from world to local to work.
         newQ = bone->convertWorldToLocalOrientation(newQ);
         bone->setOrientation(newQ*qI);
-    }
-}
-
-void SinbadCharacterController::PSupdateBody(Ogre::Real deltaTime)
-{
-    Q_UNUSED(deltaTime)
-
-    mGoalDirection = Ogre::Vector3::ZERO;   // we will calculate this
-    Ogre::Skeleton* skel = mBodyEnt->getSkeleton();
-    Ogre::Bone* rootBone = skel->getBone("Root");
-
-    const dai::SkeletonJoint& torsoJoint = m_skeleton->getJoint(dai::SkeletonJoint::JOINT_SPINE);
-
-    // Ogre Skeleton left-right is from camera perspective. DAI Skeleton left-right is from own skeleton
-    transformBone("Head", dai::SkeletonJoint::JOINT_HEAD);
-    transformBone("Back", dai::SkeletonJoint::JOINT_SPINE);
-    transformBone("Hip", dai::SkeletonJoint::JOINT_SPINE);
-    transformBone("Root", dai::SkeletonJoint::JOINT_SPINE);
-    transformBone("Upperarm.L",dai::SkeletonJoint::JOINT_LEFT_SHOULDER);
-    transformBone("Upperarm.R",dai::SkeletonJoint::JOINT_RIGHT_SHOULDER);
-    transformBone("Forearm.L",dai::SkeletonJoint::JOINT_LEFT_ELBOW);
-    transformBone("Forearm.R",dai::SkeletonJoint::JOINT_RIGHT_ELBOW);
-    transformBone("Thigh.L",dai::SkeletonJoint::JOINT_LEFT_HIP);
-    transformBone("Thigh.R",dai::SkeletonJoint::JOINT_RIGHT_HIP);
-    transformBone("Shin.L",dai::SkeletonJoint::JOINT_LEFT_KNEE);
-    transformBone("Shin.R",dai::SkeletonJoint::JOINT_RIGHT_KNEE);
-
-    Ogre::Vector3 newPos;
-    newPos.x = torsoJoint.getPosition().val(0);
-    newPos.y = torsoJoint.getPosition().val(1) - 0.25;
-    newPos.z = -(torsoJoint.getPosition().val(2) + 3.2f);
-    rootBone->setPosition(newPos);
-}
-
-void SinbadCharacterController::updateBody(Ogre::Real deltaTime)
-{
-    mGoalDirection = Ogre::Vector3::ZERO;   // we will calculate this
-
-    if (mKeyDirection != Ogre::Vector3::ZERO)
-    {
-        // calculate actually goal direction in world based on player's key directions
-        mGoalDirection += mKeyDirection.z * mCameraNode->getOrientation().zAxis();
-        mGoalDirection += mKeyDirection.x * mCameraNode->getOrientation().xAxis();
-        mGoalDirection.y = 0;
-        mGoalDirection.normalise();
-
-        Ogre::Quaternion toGoal = mBodyNode->getOrientation().zAxis().getRotationTo(mGoalDirection);
-
-        // calculate how much the character has to turn to face goal direction
-        Ogre::Real yawToGoal = toGoal.getYaw().valueDegrees();
-        // this is how much the character CAN turn this frame
-        Ogre::Real yawAtSpeed = yawToGoal / Ogre::Math::Abs(yawToGoal) * deltaTime * TURN_SPEED;
-        // reduce "turnability" if we're in midair
-
-        // turn as much as we can, but not more than we need to
-        if (yawToGoal < 0) yawToGoal = std::min<Ogre::Real>(0, std::max<Ogre::Real>(yawToGoal, yawAtSpeed)); //yawToGoal = Math::Clamp<Real>(yawToGoal, yawAtSpeed, 0);
-        else if (yawToGoal > 0) yawToGoal = std::max<Ogre::Real>(0, std::min<Ogre::Real>(yawToGoal, yawAtSpeed)); //yawToGoal = Math::Clamp<Real>(yawToGoal, 0, yawAtSpeed);
-
-        mBodyNode->yaw(Ogre::Degree(yawToGoal));
-
-        // move in current body direction (not the goal direction)
-        mBodyNode->translate(0, 0, deltaTime * RUN_SPEED * mAnimIdle->getWeight(), Ogre::Node::TS_LOCAL);
     }
 }

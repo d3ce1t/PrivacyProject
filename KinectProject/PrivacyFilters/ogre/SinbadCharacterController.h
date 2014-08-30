@@ -30,17 +30,13 @@ private:
     void setupAnimations();
     void resetBonesToInitialState();
     void transformBone(const Ogre::String& modelBoneName, dai::SkeletonJoint::JointType jointType);
-    void PSupdateBody(Ogre::Real deltaTime);
     void updateBody(Ogre::Real deltaTime);
 
     bool m_enabled;
-    Ogre::Vector3 m_origTorsoPos;
     Ogre::AnimationState* mAnimIdle;
     Ogre::SceneNode* mBodyNode;
     Ogre::SceneNode* mCameraNode;
     Ogre::Entity* mBodyEnt;
-    Ogre::Vector3 mKeyDirection;      // player's local intended direction based on WASD keys
-    Ogre::Vector3 mGoalDirection;     // actual intended direction in world-space
     Ogre::Real mTimer;                // general timer to see how long animations have been playing
     shared_ptr<dai::Skeleton> m_skeleton;
     bool m_userVisible;
