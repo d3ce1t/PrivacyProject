@@ -47,7 +47,7 @@ public:
     const shared_ptr<InstanceInfo> instance(int actor, int camera, int sample, const QList<QString>& labels);
     const shared_ptr<InstanceInfo> instance(int actor, int camera, int sample, const QList<QString>& labels, DataFrame::FrameType type);
     //const QList<shared_ptr<InstanceInfo>> instance(int actor, int camera, int sample);
-    const QList<shared_ptr<InstanceInfo>> instances(DataFrame::FrameType type, const QList<int> &actors = QList<int>(), const QList<int> &cameras = QList<int>(), const QList<QList<QString> > &labels = QList<QList<QString>>()) const;
+    const QList<shared_ptr<InstanceInfo>> instances(const QList<int> &actors = QList<int>(), const QList<int> &cameras = QList<int>(), const QList<QList<QString> > &labels = QList<QList<QString>>()) const;
     const Dataset& dataset() const;
     const DataFrame::SupportedFrames availableInstanceTypes() const;
     const QMap<int, QString>& actors() const;

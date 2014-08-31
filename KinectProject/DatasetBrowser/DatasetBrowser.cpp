@@ -255,7 +255,7 @@ void DatasetBrowser::loadInstances()
     cameras.append(1);
 
     // Get and Load Instances
-    const QList<shared_ptr<InstanceInfo>> instances = dsMetadata.instances(m_showType, actors, cameras, labels);
+    const QList<shared_ptr<InstanceInfo>> instances = dsMetadata.instances(actors, cameras, labels);
     //qDebug() << "Num.Instances" << instances.count();
 
     for (int i=0; i<instances.count(); ++i) {

@@ -102,10 +102,8 @@ const shared_ptr<InstanceInfo> DatasetMetadata::instance(int actor, int camera, 
     return result;
 }*/
 
-const QList<shared_ptr<InstanceInfo>> DatasetMetadata::instances(DataFrame::FrameType type,
-                                                      const QList<int>& actors,
-                                                      const QList<int>& cameras,
-                                                      const QList<QList<QString>>& labels) const
+const QList<shared_ptr<InstanceInfo>> DatasetMetadata::instances(const QList<int>& actors, const QList<int>& cameras,
+                                                                 const QList<QList<QString>>& labels) const
 {
     QList<shared_ptr<InstanceInfo>> result;
 
@@ -145,7 +143,7 @@ const QList<shared_ptr<InstanceInfo>> DatasetMetadata::instances(DataFrame::Fram
             }
         }
 
-        if (instance->getType().testFlag(type) && isActorChecked && isCameraChecked && isLabelsChecked) {
+        if (isActorChecked && isCameraChecked && isLabelsChecked) {
             result.append(instance);
         }
 
