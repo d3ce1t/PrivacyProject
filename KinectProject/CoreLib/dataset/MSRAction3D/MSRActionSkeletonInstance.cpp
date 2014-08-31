@@ -31,7 +31,7 @@ SkeletonJoint::JointType MSRActionSkeletonInstance::staticMap[20] = {
 };
 
 MSRActionSkeletonInstance::MSRActionSkeletonInstance(const InstanceInfo& info)
-    : DataInstance(info, 320, 240)
+    : DataInstance(info, DataFrame::Skeleton, 320, 240)
 {
     m_nJoints = 0;
 }

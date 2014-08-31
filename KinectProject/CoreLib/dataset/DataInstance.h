@@ -9,8 +9,8 @@ namespace dai {
 class DataInstance : public StreamInstance
 {
 public:
-    explicit DataInstance(const InstanceInfo& info);
-    explicit DataInstance(const InstanceInfo& info, int width, int height);
+    explicit DataInstance(const InstanceInfo& info, DataFrame::SupportedFrames type);
+    explicit DataInstance(const InstanceInfo& info, DataFrame::SupportedFrames type, int width, int height);
     DataInstance(const DataInstance& other) = delete;
     const InstanceInfo& getMetadata() const;
     unsigned int getTotalFrames() const;

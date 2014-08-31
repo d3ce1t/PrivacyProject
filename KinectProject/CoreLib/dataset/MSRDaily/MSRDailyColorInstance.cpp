@@ -6,7 +6,7 @@
 namespace dai {
 
 MSRDailyColorInstance::MSRDailyColorInstance(const InstanceInfo &info)
-    : DataInstance(info, 640, 480)
+    : DataInstance(info, DataFrame::Color, 640, 480)
 {
     m_width = 0;
     m_height = 0;

@@ -7,7 +7,7 @@
 namespace dai {
 
 CAVIAR4REIDInstance::CAVIAR4REIDInstance(const InstanceInfo &info)
-    : DataInstance(info, -1, -1)
+    : DataInstance(info, DataFrame::Color, -1, -1)
 {
     m_colorFrame = make_shared<ColorFrame>();
     m_width = 0;

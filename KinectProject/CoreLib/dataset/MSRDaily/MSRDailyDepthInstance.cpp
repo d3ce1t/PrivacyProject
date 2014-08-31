@@ -11,7 +11,7 @@ using namespace std;
 namespace dai {
 
 MSRDailyDepthInstance::MSRDailyDepthInstance(const InstanceInfo &info)
-    : DataInstance(info, 320, 240)
+    : DataInstance(info, DataFrame::Depth, 320, 240)
 {
     m_width = 0;
     m_height = 0;

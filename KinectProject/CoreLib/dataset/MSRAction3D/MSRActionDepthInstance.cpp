@@ -11,7 +11,7 @@ bool MSRActionDepthInstance::_initialised = false;
 QMutex MSRActionDepthInstance::_mutex;
 
 MSRActionDepthInstance::MSRActionDepthInstance(const InstanceInfo &info)
-    : DataInstance(info, 320, 240)
+    : DataInstance(info, DataFrame::Depth, 320, 240)
 {
     // Compute distances look up table (shared between all instances)
     _mutex.lock();

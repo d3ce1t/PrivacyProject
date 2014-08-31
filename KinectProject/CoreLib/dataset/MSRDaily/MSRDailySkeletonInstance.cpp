@@ -31,7 +31,7 @@ SkeletonJoint::JointType MSRDailySkeletonInstance::staticMap[20] = {
 };
 
 MSRDailySkeletonInstance::MSRDailySkeletonInstance(const InstanceInfo& info)
-    : DataInstance(info, 320, 240)
+    : DataInstance(info, DataFrame::Skeleton, 320, 240)
 {
     m_nJoints = 0;
 }

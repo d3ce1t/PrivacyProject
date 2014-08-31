@@ -2,15 +2,15 @@
 
 namespace dai {
 
-DataInstance::DataInstance(const InstanceInfo &info)
-    : StreamInstance(info.getType())
+DataInstance::DataInstance(const InstanceInfo &info, DataFrame::SupportedFrames type)
+    : StreamInstance(type)
     , m_info(info)
 {
     m_nFrames = 0;
 }
 
-DataInstance::DataInstance(const InstanceInfo &info, int width, int height)
-    : StreamInstance(info.getType(), width, height)
+DataInstance::DataInstance(const InstanceInfo &info, DataFrame::SupportedFrames type, int width, int height)
+    : StreamInstance(type, width, height)
     , m_info(info)
 {
     m_nFrames = 0;
