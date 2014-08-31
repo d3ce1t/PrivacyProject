@@ -632,7 +632,12 @@ shared_ptr<DatasetMetadata> DatasetMetadata::load_version3(QString xmlPath)
                 int actor = reader.attributes().value("actor").toString().toInt();
                 int camera = reader.attributes().value("camera").toString().toInt();
                 int sample = reader.attributes().value("sample").toString().toInt();
-                QStringList labels = reader.attributes().value("label").toString().split(',');
+
+                QStringList labels;
+
+                if (reader.attributes().hasAttribute("label")) {
+                    labels = reader.attributes().value("label").toString().split(',');
+                }
 
                 instanceInfo = dsMetaDataObject->instance(actor, camera, sample, labels);
 

@@ -79,6 +79,7 @@
 		<actor key="71">Actor 71</actor>
 		<actor key="72">Actor 72</actor>
 	</actors>
+	
 	<instances>
 		<instance actor="1" camera="1" sample="1">
 			<file id="1">0001001.jpg</file>

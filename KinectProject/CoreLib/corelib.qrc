@@ -14,6 +14,7 @@
         <file>data/MSRDailyActivity3D.xml</file>
         <file>data/MSRAction3D.xml</file>
         <file>data/CAVIAR4REID.xml</file>
+        <file>data/DAI4REID.xml</file>
     </qresource>
     <qresource prefix="/qml">
         <file>qml/viewer.qml</file>
