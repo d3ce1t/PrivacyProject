@@ -3,6 +3,7 @@
 #include <QDebug>
 #include "openni/OpenNIColorInstance.h"
 #include "openni/OpenNIUserTrackerInstance.h"
+#include <QElapsedTimer>
 
 using namespace std;
 
@@ -11,8 +12,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {   
     ui->setupUi(this);
-    m_playback.setFPS(10);
-    m_device = dai::OpenNIDevice::create("C:/opt/captures/PrimeSense Short-Range (1.09) - 1 user.oni");
+    m_playback.setFPS(20);
+    //m_device = dai::OpenNIDevice::create("C:/opt/captures/PrimeSense Short-Range (1.09) - 1 user.oni");
+    m_device = dai::OpenNIDevice::create("C:/datasets/capture/capture.oni");
+    //m_device = dai::OpenNIDevice::create();
+    //m_device = dai::OpenNIDevice::create("C:/datasets/HuDaAct/S5_C4_U10_BG.oni");
+    //m_device = dai::OpenNIDevice::create("C:/datasets/HuDaAct/S14_C12_U30_D1.oni");
 }
 
 MainWindow::~MainWindow()
@@ -31,28 +36,68 @@ void MainWindow::on_btnStartKinect_clicked()
             make_shared<dai::OpenNIUserTrackerInstance>(m_device);
 
     // Open Device and configure playback
+    //m_device->setRegistration(true);
     m_device->open();
-    openni::PlaybackControl* oniPlayback = m_device->playbackControl();
-    oniPlayback->setSpeed(0.5);
+
+    if (m_device->isFile()) {
+        openni::PlaybackControl* oniPlayback = m_device->playbackControl();
+        oniPlayback->setSpeed(1.0f);
+    }
 
     // Create Main Producer
     m_playback.clearInstances();
     m_playback.addInstance(colorInstance);
     m_playback.addInstance(userTrackerInstance);
+    m_playback.addListener(&m_depthFilter);
     m_playback.addListener(&m_privacyFilter);
 
     // Create viewers
-    m_viewer = new dai::InstanceViewerWindow;
-    m_viewer->setDrawMode(ViewerEngine::BoundingBox);
+    dai::InstanceViewerWindow* out_viewer_color = new dai::InstanceViewerWindow;
+    dai::InstanceViewerWindow* out_viewer_depth = new dai::InstanceViewerWindow;
+    //out_viewer->setDrawMode(ViewerEngine::BoundingBox);
 
     // Connect viewers
-    //m_playback.addListener(m_viewer);
-    m_privacyFilter.addListener(m_viewer);
+    m_depthFilter.addListener(out_viewer_depth);
+    m_privacyFilter.addListener(out_viewer_color);
 
     // Run
     m_privacyFilter.enableFilter(FILTER_DISABLED);
-    m_viewer->show();
+    out_viewer_color->show();
+    out_viewer_depth->show();
     m_playback.play();
+}
+
+void MainWindow::test()
+{
+    shared_ptr<dai::OpenNIColorInstance> colorInstance =
+            make_shared<dai::OpenNIColorInstance>(m_device);
+
+    m_device->open();
+
+    shared_ptr<ColorFrame> colorFrame = make_shared<ColorFrame>(640, 480);
+    QHashDataFrames readFrames;
+    readFrames.insert(DataFrame::Color, colorFrame);
+
+    // Skip Initialisation costs
+    for (int i=0; i<75; ++i) {
+        colorInstance->readNextFrame(readFrames);
+    }
+
+    QElapsedTimer timer;
+    qint64 total_time = 0;
+    int i = 0;
+
+    // Start measure
+    while (colorInstance->hasNext() && i < 500)
+    {
+        timer.start();
+        colorInstance->readNextFrame(readFrames);
+        total_time += timer.elapsed();
+        qDebug() << "Frame readed" << i++;
+    }
+
+    float average = total_time / float(i);
+    qDebug() << "Average" << average;
 }
 
 void MainWindow::onPlusKeyPressed()

@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include "playback/PlaybackControl.h"
 #include "filters/PrivacyFilter.h"
+#include "viewer/DepthFilter.h"
 #include "viewer/InstanceViewerWindow.h"
 #include "openni/OpenNIDevice.h"
 
@@ -18,6 +19,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     virtual ~MainWindow();
+    void test();
     
 private slots:
     void onPlusKeyPressed();
@@ -27,10 +29,10 @@ private slots:
     void on_btnQuit_clicked();
 
 private:
-    dai::OpenNIDevice* m_device;
-    dai::InstanceViewerWindow* m_viewer;
+    dai::OpenNIDevice*    m_device;
     dai::PlaybackControl  m_playback;
     dai::PrivacyFilter    m_privacyFilter;
+    dai::DepthFilter      m_depthFilter;
     Ui::MainWindow *ui;
 };
 
