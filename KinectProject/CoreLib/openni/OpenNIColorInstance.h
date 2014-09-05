@@ -14,6 +14,8 @@ public:
     OpenNIColorInstance(OpenNIDevice* device);
     virtual ~OpenNIColorInstance();
     bool is_open() const override;
+    bool hasNext() const override;
+    OpenNIDevice& device();
 
 protected:
     bool openInstance() override;
@@ -23,6 +25,7 @@ protected:
 
 private:
     OpenNIDevice* m_device;
+    bool eof;
 };
 
 } // End namespace

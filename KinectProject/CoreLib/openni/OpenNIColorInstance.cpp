@@ -1,6 +1,6 @@
 #include "OpenNIColorInstance.h"
 #include <exception>
-#include <iostream>
+#include <QDebug>
 
 using namespace std;
 
@@ -10,12 +10,14 @@ OpenNIColorInstance::OpenNIColorInstance()
     : StreamInstance(DataFrame::Color, 640, 480)
 {
     m_device = nullptr;
+    eof = false;
 }
 
 OpenNIColorInstance::OpenNIColorInstance(OpenNIDevice* device)
     : StreamInstance(DataFrame::Color, 640, 480)
 {
     m_device = device;
+    eof = false;
 }
 
 OpenNIColorInstance::~OpenNIColorInstance()
@@ -23,9 +25,22 @@ OpenNIColorInstance::~OpenNIColorInstance()
     closeInstance();
 }
 
+OpenNIDevice& OpenNIColorInstance::device()
+{
+    return *m_device;
+}
+
 bool OpenNIColorInstance::is_open() const
 {
     return m_device != nullptr && m_device->is_open();
+}
+
+bool OpenNIColorInstance::hasNext() const
+{
+    if (!m_device->isFile())
+        return true;
+
+    return !eof;
 }
 
 bool OpenNIColorInstance::openInstance()
@@ -36,7 +51,13 @@ bool OpenNIColorInstance::openInstance()
     {
         if (m_device == nullptr)
             m_device = OpenNIDevice::create("ANY_DEVICE");
+
         m_device->open();
+
+        if (m_device->isFile()) {
+            m_device->playbackControl()->setRepeatEnabled(false);
+        }
+
         result = true;
     }
 
@@ -45,8 +66,7 @@ bool OpenNIColorInstance::openInstance()
 
 void OpenNIColorInstance::closeInstance()
 {
-    if (is_open())
-    {
+    if (is_open()) {
         m_device->close();
     }
 }
@@ -60,6 +80,10 @@ void OpenNIColorInstance::nextFrame(QHashDataFrames &output)
     Q_ASSERT(output.size() > 0);
     shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(output.value(DataFrame::Color));
     m_device->readColorFrame(colorFrame);
+
+    if (m_device->isFile() && m_device->getTotalFrames() == colorFrame->getIndex()) {
+        eof = true;
+    }
 }
 
 } // End namespace

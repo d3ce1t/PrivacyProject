@@ -49,6 +49,7 @@ public:
     void readUserTrackerFrame(shared_ptr<DepthFrame> depthFrame, shared_ptr<MaskFrame> maskFrame, shared_ptr<SkeletonFrame> skeletonFrame, shared_ptr<MetadataFrame> metadataFrame);
     openni::PlaybackControl* playbackControl();
     bool isFile() const;
+    int getTotalFrames();
     void setRegistration(bool flag);
     void convertJointCoordinatesToDepth(float x, float y, float z, float* pOutX, float* pOutY) const;
     void convertDepthCoordinatesToJoint(int x, int y, int z, float* pOutX, float* pOutY) const;

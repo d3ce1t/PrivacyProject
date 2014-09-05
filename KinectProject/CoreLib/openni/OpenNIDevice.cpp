@@ -2,6 +2,7 @@
 #include <QDebug>
 #include <iostream>
 #include <glm/glm.hpp>
+#include "Utils.h"
 
 using namespace std;
 
@@ -144,6 +145,11 @@ void OpenNIDevice::open()
 
         m_oniUserTracker.setSkeletonSmoothingFactor(0.4f);
         m_opened = true;
+
+        if (m_device.isFile()) {
+            qDebug() << "Color" << m_device.getPlaybackControl()->getNumberOfFrames(m_oniColorStream);
+            qDebug() << "Depth" << m_device.getPlaybackControl()->getNumberOfFrames(m_oniDepthStream);
+        }
     }
     catch (int ex)
     {
@@ -257,10 +263,8 @@ void OpenNIDevice::readDepthFrame(shared_ptr<DepthFrame> depthFrame)
     return m_depthFrame;
 }*/
 
-void OpenNIDevice::readUserTrackerFrame(shared_ptr<DepthFrame> depthFrame,
-                                                             shared_ptr<MaskFrame> maskFrame,
-                                                             shared_ptr<SkeletonFrame> skeletonFrame,
-                                                             shared_ptr<MetadataFrame> metadataFrame)
+void OpenNIDevice::readUserTrackerFrame(shared_ptr<DepthFrame> depthFrame, shared_ptr<MaskFrame> maskFrame,
+                                        shared_ptr<SkeletonFrame> skeletonFrame, shared_ptr<MetadataFrame> metadataFrame)
 {
     nite::UserTrackerFrameRef oniUserTrackerFrame;
 
@@ -536,6 +540,18 @@ void OpenNIDevice::shutdownOpenNI()
 bool OpenNIDevice::isFile() const
 {
     return m_device.isFile();
+}
+
+int OpenNIDevice::getTotalFrames()
+{
+    int result = -1;
+
+    if (m_device.isFile()) {
+        result = dai::min<int>(m_device.getPlaybackControl()->getNumberOfFrames(m_oniColorStream),
+                    m_device.getPlaybackControl()->getNumberOfFrames(m_oniDepthStream));
+    }
+
+    return result;
 }
 
 } // End Namespace
