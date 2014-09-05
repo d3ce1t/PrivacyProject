@@ -17,8 +17,8 @@ DepthFrame::DepthFrame(int width, int height)
      m_units = METERS;
 }
 
-DepthFrame::DepthFrame(int width, int height, uint16_t *pData)
-    : GenericFrame<uint16_t,DataFrame::Depth>(width, height, pData)
+DepthFrame::DepthFrame(int width, int height, uint16_t *pData, uint stride)
+    : GenericFrame<uint16_t,DataFrame::Depth>(width, height, pData, stride)
 {
      m_units = METERS;
 }

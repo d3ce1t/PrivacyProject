@@ -42,7 +42,9 @@ public:
         JOINT_RIGHT_ANKLE, // Kinect SDK (Not available in OpenNI)
 
         JOINT_LEFT_FOOT,
-        JOINT_RIGHT_FOOT
+        JOINT_RIGHT_FOOT,
+
+        JOINT_USER_RESERVED,
     };
 
     SkeletonJoint();

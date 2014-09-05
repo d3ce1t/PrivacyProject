@@ -13,6 +13,8 @@ namespace dai {
 
 class SkeletonFrame : public DataFrame
 {
+    QHash<int, shared_ptr<dai::Skeleton>> m_hashSkeletons;
+
 public:
     // Constructor
     SkeletonFrame();
@@ -24,13 +26,10 @@ public:
     void setSkeleton(int userId, const shared_ptr<dai::Skeleton> skeleton);
     QList<int> getAllUsersId() const;
     void clear();
-    //void write(QFile &of) const;
 
     // Overload operators
     SkeletonFrame& operator=(const SkeletonFrame& other);
 
-private:
-    QHash<int, shared_ptr<dai::Skeleton>> m_hashSkeletons;
 };
 
 } // End Namespace

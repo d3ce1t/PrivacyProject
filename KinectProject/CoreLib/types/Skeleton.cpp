@@ -1,5 +1,6 @@
 #include "Skeleton.h"
 #include <cmath>
+#include <QVector>
 
 namespace dai {
 
@@ -79,6 +80,7 @@ Skeleton::SkeletonLimb Skeleton::staticOpenNILimbsMap[16] = {
 Skeleton::Skeleton(SkeletonType type)
 {
     m_type = type;
+    m_units = dai::MILIMETERS;
 
     if (type == SKELETON_OPENNI) {
         memcpy(m_limbs, staticOpenNILimbsMap, 16 * sizeof(SkeletonLimb));
@@ -95,6 +97,7 @@ Skeleton::Skeleton(const Skeleton& other)
     m_limbsSize = other.m_limbsSize;
     m_joints = other.m_joints;  // implicit sharing
     m_quaternions = other.m_quaternions; // implicit sharing
+    m_units = other.m_units;
     memcpy(m_limbs, other.m_limbs, other.m_limbsSize * sizeof(SkeletonLimb));
 }
 
@@ -104,6 +107,7 @@ Skeleton& Skeleton::operator=(const Skeleton& other)
     m_limbsSize = other.m_limbsSize;
     m_joints = other.m_joints;
     m_quaternions = other.m_quaternions;
+    m_units = other.m_units;
     memcpy(m_limbs, other.m_limbs, other.m_limbsSize * sizeof(SkeletonLimb));
     return *this;
 }
@@ -174,18 +178,119 @@ void Skeleton::computeQuaternions()
 // http://ksimek.github.io/2013/08/13/intrinsic/
 void Skeleton::convertJointCoordinatesToDepth(float x, float y, float z, float* pOutX, float* pOutY)
 {
-    //const double fd_x = 594.21434211923247;
-    //const double fd_y = 591.04053696870778;
     const double fd_x = 594.21434211923247;
     const double fd_y = 591.04053696870778;
     const double cd_x = 640 / 2.0;
     const double cd_y = 480 / 2.0;
-
     *pOutX = x * fd_x / z + cd_x;
-    *pOutY = y * fd_y / z + cd_y;
+    *pOutY = 480 - (y * fd_y / z + cd_y);
+}
 
-    //*pOutX = x / (std::abs(z) * fd_x) + cd_x;
-    //*pOutY = y / (std::abs(z) * fd_y) + cd_y;
+void Skeleton::convertDepthCoordinatesToJoint(float x, float y, float z, float* pOutX, float* pOutY)
+{
+    const double fd_x = 594.21434211923247;
+    const double fd_y = 591.04053696870778;
+    const double cd_x = 640 / 2.0;
+    const double cd_y = 480 / 2.0;
+    *pOutX = (x - cd_x)*z / fd_x;
+    *pOutY = (480 - y - cd_y)*z / fd_y;
+}
+
+QByteArray Skeleton::toBinary() const
+{
+    QByteArray data_mem(m_joints.size() * 37 + 1, 0);
+    uchar* pData = (uchar*) data_mem.data();
+
+    *pData = m_joints.size(); // Number of joints (1 byte)
+    pData++;
+
+    foreach (SkeletonJoint joint, m_joints)
+    {
+        *pData = joint.getType(); // Joint type (1 byte)
+        pData++;
+
+        float* pItem = (float*) pData;
+
+        *pItem = joint.getPosition()[0]; // pos.x (4 bytes)
+        pItem++;
+
+        *pItem = joint.getPosition()[1]; // pos.y (4 bytes)
+        pItem++;
+
+        *pItem = joint.getPosition()[2]; // pos.z (4 bytes)
+        pItem++;
+
+        *pItem = joint.getOrientation().w(); // w (4 bytes)
+        pItem++;
+
+        *pItem = joint.getOrientation().x(); // x (4 bytes)
+        pItem++;
+
+        *pItem = joint.getOrientation().y(); // y (4 bytes)
+        pItem++;
+
+        *pItem = joint.getOrientation().z(); // z (4 bytes)
+        pItem++;
+
+        *pItem = joint.getPositionConfidence(); // pos confidence (4 bytes)
+        pItem++;
+
+        *pItem = joint.getOrientationConfidence(); // orientation confidence (4 bytes)
+        pItem++;
+
+        // Move pointer
+        pData = (uchar*) pItem;
+    }
+
+    return data_mem;
+}
+
+std::shared_ptr<Skeleton> Skeleton::fromBinary(const QByteArray& buffer)
+{
+    uchar* binData = (uchar*) buffer.data();
+    uchar number_joints = *binData;
+    binData++;
+
+    SkeletonType skelType;
+
+    if (number_joints == 15)
+        skelType = SKELETON_OPENNI;
+    else if (number_joints == 20)
+        skelType = SKELETON_KINECT;
+
+    std::shared_ptr<Skeleton> skeleton = std::make_shared<Skeleton>(skelType);
+
+    for (int i=0; i<number_joints; ++i)
+    {
+        SkeletonJoint::JointType type = (SkeletonJoint::JointType) *binData;
+        binData++;
+
+        float* pItem = (float*) binData;
+        Point3f point;
+        point[0] = *pItem++;
+        point[1] = *pItem++;
+        point[2] = *pItem++;
+        float q_w = *pItem++;
+        float q_x = *pItem++;
+        float q_y = *pItem++;
+        float q_z = *pItem++;
+        float pos_conf = *pItem++;
+        float or_conf = *pItem++;
+
+        SkeletonJoint joint(point, type);
+        Quaternion quaternion(q_w, q_x, q_y, q_z);
+        joint.setPositionConfidence(pos_conf);
+        joint.setOrientationConfidence(or_conf);
+        joint.setOrientation(quaternion);
+
+        // Add to skeleton
+        skeleton->setJoint(type, joint);
+
+        // Move pointer
+        binData = (uchar*) pItem;
+    }
+
+    return skeleton;
 }
 
 } // End Namespace

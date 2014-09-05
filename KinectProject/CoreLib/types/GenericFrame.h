@@ -4,6 +4,7 @@
 #include "DataFrame.h"
 #include "types/Point.h"
 #include "types/BoundingBox.h"
+#include <QByteArray>
 #include <stdint.h>
 
 namespace dai {
@@ -18,7 +19,7 @@ class GenericFrame : public DataFrame
     bool m_managedData;
     Point2i m_offset;
 
-public:
+public:    
     // Constructor, Destructors and Copy Constructor
     GenericFrame();
     GenericFrame(int width, int height);
@@ -47,6 +48,8 @@ public:
     int width() const {return m_width;}
     int height() const {return m_height;}
     const Point2i& offset() const {return m_offset;}
+    QByteArray toBinary() const;
+    void loadData(const QByteArray& buffer);
 
     /**
      * Return the number of bytes that should be skipped to go to the first element of the next row
@@ -98,7 +101,11 @@ GenericFrame<T, frameType>::GenericFrame(int width, int height, T* pData, uint s
     this->m_width = width;
     this->m_height = height;
     this->m_data = pData;
-    this->m_stride = stride;
+    if (stride == 0) {
+        this->m_stride = width * sizeof(T);
+    } else {
+        this->m_stride = stride;
+    }
 }
 
 template <class T, DataFrame::FrameType frameType>
@@ -133,8 +140,6 @@ GenericFrame<T, frameType>::GenericFrame(const GenericFrame &other)
 template <class T, DataFrame::FrameType frameType>
 GenericFrame<T, frameType>& GenericFrame<T, frameType>::operator=(const GenericFrame<T,frameType>& other)
 {
-    Q_ASSERT(other.m_stride == other.m_width * sizeof(T)); // By now I do not allow assign with stride
-
     DataFrame::operator=(other);
 
     // If want to reuse m_data memory. So, if size isn't correct to store new frame
@@ -146,13 +151,29 @@ GenericFrame<T, frameType>& GenericFrame<T, frameType>::operator=(const GenericF
 
         if (this->m_data) {
             delete [] this->m_data;
-            this->m_data = new T[this->m_width * this->m_height];
-            this->m_managedData = true;
+        }
+
+        this->m_data = new T[this->m_width * this->m_height];
+        this->m_managedData = true;
+    }
+
+    // No padding
+    if (other.m_stride == other.m_width * sizeof(T)) {
+        m_stride = other.m_stride;
+        memcpy(m_data, other.m_data, m_stride * m_height);
+    }
+    // Padding, so I have to read each row
+    else {
+        m_stride = m_width * sizeof(T);
+        for (int i=0; i<other.height(); ++i) {
+            T* src = other.getRowPtr(i);
+            T* dst = getRowPtr(i);
+
+            for (int j=0; j<other.width(); ++j)
+                dst[j] = src[j]; // Copy    // FIX: I could copy row by row
         }
     }
 
-    memcpy(this->m_data, other.m_data, this->m_width * this->m_height * sizeof(T));
-    this->m_stride = other.m_stride;
     this->m_offset = other.m_offset;
     return *this;
 }
@@ -212,6 +233,8 @@ shared_ptr<GenericFrame<T,frameType>> GenericFrame<T,frameType>::subFrame(int ro
     dataPtr += row * this->m_stride + column * sizeof(T);
 
     shared_ptr<GenericFrame> result = make_shared<GenericFrame>(width, height, (T*) dataPtr, this->m_stride);
+    result->m_index = m_index;
+    result->m_type = m_type;
     result->m_offset[0] = column;
     result->m_offset[1] = row;
     return result;
@@ -246,11 +269,75 @@ const T* GenericFrame<T,frameType>::getDataPtr() const
 }
 
 template <class T,DataFrame::FrameType frameType>
-T *GenericFrame<T, frameType>::getRowPtr(int row) const
+T* GenericFrame<T, frameType>::getRowPtr(int row) const
 {
     uchar* ptr = (uchar*) this->m_data;
     ptr += row * this->m_stride;
     return (T*) ptr;
+}
+
+template <class T,DataFrame::FrameType frameType>
+QByteArray GenericFrame<T, frameType>::toBinary() const
+{
+    QByteArray buffer(16 + m_width * m_height * sizeof(T), 0);
+    uchar* pData = (uchar*) buffer.data();
+
+    // Header
+    int* pHeader = (int*) pData;
+    *pHeader++ = m_width;  // width
+    *pHeader++ = m_height; // height
+    *pHeader++ = m_offset[0]; // offset x
+    *pHeader++ = m_offset[1]; // offset y
+
+    // Body
+    pData = (uchar*) pHeader;
+    T* output = (T*) pData;
+
+    for (int i=0; i<m_height; ++i)
+    {
+        T* pixel = this->getRowPtr(i);
+
+        for (int j=0; j<m_width; ++j)
+        {
+            *output++ = pixel[j]; // copy
+        }
+    }
+
+    return buffer;
+}
+
+template <class T,DataFrame::FrameType frameType>
+void GenericFrame<T, frameType>::loadData(const QByteArray& buffer)
+{
+    uchar* pData = (uchar*) buffer.data();
+
+    // Header
+    int* pHeader = (int*) pData;
+    int width = *pHeader++;
+    int height = *pHeader++;
+    m_offset[0] = *pHeader++;
+    m_offset[1] = *pHeader++;
+
+    // Body
+    pData = (uchar*) pHeader;
+
+    // If want to reuse m_data memory. So, if size isn't correct to store new frame
+    // I need to create another one.
+    if (!this->m_data || this->m_width != width || this->m_height != height)
+    {
+        this->m_width = width;
+        this->m_height = height;
+
+        if (this->m_data) {
+            delete [] this->m_data;
+        }
+
+        this->m_data = new T[m_width * m_height];
+        this->m_managedData = true;
+    }
+
+    memcpy(this->m_data, pData, m_width * m_height * sizeof(T));
+    this->m_stride = m_width * sizeof(T);
 }
 
 } // End Namespace

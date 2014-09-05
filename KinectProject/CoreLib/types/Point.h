@@ -48,6 +48,14 @@ class Point
 
 public:
 
+    static Point vector(const Point& origin, const Point& dst)
+    {
+        Point vector;
+        for (int i=0; i<N; ++i)
+            vector[i] = dst[i] - origin[i];
+        return vector;
+    }
+
     static float euclideanDistance(const Point& point1, const Point& point2)
     {
         float sum = 0;

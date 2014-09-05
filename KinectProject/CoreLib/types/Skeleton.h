@@ -5,6 +5,7 @@
 #include "Quaternion.h"
 #include "types/Enums.h"
 #include <QHash>
+#include <memory>
 
 #define MAX_LIMBS 19
 
@@ -33,7 +34,9 @@ public:
         SkeletonJoint::JointType joint2;
     };
 
+    static std::shared_ptr<Skeleton> fromBinary(const QByteArray &binData);
     static void convertJointCoordinatesToDepth(float x, float y, float z, float* pOutX, float* pOutY);
+    static void convertDepthCoordinatesToJoint(float x, float y, float z, float* pOutX, float* pOutY);
 
     // Constructors
     Skeleton(SkeletonType type = SKELETON_OPENNI);
@@ -51,6 +54,7 @@ public:
     void setJoint(SkeletonJoint::JointType type, const SkeletonJoint& joint);
     void computeQuaternions();
     void setDistanceUnits(DistanceUnits units);
+    QByteArray toBinary() const;
 
     // Operators Overload
     Skeleton& operator=(const Skeleton& other);
@@ -65,7 +69,7 @@ private:
     SkeletonLimb m_limbs[MAX_LIMBS];
     short m_limbsSize;
     SkeletonType m_type;
-    SkeletonState m_state;
+    //SkeletonState m_state;
     DistanceUnits m_units;
 };
 

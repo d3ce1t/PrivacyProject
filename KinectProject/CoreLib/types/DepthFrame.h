@@ -25,7 +25,7 @@ public:
     // Constructors
     DepthFrame();
     DepthFrame(int width, int height);
-    DepthFrame(int width, int height, uint16_t *pData);
+    DepthFrame(int width, int height, uint16_t *pData, uint stride = 0);
     DepthFrame(const DepthFrame& other);
     shared_ptr<DataFrame> clone() const;
 
