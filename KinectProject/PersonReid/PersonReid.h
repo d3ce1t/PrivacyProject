@@ -16,21 +16,35 @@ class PersonReid : public QObject
     Q_OBJECT
 
 public:
+
+    void test1();
+    void test2();
+    void parseDataset();
+
+    void test_DAI4REID();
+    QList<shared_ptr<Feature>> train_DAI4REID(QList<int> actors);
+    QVector<float> validate_DAI4REID(const QList<int> &actors, const QList<shared_ptr<Feature>>& gallery, int *num_tests = nullptr);
+
+    void test_DAI4REID_Parsed();
+    QList<shared_ptr<Feature>> train_DAI4REID_Parsed(QList<int> actors);
+    QVector<float> validate_DAI4REID_Parsed(const QList<int> &actors, const QList<shared_ptr<Feature>>& gallery, int *num_tests = nullptr);
+
     void test_CAVIAR4REID();
     QList<shared_ptr<Feature>> train_CAVIAR4REID(QList<int> actors);
     QVector<float> validate_CAVIAR4REID(const QList<int> &actors, const QList<shared_ptr<Feature>>& gallery, int *num_tests = nullptr);
 
-    void test_OPENNI();
     shared_ptr<Feature> feature_2parts_hist(shared_ptr<ColorFrame> colorFrame, const InstanceInfo& instance_info) const;
 
     shared_ptr<Feature> feature_joints_hist(ColorFrame &colorFrame, DepthFrame &depthFrame, MaskFrame &maskFrame,
-                                            Skeleton &skeleton);
+                                            Skeleton &skeleton, const InstanceInfo& instance_info);
 
-    void drawPoint(shared_ptr<ColorFrame> colorFrame, int x, int y) const;
+    void makeUpJoints(Skeleton& skeleton) const;
+    void drawPoint(ColorFrame &colorFrame, int x, int y, RGBColor color = {255, 0, 0}) const;
     SkeletonJoint getCloserJoint(const Point3f& cloudPoint, const QList<SkeletonJoint>& joints) const;
     shared_ptr<MaskFrame> getVoronoiCells(const DepthFrame& depthFrame, const MaskFrame& maskFrame, const Skeleton& skeleton) const;
     void colorImageWithVoronoid(ColorFrame &colorFrame, MaskFrame &voronoi) const;
     void highLightMask(ColorFrame &colorFrame, MaskFrame &maskFrame) const;
+    void highLightDepth(ColorFrame &colorFrame, DepthFrame &depthFrame) const;
     QHashDataFrames allocateMemory() const;
 
     QMap<float, int> compute_distances_to_all_samples(const Feature& query, const QList<shared_ptr<Feature>>& gallery);
@@ -45,6 +59,7 @@ public slots:
 private:
     OpenNIDevice* m_device;
     void printClusters(const QList<Cluster<Feature>>& clusters) const;
+    void drawJoints(ColorFrame &colorFrame, const QList<SkeletonJoint>& joints);
     static RGBColor _colors[20];
 
 };

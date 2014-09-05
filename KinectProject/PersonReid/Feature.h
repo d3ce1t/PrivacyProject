@@ -11,17 +11,19 @@ class Feature
 {
     QList<Histogram1s> m_histograms;
     InstanceInfo m_label;
+    int m_frameId;
 
 public:
 
     static shared_ptr<Feature> minFeature(const QList<shared_ptr<Feature> > &features);
 
     Feature() {}
-    Feature(InstanceInfo label);
+    Feature(InstanceInfo label, int frameId);
     void addHistogram(const Histogram1s& hist);
     float distance(const Feature& other) const;
     bool operator==(const Feature& other) const;
     const InstanceInfo& label() const;
+    int frameId() const {return m_frameId;}
 };
 
 } // End Namespace

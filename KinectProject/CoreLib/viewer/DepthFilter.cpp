@@ -174,7 +174,7 @@ void DepthFilter::produceFrames(QHashDataFrames& output)
 
             for (int j=0; j<depthFrame->width(); ++j)
             {
-               uint16_t color = colorHistogram[pDepth[j]];
+               uint8_t color = colorHistogram[pDepth[j]];
                pColor[j].red = color;
                pColor[j].green = color;
                pColor[j].blue = 0;

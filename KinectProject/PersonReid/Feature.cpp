@@ -1,10 +1,12 @@
 #include "Feature.h"
 #include <climits>
+#include <QDebug>
 
 namespace dai {
 
 shared_ptr<Feature> Feature::minFeature(const QList<shared_ptr<Feature>>& features)
 {
+    qDebug() << "Min feature...";
     float min_distance = std::numeric_limits<float>::max();
     shared_ptr<Feature> selectedFeature;
 
@@ -26,9 +28,10 @@ shared_ptr<Feature> Feature::minFeature(const QList<shared_ptr<Feature>>& featur
     return selectedFeature;
 }
 
-Feature::Feature(InstanceInfo label)
+Feature::Feature(InstanceInfo label, int frameId)
 {
     m_label = label;
+    m_frameId = frameId;
 }
 
 void Feature::addHistogram(const Histogram1s& hist)
