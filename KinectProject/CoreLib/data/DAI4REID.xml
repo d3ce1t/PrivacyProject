@@ -11,6 +11,8 @@
 		<actor key="1">1</actor>
 		<actor key="2">2</actor>
 		<actor key="3">3</actor>
+		<actor key="4">4</actor>
+		<actor key="5">5</actor>
 	</actors>
 
 	<instances>
@@ -20,6 +22,7 @@
 			<data type="depth" file-ref="1" />
 			<data type="skeleton" file-ref="1" />
 			<data type="mask" file-ref="1" />
+			<data type="metadata" file-ref="1" />
 		</instance>
 		<instance actor="1" camera="2" sample="2">
 			<file id="2">U1_S2_Egypcian.oni</file>
@@ -27,6 +30,7 @@
 			<data type="depth" file-ref="2" />
 			<data type="skeleton" file-ref="2" />
 			<data type="mask" file-ref="2" />
+			<data type="metadata" file-ref="2" />
 		</instance>
 		<instance actor="2" camera="1" sample="1">
 			<file id="3">U2_S1.oni</file>
@@ -34,6 +38,7 @@
 			<data type="depth" file-ref="3" />
 			<data type="skeleton" file-ref="3" />
 			<data type="mask" file-ref="3" />
+			<data type="metadata" file-ref="3" />
 		</instance>
 		<instance actor="2" camera="2" sample="2">
 			<file id="4">U2_S2_Disco.oni</file>
@@ -41,6 +46,7 @@
 			<data type="depth" file-ref="4" />
 			<data type="skeleton" file-ref="4" />
 			<data type="mask" file-ref="4" />
+			<data type="metadata" file-ref="4" />
 		</instance>
 		<!--<instance actor="2" camera="1" sample="3" label="error">
 			<file id="5">U2_S1_Error.oni</file>
@@ -55,6 +61,7 @@
 			<data type="depth" file-ref="6" />
 			<data type="skeleton" file-ref="6" />
 			<data type="mask" file-ref="6" />
+			<data type="metadata" file-ref="6" />
 		</instance>
 		<instance actor="3" camera="2" sample="2">
 			<file id="7">U3_S2_Challenging.oni</file>
@@ -62,6 +69,47 @@
 			<data type="depth" file-ref="7" />
 			<data type="skeleton" file-ref="7" />
 			<data type="mask" file-ref="7" />
+			<data type="metadata" file-ref="7" />
+		</instance>
+		<instance actor="4" camera="1" sample="1">
+			<file id="8">U4_S1.oni</file>
+			<data type="color" file-ref="8" />
+			<data type="depth" file-ref="8" />
+			<data type="skeleton" file-ref="8" />
+			<data type="mask" file-ref="8" />
+			<data type="metadata" file-ref="8" />
+		</instance>
+		<instance actor="4" camera="2" sample="2">
+			<file id="9">U4_S2.oni</file>
+			<data type="color" file-ref="9" />
+			<data type="depth" file-ref="9" />
+			<data type="skeleton" file-ref="9" />
+			<data type="mask" file-ref="9" />
+			<data type="metadata" file-ref="9" />
+		</instance>
+		<!--<instance actor="4" camera="1" sample="3">
+			<file id="10">U4_S1_error.oni</file>
+			<data type="color" file-ref="10" />
+			<data type="depth" file-ref="10" />
+			<data type="skeleton" file-ref="10" />
+			<data type="mask" file-ref="10" />
+			<data type="metadata" file-ref="10" />
+		</instance>-->
+		<instance actor="5" camera="1" sample="1">
+			<file id="11">U5_S1.oni</file>
+			<data type="color" file-ref="11" />
+			<data type="depth" file-ref="11" />
+			<data type="skeleton" file-ref="11" />
+			<data type="mask" file-ref="11" />
+			<data type="metadata" file-ref="11" />
+		</instance>
+		<instance actor="5" camera="2" sample="2">
+			<file id="12">U5_S2.oni</file>
+			<data type="color" file-ref="12" />
+			<data type="depth" file-ref="12" />
+			<data type="skeleton" file-ref="12" />
+			<data type="mask" file-ref="12" />
+			<data type="metadata" file-ref="12" />
 		</instance>
 	</instances>
 </dataset>

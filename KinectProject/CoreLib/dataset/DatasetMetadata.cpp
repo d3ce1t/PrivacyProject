@@ -672,6 +672,8 @@ shared_ptr<DatasetMetadata> DatasetMetadata::load_version3(QString xmlPath)
                     type = DataFrame::Skeleton;
                 else if (strType == "mask")
                     type = DataFrame::Mask;
+                else if (strType == "metadata")
+                    type = DataFrame::Metadata;
 
                 dsMetaDataObject->m_availableInstanceTypes |= type;
                 instanceInfo->addType(type);

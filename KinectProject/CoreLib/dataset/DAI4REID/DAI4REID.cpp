@@ -32,6 +32,9 @@ shared_ptr<StreamInstance> DAI4REID::instance(int actor, int camera, int sample,
     case DataFrame::Skeleton:
         return make_shared<OpenNIUserTrackerInstance>(oni_device);
         break;
+    case DataFrame::Metadata:
+        return make_shared<OpenNIUserTrackerInstance>(oni_device);
+        break;
     default:
         return nullptr;
     }

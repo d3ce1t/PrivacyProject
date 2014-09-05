@@ -10,6 +10,118 @@ using namespace std;
 
 dai::InstanceInfo* findInstance(QString activity, int actor, int sample, QMap<int, QMap<int, QMap<int, dai::InstanceInfo *> > > list);
 
+void parseDAI4REID(const QString datasetPath)
+{
+    cout << "<dataset name=\"DAI4REID-Bin\">" << endl << endl;
+
+    QDir datasetDir(datasetPath);
+    QStringList filters;
+    filters << "*_color.jpg";
+    datasetDir.setNameFilters(filters);
+    //datasetDir.setFilter(QDir::Files);
+
+    // Parse Dataset
+    struct DAISample {
+        int actorId;
+        int sampleId;
+        int cameraId;
+        QString type;
+        QString file_color;
+        QString file_depth;
+        QString file_mask;
+        QString file_skel;
+    };
+
+    QMap<int, QString> actors;
+    QMap<int, QMap<int, QMap<int, DAISample> > > samples;
+    int num_samples = 0;
+
+    QStringList sampleEntries = datasetDir.entryList();
+
+    for (auto it = sampleEntries.constBegin(); it != sampleEntries.constEnd(); ++it)
+    {
+        QString fileName = *it;
+
+        int begin = 1, end = fileName.indexOf("_");
+        DAISample sample;
+        sample.actorId = fileName.mid(begin, end - begin).toInt();
+
+        begin = end + 2;
+        end = fileName.indexOf("_", begin);
+        sample.cameraId = fileName.mid(begin, end - begin).toInt();
+
+        begin = end + 2;
+        end = fileName.indexOf("_", begin);
+        sample.sampleId = fileName.mid(begin, end - begin).toInt();
+
+        begin = end + 1;
+        end = fileName.indexOf(".", begin);
+        sample.type = fileName.mid(begin, end - begin);
+
+        sample.file_color = fileName;
+        sample.file_depth = QString(fileName).replace("_color.jpg", "_depth.bin");
+        sample.file_mask = QString(fileName).replace("_color.jpg", "_mask.bin");
+        sample.file_skel = QString(fileName).replace("_color.jpg", "_skel.bin");
+
+        if (!QFile::exists(datasetPath + "/" + sample.file_depth) ||
+                !QFile::exists(datasetPath + "/" + sample.file_mask) ||
+                !QFile::exists(datasetPath + "/" + sample.file_skel)) {
+            qDebug() << "Some missing files";
+            throw 1;
+        }
+
+        samples[sample.actorId][sample.cameraId][sample.sampleId] = sample;
+        actors.insert(sample.actorId, "Actor " + QString::number(sample.actorId) );
+        num_samples++;
+    }
+
+    // Cameras
+    cout << "\t" << "<cameras size=\"2\">" << endl;
+    cout << "\t\t" << "<camera key=\"1\">Camera 1</camera>" << endl;
+    cout << "\t\t" << "<camera key=\"2\">Camera 2</camera>" << endl;
+    cout << "\t" << "</cameras>" << endl << endl;
+
+    // Actors
+    cout << "\t" << "<actors size=\"" << actors.size() << "\">" << endl;
+    for (auto it = actors.constBegin(); it != actors.constEnd(); ++it) {
+        cout << "\t\t" << "<actor key=\"" << it.key() << "\">" << it.value().toStdString() << "</actor>" << endl;
+    }
+
+    cout << "\t" << "</actors>" << endl << endl;
+
+    // Samples
+    int file_id = 1;
+    cout << "\t" << "<instances>" << endl;
+
+    for (auto cameras = samples.constBegin(); cameras != samples.constEnd(); ++cameras)
+    {
+        const QMap<int, QMap<int, DAISample>>& cameras_map = *cameras;
+
+        for (auto frames = cameras_map.constBegin(); frames != cameras_map.constEnd(); ++frames)
+        {
+            const QMap<int, DAISample>& frames_map = *frames;
+
+            foreach (DAISample sample, frames_map.values()) {
+                cout << "\t\t" << "<instance actor=\"" << sample.actorId << "\" camera=\"" << sample.cameraId << "\" sample=\"" << sample.sampleId << "\">" << endl;
+                cout << "\t\t\t" << "<file id=\"" << file_id << "\">" << sample.file_color.toStdString() << "</file>" << endl;
+                cout << "\t\t\t" << "<file id=\"" << file_id+1 << "\">" << sample.file_depth.toStdString() << "</file>" << endl;
+                cout << "\t\t\t" << "<file id=\"" << file_id+2 << "\">" << sample.file_mask.toStdString() << "</file>" << endl;
+                cout << "\t\t\t" << "<file id=\"" << file_id+3 << "\">" << sample.file_skel.toStdString() << "</file>" << endl;
+                cout << "\t\t\t" << "<data type=\"color\" file-ref=\"" << file_id << "\" />" << endl;
+                cout << "\t\t\t" << "<data type=\"depth\" file-ref=\"" << file_id+1 << "\" />" << endl;
+                cout << "\t\t\t" << "<data type=\"mask\" file-ref=\"" << file_id+2 << "\" />" << endl;
+                cout << "\t\t\t" << "<data type=\"skeleton\" file-ref=\"" << file_id+3 << "\" />" << endl;
+                cout << "\t\t" << "</instance>" << endl;
+                file_id+=4;
+            }
+        }
+    }
+
+    cout << "\t" << "</instances>" << endl;
+
+    cout << "</dataset>" << endl;
+}
+
 void parseCAVIAR4REID(const QString datasetPath)
 {
     cout << "<dataset name=\"CAVIAR4REID\">" << endl << endl;
@@ -437,6 +549,7 @@ dai::InstanceInfo* findInstance(QString activity, int actor, int sample, QMap<in
 int main(int argc, char *argv[])
 {
     //parseMSRAction3D(argv[1]);
-    parseCAVIAR4REID(argv[1]);
+    //parseCAVIAR4REID(argv[1]);
+    parseDAI4REID(argv[1]);
 }
 

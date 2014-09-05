@@ -65,7 +65,9 @@ SOURCES += \
     viewer/BackgroundItem.cpp \
     dataset/CAVIAR4REID/CAVIAR4REID.cpp \
     dataset/CAVIAR4REID/CAVIAR4REIDInstance.cpp \
-    dataset/DAI4REID/DAI4REID.cpp
+    dataset/DAI4REID/DAI4REID.cpp \
+    dataset/DAI4REID_Parsed/DAI4REID_Parsed.cpp \
+    dataset/DAI4REID_Parsed/DAI4REID_ParsedInstance.cpp
 
 HEADERS += \
     types/Vector3D.h \
@@ -130,7 +132,9 @@ HEADERS += \
     dataset/CAVIAR4REID/CAVIAR4REIDInstance.h \
     opencv_utils.h \
     types/Enums.h \
-    dataset/DAI4REID/DAI4REID.h
+    dataset/DAI4REID/DAI4REID.h \
+    dataset/DAI4REID_Parsed/DAI4REID_Parsed.h \
+    dataset/DAI4REID_Parsed/DAI4REID_ParsedInstance.h
 
 OTHER_FILES +=
 
