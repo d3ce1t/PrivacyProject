@@ -6,6 +6,7 @@
 #include <boost/random.hpp>
 #include <QList>
 #include <QVector>
+#include <QElapsedTimer>
 
 namespace dai {
 
@@ -240,6 +241,8 @@ private:
 
     shared_ptr<T> minItem(int cluster_id) const
     {
+        QElapsedTimer timer;
+        timer.start();
         const QList<shared_ptr<T>>& items = m_clusters[cluster_id].samples;
         float minDistance = std::numeric_limits<float>::max();
         shared_ptr<T> minItem = nullptr;
@@ -258,6 +261,8 @@ private:
                 minItem = (*it1);
             }
         }
+
+        qDebug() << "Min.Item (ms)" << timer.elapsed();
 
         return minItem;
     }

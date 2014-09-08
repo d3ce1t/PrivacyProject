@@ -52,8 +52,7 @@ public:
     void loadData(const QByteArray& buffer);
 
     /**
-     * Return the number of bytes that should be skipped to go to the first element of the next row
-     * from the first element of the previous row.
+     * Return the number of bytes that of each row line.
      */
     uint getStride() const {return m_stride;}
     T getItem(int row, int column) const;

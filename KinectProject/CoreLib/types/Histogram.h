@@ -32,6 +32,12 @@ inline uint hashItem(const cv::Vec<uchar,3>& point)
 }
 
 template<>
+inline uint hashItem(const cv::Vec<uchar,2>& point)
+{
+    return point[0]*256 + point[1];
+}
+
+template<>
 inline uint hashItem(const cv::Vec<ushort,1>& point)
 {
     return point[0];
@@ -524,6 +530,8 @@ using Histogram3D = Histogram<T, 3>;
 
 using Histogram3f = Histogram<float, 3>;
 using Histogram3c = Histogram<uchar, 3>;
+using Histogram2c = Histogram<uchar, 2>;
+using Histogram2s = Histogram<ushort, 2>;
 using Histogram1c = Histogram<uchar, 1>;
 using Histogram1s = Histogram<ushort, 1>;
 
@@ -539,6 +547,8 @@ using HistBin3D = HistBin<T, 3>;
 
 using HistBin3f = HistBin<float, 3>;
 using HistBin3c = HistBin<uchar, 3>;
+using HistBin2c = HistBin<uchar, 2>;
+using HistBin2s = HistBin<ushort, 2>;
 using HistBin1c = HistBin<uchar, 1>;
 using HistBin1s = HistBin<ushort, 1>;
 

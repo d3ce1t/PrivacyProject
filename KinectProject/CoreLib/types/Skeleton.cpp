@@ -1,6 +1,7 @@
 #include "Skeleton.h"
 #include <cmath>
 #include <QVector>
+#include <QDebug>
 
 namespace dai {
 
@@ -285,6 +286,7 @@ std::shared_ptr<Skeleton> Skeleton::fromBinary(const QByteArray& buffer)
 
         // Add to skeleton
         skeleton->setJoint(type, joint);
+        SkeletonJoint other = skeleton->getJoint(type);
 
         // Move pointer
         binData = (uchar*) pItem;

@@ -20,14 +20,14 @@ void Quaternion::test()
     // Initializing seed for rand() function
     srand(time(nullptr));
 
-    Vector3D* vector = new Vector3D[200];
+    Vector3f* vector = new Vector3f[200];
     qDebug() << "Generating 200 unit vectors";
 
     for (int i=0; i<200; ++i)
     {
-        double pos_x = rand() / (double) RAND_MAX;
-        double pos_y = rand() / (double) RAND_MAX;
-        double pos_z = rand() / (double) RAND_MAX;
+        float pos_x = rand() / (float) RAND_MAX;
+        float pos_y = rand() / (float) RAND_MAX;
+        float pos_z = rand() / (float) RAND_MAX;
 
         vector[i].setX(pos_x);
         vector[i].setY(pos_y);
@@ -40,8 +40,8 @@ void Quaternion::test()
 
     for (int i=0; i<100; ++i)
     {
-        Vector3D& v1 = vector[i*2];
-        Vector3D& v2 = vector[i*2+1];
+        Vector3f& v1 = vector[i*2];
+        Vector3f& v2 = vector[i*2+1];
         q[i] = Quaternion::getRotationBetween(v1, v2);
     }
 
@@ -49,8 +49,8 @@ void Quaternion::test()
 
     for (int i=0; i<100; ++i)
     {
-        Vector3D& v1 = vector[i*2];
-        Vector3D& v2 = vector[i*2+1];
+        Vector3f& v1 = vector[i*2];
+        Vector3f& v2 = vector[i*2+1];
         QQuaternion rot(q[i].scalar(), QVector3D(q[i].vector().x(), q[i].vector().y(), q[i].vector().z())); // set up QQuaternion with my computed values
         QVector3D rotateVector(v1.x(), v1.y(), v1.z());
         QVector3D result = rot.rotatedVector(rotateVector); // rotate v1 vector with QQuaternion
@@ -69,9 +69,9 @@ void Quaternion::test()
     delete[] q;
 }
 
-bool Quaternion::fuzzyCompare(const QVector3D& v1, const Vector3D& v2)
+bool Quaternion::fuzzyCompare(const QVector3D& v1, const Vector3f &v2)
 {
-    return qFuzzyCompare(v1.x(), (float) v2.x()) && qFuzzyCompare(v1.y(), (float) v2.y()) && qFuzzyCompare(v1.z(), (float) v2.z());
+    return qFuzzyCompare(v1.x(), v2.x()) && qFuzzyCompare(v1.y(), v2.y()) && qFuzzyCompare(v1.z(), v2.z());
 }
 
 Quaternion::Quaternion()
@@ -79,15 +79,15 @@ Quaternion::Quaternion()
 {
     // Identity quaternion
     m_w = 1.0f;
-    m_vector = Vector3D(0, 0, 0);
+    m_vector = Vector3f(0, 0, 0);
 }
 
-Quaternion::Quaternion(double w, double i, double j, double k)
+Quaternion::Quaternion(float w, float i, float j, float k)
     : QObject(0)
 {
     // Identity quaternion
     m_w = w;
-    m_vector = Vector3D(i, j, k);
+    m_vector = Vector3f(i, j, k);
 }
 
 Quaternion::Quaternion(const Quaternion& other)
@@ -104,27 +104,27 @@ Quaternion& Quaternion::operator=(const Quaternion& other)
     return *this;
 }
 
-void Quaternion::setScalar(double value)
+void Quaternion::setScalar(float value)
 {
     m_w = value;
 }
 
-void Quaternion::setVector(Vector3D vector)
+void Quaternion::setVector(Vector3f vector)
 {
     m_vector = vector;
 }
 
-void Quaternion::setVector(double i, double j, double k)
+void Quaternion::setVector(float i, float j, float k)
 {
-    m_vector = Vector3D(i, j, k);
+    m_vector = Vector3f(i, j, k);
 }
 
-double Quaternion::scalar() const
+float Quaternion::scalar() const
 {
     return m_w;
 }
 
-Vector3D Quaternion::vector() const
+Vector3f Quaternion::vector() const
 {
     return m_vector;
 }
@@ -188,9 +188,9 @@ double Quaternion::sign(double value) const
 //
 // Public static methods
 //
-Quaternion Quaternion::getRotationBetween(const Vector3D& v1, const Vector3D& v2)
+Quaternion Quaternion::getRotationBetween(const Vector3f &v1, const Vector3f &v2)
 {
-    double k_cos_theta = Vector3D::dotProduct(v1, v2);
+    double k_cos_theta = Vector3f::dotProduct(v1, v2);
     double k = sqrt( v1.lengthSquared() * v2.lengthSquared() );
     //float k = 1; // Only for unit vectors!
     Quaternion result;
@@ -198,7 +198,7 @@ Quaternion Quaternion::getRotationBetween(const Vector3D& v1, const Vector3D& v2
     if (k_cos_theta / k != -1)
     {
         double scalarPart = k + k_cos_theta;
-        Vector3D vectorialPart = Vector3D::crossProduct(v1, v2); // Not unit vector
+        Vector3f vectorialPart = Vector3f::crossProduct(v1, v2); // Not unit vector
         result.setScalar(scalarPart);
         result.setVector(vectorialPart);
         result.normalize();
@@ -215,8 +215,8 @@ Quaternion Quaternion::getRotationBetween(const Vector3D& v1, const Vector3D& v2
 
 Quaternion Quaternion::getRotationBetween(const Point3f &p1, const Point3f &p2, const Point3f &vertex)
 {
-    Vector3D v1( p1.val(0) - vertex.val(0), p1.val(1) - vertex.val(1), p1.val(2) - vertex.val(2) );
-    Vector3D v2( p2.val(0) - vertex.val(0), p2.val(1) - vertex.val(1), p2.val(2) - vertex.val(2) );
+    Vector3f v1( p1.val(0) - vertex.val(0), p1.val(1) - vertex.val(1), p1.val(2) - vertex.val(2) );
+    Vector3f v2( p2.val(0) - vertex.val(0), p2.val(1) - vertex.val(1), p2.val(2) - vertex.val(2) );
     return Quaternion::getRotationBetween(v1, v2);
 }
 

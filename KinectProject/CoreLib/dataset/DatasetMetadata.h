@@ -44,8 +44,8 @@ public:
     const QString getName() const;
     const QString getDescription() const;
     const QString getPath() const;
-    const shared_ptr<InstanceInfo> instance(int actor, int camera, int sample, const QList<QString>& labels);
-    const shared_ptr<InstanceInfo> instance(int actor, int camera, int sample, const QList<QString>& labels, DataFrame::FrameType type);
+    const shared_ptr<InstanceInfo> instance(int actor, int camera, int sample, const QList<QString>& labels) const;
+    const shared_ptr<InstanceInfo> instance(int actor, int camera, int sample, const QList<QString>& labels, DataFrame::FrameType type) const;
     //const QList<shared_ptr<InstanceInfo>> instance(int actor, int camera, int sample);
     const QList<shared_ptr<InstanceInfo>> instances(const QList<int> &actors = QList<int>(), const QList<int> &cameras = QList<int>(), const QList<QList<QString> > &labels = QList<QList<QString>>()) const;
     const Dataset& dataset() const;

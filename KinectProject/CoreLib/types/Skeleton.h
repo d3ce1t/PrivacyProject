@@ -5,6 +5,7 @@
 #include "Quaternion.h"
 #include "types/Enums.h"
 #include <QHash>
+#include <QMap>
 #include <memory>
 
 #define MAX_LIMBS 19
@@ -64,7 +65,7 @@ private:
     static SkeletonLimb staticKinectLimbsMap[MAX_LIMBS];
     static SkeletonLimb staticOpenNILimbsMap[16];
 
-    QHash<int, SkeletonJoint> m_joints; // joints with real world coordinates in meters
+    QMap<int, SkeletonJoint> m_joints; // joints with real world coordinates in meters
     QHash<int, Quaternion> m_quaternions;
     SkeletonLimb m_limbs[MAX_LIMBS];
     short m_limbsSize;

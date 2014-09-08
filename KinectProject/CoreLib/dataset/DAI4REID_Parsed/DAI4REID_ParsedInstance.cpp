@@ -7,7 +7,6 @@
 #include <opencv2/opencv.hpp>
 #include <QFile>
 #include "Utils.h"
-#include <QDebug>
 
 namespace dai {
 
@@ -72,15 +71,6 @@ void DAI4REID_ParsedInstance::nextFrame(QHashDataFrames &output)
     *dstColor = srcColor; // Copy
     output.insert(DataFrame::Color, dstColor);
 
-    /*QImage image;
-    if (image.load(instancePath)) {
-        qDebug() << image.format();
-        ColorFrame srcColor(image.width(), image.height(), (RGBColor*) image.bits(), image.bytesPerLine());
-        shared_ptr<ColorFrame> dstColor = make_shared<ColorFrame>(srcColor.width(), srcColor.height());
-        *dstColor = srcColor; // Copy
-        output.insert(DataFrame::Color, dstColor);
-    }*/
-
     // Read Depth File
     instancePath = m_info.parent().getPath() + "/" + m_info.getFileName(DataFrame::Depth);
     QFile depthFile(instancePath);
@@ -109,12 +99,6 @@ void DAI4REID_ParsedInstance::nextFrame(QHashDataFrames &output)
     shared_ptr<MaskFrame> maskFrame = make_shared<MaskFrame>();
     maskFrame->loadData(buffer);
     output.insert(DataFrame::Mask, maskFrame);
-
-    /*cv::Mat mask_mat = cv::imread(instancePath.toStdString(), CV_LOAD_IMAGE_GRAYSCALE);
-    MaskFrame srcMask(mask_mat.cols, mask_mat.rows, (uint8_t*) mask_mat.data, mask_mat.step);
-    shared_ptr<MaskFrame> dstMask = make_shared<MaskFrame>(srcMask.width(), srcMask.height());
-    *dstMask = srcMask; // Copy
-    output.insert(DataFrame::Mask, dstMask);*/
 
     // Read Skeleton File
     instancePath = m_info.parent().getPath() + "/" + m_info.getFileName(DataFrame::Skeleton);

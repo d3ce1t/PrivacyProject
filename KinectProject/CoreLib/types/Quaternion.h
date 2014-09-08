@@ -45,7 +45,7 @@ public:
      * @brief test
      */
     static void test();
-    static bool fuzzyCompare(const QVector3D& v1, const Vector3D &v2);
+    static bool fuzzyCompare(const QVector3D& v1, const Vector3f &v2);
 
     /**
      * Get rotation quaternion between two vectors. Vectors not necessarily must be unit vectors
@@ -55,7 +55,7 @@ public:
      * @param v2
      * @return Return the quaternion that express the rotation over v1 to get the same orientation as v2.
      */
-    static Quaternion getRotationBetween(const Vector3D &v1, const Vector3D &v2);
+    static Quaternion getRotationBetween(const Vector3f &v1, const Vector3f &v2);
 
     /**
      * Get rotation quaternion between points p1 and p2, where both points share de same vertex. In other words,
@@ -82,20 +82,20 @@ public:
     static double dotProduct(const Quaternion &q1, const Quaternion &q2);
 
     Quaternion();
-    Quaternion(double w, double i, double j, double k);
+    Quaternion(float w, float i, float j, float k);
     Quaternion(const Quaternion& other);
     Quaternion& operator=(const Quaternion& other);
-    void setScalar(double value);
-    void setVector(Vector3D vector);
-    void setVector(double i, double j, double k);
-    double scalar() const;
-    Vector3D vector() const;
+    void setScalar(float value);
+    void setVector(Vector3f vector);
+    void setVector(float i, float j, float k);
+    float scalar() const;
+    Vector3f vector() const;
     double getAngle() const;
     double norm() const;
-    double w() const {return m_w;}
-    double x() const {return m_vector.x();}
-    double y() const {return m_vector.y();}
-    double z() const {return m_vector.z();}
+    float w() const {return m_w;}
+    float x() const {return m_vector.x();}
+    float y() const {return m_vector.y();}
+    float z() const {return m_vector.z();}
     void normalize();
     void print() const;
 
@@ -103,8 +103,8 @@ protected:
     double sign(double value) const;
 
 private:
-    double m_w;
-    Vector3D m_vector; // i, j, k or x, y, z
+    float m_w;
+    Vector3f m_vector; // i, j, k or x, y, z
 };
 
 } // End Namespace

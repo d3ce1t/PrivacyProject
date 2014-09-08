@@ -32,7 +32,7 @@ const QString DatasetMetadata::getPath() const
     return m_path;
 }
 
-const shared_ptr<InstanceInfo> DatasetMetadata::instance(int actor, int camera, int sample, const QList<QString> &labels)
+const shared_ptr<InstanceInfo> DatasetMetadata::instance(int actor, int camera, int sample, const QList<QString> &labels) const
 {
     shared_ptr<InstanceInfo> result = nullptr;
     bool found = false;
@@ -55,7 +55,7 @@ const shared_ptr<InstanceInfo> DatasetMetadata::instance(int actor, int camera, 
     return result;
 }
 
-const shared_ptr<InstanceInfo> DatasetMetadata::instance(int actor, int camera, int sample, const QList<QString>& labels, DataFrame::FrameType type)
+const shared_ptr<InstanceInfo> DatasetMetadata::instance(int actor, int camera, int sample, const QList<QString>& labels, DataFrame::FrameType type) const
 {
     shared_ptr<InstanceInfo> result = nullptr;
     bool found = false;

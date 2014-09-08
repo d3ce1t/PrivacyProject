@@ -17,7 +17,6 @@ CONFIG += c++11
 DEFINES += Q_COMPILER_INITIALIZER_LISTS
 
 SOURCES += \
-    types/Vector3D.cpp \
     types/SkeletonJoint.cpp \
     types/SkeletonFrame.cpp \
     types/Skeleton.cpp \
