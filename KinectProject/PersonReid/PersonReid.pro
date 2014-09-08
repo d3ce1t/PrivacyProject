@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core quick gui
+QT       += core quick gui concurrent
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = PersonReid
@@ -61,10 +61,10 @@ win32 {
     BOOSTLIB = $$(BOOST_LIBRARYDIR)
     !isEmpty(BOOSTDIR) {
         INCLUDEPATH += $$BOOSTDIR
-        win32-g++:CONFIG(release, debug|release):LIBS += -L$$BOOSTLIB -lboost_date_time-mgw48-mt-1_55 -lboost_thread-mgw48-mt-1_55
-        else:win32-g++:CONFIG(debug, debug|release):LIBS += -L$$BOOSTLIB -lboost_date_time-mgw48-mt-d-1_55 -lboost_thread-mgw48-mt-d-1_55
-        else:CONFIG(release, debug|release):LIBS += -L$$BOOSTLIB -lboost_date_time-vc120-mt-1_55 -lboost_thread-vc120-mt-1_55
-        else:CONFIG(debug, debug|release):LIBS += -L$$BOOSTLIB -lboost_date_time-vc120-mt-gd-1_55 -lboost_thread-vc120-mt-gd-1_55
+        win32-g++:CONFIG(release, debug|release):LIBS += -L$$BOOSTLIB -lboost_date_time-mgw48-mt-1_56 -lboost_thread-mgw48-mt-1_56
+        else:win32-g++:CONFIG(debug, debug|release):LIBS += -L$$BOOSTLIB -lboost_date_time-mgw48-mt-d-1_556-lboost_thread-mgw48-mt-d-1_56
+        else:CONFIG(release, debug|release):LIBS += -L$$BOOSTLIB -lboost_date_time-vc120-mt-1_56 -lboost_thread-vc120-mt-1_56
+        else:CONFIG(debug, debug|release):LIBS += -L$$BOOSTLIB -lboost_date_time-vc120-mt-gd-1_56 -lboost_thread-vc120-mt-gd-1_56
     }
 
     # OpenNI2

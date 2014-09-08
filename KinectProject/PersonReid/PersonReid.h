@@ -19,6 +19,7 @@ public:
 
     void test1();
     void test2();
+    void test3();
     void parseDataset();
 
     void test_DAI4REID();
@@ -27,6 +28,7 @@ public:
 
     void test_DAI4REID_Parsed();
     QList<shared_ptr<Feature>> train_DAI4REID_Parsed(QList<int> actors);
+    QList<shared_ptr<Feature>> create_gallery_DAI4REID_Parsed();
     QVector<float> validate_DAI4REID_Parsed(const QList<int> &actors, const QList<shared_ptr<Feature>>& gallery, int *num_tests = nullptr);
 
     void test_CAVIAR4REID();
@@ -42,6 +44,7 @@ public:
     void drawPoint(ColorFrame &colorFrame, int x, int y, RGBColor color = {255, 0, 0}) const;
     SkeletonJoint getCloserJoint(const Point3f& cloudPoint, const QList<SkeletonJoint>& joints) const;
     shared_ptr<MaskFrame> getVoronoiCells(const DepthFrame& depthFrame, const MaskFrame& maskFrame, const Skeleton& skeleton) const;
+    shared_ptr<MaskFrame> getVoronoiCellsParallel(const DepthFrame& depthFrame, const MaskFrame& maskFrame, const Skeleton& skeleton) const;
     void colorImageWithVoronoid(ColorFrame &colorFrame, MaskFrame &voronoi) const;
     void highLightMask(ColorFrame &colorFrame, MaskFrame &maskFrame) const;
     void highLightDepth(ColorFrame &colorFrame, DepthFrame &depthFrame) const;
