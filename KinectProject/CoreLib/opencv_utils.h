@@ -5,6 +5,7 @@
 #include <QList>
 #include "types/Histogram.h"
 #include "types/MaskFrame.h"
+#include <functional>
 
 namespace dai {
 
@@ -399,6 +400,39 @@ void discretiseRGBImage(cv::Mat input_img, cv::Mat output_img)
             } else {
                 out_pixel[j][2] = in_pixel[j][2];
             }
+        }
+    }
+}
+
+template <class T>
+void for_each_pixel(cv::Mat input, std::function<void (const T& pixel)> func)
+{
+    for (int i=0; i<input.rows; ++i)
+    {
+        T* input_pixel = input.ptr<T>(i);
+
+        for (int j=0; j<input.cols; ++j) {
+            func(input_pixel[j]);
+        }
+    }
+}
+
+void filterMask(cv::Mat input, cv::Mat& output, std::function<void (uchar in, uchar& out)> filter)
+{
+    Q_ASSERT(output.data == nullptr || (input.rows == output.rows && input.cols == output.cols) );
+
+    if (output.data == nullptr) {
+        output = cv::Mat::zeros(input.rows, input.cols, CV_8UC1);
+    }
+
+    for (int i=0; i<input.rows; ++i)
+    {
+        uchar* input_pixel = input.ptr<uchar>(i);
+        uchar* output_pixel = output.ptr<uchar>(i);
+
+        for (int j=0; j<input.cols; ++j)
+        {
+            filter(input_pixel[j], output_pixel[j]);
         }
     }
 }

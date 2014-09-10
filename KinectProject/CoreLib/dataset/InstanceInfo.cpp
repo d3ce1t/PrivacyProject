@@ -22,6 +22,13 @@ InstanceInfo::InstanceInfo(const InstanceInfo& other)
     m_parent = other.m_parent;
 }
 
+bool InstanceInfo::operator==(const InstanceInfo& other) const
+{
+    return m_actor == other.m_actor && m_sample == other.m_sample &&
+            m_camera == other.m_camera && m_labels == other.m_labels &&
+            m_type == other.m_type && m_parent == other.m_parent && m_files == other.m_files;
+}
+
 InstanceInfo& InstanceInfo::operator=(const InstanceInfo& other)
 {
     m_type = other.m_type;

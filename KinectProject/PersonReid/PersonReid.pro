@@ -21,11 +21,16 @@ DEFINES += Q_COMPILER_INITIALIZER_LISTS
 
 HEADERS += \
     PersonReid.h \
-    Feature.h
+    Descriptor.h \
+    JointHistograms.h \
+    DistancesFeature.h \
+    JointSurf.h
 
 SOURCES += main.cpp \
     PersonReid.cpp \
-    Feature.cpp
+    Descriptor.cpp \
+    DistancesFeature.cpp \
+    JointSurf.cpp
 
 
 unix:!macx {
@@ -62,7 +67,7 @@ win32 {
     !isEmpty(BOOSTDIR) {
         INCLUDEPATH += $$BOOSTDIR
         win32-g++:CONFIG(release, debug|release):LIBS += -L$$BOOSTLIB -lboost_date_time-mgw48-mt-1_56 -lboost_thread-mgw48-mt-1_56
-        else:win32-g++:CONFIG(debug, debug|release):LIBS += -L$$BOOSTLIB -lboost_date_time-mgw48-mt-d-1_556-lboost_thread-mgw48-mt-d-1_56
+        else:win32-g++:CONFIG(debug, debug|release):LIBS += -L$$BOOSTLIB -lboost_date_time-mgw48-mt-d-1_56 -lboost_thread-mgw48-mt-d-1_56
         else:CONFIG(release, debug|release):LIBS += -L$$BOOSTLIB -lboost_date_time-vc120-mt-1_56 -lboost_thread-vc120-mt-1_56
         else:CONFIG(debug, debug|release):LIBS += -L$$BOOSTLIB -lboost_date_time-vc120-mt-gd-1_56 -lboost_thread-vc120-mt-gd-1_56
     }
@@ -80,8 +85,8 @@ win32 {
     # OpenCV2
     INCLUDEPATH += $$(OPENCV2_INCLUDE)
     DEPENDPATH += $$(OPENCV2_INCLUDE)
-    CONFIG(release, debug|release):LIBS += -L$$(OPENCV2_LIB) -lopencv_core249 -lopencv_imgproc249 -lopencv_highgui249 -lopencv_objdetect249 -lopencv_photo249
-    else:CONFIG(debug, debug|release):LIBS += -L$$(OPENCV2_LIB) -lopencv_core249d -lopencv_imgproc249d -lopencv_highgui249d -lopencv_objdetect249d -lopencv_photo249d
+    CONFIG(release, debug|release):LIBS += -L$$(OPENCV2_LIB) -lopencv_core249 -lopencv_imgproc249 -lopencv_highgui249 -lopencv_objdetect249 -lopencv_photo249 -lopencv_features2d249 -lopencv_nonfree249 -lopencv_flann249
+    else:CONFIG(debug, debug|release):LIBS += -L$$(OPENCV2_LIB) -lopencv_core249d -lopencv_imgproc249d -lopencv_highgui249d -lopencv_objdetect249d -lopencv_photo249d -lopencv_features2d249d -lopencv_nonfree249d -lopencv_flann249d
 }
 
 CONFIG(release, debug|release): DESTDIR = $$OUT_PWD/release

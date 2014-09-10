@@ -23,7 +23,11 @@ public:
     // Constructors
     InstanceInfo(shared_ptr<DatasetMetadata> parent = nullptr);
     InstanceInfo(const InstanceInfo& other);
+
+    // Operators
+    bool operator==(const InstanceInfo& other) const;
     InstanceInfo& operator=(const InstanceInfo& other);
+
 
     // Getters
     int getActor() const;

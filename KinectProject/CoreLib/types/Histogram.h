@@ -166,6 +166,11 @@ public:
         return *this;
     }*/
 
+    int sizeInBytes() const
+    {
+        return sizeof(Histogram<T,N>) + m_matrix.size() * sizeof(HistBin<T,N>);
+    }
+
     Histogram<T,N>& operator+=(const Histogram<T,N>& right)
     {
         // Add the two histograms
