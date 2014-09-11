@@ -21,12 +21,8 @@ float JointSurf::distance(const Descriptor& other_desc) const
     auto it2 = other.m_descriptors.constBegin();
     float distance = 0;
 
-    int i = 1;
-
     while (it1 != m_descriptors.constEnd() && it2 != other.m_descriptors.constEnd())
     {
-        //qDebug("JointSurf - Computing distance %i", i);
-
         if ( !(*it1).empty() && !(*it2).empty() )
         {
             cv::FlannBasedMatcher matcher;
@@ -36,30 +32,32 @@ float JointSurf::distance(const Descriptor& other_desc) const
             double max_dist = 0; double min_dist = 100;
 
             //-- Quick calculation of max and min distances between keypoints
-            for( int i = 0; i < matches.size(); i++ ) {
+            for( uint i = 0; i < matches.size(); i++ ) {
                 double dist = matches[i].distance;
                 if( dist < min_dist ) min_dist = dist;
                 if( dist > max_dist ) max_dist = dist;
             }
 
-            //qDebug("-- Max dist : %f", max_dist );
-            //qDebug("-- Min dist : %f", min_dist );
+            float local_distance = 0;
+            int good_matches = 0;
 
-            // Good matches
-            std::vector<cv::DMatch > good_matches;
-
-            for( int i = 0; i < matches.size(); i++ )
+            for( uint i = 0; i < matches.size(); i++ )
             {
                 if(matches[i].distance <= cv::max(2*min_dist, 0.02)) {
-                    good_matches.push_back( matches[i]);
-                    distance += matches[i].distance;
+                    local_distance += matches[i].distance;
+                    good_matches++;
                 }
             }
+
+            distance += local_distance / good_matches;
+            //qDebug() << "Src.Points" << (*it1).rows << "Dst.Points" << (*it2).rows << "Matches" << matches.size();
+        }
+        else {
+            distance += 1.40513f;
         }
 
         ++it1;
         ++it2;
-        ++i;
     }
 
     return distance;
