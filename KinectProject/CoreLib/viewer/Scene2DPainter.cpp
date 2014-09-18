@@ -182,7 +182,7 @@ void Scene2DPainter::renderBackground()
     // Enable BG
     if (m_currentFilter == FILTER_INVISIBILITY
             || m_currentFilter == FILTER_SKELETON
-            //|| m_currentFilter == FILTER_SILHOUETTE
+            || m_currentFilter == FILTER_SILHOUETTE
             || m_currentFilter == FILTER_3DMODEL)
     {
         glBindTexture(GL_TEXTURE_2D, m_bgTextureId);

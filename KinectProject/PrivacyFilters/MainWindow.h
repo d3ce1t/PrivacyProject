@@ -32,7 +32,7 @@ private:
     dai::OpenNIDevice*    m_device;
     dai::PlaybackControl  m_playback;
     dai::PrivacyFilter    m_privacyFilter;
-    dai::DepthFilter      m_depthFilter;
+    //dai::DepthFilter      m_depthFilter;
     Ui::MainWindow *ui;
 };
 

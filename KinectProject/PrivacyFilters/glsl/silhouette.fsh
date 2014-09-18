@@ -27,7 +27,7 @@ void main()
     {
         // Silhouette
         if (silhouetteEffect == 0) {
-            gl_FragColor = vec4(0.5, 0.8, 0.0, 0.7);
+            gl_FragColor = vec4(0.5, 0.8, 0.0, 1.0);
         }
         // BlurH filter (first-pass) second-pass in textureFragment
         else if (silhouetteEffect == 1) {
@@ -97,7 +97,7 @@ vec4 blurEffectV()
 
 vec4 pixelation()
 {
-    vec2 dpos = 5 * (1/textureSize);
+    vec2 dpos = 7 * (1/textureSize);
     vec2 coord = vec2(dpos.x * floor(v_texCoord.x / dpos.x), dpos.y * floor(v_texCoord.y / dpos.y));
     return texture2D(texForeground, coord);
 }

@@ -12,9 +12,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {   
     ui->setupUi(this);
-    m_playback.setFPS(20);
-    //m_device = dai::OpenNIDevice::create("C:/opt/captures/PrimeSense Short-Range (1.09) - 1 user.oni");
-    m_device = dai::OpenNIDevice::create("C:/datasets/capture/capture.oni");
+    m_playback.setFPS(25);
+    m_device = dai::OpenNIDevice::create("C:/opt/captures/PrimeSense Short-Range (1.09) - 1 user.oni");
     //m_device = dai::OpenNIDevice::create();
     //m_device = dai::OpenNIDevice::create("C:/datasets/HuDaAct/S5_C4_U10_BG.oni");
     //m_device = dai::OpenNIDevice::create("C:/datasets/HuDaAct/S14_C12_U30_D1.oni");
@@ -48,22 +47,24 @@ void MainWindow::on_btnStartKinect_clicked()
     m_playback.clearInstances();
     m_playback.addInstance(colorInstance);
     m_playback.addInstance(userTrackerInstance);
-    m_playback.addListener(&m_depthFilter);
+    //m_playback.addListener(&m_depthFilter);
     m_playback.addListener(&m_privacyFilter);
 
     // Create viewers
     dai::InstanceViewerWindow* out_viewer_color = new dai::InstanceViewerWindow;
-    dai::InstanceViewerWindow* out_viewer_depth = new dai::InstanceViewerWindow;
+    //dai::InstanceViewerWindow* out_viewer_depth = new dai::InstanceViewerWindow;
     //out_viewer->setDrawMode(ViewerEngine::BoundingBox);
 
     // Connect viewers
-    m_depthFilter.addListener(out_viewer_depth);
+    //m_playback.addListener(out_viewer_color);
+    //m_depthFilter.addListener(out_viewer_depth);
     m_privacyFilter.addListener(out_viewer_color);
 
     // Run
     m_privacyFilter.enableFilter(FILTER_DISABLED);
+    m_privacyFilter.m_control.show();
     out_viewer_color->show();
-    out_viewer_depth->show();
+    //out_viewer_depth->show();
     m_playback.play();
 }
 

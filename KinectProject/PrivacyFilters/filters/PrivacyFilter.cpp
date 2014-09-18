@@ -20,7 +20,8 @@
 namespace dai {
 
 PrivacyFilter::PrivacyFilter()
-    : m_glContext(nullptr)
+    : m_control(this)
+    , m_glContext(nullptr)
     , m_gles(nullptr)
     , m_initialised(false)
     , m_fboDisplay(nullptr)

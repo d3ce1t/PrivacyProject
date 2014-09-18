@@ -40,7 +40,7 @@ bool OpenNIColorInstance::hasNext() const
     if (!m_device->isFile())
         return true;
 
-    return !eof;
+    return true;//!eof;
 }
 
 bool OpenNIColorInstance::openInstance()

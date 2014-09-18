@@ -57,9 +57,9 @@ void FrameNotifier::notifyListener(const QHashDataFrames& data, const qint64 fra
         m_frameId = frameId;
         m_workInProgress = true;
         m_sync.wakeOne();
-    } else {
+    }/* else {
         qDebug() << "FrameNotifier::notifyListener() ignored (work in progress pending)";
-    }
+    }*/
     m_syncLock.unlock();
 }
 

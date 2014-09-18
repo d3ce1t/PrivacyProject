@@ -14,7 +14,8 @@ HEADERS += \
     ogre/SinbadCharacterController.h \
     ogre/OgreScene.h \
     ogre/OgrePointCloud.h \
-    filters/PrivacyFilter.h
+    filters/PrivacyFilter.h \
+    ControlWindow.h
 
 SOURCES += \
     Main.cpp \
@@ -22,7 +23,8 @@ SOURCES += \
     ogre/SinbadCharacterController.cpp \
     ogre/OgreScene.cpp \
     ogre/OgrePointCloud.cpp \
-    filters/PrivacyFilter.cpp
+    filters/PrivacyFilter.cpp \
+    ControlWindow.cpp
 
 OTHER_FILES += \
     glsl/scene3d.fsh \
@@ -37,7 +39,8 @@ OTHER_FILES += \
 RESOURCES += openglunderqml.qrc
 
 FORMS += \
-    mainwindow.ui
+    mainwindow.ui \
+    ControlWindow.ui
 
 unix:!macx {
     # CoreLib
