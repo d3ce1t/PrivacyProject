@@ -44,13 +44,16 @@ public:
     DescriptorPtr feature_joints_hist(ColorFrame &colorFrame, DepthFrame &depthFrame, MaskFrame &maskFrame,
                                             Skeleton &skeleton, const InstanceInfo& instance_info) const;
 
-    DescriptorPtr feature_joints_surf(ColorFrame &colorFrame, DepthFrame &depthFrame, MaskFrame &maskFrame,
+    DescriptorPtr feature_region_descriptor(ColorFrame &colorFrame, DepthFrame &depthFrame, MaskFrame &maskFrame,
                                             Skeleton &skeleton, const InstanceInfo& instance_info) const;
+
+    DescriptorPtr feature_joint_descriptor(ColorFrame &colorFrame, Skeleton &skeleton, const InstanceInfo& instance_info) const;
+
 
     DescriptorPtr feature_skeleton_distances(ColorFrame &colorFrame, Skeleton &skeleton, const InstanceInfo& instance_info) const;
 
     // Utils
-    void makeUpJoints(Skeleton& skeleton) const;
+    void makeUpJoints(Skeleton& skeleton, bool only_middle_points = false) const;
     void drawPoint(ColorFrame &colorFrame, int x, int y, RGBColor color = {255, 0, 0}) const;
     SkeletonJoint getCloserJoint(const Point3f& cloudPoint, const QList<SkeletonJoint>& joints) const;
     shared_ptr<MaskFrame> getVoronoiCells(const DepthFrame& depthFrame, const MaskFrame& maskFrame, const Skeleton& skeleton) const;

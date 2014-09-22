@@ -21,7 +21,7 @@
 #include <QCryptographicHash>
 #include "JointHistograms.h"
 #include "DistancesFeature.h"
-#include "JointSurf.h"
+#include "RegionDescriptor.h"
 
 
 namespace dai {
@@ -690,8 +690,9 @@ QList<DescriptorPtr> PersonReid::train_DAI4REID_Parsed(QList<int> actors)
             //highLightDepth(*colorFrame, *depthFrame);
             //drawJoints(*colorFrame, skeleton->joints());
             //DescriptorPtr feature = feature_joints_hist(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
-            DescriptorPtr feature = feature_joints_surf(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
+            //DescriptorPtr feature = feature_region_descriptor(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
             //DescriptorPtr feature = feature_skeleton_distances(*colorFrame, *skeleton, *instance_info);
+            DescriptorPtr feature = feature_joint_descriptor(*colorFrame, *skeleton, *instance_info);
 
             //qDebug() << feature->sizeInBytes();
 
@@ -787,8 +788,9 @@ QVector<float> PersonReid::validate_DAI4REID_Parsed(const QList<int> &actors, co
         shared_ptr<Skeleton> skeleton = skeletonFrame->getSkeleton(users.at(0));
 
         //DescriptorPtr query = feature_joints_hist(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
-        DescriptorPtr query = feature_joints_surf(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
+        //DescriptorPtr query = feature_region_descriptor(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
         //DescriptorPtr query = feature_skeleton_distances(*colorFrame, *skeleton, *instance_info);
+        DescriptorPtr query = feature_joint_descriptor(*colorFrame, *skeleton, *instance_info);
 
         if (query) {
             // CMC
@@ -1053,7 +1055,7 @@ DescriptorPtr PersonReid::feature_joints_hist(ColorFrame& colorFrame, DepthFrame
     return feature;
 }
 
-DescriptorPtr PersonReid::feature_joints_surf(ColorFrame &colorFrame, DepthFrame &depthFrame, MaskFrame &maskFrame,
+DescriptorPtr PersonReid::feature_region_descriptor(ColorFrame &colorFrame, DepthFrame &depthFrame, MaskFrame &maskFrame,
                                         Skeleton &skeleton, const InstanceInfo& instance_info) const
 {
     cv::Mat color_mat(colorFrame.height(), colorFrame.width(), CV_8UC3,
@@ -1072,13 +1074,13 @@ DescriptorPtr PersonReid::feature_joints_surf(ColorFrame &colorFrame, DepthFrame
     cv::cvtColor(color_mat, gray_mat, CV_RGB2GRAY);
     int minHessian = 400;
 
-    shared_ptr<JointSurf> feature = make_shared<JointSurf>(instance_info, colorFrame.getIndex());
+    shared_ptr<RegionDescriptor> feature = make_shared<RegionDescriptor>(instance_info, colorFrame.getIndex());
     /*QSet<SkeletonJoint::JointType> ignore_joints = {SkeletonJoint::JOINT_HEAD,
                                                     SkeletonJoint::JOINT_LEFT_HAND,
                                                     SkeletonJoint::JOINT_RIGHT_HAND};*/
 
-    cv::SurfFeatureDetector detector( minHessian );
-    cv::SurfDescriptorExtractor extractor;
+    cv::FastFeatureDetector detector;//( minHessian );
+    cv::SiftDescriptorExtractor extractor;
 
     for (SkeletonJoint& joint : skeleton.joints()) // I use the skeleton of 15 or 20 joints not the temp one.
     {
@@ -1099,7 +1101,7 @@ DescriptorPtr PersonReid::feature_joints_surf(ColorFrame &colorFrame, DepthFrame
             extractor.compute(gray_mat, keypoints, descriptor);
 
             // Add to the feature
-            feature->addSurfDescriptor(descriptor);
+            feature->addDescriptor(descriptor);
 
             /*cv::Mat img_keypoints;
             cv::drawKeypoints(gray_mat, keypoints, img_keypoints, cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT );
@@ -1109,6 +1111,73 @@ DescriptorPtr PersonReid::feature_joints_surf(ColorFrame &colorFrame, DepthFrame
     }
 
     //colorImageWithVoronoid(colorFrame, *voronoiMask);
+
+    return feature;
+}
+
+DescriptorPtr PersonReid::feature_joint_descriptor(ColorFrame &colorFrame, Skeleton &skeleton, const InstanceInfo& instance_info) const
+{
+    cv::Mat color_mat(colorFrame.height(), colorFrame.width(), CV_8UC3,
+                      (void*) colorFrame.getDataPtr(), colorFrame.getStride());
+
+    // Make up joints
+    Skeleton skeleton_tmp = skeleton; // copy
+    //makeUpJoints(skeleton_tmp, true);
+
+    // Convert image to gray for point detector
+    cv::Mat gray_mat;
+    cv::cvtColor(color_mat, gray_mat, CV_RGB2GRAY);
+
+    QSet<SkeletonJoint::JointType> ignore_joints = {SkeletonJoint::JOINT_HEAD};
+                                                     //SkeletonJoint::JOINT_LEFT_HAND,
+                                                     //SkeletonJoint::JOINT_RIGHT_HAND};
+                                                    //SkeletonJoint::JOINT_LEFT_FOOT,
+                                                    //SkeletonJoint::JOINT_RIGHT_FOOT};
+    vector<cv::Point2f> points;
+
+    // Get Key Points from the Skeleton Joints
+    for (SkeletonJoint& joint : skeleton_tmp.joints())
+    {
+        if (!ignore_joints.contains(joint.getType()))
+        {
+            const Point3f& point_3d = joint.getPosition();
+            cv::Point2f point_2d;
+
+            Skeleton::convertJointCoordinatesToDepth(point_3d[0], point_3d[1], point_3d[2], &point_2d.x, &point_2d.y);
+            point_2d.x = point_2d.x - colorFrame.offset()[0];
+            point_2d.y = point_2d.y - colorFrame.offset()[1];
+
+            // Fix points if they are out of range
+            if (point_2d.x < 0) point_2d.x = 0;
+            else if (point_2d.x >= color_mat.cols) point_2d.x = color_mat.cols - 1;
+            if (point_2d.y < 0) point_2d.y = 0;
+            else if (point_2d.y >= color_mat.rows) point_2d.y = color_mat.rows - 1;
+
+            //qDebug() << joint.getType() << point_2d.x << point_2d.y << color_mat.cols << color_mat.rows;
+            points.push_back(point_2d);
+        }
+    }
+
+    // Convert points to keypoints
+    vector<cv::KeyPoint> key_points;
+    cv::KeyPoint::convert(points, key_points, 16);
+    for (cv::KeyPoint& kp : key_points) {
+        kp.angle = 270.0f;
+    }
+
+    // Calculate descriptor
+    cv::SiftDescriptorExtractor extractor;
+    cv::Mat descriptor;
+    extractor.compute(gray_mat, key_points, descriptor);
+
+    // Add to the feature
+    shared_ptr<RegionDescriptor> feature = make_shared<RegionDescriptor>(instance_info, colorFrame.getIndex());
+    feature->addDescriptor(descriptor);
+
+    /*cv::Mat img_keypoints;
+    cv::drawKeypoints(gray_mat, key_points, img_keypoints, cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT );
+    cv::imshow("points", img_keypoints);
+    cv::waitKey(200);*/
 
     return feature;
 }
@@ -1284,7 +1353,7 @@ void PersonReid::drawJoints(ColorFrame& colorFrame, const QList<SkeletonJoint>& 
 SkeletonJoint PersonReid::getCloserJoint(const Point3f& cloudPoint, const QList<SkeletonJoint>& joints) const
 {
     SkeletonJoint minJoint;
-    float minDistance = 9999999999; //numeric_limits<float>::max();
+    float minDistance = numeric_limits<float>::max();
 
     for (SkeletonJoint joint : joints)
     {
@@ -1376,7 +1445,7 @@ void PersonReid::printClusters(const QList<Cluster<Descriptor> > &clusters) cons
     }
 }
 
-void PersonReid::makeUpJoints(Skeleton& skeleton) const
+void PersonReid::makeUpJoints(Skeleton& skeleton, bool only_middle_points) const
 {
     const Skeleton::SkeletonLimb* limbMap = skeleton.getLimbsMap();
     int user_joint_id = 1;
@@ -1393,28 +1462,35 @@ void PersonReid::makeUpJoints(Skeleton& skeleton) const
         medium_point[1] = joint1.getPosition()[1] + vector[1]/2;
         medium_point[2] = joint1.getPosition()[2] + vector[2]/2;
 
-        // Compute middle point between previous middle point and joint2
-        vector = Point3f::vector(medium_point, joint2.getPosition());
-        Point3f near_joint2_point;
-        near_joint2_point[0] = medium_point[0] + vector[0]/2;
-        near_joint2_point[1] = medium_point[1] + vector[1]/2;
-        near_joint2_point[2] = medium_point[2] + vector[2]/2;
+       // if (only_middle_points) {
+            skeleton.setJoint( (SkeletonJoint::JointType) (SkeletonJoint::JOINT_USER_RESERVED + user_joint_id),
+                               SkeletonJoint(medium_point, joint1.getType()));
+            //user_joint_id++;
+       // }
+       // else {
+            // Compute middle point between previous middle point and joint2
+            vector = Point3f::vector(medium_point, joint2.getPosition());
+            Point3f near_joint2_point;
+            near_joint2_point[0] = medium_point[0] + vector[0]/2;
+            near_joint2_point[1] = medium_point[1] + vector[1]/2;
+            near_joint2_point[2] = medium_point[2] + vector[2]/2;
 
-        // Compute middle point between previous middle point and joint1
-        vector = Point3f::vector(joint1.getPosition(), medium_point);
-        Point3f near_joint1_point;
-        near_joint1_point[0] = joint1.getPosition()[0] + vector[0]/2;
-        near_joint1_point[1] = joint1.getPosition()[1] + vector[1]/2;
-        near_joint1_point[2] = joint1.getPosition()[2] + vector[2]/2;
+            // Compute middle point between previous middle point and joint1
+            vector = Point3f::vector(joint1.getPosition(), medium_point);
+            Point3f near_joint1_point;
+            near_joint1_point[0] = joint1.getPosition()[0] + vector[0]/2;
+            near_joint1_point[1] = joint1.getPosition()[1] + vector[1]/2;
+            near_joint1_point[2] = joint1.getPosition()[2] + vector[2]/2;
 
-        // Add two new joints to the Skeleotn
-        skeleton.setJoint( (SkeletonJoint::JointType) (SkeletonJoint::JOINT_USER_RESERVED + user_joint_id),
-                          SkeletonJoint(near_joint2_point, joint2.getType()));
+            // Add two new joints to the Skeleotn
+            skeleton.setJoint( (SkeletonJoint::JointType) (SkeletonJoint::JOINT_USER_RESERVED + user_joint_id+1),
+                               SkeletonJoint(near_joint2_point, joint2.getType()));
 
-        skeleton.setJoint( (SkeletonJoint::JointType) (SkeletonJoint::JOINT_USER_RESERVED + user_joint_id+1),
-                          SkeletonJoint(near_joint1_point, joint1.getType()));
+            skeleton.setJoint( (SkeletonJoint::JointType) (SkeletonJoint::JOINT_USER_RESERVED + user_joint_id+2),
+                               SkeletonJoint(near_joint1_point, joint1.getType()));
 
-        user_joint_id += 2;
+            user_joint_id += 3;
+        //}
     }
 }
 

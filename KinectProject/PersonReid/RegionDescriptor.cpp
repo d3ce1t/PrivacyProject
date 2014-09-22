@@ -1,21 +1,22 @@
-#include "JointSurf.h"
+#include "RegionDescriptor.h"
 #include <opencv2/nonfree/features2d.hpp>
 #include <QDebug>
+#include <climits>
 
 namespace dai {
 
-JointSurf::JointSurf()
+RegionDescriptor::RegionDescriptor()
 {
 }
 
-JointSurf::JointSurf(const InstanceInfo &label, int frameId)
+RegionDescriptor::RegionDescriptor(const InstanceInfo &label, int frameId)
     : Descriptor(label, frameId)
 {
 }
 
-float JointSurf::distance(const Descriptor& other_desc) const
+float RegionDescriptor::distance(const Descriptor& other_desc) const
 {
-    const JointSurf& other = static_cast<const JointSurf&>(other_desc);
+    const RegionDescriptor& other = static_cast<const RegionDescriptor&>(other_desc);
 
     auto it1 = m_descriptors.constBegin();
     auto it2 = other.m_descriptors.constBegin();
@@ -25,11 +26,12 @@ float JointSurf::distance(const Descriptor& other_desc) const
     {
         if ( !(*it1).empty() && !(*it2).empty() )
         {
-            cv::FlannBasedMatcher matcher;
+            cv::BFMatcher matcher;
+            //cv::FlannBasedMatcher matcher;
             std::vector<cv::DMatch> matches;
             matcher.match(*it1, *it2, matches);
 
-            double max_dist = 0; double min_dist = 100;
+            double max_dist = 0; double min_dist = std::numeric_limits<double>::max();
 
             //-- Quick calculation of max and min distances between keypoints
             for( uint i = 0; i < matches.size(); i++ ) {
@@ -50,25 +52,35 @@ float JointSurf::distance(const Descriptor& other_desc) const
             }
 
             distance += local_distance / good_matches;
-            //qDebug() << "Src.Points" << (*it1).rows << "Dst.Points" << (*it2).rows << "Matches" << matches.size();
+
+            if (good_matches == 0) {
+                qDebug() << "ZERO DIVISION not managed" << min_dist << max_dist << distance << matches.size();
+                throw 1;
+            }
         }
         else {
-            distance += 1.40513f;
+            distance += 1.405f;
         }
 
         ++it1;
         ++it2;
     }
 
+    if (m_descriptors.empty()) {
+        qDebug() <<  "----------------------------------------------";
+        qDebug() << "This should not happen! Descriptors are empty";
+        qDebug() <<  "----------------------------------------------";
+    }
+
     return distance;
 }
 
-bool JointSurf::operator==(const Descriptor& other) const
+bool RegionDescriptor::operator==(const Descriptor& other) const
 {
     return true;
 }
 
-void JointSurf::addSurfDescriptor(const cv::Mat& descriptor)
+void RegionDescriptor::addDescriptor(const cv::Mat& descriptor)
 {
     m_descriptors << descriptor;
 }
