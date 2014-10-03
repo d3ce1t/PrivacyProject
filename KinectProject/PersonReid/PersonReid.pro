@@ -24,13 +24,15 @@ HEADERS += \
     Descriptor.h \
     JointHistograms.h \
     DistancesFeature.h \
-    RegionDescriptor.h
+    RegionDescriptor.h \
+    DescriptorSet.h
 
 SOURCES += main.cpp \
     PersonReid.cpp \
     Descriptor.cpp \
     DistancesFeature.cpp \
-    RegionDescriptor.cpp
+    RegionDescriptor.cpp \
+    DescriptorSet.cpp
 
 
 unix:!macx {

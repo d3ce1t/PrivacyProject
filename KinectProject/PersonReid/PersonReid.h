@@ -41,6 +41,9 @@ public:
     // Features
     DescriptorPtr feature_2parts_hist(shared_ptr<ColorFrame> colorFrame, const InstanceInfo& instance_info) const;
 
+    DescriptorPtr feature_fusion(ColorFrame &colorFrame, DepthFrame &depthFrame, MaskFrame &maskFrame,
+                                            Skeleton &skeleton, const InstanceInfo& instance_info) const;
+
     DescriptorPtr feature_joints_hist(ColorFrame &colorFrame, DepthFrame &depthFrame, MaskFrame &maskFrame,
                                             Skeleton &skeleton, const InstanceInfo& instance_info) const;
 

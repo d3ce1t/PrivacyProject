@@ -22,6 +22,7 @@
 #include "JointHistograms.h"
 #include "DistancesFeature.h"
 #include "RegionDescriptor.h"
+#include "DescriptorSet.h"
 
 
 namespace dai {
@@ -693,6 +694,7 @@ QList<DescriptorPtr> PersonReid::train_DAI4REID_Parsed(QList<int> actors)
             //DescriptorPtr feature = feature_region_descriptor(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
             //DescriptorPtr feature = feature_skeleton_distances(*colorFrame, *skeleton, *instance_info);
             DescriptorPtr feature = feature_joint_descriptor(*colorFrame, *skeleton, *instance_info);
+            //DescriptorPtr feature = feature_fusion(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
 
             //qDebug() << feature->sizeInBytes();
 
@@ -791,6 +793,7 @@ QVector<float> PersonReid::validate_DAI4REID_Parsed(const QList<int> &actors, co
         //DescriptorPtr query = feature_region_descriptor(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
         //DescriptorPtr query = feature_skeleton_distances(*colorFrame, *skeleton, *instance_info);
         DescriptorPtr query = feature_joint_descriptor(*colorFrame, *skeleton, *instance_info);
+        //DescriptorPtr query = feature_fusion(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
 
         if (query) {
             // CMC
@@ -1011,6 +1014,24 @@ void PersonReid::print_results(const QVector<float> &results) const
     }
 }
 
+DescriptorPtr PersonReid::feature_fusion(ColorFrame &colorFrame, DepthFrame &depthFrame, MaskFrame &maskFrame,
+                                        Skeleton &skeleton, const InstanceInfo& instance_info) const
+{
+    shared_ptr<DescriptorSet> feature = make_shared<DescriptorSet>(instance_info, colorFrame.getIndex());
+
+    //DescriptorPtr joints_hist = feature_joints_hist(colorFrame, depthFrame, maskFrame, skeleton, instance_info);
+    DescriptorPtr skeleton_distances = feature_skeleton_distances(colorFrame, skeleton, instance_info);
+    DescriptorPtr joint_desc = feature_joint_descriptor(colorFrame, skeleton, instance_info);
+    DescriptorPtr region_desc = feature_region_descriptor(colorFrame, depthFrame, maskFrame, skeleton, instance_info);
+
+    //feature->addDescriptor(joints_hist);
+    feature->addDescriptor(skeleton_distances);
+    feature->addDescriptor(joint_desc);
+    feature->addDescriptor(region_desc);
+
+    return feature;
+}
+
 DescriptorPtr PersonReid::feature_joints_hist(ColorFrame& colorFrame, DepthFrame& depthFrame,
                                            MaskFrame&  maskFrame, Skeleton& skeleton, const InstanceInfo &instance_info) const
 {
@@ -1025,9 +1046,6 @@ DescriptorPtr PersonReid::feature_joints_hist(ColorFrame& colorFrame, DepthFrame
 
     cv::Mat voronoi_mat(voronoiMask->height(), voronoiMask->width(), CV_8UC1,
                       (void*) voronoiMask->getDataPtr(), voronoiMask->getStride());
-
-    // Convert image to 256 colors using a color Palette with 8-8-4 levels
-    //cv::Mat indexed_mat = dai::convertRGB2Indexed884(color_mat);
 
     // Convert image to HSV
     cv::Mat hsv_mat;
@@ -1079,8 +1097,8 @@ DescriptorPtr PersonReid::feature_region_descriptor(ColorFrame &colorFrame, Dept
                                                     SkeletonJoint::JOINT_LEFT_HAND,
                                                     SkeletonJoint::JOINT_RIGHT_HAND};*/
 
-    cv::FastFeatureDetector detector;//( minHessian );
-    cv::SiftDescriptorExtractor extractor;
+    cv::SurfFeatureDetector detector;//( minHessian );
+    cv::SurfDescriptorExtractor extractor;
 
     for (SkeletonJoint& joint : skeleton.joints()) // I use the skeleton of 15 or 20 joints not the temp one.
     {
@@ -1122,17 +1140,27 @@ DescriptorPtr PersonReid::feature_joint_descriptor(ColorFrame &colorFrame, Skele
 
     // Make up joints
     Skeleton skeleton_tmp = skeleton; // copy
-    //makeUpJoints(skeleton_tmp, true);
+    makeUpJoints(skeleton_tmp, false);
 
     // Convert image to gray for point detector
     cv::Mat gray_mat;
     cv::cvtColor(color_mat, gray_mat, CV_RGB2GRAY);
 
-    QSet<SkeletonJoint::JointType> ignore_joints = {SkeletonJoint::JOINT_HEAD};
-                                                     //SkeletonJoint::JOINT_LEFT_HAND,
-                                                     //SkeletonJoint::JOINT_RIGHT_HAND};
-                                                    //SkeletonJoint::JOINT_LEFT_FOOT,
-                                                    //SkeletonJoint::JOINT_RIGHT_FOOT};
+    QSet<SkeletonJoint::JointType> ignore_joints = {//SkeletonJoint::JOINT_HEAD,
+                                                    SkeletonJoint::JOINT_CENTER_SHOULDER,
+                                                    //SkeletonJoint::JOINT_LEFT_SHOULDER,
+                                                    //SkeletonJoint::JOINT_RIGHT_SHOULDER,
+                                                    //SkeletonJoint::JOINT_LEFT_ELBOW,
+                                                    //SkeletonJoint::JOINT_RIGHT_ELBOW,
+                                                    SkeletonJoint::JOINT_LEFT_HAND,
+                                                    SkeletonJoint::JOINT_RIGHT_HAND,
+                                                    //SkeletonJoint::JOINT_SPINE,
+                                                    //SkeletonJoint::JOINT_LEFT_HIP,
+                                                    //SkeletonJoint::JOINT_RIGHT_HIP,
+                                                    //SkeletonJoint::JOINT_LEFT_KNEE,
+                                                    //SkeletonJoint::JOINT_RIGHT_KNEE,
+                                                    SkeletonJoint::JOINT_LEFT_FOOT,
+                                                    SkeletonJoint::JOINT_RIGHT_FOOT};
     vector<cv::Point2f> points;
 
     // Get Key Points from the Skeleton Joints
@@ -1462,12 +1490,12 @@ void PersonReid::makeUpJoints(Skeleton& skeleton, bool only_middle_points) const
         medium_point[1] = joint1.getPosition()[1] + vector[1]/2;
         medium_point[2] = joint1.getPosition()[2] + vector[2]/2;
 
-       // if (only_middle_points) {
+        if (only_middle_points) {
             skeleton.setJoint( (SkeletonJoint::JointType) (SkeletonJoint::JOINT_USER_RESERVED + user_joint_id),
                                SkeletonJoint(medium_point, joint1.getType()));
-            //user_joint_id++;
-       // }
-       // else {
+            user_joint_id++;
+        }
+        else {
             // Compute middle point between previous middle point and joint2
             vector = Point3f::vector(medium_point, joint2.getPosition());
             Point3f near_joint2_point;
@@ -1483,14 +1511,14 @@ void PersonReid::makeUpJoints(Skeleton& skeleton, bool only_middle_points) const
             near_joint1_point[2] = joint1.getPosition()[2] + vector[2]/2;
 
             // Add two new joints to the Skeleotn
-            skeleton.setJoint( (SkeletonJoint::JointType) (SkeletonJoint::JOINT_USER_RESERVED + user_joint_id+1),
+            skeleton.setJoint( (SkeletonJoint::JointType) (SkeletonJoint::JOINT_USER_RESERVED + user_joint_id),
                                SkeletonJoint(near_joint2_point, joint2.getType()));
 
-            skeleton.setJoint( (SkeletonJoint::JointType) (SkeletonJoint::JOINT_USER_RESERVED + user_joint_id+2),
+            skeleton.setJoint( (SkeletonJoint::JointType) (SkeletonJoint::JOINT_USER_RESERVED + user_joint_id+1),
                                SkeletonJoint(near_joint1_point, joint1.getType()));
 
-            user_joint_id += 3;
-        //}
+            user_joint_id += 2;
+        }
     }
 }
 
