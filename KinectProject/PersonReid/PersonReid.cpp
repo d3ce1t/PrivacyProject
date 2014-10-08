@@ -645,7 +645,7 @@ QList<DescriptorPtr> PersonReid::create_gallery_DAI4REID_Parsed()
 QList<DescriptorPtr> PersonReid::train_DAI4REID_Parsed(QList<int> actors)
 {
     Dataset* dataset = new DAI4REID_Parsed;
-    dataset->setPath("C:/datasets/DAI4REID/parse_subset");
+    dataset->setPath("/mnt/files2/datasets/DAI4REID/parse_subset");
     const DatasetMetadata& metadata = dataset->getMetadata();
 
     //QList<shared_ptr<Feature>> samples;
@@ -747,7 +747,7 @@ QList<DescriptorPtr> PersonReid::train_DAI4REID_Parsed(QList<int> actors)
 QVector<float> PersonReid::validate_DAI4REID_Parsed(const QList<int> &actors, const QList<DescriptorPtr>& gallery, int *num_tests)
 {
     Dataset* dataset = new DAI4REID_Parsed;
-    dataset->setPath("C:/datasets/DAI4REID/parse_subset");
+    dataset->setPath("/mnt/files2/datasets/DAI4REID/parse_subset");
     const DatasetMetadata& metadata = dataset->getMetadata();
     int total_tests = 0;
 

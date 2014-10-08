@@ -14,7 +14,9 @@ CONFIG   += link_prl
 CONFIG += c++11
 
 # Fix for Qt 5.3.1 on VS 2013 compiler, because Qt does not define a macro for this compiler
-DEFINES += Q_COMPILER_INITIALIZER_LISTS
+win32 {
+    DEFINES += Q_COMPILER_INITIALIZER_LISTS
+}
 
 TEMPLATE  = app
 

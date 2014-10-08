@@ -7,7 +7,9 @@ CONFIG += link_prl
 CONFIG += c++11
 
 # Fix for Qt 5.3.1 on VS 2013 compiler, because Qt does not define a macro for this compiler
-DEFINES += Q_COMPILER_INITIALIZER_LISTS
+win32 {
+    DEFINES += Q_COMPILER_INITIALIZER_LISTS
+}
 
 HEADERS += \
     MainWindow.h \
@@ -49,6 +51,16 @@ unix:!macx {
     INCLUDEPATH += $$PWD/../CoreLib
     DEPENDPATH += $$PWD/../CoreLib
 
+    # OpenNI2
+    LIBS += -L/opt/OpenNI-Linux-x64-2.2/Tools/ -lOpenNI2
+    INCLUDEPATH += /opt/OpenNI-Linux-x64-2.2/Include
+    DEPENDPATH += /opt/OpenNI-Linux-x64-2.2/Include
+
+    # NiTE2
+    LIBS += -L/opt/NiTE-Linux-x64-2.2/Redist/ -lNiTE2
+    INCLUDEPATH += /opt/NiTE-Linux-x64-2.2/Include
+    DEPENDPATH += /opt/NiTE-Linux-x64-2.2/Include
+
     # Ogre
     CONFIG += link_pkgconfig
     PKGCONFIG += OGRE
@@ -57,9 +69,9 @@ unix:!macx {
     LIBS += -lboost_system
 
     # OpenCV2
-    LIBS += -lopencv_core -lopencv_imgproc
-    INCLUDEPATH += /usr/include/opencv/
-    DEPENDPATH += /usr/include/opencv/
+    INCLUDEPATH += $$(OPENCV2_INCLUDE)
+    DEPENDPATH += $$(OPENCV2_INCLUDE)
+    LIBS += -L$$(OPENCV2_LIB) -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_objdetect -lopencv_photo -lopencv_features2d -lopencv_nonfree -lopencv_flann
 }
 
 win32 {
@@ -121,8 +133,8 @@ win32 {
     else:CONFIG(debug, debug|release):LIBS += -L$$(OPENCV2_LIB) -lopencv_core249d -lopencv_imgproc249d -lopencv_highgui249d -lopencv_objdetect249d -lopencv_photo249d
 }
 
-CONFIG(release, debug|release): DESTDIR = $$OUT_PWD/release
-else:CONFIG(debug, debug|release): DESTDIR = $$OUT_PWD/debug
+CONFIG(release, debug|release): DESTDIR = $$OUT_PWD
+else:CONFIG(debug, debug|release): DESTDIR = $$OUT_PWD
 
 # Install Linux Files
 unix:!macx {

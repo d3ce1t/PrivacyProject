@@ -14,7 +14,9 @@ CONFIG += create_prl
 CONFIG += c++11
 
 # Fix for Qt 5.3.1 on VS 2013 compiler, because Qt does not define a macro for this compiler
-DEFINES += Q_COMPILER_INITIALIZER_LISTS
+win32 {
+    DEFINES += Q_COMPILER_INITIALIZER_LISTS
+}
 
 SOURCES += \
     types/SkeletonJoint.cpp \
@@ -150,6 +152,11 @@ unix:!macx {
     LIBS += -L/opt/NiTE-Linux-x64-2.2/Redist/ -lNiTE2
     INCLUDEPATH += /opt/NiTE-Linux-x64-2.2/Include
     DEPENDPATH += /opt/NiTE-Linux-x64-2.2/Include
+
+    # OpenCV2
+    INCLUDEPATH += $$(OPENCV2_INCLUDE)
+    DEPENDPATH += $$(OPENCV2_INCLUDE)
+    LIBS += -L$$(OPENCV2_LIB) -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_objdetect -lopencv_photo
 }
 
 win32 {

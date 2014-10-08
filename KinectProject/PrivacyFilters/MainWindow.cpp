@@ -13,7 +13,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {   
     ui->setupUi(this);
     m_playback.setFPS(25);
-    m_device = dai::OpenNIDevice::create("C:/opt/captures/PrimeSense Short-Range (1.09) - 1 user.oni");
+    m_device = dai::OpenNIDevice::create("/mnt/files2/capture/PrimeSense Short-Range (1.09) - 1 user.oni");
     //m_device = dai::OpenNIDevice::create();
     //m_device = dai::OpenNIDevice::create("C:/datasets/HuDaAct/S5_C4_U10_BG.oni");
     //m_device = dai::OpenNIDevice::create("C:/datasets/HuDaAct/S14_C12_U30_D1.oni");

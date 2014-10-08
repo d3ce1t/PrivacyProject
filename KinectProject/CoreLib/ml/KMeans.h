@@ -7,6 +7,7 @@
 #include <QList>
 #include <QVector>
 #include <QElapsedTimer>
+#include <QDebug>
 
 namespace dai {
 

@@ -16,7 +16,9 @@ CONFIG += c++11
 TEMPLATE = app
 
 # Fix for Qt 5.3.1 on VS 2013 compiler, because Qt does not define a macro for this compiler
-DEFINES += Q_COMPILER_INITIALIZER_LISTS
+win32 {
+    DEFINES += Q_COMPILER_INITIALIZER_LISTS
+}
 
 
 HEADERS += \
@@ -41,6 +43,21 @@ unix:!macx {
     PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/libCoreLib.a
     INCLUDEPATH += $$PWD/../CoreLib
     DEPENDPATH += $$PWD/../CoreLib
+
+    # OpenNI2
+    LIBS += -L/opt/OpenNI-Linux-x64-2.2/Tools/ -lOpenNI2
+    INCLUDEPATH += /opt/OpenNI-Linux-x64-2.2/Include
+    DEPENDPATH += /opt/OpenNI-Linux-x64-2.2/Include
+
+    # NiTE2
+    LIBS += -L/opt/NiTE-Linux-x64-2.2/Redist/ -lNiTE2
+    INCLUDEPATH += /opt/NiTE-Linux-x64-2.2/Include
+    DEPENDPATH += /opt/NiTE-Linux-x64-2.2/Include
+
+    # OpenCV2
+    INCLUDEPATH += $$(OPENCV2_INCLUDE)
+    DEPENDPATH += $$(OPENCV2_INCLUDE)
+    LIBS += -L$$(OPENCV2_LIB) -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_objdetect -lopencv_photo -lopencv_features2d -lopencv_nonfree -lopencv_flann
 }
 
 win32 {
