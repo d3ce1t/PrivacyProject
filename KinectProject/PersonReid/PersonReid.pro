@@ -16,9 +16,9 @@ CONFIG += c++11
 TEMPLATE = app
 
 # Fix for Qt 5.3.1 on VS 2013 compiler, because Qt does not define a macro for this compiler
-win32 {
-    DEFINES += Q_COMPILER_INITIALIZER_LISTS
-}
+#win32 {
+#    DEFINES += Q_COMPILER_INITIALIZER_LISTS
+#}
 
 
 HEADERS += \
