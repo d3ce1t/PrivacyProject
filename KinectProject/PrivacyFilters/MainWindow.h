@@ -15,6 +15,13 @@ class MainWindow;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
+
+    dai::OpenNIDevice*    m_device;
+    dai::PlaybackControl  m_playback;
+    dai::PrivacyFilter    m_privacyFilter;
+    //dai::DepthFilter      m_depthFilter;
+    Ui::MainWindow *ui;
+    QString m_configFile;
     
 public:
     explicit MainWindow(QWidget *parent = 0);
@@ -27,13 +34,6 @@ private slots:
     void onSpaceKeyPressed();
     void on_btnStartKinect_clicked();
     void on_btnQuit_clicked();
-
-private:
-    dai::OpenNIDevice*    m_device;
-    dai::PlaybackControl  m_playback;
-    dai::PrivacyFilter    m_privacyFilter;
-    //dai::DepthFilter      m_depthFilter;
-    Ui::MainWindow *ui;
 };
 
 #endif // MAINWINDOW_H

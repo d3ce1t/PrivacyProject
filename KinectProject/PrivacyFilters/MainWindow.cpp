@@ -4,19 +4,55 @@
 #include "openni/OpenNIColorInstance.h"
 #include "openni/OpenNIUserTrackerInstance.h"
 #include <QElapsedTimer>
+#include <QSettings>
+#include <QFileDialog>
 
 using namespace std;
 
 MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    QMainWindow(parent)
+  , ui(new Ui::MainWindow)
 {   
     ui->setupUi(this);
     m_playback.setFPS(25);
-    m_device = dai::OpenNIDevice::create("/mnt/files/capture/PrimeSense Short-Range (1.09) - 1 user.oni");
-    //m_device = dai::OpenNIDevice::create();
-    //m_device = dai::OpenNIDevice::create("C:/datasets/HuDaAct/S5_C4_U10_BG.oni");
-    //m_device = dai::OpenNIDevice::create("C:/datasets/HuDaAct/S14_C12_U30_D1.oni");
+
+    // load settings
+    m_configFile = QApplication::applicationDirPath() + "/config.ini";
+    QSettings settings(m_configFile, QSettings::IniFormat);
+    ui->linePath->setText( settings.value("General/device").toString() );
+    ui->checkUseConnected->setChecked( settings.value("General/live").toBool() );
+
+    if (ui->linePath->text().isEmpty()) {
+        ui->checkUseConnected->setChecked(true);
+    }
+
+    ui->linePath->setDisabled( ui->checkUseConnected->isChecked() );
+
+    // Save "Use connected device" setting
+    connect(ui->checkUseConnected, &QCheckBox::stateChanged, [=](int state) {
+        bool isLive = state == Qt::Checked;
+        QSettings settings(m_configFile, QSettings::IniFormat);
+        settings.beginGroup("General");
+        settings.setValue("live", isLive);
+        settings.endGroup();
+        ui->linePath->setDisabled(isLive);
+    });
+
+    // Save "ONI file path" setting
+    connect(ui->btnOpenBrowser, &QPushButton::clicked, [=]() {
+        QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),
+                                                        "/home",
+                                                        tr("OpenNI Capture (*.oni)"));
+        if (!fileName.isEmpty()) {
+            ui->linePath->setText(fileName);
+            // Save file config
+            QSettings settings(m_configFile, QSettings::IniFormat);
+            settings.beginGroup("General");
+            settings.setValue("device", fileName);
+            //settings.setValue("live", ui->checkUseConnected->isChecked());
+            settings.endGroup();
+        }
+    });
 }
 
 MainWindow::~MainWindow()
@@ -27,6 +63,12 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_btnStartKinect_clicked()
 {
+    // Setup device
+    if (ui->checkUseConnected->isChecked())
+        m_device = dai::OpenNIDevice::create();
+    else
+        m_device = dai::OpenNIDevice::create(ui->linePath->text());
+
     // Create instances
     shared_ptr<dai::OpenNIColorInstance> colorInstance =
             make_shared<dai::OpenNIColorInstance>(m_device);
