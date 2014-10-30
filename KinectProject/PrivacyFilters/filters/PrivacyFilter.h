@@ -51,38 +51,12 @@ protected:
     void freeResources();
 
 private:
-    void approach1(QHashDataFrames& frames);
-    void approach2(QHashDataFrames& frames);
-    void approach3(QHashDataFrames& frames);
-    void approach4(QHashDataFrames& frames);
-    void approach5(QHashDataFrames& frames);
-    void approach6(QHashDataFrames& frames);
     void dilateUserMask(uint8_t *labels);
-
 
     template <typename T, int N>
     static bool compare(const cv::Mat& inputImg, const QList<Point<T,N>>& point_list, const cv::Mat& mask = cv::Mat());
 
     std::vector<cv::Rect> faceDetection(cv::Mat frameGray, bool equalised = false);
-
-    template <class T, int N>
-    void printHistogram(const Histogram<T, N>& hist, int n_elems = 0) const;
-
-    template <class T>
-    void create2DCoordImage(cv::Mat input_img, cv::Mat& output_img, int size[], float input_range[],
-                            bool init_output = false, cv::Vec3b color = cv::Vec3b(255, 255, 255)) const;
-
-    template <class T>
-    void create2DCoordImage(const QList<Histogram2D<T>*>& hist_list, int n_items, const QList<cv::Vec3b>& color_list,
-                            cv::Mat& output_img, float input_range[]) const;
-
-    void create2DCoordImage(const QList< QList<Point2f>* >& input_list, const QList<cv::Vec3b>& color_list,
-                            cv::Mat& output_img, float input_range[]) const;
-
-    template <class T>
-    void create2DColorPalette(const QList<const HistBin3D<T>*>& upper_hist, const QList<const HistBin3D<T>*>& lower_hist, cv::Mat& output_img) const;
-
-    cv::Mat createMask(cv::Mat input_img, int min_value, int *nonzero_counter = nullptr, bool filter = false) const;
 };
 
 } // End Namespace

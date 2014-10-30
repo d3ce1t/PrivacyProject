@@ -20,6 +20,12 @@ public:
     void test1();
     void test2();
     void test3();
+    void approach1(QHashDataFrames& frames);
+    void approach2(QHashDataFrames& frames);
+    void approach3(QHashDataFrames& frames);
+    void approach4(QHashDataFrames& frames);
+    void approach5(QHashDataFrames& frames);
+    void approach6(QHashDataFrames& frames);
     void parseDataset();
 
     // DAI4REID

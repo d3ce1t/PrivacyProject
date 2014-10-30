@@ -663,6 +663,171 @@ QList<Point<T,N>> samplingAsList(const cv::Mat& inputImg, const cv::Mat& mask = 
     return result;
 }
 
+template <class T>
+void create2DCoordImage(cv::Mat input_img, cv::Mat& output_img, int size[], float input_range[], bool init_output, cv::Vec3b color)
+{
+    Q_ASSERT(input_img.channels() == 2);
+    Q_ASSERT( init_output == true || (output_img.rows == size[0] && output_img.cols == size[1]) );
+
+    using namespace cv;
+
+    if (init_output)
+        output_img = Mat::zeros(size[0], size[1], CV_8UC3);
+
+    for (int i=0; i<input_img.rows; ++i)
+    {
+        T* pixel = input_img.ptr<T>(i);
+
+        for (int j=0; j<input_img.cols; ++j)
+        {
+            float coord_y = dai::normalise<float>(pixel[j][0], input_range[0], input_range[1], 0, size[0]);
+            float coord_x = dai::normalise<float>(pixel[j][1], input_range[0], input_range[1], 0, size[1]);
+            output_img.at<Vec3b>(coord_y, coord_x) = color;
+        }
+    }
+}
+
+template <class T>
+void create2DCoordImage(const QList<Histogram2D<T>*>& hist_list, int n_items, const QList<cv::Vec3b> &color_list, cv::Mat& output_img,
+                                       float input_range[])
+{
+    Q_ASSERT(hist_list.size() == color_list.size());
+
+    using namespace cv;
+
+    const int width = 400;
+    const int height = 400;
+
+    output_img = Mat(height, width, CV_8UC3, Scalar(0,0,0));
+
+    int color_idx = 0;
+
+    for (auto it = hist_list.constBegin(); it != hist_list.constEnd(); ++it)
+    {
+        Vec3b color = color_list.at(color_idx);
+        auto items = (*it)->higherFreqBins(n_items);
+
+        foreach (auto item, items)
+        {
+            float coord_y = dai::normalise<T>(item->point[0], input_range[0], input_range[1], 0, height);
+            float coord_x = dai::normalise<T>(item->point[1], input_range[0], input_range[1], 0, width);
+            output_img.at<Vec3b>(coord_y, coord_x) = color;
+        }
+
+        ++color_idx;
+    }
+}
+
+void create2DCoordImage(const QList<QList<Point2f>*> &input_list, const QList<cv::Vec3b>& color_list,
+                                       cv::Mat& output_img, float input_range[])
+{
+    Q_ASSERT(input_list.size() == color_list.size());
+
+    using namespace cv;
+
+    const int width = 500;
+    const int height = 500;
+
+    output_img = Mat(height, width, CV_8UC3, Scalar(0,0,0));
+
+    int color_idx = 0;
+
+    for (auto it = input_list.constBegin(); it != input_list.constEnd(); ++it)
+    {
+        Vec3b color = color_list.at(color_idx);
+        QList<Point2f>* items = *it;
+
+        foreach (auto point, *items)
+        {
+            float coord_x = dai::normalise<float>(point[0], input_range[0], input_range[1], 0, width);
+            float coord_y = dai::normalise<float>(point[1], input_range[0], input_range[1], 0, height);
+            output_img.at<Vec3b>(coord_y, coord_x) = color;
+        }
+
+        ++color_idx;
+    }
+}
+
+template <class T>
+void create2DColorPalette(const QList<const HistBin3D<T>*>& upper_hist, const QList<const HistBin3D<T>*>& lower_hist, cv::Mat& output_img)
+{
+    using namespace cv;
+
+    int width = 400;
+    int height = 400;
+    const int num_items = dai::max<int>(upper_hist.size(), lower_hist.size());
+
+    int size = cvCeil(std::sqrt(num_items * 2));
+    int size_offset = size % 2;
+
+    const int num_rows = size + size_offset;
+    const int num_cols = num_rows;
+    const int total_cells = num_rows * num_cols;
+    float color_height = float(height) / num_rows;
+    float color_width = float(width) / num_cols;
+    int row = 0, col = 0;
+
+    output_img = Mat::zeros(height, width, CV_8UC3);
+
+    for (int i=0; i<400; ++i)
+    {
+        Vec3b* pixel = output_img.ptr<Vec3b>(i);
+        row = i / color_height;
+
+        for (int j=0; j<400; ++j)
+        {
+            col = j / color_width;
+
+            if (row < num_rows / 2) {
+                int offset = row * num_rows + col;
+                if (offset < upper_hist.size()) {
+                    const HistBin3D<T>* item = upper_hist.at(offset);
+                    pixel[j][0] = item->point[0]; // Y Blue
+                    pixel[j][1] = item->point[1]; // u Green
+                    pixel[j][2] = item->point[2]; // v Red
+                }
+            } else {
+                int offset = (row * num_rows + col) - (total_cells / 2);
+                if (offset < lower_hist.size()) {
+                    const HistBin3D<T>* item = lower_hist.at(offset);
+                    pixel[j][0] = item->point[0]; // Y Blue
+                    pixel[j][1] = item->point[1]; // u Green
+                    pixel[j][2] = item->point[2]; // v Red
+                }
+            }
+        }
+    }
+}
+
+cv::Mat createMask(cv::Mat input_img, int min_value, int* nonzero_counter, bool filter)
+{
+    using namespace cv;
+
+    Mat output_mask = Mat::zeros(input_img.rows, input_img.cols, CV_8UC1);
+    int counter = 0;
+
+    for (int i=0; i<input_img.rows; ++i)
+    {
+        float* pixel = input_img.ptr<float>(i);
+
+        for (int j=0; j<input_img.cols; ++j)
+        {
+            if (pixel[j] > min_value) {
+                output_mask.at<uchar>(i, j) = 1;
+                counter++;
+            } else if (filter){
+                pixel[j] = 0;
+            }
+        }
+    }
+
+    if (nonzero_counter)
+        *nonzero_counter = counter;
+
+    return output_mask;
+}
+
+
 } // End Namespace
 
 #endif // OPENCV_UTILS_H
