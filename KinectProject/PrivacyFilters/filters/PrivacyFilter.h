@@ -28,23 +28,21 @@ class PrivacyFilter : public FrameListener, public FrameGenerator
     OgreScene* m_ogreScene;
     QOpenGLFramebufferObject* m_fboDisplay;
     ColorFilter m_filter;
-    cv::Mat newSpace;
-    QImage myImage;
     QFile m_file;
     QTextStream m_out;
     bool m_make_capture;
-    //cv::CascadeClassifier m_face_cascade;
+    cv::CascadeClassifier m_face_cascade;
 
 public:
     PrivacyFilter();
     ~PrivacyFilter();
-    void initialise();
     void newFrames(const QHashDataFrames dataFrames) override;
     void enableFilter(ColorFilter filterType);
     void captureImage();
     ControlWindow m_control;
 
 protected:
+    void initialise();
     void afterStop() override;
     shared_ptr<QHashDataFrames> allocateMemory() override;
     void produceFrames(QHashDataFrames& output) override;
@@ -52,10 +50,7 @@ protected:
 
 private:
     void dilateUserMask(uint8_t *labels);
-
-    template <typename T, int N>
-    static bool compare(const cv::Mat& inputImg, const QList<Point<T,N>>& point_list, const cv::Mat& mask = cv::Mat());
-
+    std::vector<cv::Rect> faceDetection(shared_ptr<ColorFrame> frame);
     std::vector<cv::Rect> faceDetection(cv::Mat frameGray, bool equalised = false);
 };
 

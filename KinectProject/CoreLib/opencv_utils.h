@@ -827,6 +827,52 @@ cv::Mat createMask(cv::Mat input_img, int min_value, int* nonzero_counter, bool 
     return output_mask;
 }
 
+template <typename T, int N>
+bool compare(const cv::Mat& inputImg, const QList<Point<T,N>>& point_list, const cv::Mat& mask)
+{
+    Q_ASSERT( (mask.rows == 0 && mask.cols == 0) || (mask.rows == inputImg.rows && mask.cols == inputImg.cols) );
+
+    auto it = point_list.constBegin();
+    bool useMask = mask.rows > 0 && mask.cols > 0;
+    bool equal = true;
+
+    if (useMask) {
+        if ( count_pixels_nz<uchar>(mask) != point_list.size())
+            return false;
+    } else {
+        if (inputImg.rows * inputImg.cols != point_list.size())
+            return false;
+    }
+
+    for (int i=0; i<inputImg.rows; ++i)
+    {
+        const cv::Vec<T,N>* pixel = inputImg.ptr<cv::Vec<T,N>>(i);
+        const uchar* pMask = useMask ? mask.ptr<uchar>(i) : nullptr;
+
+        for (int j=0; j<inputImg.cols; ++j)
+        {
+            if (useMask && pMask[j] <= 0)
+                continue;
+
+            const Point<T,N>& point = *it;
+            int k = 0;
+
+            while (k < N && equal)
+            {
+                equal = point[k] == pixel[j][k];
+                ++k;
+            }
+
+            ++it;
+            if (!equal) break;
+        }
+
+        if (!equal) break;
+    }
+
+    return equal;
+}
+
 
 } // End Namespace
 

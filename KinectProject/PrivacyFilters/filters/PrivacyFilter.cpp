@@ -50,8 +50,8 @@ PrivacyFilter::PrivacyFilter()
 
     // haarcascade_frontalface_default
     // haarcascade_frontalface_alt.xml
-    /*if (!m_face_cascade.load("haarcascade_frontalface_alt.xml"))
-        qDebug() << "Error loading cascades";*/
+    if (!m_face_cascade.load("haarcascade_frontalface_alt.xml"))
+        qDebug() << "Error loading cascades";
 }
 
 PrivacyFilter::~PrivacyFilter()
@@ -244,6 +244,16 @@ void PrivacyFilter::produceFrames(QHashDataFrames &output)
     m_gles->glReadPixels(0,0, m_fboDisplay->width(), m_fboDisplay->height(), GL_RGB, GL_UNSIGNED_BYTE,
                          (GLvoid*) colorFrame->getDataPtr());
 
+    // Face detection
+    std::vector<cv::Rect> faces = faceDetection(colorFrame);
+
+    cv::Mat color_mat(colorFrame->height(), colorFrame->width(), CV_8UC3,
+                      (void*) colorFrame->getDataPtr(), colorFrame->getStride());
+
+    for (size_t i = 0; i < faces.size(); i++) {
+        cv::rectangle(color_mat, faces[i], cv::Scalar(255, 255, 0));
+    }
+
     // Save color as JPEG
     if (m_make_capture) {
         static int capture_id = 1;
@@ -274,54 +284,6 @@ void PrivacyFilter::enableFilter(ColorFilter filterType)
     m_filter = filterType;
 }
 
-
-
-template <typename T, int N>
-bool PrivacyFilter::compare(const cv::Mat& inputImg, const QList<Point<T,N>>& point_list, const cv::Mat& mask)
-{
-    Q_ASSERT( (mask.rows == 0 && mask.cols == 0) || (mask.rows == inputImg.rows && mask.cols == inputImg.cols) );
-
-    auto it = point_list.constBegin();
-    bool useMask = mask.rows > 0 && mask.cols > 0;
-    bool equal = true;
-
-    if (useMask) {
-        if ( count_pixels_nz<uchar>(mask) != point_list.size())
-            return false;
-    } else {
-        if (inputImg.rows * inputImg.cols != point_list.size())
-            return false;
-    }
-
-    for (int i=0; i<inputImg.rows; ++i)
-    {
-        const cv::Vec<T,N>* pixel = inputImg.ptr<cv::Vec<T,N>>(i);
-        const uchar* pMask = useMask ? mask.ptr<uchar>(i) : nullptr;
-
-        for (int j=0; j<inputImg.cols; ++j)
-        {
-            if (useMask && pMask[j] <= 0)
-                continue;
-
-            const Point<T,N>& point = *it;
-            int k = 0;
-
-            while (k < N && equal)
-            {
-                equal = point[k] == pixel[j][k];
-                ++k;
-            }
-
-            ++it;
-            if (!equal) break;
-        }
-
-        if (!equal) break;
-    }
-
-    return equal;
-}
-
 void PrivacyFilter::dilateUserMask(uint8_t *labels)
 {
     int dilationSize = 18;
@@ -330,6 +292,21 @@ void PrivacyFilter::dilateUserMask(uint8_t *labels)
                                                cv::Size(2*dilationSize + 1, 2*dilationSize+1),
                                                cv::Point( dilationSize, dilationSize ) );
     cv::dilate(newImag, newImag, kernel);
+}
+
+std::vector<cv::Rect> PrivacyFilter::faceDetection(shared_ptr<ColorFrame> frame)
+{
+    Q_ASSERT(frame != nullptr);
+
+    using namespace cv;
+
+    Mat color_mat(frame->height(), frame->width(), CV_8UC3,
+                      (void*) frame->getDataPtr(), frame->getStride());
+
+    Mat gray_mat;
+    cvtColor(color_mat, gray_mat, CV_RGB2GRAY);
+    equalizeHist(gray_mat, gray_mat);
+    return faceDetection(gray_mat, true);
 }
 
 std::vector<cv::Rect> PrivacyFilter::faceDetection(cv::Mat frameGray, bool equalised)
@@ -342,7 +319,7 @@ std::vector<cv::Rect> PrivacyFilter::faceDetection(cv::Mat frameGray, bool equal
     }
 
     // Detect faces
-    //m_face_cascade.detectMultiScale( frameGray, faces, 1.1, 2, 0 | CV_HAAR_SCALE_IMAGE, Size(30, 30) );
+    m_face_cascade.detectMultiScale( frameGray, faces, 1.1, 2, 0 | CV_HAAR_SCALE_IMAGE, Size(30, 30));
 
     return faces;
 }

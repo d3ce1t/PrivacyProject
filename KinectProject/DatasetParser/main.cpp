@@ -5,6 +5,7 @@
 #include "dataset/InstanceInfo.h"
 #include "dataset/DatasetMetadata.h"
 #include <QMultiMap>
+#include "dataset/MSRAction3D/MSR3Action3D.h"
 
 using namespace std;
 
@@ -382,6 +383,19 @@ void parseMSRAction3D(const QString datasetPath)
     cout << "</dataset>" << endl;
 }
 
+void parseMSRAction3D_Quaternions(const QString datasetPath)
+{
+    dai::Dataset* dataset = new dai::MSR3Action3D;
+    dataset.setPath(datasetPath);
+    const dai::DatasetMetadata& metadata = dataset->getMetadata();
+
+    metadata.instances()
+
+
+
+    delete dataset;
+}
+
 void parseHuDaAct(const QStringList& entries)
 {
     QHash<QString, int> map;
@@ -550,6 +564,7 @@ int main(int argc, char *argv[])
 {
     //parseMSRAction3D(argv[1]);
     //parseCAVIAR4REID(argv[1]);
-    parseDAI4REID(argv[1]);
+    //parseDAI4REID(argv[1]);
+    parseMSRAction3D_Quaternions(argv[1]);
 }
 
