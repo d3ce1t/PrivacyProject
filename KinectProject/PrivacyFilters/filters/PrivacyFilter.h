@@ -19,12 +19,29 @@ namespace dai {
 
 class PrivacyFilter : public FrameListener, public FrameGenerator
 {
+    shared_ptr<QHashDataFrames> m_frames;
+    QOpenGLContext* m_glContext;
+    QOpenGLFunctions* m_gles;
+    QOffscreenSurface m_surface;
+    bool m_initialised;
+    Scene2DPainter* m_scene;
+    OgreScene* m_ogreScene;
+    QOpenGLFramebufferObject* m_fboDisplay;
+    ColorFilter m_filter;
+    cv::Mat newSpace;
+    QImage myImage;
+    QFile m_file;
+    QTextStream m_out;
+    bool m_make_capture;
+    //cv::CascadeClassifier m_face_cascade;
+
 public:
     PrivacyFilter();
     ~PrivacyFilter();
     void initialise();
     void newFrames(const QHashDataFrames dataFrames) override;
     void enableFilter(ColorFilter filterType);
+    void captureImage();
     ControlWindow m_control;
 
 protected:
@@ -66,21 +83,6 @@ private:
     void create2DColorPalette(const QList<const HistBin3D<T>*>& upper_hist, const QList<const HistBin3D<T>*>& lower_hist, cv::Mat& output_img) const;
 
     cv::Mat createMask(cv::Mat input_img, int min_value, int *nonzero_counter = nullptr, bool filter = false) const;
-
-    shared_ptr<QHashDataFrames> m_frames;
-    QOpenGLContext* m_glContext;
-    QOpenGLFunctions* m_gles;
-    QOffscreenSurface m_surface;
-    bool m_initialised;
-    Scene2DPainter* m_scene;
-    OgreScene* m_ogreScene;
-    QOpenGLFramebufferObject* m_fboDisplay;
-    ColorFilter m_filter;
-    cv::Mat newSpace;
-    QImage myImage;
-    QFile m_file;
-    QTextStream m_out;
-    //cv::CascadeClassifier m_face_cascade;
 };
 
 } // End Namespace

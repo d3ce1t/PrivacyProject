@@ -6,69 +6,97 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>187</width>
-    <height>295</height>
+    <width>306</width>
+    <height>344</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Privacy Controller</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
-     <widget class="QPushButton" name="btnNoPrivacy">
-      <property name="text">
-       <string>No Privacy</string>
+     <widget class="QGroupBox" name="groupBox">
+      <property name="title">
+       <string>Filters</string>
       </property>
+      <property name="flat">
+       <bool>false</bool>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QPushButton" name="btnNoPrivacy">
+         <property name="text">
+          <string>No Privacy</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnBlurring">
+         <property name="text">
+          <string>Blurring</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnPixelating">
+         <property name="text">
+          <string>Pixelating</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnEmboss">
+         <property name="text">
+          <string>Emboss</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnSilhouette">
+         <property name="text">
+          <string>Silhouette</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnSkeleton">
+         <property name="text">
+          <string>Skeleton</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnAvatar">
+         <property name="text">
+          <string>3D Avatar</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnInvisibility">
+         <property name="text">
+          <string>Invisibility</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </item>
     <item>
-     <widget class="QPushButton" name="btnBlurring">
-      <property name="text">
-       <string>Blurring</string>
+     <widget class="QGroupBox" name="groupBox_2">
+      <property name="title">
+       <string>Capture</string>
       </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="btnPixelating">
-      <property name="text">
-       <string>Pixelating</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="btnEmboss">
-      <property name="text">
-       <string>Emboss</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="btnSilhouette">
-      <property name="text">
-       <string>Silhouette</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="btnSkeleton">
-      <property name="text">
-       <string>Skeleton</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="btnAvatar">
-      <property name="text">
-       <string>3D Avatar</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="btnInvisibility">
-      <property name="text">
-       <string>Invisibility</string>
-      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QPushButton" name="btnSaveImage">
+         <property name="text">
+          <string>Save Image</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </item>
    </layout>

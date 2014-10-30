@@ -29,6 +29,8 @@ private slots:
     void on_btnAvatar_clicked();
     void on_btnInvisibility_clicked();
 
+    void on_btnSaveImage_clicked();
+
 private:
     Ui::ControlWindow *ui;
     dai::PrivacyFilter *m_privacy;

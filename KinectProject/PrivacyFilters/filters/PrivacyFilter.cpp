@@ -28,6 +28,7 @@ PrivacyFilter::PrivacyFilter()
     , m_filter(FILTER_DISABLED)
     , m_file("data.csv")
     , m_out(&m_file)
+    , m_make_capture(false)
 {
     QSurfaceFormat format;
     format.setMajorVersion(2);
@@ -250,6 +251,16 @@ void PrivacyFilter::produceFrames(QHashDataFrames &output)
     m_gles->glReadPixels(0,0, m_fboDisplay->width(), m_fboDisplay->height(), GL_RGB, GL_UNSIGNED_BYTE,
                          (GLvoid*) colorFrame->getDataPtr());
 
+    // Save color as JPEG
+    if (m_make_capture) {
+        static int capture_id = 1;
+        QImage image( (uchar*) colorFrame->getDataPtr(), colorFrame->width(), colorFrame->height(),
+                      colorFrame->getStride(), QImage::Format_RGB888);
+        image.save("data/capture_" + QString::number(capture_id) + ".jpg");
+        capture_id++;
+        m_make_capture = false;
+    }
+
     m_fboDisplay->release();
     m_glContext->doneCurrent();
 }
@@ -258,6 +269,11 @@ void PrivacyFilter::afterStop()
 {
     freeResources();
     qDebug() << "PrivacyFilter::afterStop";
+}
+
+void PrivacyFilter::captureImage()
+{
+    m_make_capture = true;
 }
 
 void PrivacyFilter::enableFilter(ColorFilter filterType)

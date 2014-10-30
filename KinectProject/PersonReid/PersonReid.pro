@@ -55,9 +55,9 @@ unix:!macx {
     DEPENDPATH += /opt/NiTE-Linux-x64-2.2/Include
 
     # OpenCV2
-    INCLUDEPATH += $$(OPENCV2_INCLUDE)
-    DEPENDPATH += $$(OPENCV2_INCLUDE)
-    LIBS += -L$$(OPENCV2_LIB) -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_objdetect -lopencv_photo -lopencv_features2d -lopencv_nonfree -lopencv_flann
+    #INCLUDEPATH += $$(OPENCV2_INCLUDE)
+    #DEPENDPATH += $$(OPENCV2_INCLUDE)
+    LIBS += -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_objdetect -lopencv_photo -lopencv_features2d -lopencv_nonfree -lopencv_flann
 }
 
 win32 {

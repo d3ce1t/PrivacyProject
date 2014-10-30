@@ -54,3 +54,8 @@ void ControlWindow::on_btnInvisibility_clicked()
 {
     m_privacy->enableFilter(dai::ColorFilter::FILTER_INVISIBILITY);
 }
+
+void ControlWindow::on_btnSaveImage_clicked()
+{
+    m_privacy->captureImage();
+}
