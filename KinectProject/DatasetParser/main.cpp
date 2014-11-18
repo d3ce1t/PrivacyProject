@@ -386,10 +386,10 @@ void parseMSRAction3D(const QString datasetPath)
 void parseMSRAction3D_Quaternions(const QString datasetPath)
 {
     dai::Dataset* dataset = new dai::MSR3Action3D;
-    dataset.setPath(datasetPath);
+    dataset->setPath(datasetPath);
     const dai::DatasetMetadata& metadata = dataset->getMetadata();
 
-    metadata.instances()
+    metadata.instances();
 
 
 

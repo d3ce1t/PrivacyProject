@@ -5,7 +5,8 @@ SUBDIRS += \
     DatasetBrowser \
     DatasetParser \
     PrivacyFilters \
-    PersonReid
+    PersonReid \
+    PrivacyEditor
     #QmlOgreLib
     #OgreSinbad
     #QmlOgreSinbad 
