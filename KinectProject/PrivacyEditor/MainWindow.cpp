@@ -3,7 +3,7 @@
 #include <QFileDialog>
 #include <QTimer>
 #include <QMessageBox>
-#include <QGraphicsPixmapItem>
+
 #include <QDebug>
 
 
@@ -14,6 +14,10 @@ MainWindow::MainWindow(QWidget *parent) :
     m_ui->setupUi(this);
     m_ui->splitter->setStretchFactor(0, 8);
     m_ui->splitter->setStretchFactor(1, 3);
+
+    // Setup scene
+    m_bg_item = new QGraphicsPixmapItem;
+    m_scene.addItem(m_bg_item);
     m_ui->graphicsView->setScene(&m_scene);
 
     // Open Folder (setup model)
@@ -25,6 +29,18 @@ MainWindow::MainWindow(QWidget *parent) :
         if (!dirName.isEmpty()) {
             m_fs_model.setRootPath(dirName);
             m_fs_model.setFilter(QDir::Files);
+        }
+    });
+
+    // Fit image (scale down)
+    connect(m_ui->actionFit_image_to_screen, &QAction::triggered, [=]() {
+
+        // Scale Image if needed
+        if (m_current_image.width() > m_ui->graphicsView->viewport()->width() || m_current_image.height() > m_ui->graphicsView->viewport()->height()) {
+            m_current_image = m_current_image.scaled(m_ui->graphicsView->viewport()->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            m_bg_item->setPixmap(QPixmap::fromImage(m_current_image));
+            //m_ui->graphicsView->centerOn(m_bg_item);
+            qDebug() << "Image has been scaled";
         }
     });
 
@@ -82,16 +98,17 @@ void MainWindow::load_current_image()
         QString filePath = m_fs_model.filePath(index);
         qDebug() << "Loading" << filePath;
 
-        QImage image(filePath);
+        m_current_image.load(filePath);
 
-        if(image.isNull()) {
+        if(m_current_image.isNull()) {
             QMessageBox::information(this, "Privacy Editor","Error Displaying image");
             return;
         }
 
-        QGraphicsPixmapItem* item = new QGraphicsPixmapItem(QPixmap::fromImage(image));
-        m_scene.clear();
-        m_scene.addItem(item);
+        m_bg_item->setPixmap(QPixmap::fromImage(m_current_image));
+        qDebug() << m_bg_item->pos() << m_bg_item->boundingRect() << m_scene.sceneRect();
+
+        //m_ui->graphicsView->centerOn(m_bg_item);
     }
 }
 

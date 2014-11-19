@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>icons/system-log-out.svg</file>
+        <file>icons/view-fullscreen.svg</file>
+        <file>icons/document-open.svg</file>
+    </qresource>
+</RCC>
