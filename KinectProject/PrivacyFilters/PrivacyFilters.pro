@@ -6,11 +6,6 @@ TEMPLATE = app
 CONFIG += link_prl
 CONFIG += c++11
 
-# Fix for Qt 5.3.1 on VS 2013 compiler, because Qt does not define a macro for this compiler
-#win32 {
-#    DEFINES += Q_COMPILER_INITIALIZER_LISTS
-#}
-
 HEADERS += \
     MainWindow.h \
     ogre/SinbadCharacterController.h \
@@ -52,14 +47,14 @@ unix:!macx {
     DEPENDPATH += $$PWD/../CoreLib
 
     # OpenNI2
-    LIBS += -L/opt/OpenNI-Linux-x64-2.2/Tools/ -lOpenNI2
-    INCLUDEPATH += /opt/OpenNI-Linux-x64-2.2/Include
-    DEPENDPATH += /opt/OpenNI-Linux-x64-2.2/Include
+    #LIBS += -L/opt/OpenNI-Linux-x64-2.2/Tools/ -lOpenNI2
+    #INCLUDEPATH += /opt/OpenNI-Linux-x64-2.2/Include
+    #DEPENDPATH += /opt/OpenNI-Linux-x64-2.2/Include
 
     # NiTE2
-    LIBS += -L/opt/NiTE-Linux-x64-2.2/Redist/ -lNiTE2
-    INCLUDEPATH += /opt/NiTE-Linux-x64-2.2/Include
-    DEPENDPATH += /opt/NiTE-Linux-x64-2.2/Include
+    #LIBS += -L/opt/NiTE-Linux-x64-2.2/Redist/ -lNiTE2
+    #INCLUDEPATH += /opt/NiTE-Linux-x64-2.2/Include
+    #DEPENDPATH += /opt/NiTE-Linux-x64-2.2/Include
 
     # Ogre
     CONFIG += link_pkgconfig
@@ -89,10 +84,8 @@ win32 {
     else:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../CoreLib/debug/ -lCoreLib
 
     # CoreLib Static
-    win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/release/libCoreLib.a
-    else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/debug/libCoreLib.a
-    else:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/release/CoreLib.lib
-    else:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/debug/CoreLib.lib
+    CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/release/CoreLib.lib
+    else:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/debug/CoreLib.lib
 
     # Ogre
     OGREDIR = $$(OGRE_HOME)
@@ -101,8 +94,8 @@ win32 {
     } else {
         INCLUDEPATH += $$OGREDIR/include/OGRE
         INCLUDEPATH += $$OGREDIR/include/OGRE/RenderSystems/GL
-        CONFIG(release, debug|release):LIBS += -L$$OGREDIR/lib/release -L$$OGREDIR/lib/release/opt -lOgreMain -lRenderSystem_GL
-        else:CONFIG(debug, debug|release):LIBS += -L$$OGREDIR/lib/debug -L$$OGREDIR/lib/debug/opt -lOgreMain_d -lRenderSystem_GL_d
+        CONFIG(release, debug|release):LIBS += -L$$OGREDIR/lib/Release -L$$OGREDIR/lib/Release/opt -lOgreMain -lRenderSystem_GL
+        else:CONFIG(debug, debug|release):LIBS += -L$$OGREDIR/lib/Rebug -L$$OGREDIR/lib/Debug/opt -lOgreMain_d -lRenderSystem_GL_d
     }
 
     # Boost
@@ -129,8 +122,8 @@ win32 {
     # OpenCV2
     INCLUDEPATH += $$(OPENCV2_INCLUDE)
     DEPENDPATH += $$(OPENCV2_INCLUDE)
-    CONFIG(release, debug|release):LIBS += -L$$(OPENCV2_LIB) -lopencv_core249 -lopencv_imgproc249 -lopencv_highgui249 -lopencv_objdetect249 -lopencv_photo249
-    else:CONFIG(debug, debug|release):LIBS += -L$$(OPENCV2_LIB) -lopencv_core249d -lopencv_imgproc249d -lopencv_highgui249d -lopencv_objdetect249d -lopencv_photo249d
+    CONFIG(release, debug|release):LIBS += -L$$(OPENCV2_LIB) -lopencv_core2410 -lopencv_imgproc2410 -lopencv_highgui2410 -lopencv_objdetect2410 -lopencv_photo2410 -lopencv_features2d2410 -lopencv_nonfree2410 -lopencv_flann2410
+    else:CONFIG(debug, debug|release):LIBS += -L$$(OPENCV2_LIB) -lopencv_core2410d -lopencv_imgproc2410d -lopencv_highgui2410d -lopencv_objdetect2410d -lopencv_photo2410d -lopencv_features2d2410d -lopencv_nonfree2410d -lopencv_flann2410d
 }
 
 CONFIG(release, debug|release): DESTDIR = $$OUT_PWD
@@ -160,10 +153,8 @@ win32 {
 
     # OpenCV dll
     OpenCV.path = $$DESTDIR
-    win32-g++:CONFIG(release, debug|release):OpenCV.files = $$(OPENCV2_BIN)/libopencv_core249.dll $$(OPENCV2_BIN)/libopencv_imgproc249.dll $$(OPENCV2_BIN)/libopencv_highgui249.dll $$(OPENCV2_BIN)/libopencv_objdetect249.dll $$(OPENCV2_BIN)/libopencv_photo249.dll
-    else:win32-g++:CONFIG(debug, debug|release):OpenCV.files = $$(OPENCV2_BIN)/libopencv_core249d.dll $$(OPENCV2_BIN)/libopencv_imgproc249d.dll $$(OPENCV2_BIN)/libopencv_highgui249d.dll $$(OPENCV2_BIN)/libopencv_objdetect249d.dll $$(OPENCV2_BIN)/libopencv_photo249d.dll
-    else:CONFIG(release, debug|release):OpenCV.files = $$(OPENCV2_BIN)/opencv_core249.dll $$(OPENCV2_BIN)/opencv_imgproc249.dll $$(OPENCV2_BIN)/opencv_highgui249.dll $$(OPENCV2_BIN)/opencv_objdetect249.dll $$(OPENCV2_BIN)/opencv_photo249.dll
-    else:CONFIG(debug, debug|release):OpenCV.files = $$(OPENCV2_BIN)/opencv_core249d.dll $$(OPENCV2_BIN)/opencv_imgproc249d.dll $$(OPENCV2_BIN)/opencv_highgui249d.dll $$(OPENCV2_BIN)/opencv_objdetect249d.dll $$(OPENCV2_BIN)/opencv_photo249d.dll
+    CONFIG(release, debug|release):OpenCV.files = $$(OPENCV2_BIN)/opencv_core2410.dll $$(OPENCV2_BIN)/opencv_imgproc2410.dll $$(OPENCV2_BIN)/opencv_highgui2410.dll $$(OPENCV2_BIN)/opencv_objdetect2410.dll $$(OPENCV2_BIN)/opencv_photo2410.dll
+    else:CONFIG(debug, debug|release):OpenCV.files = $$(OPENCV2_BIN)/opencv_core2410d.dll $$(OPENCV2_BIN)/opencv_imgproc2410d.dll $$(OPENCV2_BIN)/opencv_highgui2410d.dll $$(OPENCV2_BIN)/opencv_objdetect2410d.dll $$(OPENCV2_BIN)/opencv_photo2410d.dll
 
     # Ogre dll
     CONFIG(release, debug|release): OGRE_DIR = $$OGREDIR\bin\release

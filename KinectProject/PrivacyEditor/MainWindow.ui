@@ -6,102 +6,75 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>918</width>
-    <height>592</height>
+    <width>809</width>
+    <height>505</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Privacy Editor</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QVBoxLayout" name="verticalLayout_2">
+   <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="4,1">
     <item>
-     <widget class="QSplitter" name="splitter">
-      <property name="autoFillBackground">
+     <widget class="QGraphicsView" name="graphicsView">
+      <property name="mouseTracking">
        <bool>false</bool>
       </property>
-      <property name="lineWidth">
-       <number>1</number>
-      </property>
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="opaqueResize">
-       <bool>true</bool>
-      </property>
-      <property name="handleWidth">
-       <number>6</number>
-      </property>
-      <property name="childrenCollapsible">
+      <property name="acceptDrops">
        <bool>false</bool>
       </property>
-      <widget class="QWidget" name="layoutWidget">
-       <layout class="QVBoxLayout" name="verticalLayout">
+      <property name="alignment">
+       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+      </property>
+      <property name="viewportUpdateMode">
+       <enum>QGraphicsView::MinimalViewportUpdate</enum>
+      </property>
+      <property name="rubberBandSelectionMode">
+       <enum>Qt::IntersectsItemBoundingRect</enum>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <widget class="QGraphicsView" name="graphicsView">
-          <property name="acceptDrops">
-           <bool>false</bool>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-          </property>
-          <property name="viewportUpdateMode">
-           <enum>QGraphicsView::FullViewportUpdate</enum>
+         <widget class="QPushButton" name="btnPrev">
+          <property name="text">
+           <string>&lt;&lt; Previous</string>
           </property>
          </widget>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
-           <spacer name="horizontalSpacer">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QPushButton" name="btnPrev">
-            <property name="text">
-             <string>&lt;&lt; Previous</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="btnNext">
-            <property name="text">
-             <string>Next &gt;&gt;</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="btnReload">
-            <property name="text">
-             <string>Reload</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
+         <widget class="QPushButton" name="btnNext">
+          <property name="text">
+           <string>Next &gt;&gt;</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnReload">
+          <property name="text">
+           <string>Reload</string>
+          </property>
+         </widget>
         </item>
        </layout>
-      </widget>
-      <widget class="QListView" name="listView">
-       <property name="viewMode">
-        <enum>QListView::ListMode</enum>
-       </property>
-       <property name="uniformItemSizes">
-        <bool>true</bool>
-       </property>
-       <property name="selectionRectVisible">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </widget>
+      </item>
+      <item>
+       <widget class="QListView" name="listView">
+        <property name="viewMode">
+         <enum>QListView::ListMode</enum>
+        </property>
+        <property name="uniformItemSizes">
+         <bool>true</bool>
+        </property>
+        <property name="selectionRectVisible">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>
@@ -110,8 +83,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>918</width>
-     <height>27</height>
+     <width>809</width>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuOpen_image">
@@ -132,14 +105,17 @@
    <addaction name="menuEdit"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
+   <property name="movable">
+    <bool>false</bool>
+   </property>
    <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
+    <enum>LeftToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionOpen_folder"/>
    <addaction name="actionFit_image_to_screen"/>
+   <addaction name="actionPrint_Scene_Info"/>
   </widget>
   <action name="actionOpen_folder">
    <property name="icon">
@@ -172,6 +148,15 @@
    </property>
    <property name="text">
     <string>Fit image to screen</string>
+   </property>
+  </action>
+  <action name="actionPrint_Scene_Info">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/emblem-important.svg</normaloff>:/icons/icons/emblem-important.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Print Scene Info</string>
    </property>
   </action>
  </widget>

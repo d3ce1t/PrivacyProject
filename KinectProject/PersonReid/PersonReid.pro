@@ -15,12 +15,6 @@ CONFIG += c++11
 
 TEMPLATE = app
 
-# Fix for Qt 5.3.1 on VS 2013 compiler, because Qt does not define a macro for this compiler
-#win32 {
-#    DEFINES += Q_COMPILER_INITIALIZER_LISTS
-#}
-
-
 HEADERS += \
     PersonReid.h \
     Descriptor.h \
@@ -44,16 +38,6 @@ unix:!macx {
     INCLUDEPATH += $$PWD/../CoreLib
     DEPENDPATH += $$PWD/../CoreLib
 
-    # OpenNI2
-    LIBS += -L/opt/OpenNI-Linux-x64-2.2/Tools/ -lOpenNI2
-    INCLUDEPATH += /opt/OpenNI-Linux-x64-2.2/Include
-    DEPENDPATH += /opt/OpenNI-Linux-x64-2.2/Include
-
-    # NiTE2
-    LIBS += -L/opt/NiTE-Linux-x64-2.2/Redist/ -lNiTE2
-    INCLUDEPATH += /opt/NiTE-Linux-x64-2.2/Include
-    DEPENDPATH += /opt/NiTE-Linux-x64-2.2/Include
-
     # OpenCV2
     #INCLUDEPATH += $$(OPENCV2_INCLUDE)
     #DEPENDPATH += $$(OPENCV2_INCLUDE)
@@ -75,10 +59,8 @@ win32 {
     else:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../CoreLib/debug/ -lCoreLib
 
     # CoreLib Static
-    win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/release/libCoreLib.a
-    else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/debug/libCoreLib.a
-    else:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/release/CoreLib.lib
-    else:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/debug/CoreLib.lib
+    CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/release/CoreLib.lib
+    else:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/debug/CoreLib.lib
 
     # Boost
     BOOSTDIR = $$(BOOST_INCLUDEDIR)
@@ -104,8 +86,8 @@ win32 {
     # OpenCV2
     INCLUDEPATH += $$(OPENCV2_INCLUDE)
     DEPENDPATH += $$(OPENCV2_INCLUDE)
-    CONFIG(release, debug|release):LIBS += -L$$(OPENCV2_LIB) -lopencv_core249 -lopencv_imgproc249 -lopencv_highgui249 -lopencv_objdetect249 -lopencv_photo249 -lopencv_features2d249 -lopencv_nonfree249 -lopencv_flann249
-    else:CONFIG(debug, debug|release):LIBS += -L$$(OPENCV2_LIB) -lopencv_core249d -lopencv_imgproc249d -lopencv_highgui249d -lopencv_objdetect249d -lopencv_photo249d -lopencv_features2d249d -lopencv_nonfree249d -lopencv_flann249d
+    CONFIG(release, debug|release):LIBS += -L$$(OPENCV2_LIB) -lopencv_core2410 -lopencv_imgproc2410 -lopencv_highgui2410 -lopencv_objdetect2410 -lopencv_photo2410 -lopencv_features2d2410 -lopencv_nonfree2410 -lopencv_flann2410
+    else:CONFIG(debug, debug|release):LIBS += -L$$(OPENCV2_LIB) -lopencv_core2410d -lopencv_imgproc2410d -lopencv_highgui2410d -lopencv_objdetect2410d -lopencv_photo2410d -lopencv_features2d2410d -lopencv_nonfree2410d -lopencv_flann2410d
 }
 
 CONFIG(release, debug|release): DESTDIR = $$OUT_PWD/release

@@ -13,11 +13,6 @@ CONFIG   -= app_bundle
 CONFIG   += link_prl
 CONFIG += c++11
 
-# Fix for Qt 5.3.1 on VS 2013 compiler, because Qt does not define a macro for this compiler
-#win32 {
-#    DEFINES += Q_COMPILER_INITIALIZER_LISTS
-#}
-
 TEMPLATE  = app
 
 SOURCES += main.cpp
@@ -44,8 +39,6 @@ win32 {
     else:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../CoreLib/debug/ -lCoreLib
 
     # CoreLib Static
-    win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/release/libCoreLib.a
-    else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/debug/libCoreLib.a
-    else:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/release/CoreLib.lib
-    else:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/debug/CoreLib.lib
+    CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/release/CoreLib.lib
+    else:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/debug/CoreLib.lib
 }

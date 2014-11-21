@@ -13,11 +13,6 @@ CONFIG += staticlib
 CONFIG += create_prl
 CONFIG += c++11
 
-# Fix for Qt 5.3.1 on VS 2013 compiler, because Qt does not define a macro for this compiler
-#win32 {
-#    DEFINES += Q_COMPILER_INITIALIZER_LISTS
-#}
-
 SOURCES += \
     types/SkeletonJoint.cpp \
     types/SkeletonFrame.cpp \
@@ -191,6 +186,6 @@ win32 {
     # OpenCV2
     INCLUDEPATH += $$(OPENCV2_INCLUDE)
     DEPENDPATH += $$(OPENCV2_INCLUDE)
-    CONFIG(release, debug|release):LIBS += -L$$(OPENCV2_LIB) -lopencv_core249 -lopencv_imgproc249 -lopencv_highgui249 -lopencv_objdetect249 -lopencv_photo249
-    else:CONFIG(debug, debug|release):LIBS += -L$$(OPENCV2_LIB) -lopencv_core249d -lopencv_imgproc249d -lopencv_highgui249d -lopencv_objdetect249d -lopencv_photo249d
+    CONFIG(release, debug|release):LIBS += -L$$(OPENCV2_LIB) -lopencv_core2410 -lopencv_imgproc2410 -lopencv_highgui2410 -lopencv_objdetect2410 -lopencv_photo2410
+    else:CONFIG(debug, debug|release):LIBS += -L$$(OPENCV2_LIB) -lopencv_core2410d -lopencv_imgproc2410d -lopencv_highgui2410d -lopencv_objdetect2410d -lopencv_photo2410d
 }
