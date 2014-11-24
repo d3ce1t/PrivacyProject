@@ -9,6 +9,7 @@
 #include <cmath>
 #include <climits>
 #include <QString>
+#include <QHash>
 #include <QObject>
 #include "Utils.h"
 
@@ -335,7 +336,7 @@ public:
 
     const std::shared_ptr<Histogram<T,N> > subHistogram(int n_often_items)
     {
-        std::shared_ptr<Histogram<T,N>> result = make_shared<Histogram<T,N>>();
+        std::shared_ptr<Histogram<T,N>> result = std::make_shared<Histogram<T,N>>();
 
         QList<const HistBin<T,N>*> items = higherFreqBins(n_often_items);
 
@@ -366,7 +367,7 @@ public:
 
         using namespace cv;
 
-        std::shared_ptr<Histogram<T,N>> result = make_shared<Histogram<T,N>>();
+        std::shared_ptr<Histogram<T,N>> result = std::make_shared<Histogram<T,N>>();
         bool useMask = mask.rows > 0 && mask.cols > 0;
 
         // Compute Histogram

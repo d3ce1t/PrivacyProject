@@ -6,6 +6,7 @@
 #include "types/Histogram.h"
 #include "types/MaskFrame.h"
 #include <functional>
+#include <boost/random.hpp>
 
 namespace dai {
 

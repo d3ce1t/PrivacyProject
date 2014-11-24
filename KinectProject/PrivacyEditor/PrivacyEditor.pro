@@ -23,6 +23,27 @@ FORMS    += MainWindow.ui
 RESOURCES += \
     resources.qrc
 
+unix {
+    # CoreLib
+    INCLUDEPATH += $$PWD/../CoreLib
+    DEPENDPATH += $$PWD/../CoreLib
+    LIBS += -L$$OUT_PWD/../CoreLib/ -lCoreLib
+    PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/libCoreLib.a
+
+    # PrivacyFiltersLib
+    INCLUDEPATH += $$PWD/../PrivacyFilterLib
+    DEPENDPATH += $$PWD/../PrivacyFilterLib
+    LIBS += -L$$OUT_PWD/../PrivacyFilterLib/ -lPrivacyFilterLib
+    PRE_TARGETDEPS += $$OUT_PWD/../PrivacyFilterLib/libPrivacyFilterLib.a
+
+    # Ogre
+    CONFIG += link_pkgconfig
+    PKGCONFIG += OGRE
+
+    # Boost
+    LIBS += -lboost_system
+}
+
 win32 {
     # ensure QMAKE_MOC contains the moc executable path
     load(moc)

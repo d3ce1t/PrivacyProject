@@ -9,6 +9,8 @@ QT  = core gui
 TARGET = PrivacyFilterLib
 TEMPLATE = lib
 CONFIG += staticlib
+CONFIG += create_prl
+CONFIG += c++11
 
 SOURCES += \
     filters/PrivacyFilter.cpp \
@@ -25,6 +27,24 @@ HEADERS += \
 unix {
     target.path = /usr/lib
     INSTALLS += target
+
+    # CoreLib
+    INCLUDEPATH += $$PWD/../CoreLib
+    DEPENDPATH += $$PWD/../CoreLib
+    LIBS += -L$$OUT_PWD/../CoreLib/ -lCoreLib
+    PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/libCoreLib.a
+
+    # Ogre
+    CONFIG += link_pkgconfig
+    PKGCONFIG += OGRE
+
+    # Boost
+    LIBS += -lboost_system
+
+    # OpenCV2
+    #INCLUDEPATH += $$(OPENCV2_INCLUDE)
+    #DEPENDPATH += $$(OPENCV2_INCLUDE)
+    LIBS += -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_objdetect -lopencv_photo -lopencv_features2d -lopencv_nonfree -lopencv_flann
 }
 
 win32 {

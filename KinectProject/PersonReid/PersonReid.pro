@@ -38,6 +38,16 @@ unix:!macx {
     INCLUDEPATH += $$PWD/../CoreLib
     DEPENDPATH += $$PWD/../CoreLib
 
+    # OpenNI2
+    #LIBS += -L/opt/OpenNI-Linux-x64-2.2/Tools/ -lOpenNI2
+    INCLUDEPATH += /opt/OpenNI-Linux-x64-2.2/Include
+    DEPENDPATH += /opt/OpenNI-Linux-x64-2.2/Include
+
+    # NiTE2
+    #LIBS += -L/opt/NiTE-Linux-x64-2.2/Redist/ -lNiTE2
+    INCLUDEPATH += /opt/NiTE-Linux-x64-2.2/Include
+    DEPENDPATH += /opt/NiTE-Linux-x64-2.2/Include
+
     # OpenCV2
     #INCLUDEPATH += $$(OPENCV2_INCLUDE)
     #DEPENDPATH += $$(OPENCV2_INCLUDE)

@@ -3,6 +3,7 @@
 #include <QDebug>
 #include "openni/OpenNIColorInstance.h"
 #include "openni/OpenNIUserTrackerInstance.h"
+#include "openni/OpenNIDevice.h"
 #include <QElapsedTimer>
 #include <QSettings>
 #include <QFileDialog>

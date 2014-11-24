@@ -7,6 +7,7 @@
 #include <QDebug>
 #include <opencv2/opencv.hpp>
 
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     m_ui(new Ui::MainWindow)
@@ -65,11 +66,23 @@ MainWindow::MainWindow(QWidget *parent) :
         m_mask_item->setBrush(brush);
 
         dai::MaskFrame mask = create_mask(pp);
+        cv::Mat mat_mask(mask.height(), mask.width(), CV_8UC1, (void*) mask.getDataPtr(), mask.getStride());
         cv::Mat mat_color = cv::imread(m_current_image_path.toStdString());
         shared_ptr<dai::ColorFrame> color = make_shared<dai::ColorFrame>(mat_color.cols, mat_color.rows,
                                                                          (dai::RGBColor*) mat_color.data, mat_color.step);
 
-        m_privacy
+        for (int i=0; i<mat_mask.rows; ++i)
+        {
+            uchar* mask_pixel = mat_mask.ptr<uchar>(i);
+            cv::Vec3b* color_pixel = mat_color.ptr<cv::Vec3b>(i);
+
+            for (int j=0; j<mat_mask.cols; ++j) {
+
+                if (mask_pixel[j] > 0) {
+                    color_pixel[j][0] = 255;
+                }
+            }
+        }
 
         cv::imshow("image", mat_color);
         cv::waitKey();
@@ -221,13 +234,6 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 
     }
 
-    /*if (m_draw_status == READY_TO_DRAW || m_draw_status == END_DRAWING) {
-        //m_scene.addRect(x,y,1,1,m_pen, QBrush(Qt::SolidPattern));
-
-        if (m_draw_status == END_DRAWING)
-            m_draw_status = NO_DRAW;
-    }*/
-
     return QObject::eventFilter(obj, event);
 }
 
@@ -247,11 +253,4 @@ dai::MaskFrame MainWindow::create_mask(const QPainterPath& path)
     }
 
     return mask;
-
-    /*QString mask_file_path = QString(m_current_image_path).replace(".jpg", ".bin");
-    QFile maskFile(mask_file_path);
-    QByteArray mask_data = mask.toBinary();
-    maskFile.open(QIODevice::WriteOnly);
-    maskFile.write(mask_data);
-    maskFile.close();*/
 }

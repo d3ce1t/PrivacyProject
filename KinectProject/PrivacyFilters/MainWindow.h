@@ -6,11 +6,15 @@
 #include "filters/PrivacyFilter.h"
 #include "viewer/DepthFilter.h"
 #include "viewer/InstanceViewerWindow.h"
-#include "openni/OpenNIDevice.h"
+
 #include "ControlWindow.h"
 
 namespace Ui {
 class MainWindow;
+}
+
+namespace dai {
+    class OpenNIDevice;
 }
 
 class MainWindow : public QMainWindow
