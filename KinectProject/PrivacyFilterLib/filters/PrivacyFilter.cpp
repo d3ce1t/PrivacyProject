@@ -28,7 +28,7 @@ PrivacyFilter::PrivacyFilter()
     , m_file("data.csv")
     , m_out(&m_file)
     , m_make_capture(false)
-    , m_control(this)
+    //, m_control(this)
 {
     QSurfaceFormat format;
     format.setMajorVersion(2);

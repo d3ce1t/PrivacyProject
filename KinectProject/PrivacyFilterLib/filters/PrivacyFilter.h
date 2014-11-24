@@ -13,7 +13,6 @@
 #include <QImage>
 #include <QFile>
 #include "types/Histogram.h"
-#include "ControlWindow.h"
 
 namespace dai {
 
@@ -39,7 +38,6 @@ public:
     void newFrames(const QHashDataFrames dataFrames) override;
     void enableFilter(ColorFilter filterType);
     void captureImage();
-    ControlWindow m_control;
 
 protected:
     void initialise();

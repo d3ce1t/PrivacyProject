@@ -12,6 +12,7 @@ using namespace std;
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
   , ui(new Ui::MainWindow)
+  , m_control(&m_privacyFilter)
 {   
     ui->setupUi(this);
     m_playback.setFPS(25);
@@ -104,7 +105,7 @@ void MainWindow::on_btnStartKinect_clicked()
 
     // Run
     m_privacyFilter.enableFilter(FILTER_DISABLED);
-    m_privacyFilter.m_control.show();
+    m_control.show();
     out_viewer_color->show();
     //out_viewer_depth->show();
     m_playback.play();

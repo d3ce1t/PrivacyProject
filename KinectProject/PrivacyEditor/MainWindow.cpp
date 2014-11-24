@@ -5,31 +5,20 @@
 #include <QMessageBox>
 #include <QGraphicsSceneMouseEvent>
 #include <QDebug>
-
+#include <opencv2/opencv.hpp>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     m_ui(new Ui::MainWindow)
 {
     m_ui->setupUi(this);
-    //m_ui->splitter->setStretchFactor(0, 8);
-    //m_ui->splitter->setStretchFactor(1, 3);
 
     // Setup scene
-    m_pen = {Qt::green, 4, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin};
-    m_bg_item = new QGraphicsPixmapItem;
-    m_scene.addItem(m_bg_item);
+    m_pen = {Qt::green, 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin};
+    m_bg_item = m_scene.addPixmap(QPixmap());
+    m_mask_item = m_scene.addPath(QPainterPath(), m_pen);
     m_scene.installEventFilter(this);
     m_ui->graphicsView->setScene(&m_scene);
-
-    // FS Model loaded (setup view)
-    connect(&m_fs_model, &QFileSystemModel::directoryLoaded, [=](QString path) {
-        qDebug() << "Directory" << path << "loaded";
-        QModelIndex parentIndex = m_fs_model.index(m_fs_model.rootPath());
-        m_ui->listView->setModel(&m_fs_model);
-        m_ui->listView->setRootIndex(parentIndex);
-        QTimer::singleShot(50, this, SLOT(first_setup())); // WORKAROUND to select the first child of the model
-    });
 
     // Action: Open Folder (setup model)
     connect(m_ui->actionOpen_folder, &QAction::triggered, [=]() {
@@ -38,8 +27,21 @@ MainWindow::MainWindow(QWidget *parent) :
                                                             tr("Open image folder"),
                                                             QDir::currentPath());
         if (!dirName.isEmpty()) {
+
+            // FS Model loaded (setup view)
+            connect(&m_fs_model, &QFileSystemModel::directoryLoaded, [=](QString path) {
+                qDebug() << "Directory" << path << "loaded";
+                QModelIndex parentIndex = m_fs_model.index(m_fs_model.rootPath());
+                m_ui->listView->setModel(&m_fs_model);
+                m_ui->listView->setRootIndex(parentIndex);
+                QTimer::singleShot(50, this, SLOT(first_setup())); // WORKAROUND to select the first child of the model
+                m_fs_model.disconnect();
+            });
+
+            QStringList filters = {"*.jpg", "*.jpeg", "*.bmp", "*.png"};
             m_fs_model.setRootPath(dirName);
             m_fs_model.setFilter(QDir::Files);
+            m_fs_model.setNameFilters(filters);
         }
     });
 
@@ -54,10 +56,36 @@ MainWindow::MainWindow(QWidget *parent) :
         }
     });
 
+    // Action: Finish selection
+    connect(m_ui->actionFinish_selection, &QAction::triggered, [=]() {
+        QBrush brush(Qt::DiagCrossPattern);
+        QPainterPath pp = m_mask_item->path();
+        pp.closeSubpath();
+        m_mask_item->setPath(pp);
+        m_mask_item->setBrush(brush);
+
+        dai::MaskFrame mask = create_mask(pp);
+        cv::Mat mat_color = cv::imread(m_current_image_path.toStdString());
+        shared_ptr<dai::ColorFrame> color = make_shared<dai::ColorFrame>(mat_color.cols, mat_color.rows,
+                                                                         (dai::RGBColor*) mat_color.data, mat_color.step);
+
+        m_privacy
+
+        cv::imshow("image", mat_color);
+        cv::waitKey();
+    });
+
+    // Action: Clear selection
+    connect(m_ui->actionClearh_selection, &QAction::triggered, [=]() {
+       m_mask_item->setPath(QPainterPath());
+    });
+
     // Action: Print info
     connect(m_ui->actionPrint_Scene_Info, &QAction::triggered, [=]() {
 
+        QPainterPath pp = m_mask_item->path();
         qDebug() << "Number of Items:" << m_scene.items().size();
+        qDebug() << "Path Lenght:" << pp.length();
 
     });
 
@@ -107,10 +135,10 @@ void MainWindow::load_selected_image()
 
     if (index.isValid()) {
 
-        QString filePath = m_fs_model.filePath(index);
-        qDebug() << "Loading" << filePath;
+        m_current_image_path = m_fs_model.filePath(index);
+        qDebug() << "Loading" << m_current_image_path;
 
-        m_current_image.load(filePath);
+        m_current_image.load(m_current_image_path);
 
         if(m_current_image.isNull()) {
             QMessageBox::information(this, "Privacy Editor","Error Displaying image");
@@ -159,38 +187,71 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     qreal x = paint_event->scenePos().x();
     qreal y = paint_event->scenePos().y();
 
-    if (m_draw_status == NO_DRAW && event->type() == QEvent::GraphicsSceneMousePress) {
-        m_last_pixel.setX(x);
-        m_last_pixel.setY(y);
-        m_draw_status = READY_TO_DRAW;
-        qDebug() << "Last pixel" << m_last_pixel;
-    }
-    else if (m_draw_status == READY_TO_DRAW && event->type() == QEvent::GraphicsSceneMouseMove)
-        m_draw_status = DRAWING;
-    else if (m_draw_status == READY_TO_DRAW && event->type() == QEvent::GraphicsSceneMouseRelease)
-        m_draw_status = END_DRAWING;
-    else if (m_draw_status == DRAWING && event->type() == QEvent::GraphicsSceneMouseMove)
-        m_draw_status = DRAWING;
-    else if (m_draw_status == DRAWING && event->type() == QEvent::GraphicsSceneMouseRelease)
-        m_draw_status = END_DRAWING;
-    else if (m_draw_status == DRAWING && event->type() == QEvent::GraphicsSceneMousePress)
-        m_draw_status = NO_DRAW;
-
-    if (m_draw_status == DRAWING)
+    if (event->type() == QEvent::GraphicsSceneMousePress)
     {
-        m_scene.addLine(m_last_pixel.x(), m_last_pixel.y(), x, y, m_pen);
-        qDebug() << "Line" << m_last_pixel << "to" << x << y;
-        m_last_pixel.setX(x);
-        m_last_pixel.setY(y);
+        QPainterPath pp = m_mask_item->path();
+
+        if (pp.isEmpty()) {
+            pp.moveTo(paint_event->scenePos());
+            m_mask_item->setPath(pp);
+            m_mask_item->setBrush(QBrush());
+            m_last_pixel.setX(x);
+            m_last_pixel.setY(y);
+            qDebug() << "Last pixel" << m_last_pixel;
+        } else {
+
+        }
+    }
+    else if (event->type() == QEvent::GraphicsSceneMouseMove)
+    {
+        QPainterPath pp = m_mask_item->path();
+        pp.lineTo(paint_event->scenePos());
+        m_mask_item->setPath(pp);
+        //m_scene.addLine(m_last_pixel.x(), m_last_pixel.y(), x, y, m_pen);
+        //qDebug() << "Line" << m_last_pixel << "to" << x << y;
+        //m_last_pixel.setX(x);
+        //m_last_pixel.setY(y);
+    }
+    else if (event->type() == QEvent::GraphicsSceneMouseRelease)
+    {
+        /*QPainterPath pp = m_mask_item->path();
+        //pp.closeSubpath()
+       // pp.lineTo(paint_event->scenePos());
+        m_mask_item->setPath(pp);*/
+
     }
 
-    if (m_draw_status == READY_TO_DRAW || m_draw_status == END_DRAWING) {
-        m_scene.addRect(x,y,1,1,m_pen, QBrush(Qt::SolidPattern));
+    /*if (m_draw_status == READY_TO_DRAW || m_draw_status == END_DRAWING) {
+        //m_scene.addRect(x,y,1,1,m_pen, QBrush(Qt::SolidPattern));
 
         if (m_draw_status == END_DRAWING)
             m_draw_status = NO_DRAW;
+    }*/
+
+    return QObject::eventFilter(obj, event);
+}
+
+dai::MaskFrame MainWindow::create_mask(const QPainterPath& path)
+{
+    dai::MaskFrame mask(m_bg_item->pixmap().width(), m_bg_item->pixmap().height());
+    QRectF search_region = path.boundingRect();
+
+    for (int i = search_region.top(); i < search_region.bottom(); ++i)
+    {
+        for (int j= search_region.left(); j < search_region.right(); ++j)
+        {
+            if (path.contains(QPointF(j, i))) {
+                mask.setItem(i, j, 1);
+            }
+        }
     }
 
-    return true;
-    //return QObject::eventFilter(obj, event);
+    return mask;
+
+    /*QString mask_file_path = QString(m_current_image_path).replace(".jpg", ".bin");
+    QFile maskFile(mask_file_path);
+    QByteArray mask_data = mask.toBinary();
+    maskFile.open(QIODevice::WriteOnly);
+    maskFile.write(mask_data);
+    maskFile.close();*/
 }

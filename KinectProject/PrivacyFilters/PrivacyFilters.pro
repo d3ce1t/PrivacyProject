@@ -8,19 +8,11 @@ CONFIG += c++11
 
 HEADERS += \
     MainWindow.h \
-    ogre/SinbadCharacterController.h \
-    ogre/OgreScene.h \
-    ogre/OgrePointCloud.h \
-    filters/PrivacyFilter.h \
     ControlWindow.h
 
 SOURCES += \
     Main.cpp \
     MainWindow.cpp \
-    ogre/SinbadCharacterController.cpp \
-    ogre/OgreScene.cpp \
-    ogre/OgrePointCloud.cpp \
-    filters/PrivacyFilter.cpp \
     ControlWindow.cpp
 
 OTHER_FILES += \
@@ -41,10 +33,16 @@ FORMS += \
 
 unix:!macx {
     # CoreLib
-    LIBS += -L$$OUT_PWD/../CoreLib/ -lCoreLib
-    PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/libCoreLib.a
     INCLUDEPATH += $$PWD/../CoreLib
     DEPENDPATH += $$PWD/../CoreLib
+    LIBS += -L$$OUT_PWD/../CoreLib/ -lCoreLib
+    PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/libCoreLib.a
+
+    # PrivacyFiltersLib
+    INCLUDEPATH += $$PWD/../PrivacyFilterLib
+    DEPENDPATH += $$PWD/../PrivacyFilterLib
+    LIBS += -L$$OUT_PWD/../PrivacyFilterLib/ -lPrivacyFilterLib
+    PRE_TARGETDEPS += $$OUT_PWD/../PrivacyFilterLib/libPrivacyFilterLib.a
 
     # OpenNI2
     #LIBS += -L/opt/OpenNI-Linux-x64-2.2/Tools/ -lOpenNI2
@@ -87,6 +85,18 @@ win32 {
     CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/release/CoreLib.lib
     else:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/debug/CoreLib.lib
 
+    # PrivacyFiltersLib
+    INCLUDEPATH += $$PWD/../PrivacyFilterLib
+    DEPENDPATH += $$PWD/../PrivacyFilterLib
+
+    # PrivacyFiltersLib Dynamic
+    CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../PrivacyFilterLib/release/ -lPrivacyFilterLib
+    else:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../PrivacyFilterLib/debug/ -lPrivacyFilterLib
+
+    # PrivacyFiltersLib Static
+    CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../PrivacyFilterLib/release/PrivacyFilterLib.lib
+    else:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../PrivacyFilterLib/debug/PrivacyFilterLib.lib
+
     # Ogre
     OGREDIR = $$(OGRE_HOME)
     isEmpty(OGREDIR) {
@@ -94,8 +104,8 @@ win32 {
     } else {
         INCLUDEPATH += $$OGREDIR/include/OGRE
         INCLUDEPATH += $$OGREDIR/include/OGRE/RenderSystems/GL
-        CONFIG(release, debug|release):LIBS += -L$$OGREDIR/lib/Release -L$$OGREDIR/lib/Release/opt -lOgreMain -lRenderSystem_GL
-        else:CONFIG(debug, debug|release):LIBS += -L$$OGREDIR/lib/Rebug -L$$OGREDIR/lib/Debug/opt -lOgreMain_d -lRenderSystem_GL_d
+        CONFIG(release, debug|release):LIBS += -L$$OGREDIR/lib/release -L$$OGREDIR/lib/release/opt -lOgreMain -lRenderSystem_GL
+        else:CONFIG(debug, debug|release):LIBS += -L$$OGREDIR/lib/debug -L$$OGREDIR/lib/debug/opt -lOgreMain_d -lRenderSystem_GL_d
     }
 
     # Boost
@@ -103,9 +113,7 @@ win32 {
     BOOSTLIB = $$(BOOST_LIBRARYDIR)
     !isEmpty(BOOSTDIR) {
         INCLUDEPATH += $$BOOSTDIR
-        win32-g++:CONFIG(release, debug|release):LIBS += -L$$BOOSTLIB -lboost_date_time-mgw48-mt-1_56 -lboost_thread-mgw48-mt-1_56
-        else:win32-g++:CONFIG(debug, debug|release):LIBS += -L$$BOOSTLIB -lboost_date_time-mgw48-mt-d-1_56 -lboost_thread-mgw48-mt-d-1_56
-        else:CONFIG(release, debug|release):LIBS += -L$$BOOSTLIB -lboost_date_time-vc120-mt-1_56 -lboost_thread-vc120-mt-1_56
+        CONFIG(release, debug|release):LIBS += -L$$BOOSTLIB -lboost_date_time-vc120-mt-1_56 -lboost_thread-vc120-mt-1_56
         else:CONFIG(debug, debug|release):LIBS += -L$$BOOSTLIB -lboost_date_time-vc120-mt-gd-1_56 -lboost_thread-vc120-mt-gd-1_56
     }
 

@@ -5,9 +5,13 @@
 #include <QFileSystemModel>
 #include <QGraphicsScene>
 #include <QGraphicsPixmapItem>
+#include <QGraphicsPathItem>
 #include <QSize>
 #include <QPointF>
 #include <QPen>
+#include "types/MaskFrame.h"
+#include "types/ColorFrame.h"
+#include "filters/PrivacyFilter.h"
 
 namespace Ui {
 class MainWindow;
@@ -17,22 +21,17 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
-    enum DrawStatus {
-        NO_DRAW,
-        READY_TO_DRAW,
-        DRAWING,
-        END_DRAWING
-    };
-
     Ui::MainWindow* m_ui;
     QFileSystemModel m_fs_model;
     QGraphicsScene m_scene;
     QGraphicsPixmapItem* m_bg_item;
+    QGraphicsPathItem* m_mask_item;
     QImage m_current_image;
     const QSize MAX_IMAGE_SIZE = {600, 800};
-    DrawStatus m_draw_status = NO_DRAW;
     QPointF m_last_pixel;
     QPen m_pen;
+    QString m_current_image_path;
+    dai::PrivacyFilter m_privacy;
 
 public:
     explicit MainWindow(QWidget *parent = 0);
@@ -49,6 +48,7 @@ private slots:
     bool exceedSize(const QImage& image) const;
     void scaleImage(QImage &image) const;
     void updateView();
+    dai::MaskFrame create_mask(const QPainterPath& path);
 
 };
 

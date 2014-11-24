@@ -116,6 +116,8 @@
    </attribute>
    <addaction name="actionFit_image_to_screen"/>
    <addaction name="actionPrint_Scene_Info"/>
+   <addaction name="actionFinish_selection"/>
+   <addaction name="actionClearh_selection"/>
   </widget>
   <action name="actionOpen_folder">
    <property name="icon">
@@ -157,6 +159,24 @@
    </property>
    <property name="text">
     <string>Print Scene Info</string>
+   </property>
+  </action>
+  <action name="actionFinish_selection">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/process-stop.svg</normaloff>:/icons/icons/process-stop.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Finish selection</string>
+   </property>
+  </action>
+  <action name="actionClearh_selection">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/edit-clear.svg</normaloff>:/icons/icons/edit-clear.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Clearh selection</string>
    </property>
   </action>
  </widget>
