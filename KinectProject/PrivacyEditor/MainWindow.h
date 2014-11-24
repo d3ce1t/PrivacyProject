@@ -17,7 +17,7 @@ namespace Ui {
 class MainWindow;
 }
 
-class MainWindow : public QMainWindow
+class MainWindow : public QMainWindow, dai::FrameListener
 {
     Q_OBJECT
 
@@ -41,6 +41,7 @@ public:
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
+    void newFrames(const dai::QHashDataFrames dataFrames);
 
 private slots:
 
@@ -48,7 +49,7 @@ private slots:
     bool exceedSize(const QImage& image) const;
     void scaleImage(QImage &image) const;
     void updateView();
-    dai::MaskFrame create_mask(const QPainterPath& path);
+    shared_ptr<dai::MaskFrame> create_mask(const QPainterPath& path);
 
 };
 

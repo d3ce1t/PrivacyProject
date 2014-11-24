@@ -65,11 +65,18 @@ MainWindow::MainWindow(QWidget *parent) :
         m_mask_item->setPath(pp);
         m_mask_item->setBrush(brush);
 
-        dai::MaskFrame mask = create_mask(pp);
-        cv::Mat mat_mask(mask.height(), mask.width(), CV_8UC1, (void*) mask.getDataPtr(), mask.getStride());
+        shared_ptr<dai::MaskFrame> mask = create_mask(pp);
+        cv::Mat mat_mask(mask->height(), mask->width(), CV_8UC1, (void*) mask->getDataPtr(), mask->getStride());
         cv::Mat mat_color = cv::imread(m_current_image_path.toStdString());
         shared_ptr<dai::ColorFrame> color = make_shared<dai::ColorFrame>(mat_color.cols, mat_color.rows,
                                                                          (dai::RGBColor*) mat_color.data, mat_color.step);
+
+        dai::QHashDataFrames frames;
+        frames.insert(dai::DataFrame::Color, color);
+        frames.insert(dai::DataFrame::Mask, mask);
+
+        m_privacy.addListener(this);
+        m_privacy.newFrames(frames);
 
         for (int i=0; i<mat_mask.rows; ++i)
         {
@@ -237,9 +244,9 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     return QObject::eventFilter(obj, event);
 }
 
-dai::MaskFrame MainWindow::create_mask(const QPainterPath& path)
+shared_ptr<dai::MaskFrame> MainWindow::create_mask(const QPainterPath& path)
 {
-    dai::MaskFrame mask(m_bg_item->pixmap().width(), m_bg_item->pixmap().height());
+    shared_ptr<dai::MaskFrame> mask = std::make_shared<dai::MaskFrame>(m_bg_item->pixmap().width(), m_bg_item->pixmap().height());
     QRectF search_region = path.boundingRect();
 
     for (int i = search_region.top(); i < search_region.bottom(); ++i)
@@ -247,10 +254,15 @@ dai::MaskFrame MainWindow::create_mask(const QPainterPath& path)
         for (int j= search_region.left(); j < search_region.right(); ++j)
         {
             if (path.contains(QPointF(j, i))) {
-                mask.setItem(i, j, 1);
+                mask->setItem(i, j, 1);
             }
         }
     }
 
     return mask;
+}
+
+void MainWindow::newFrames(const dai::QHashDataFrames dataFrames)
+{
+    qDebug() << "Debug!";
 }
