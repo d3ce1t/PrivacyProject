@@ -17,6 +17,11 @@
 #include <cmath>
 #include "opencv_utils.h"
 
+void PrivacyLib_InitResources()
+{
+    Q_INIT_RESOURCE(privacylib);
+}
+
 namespace dai {
 
 PrivacyFilter::PrivacyFilter()
@@ -163,16 +168,39 @@ void PrivacyFilter::newFrames(const QHashDataFrames dataFrames)
     }
 }
 
+void PrivacyFilter::singleFrame(const QHashDataFrames dataFrames)
+{
+    if (!m_initialised) {
+        initialise();
+        FrameGenerator::begin(false);
+    }
+
+    // Copy frames (1 ms)
+    m_frames->clear();
+
+    foreach (DataFrame::FrameType key, dataFrames.keys()) {
+        shared_ptr<DataFrame> frame = dataFrames.value(key);
+        m_frames->insert(key, frame->clone());
+    }
+
+    // Generate
+    bool newFrames = generate();
+
+    if (subscribersCount() == 0 || !newFrames) {
+        qDebug() << "PrivacyFilter: No listeners or Nothing produced";
+        stopListener();
+    }
+}
+
 void PrivacyFilter::produceFrames(QHashDataFrames &output)
 {
-    Q_ASSERT(output.contains(DataFrame::Color) && output.contains(DataFrame::Mask) &&
-             output.contains(DataFrame::Skeleton) && output.contains(DataFrame::Metadata));
+    Q_ASSERT(output.contains(DataFrame::Color) && output.contains(DataFrame::Mask)); /*&& output.contains(DataFrame::Metadata));*/
 
     shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(output.value(DataFrame::Color));
     shared_ptr<MaskFrame> maskFrame = static_pointer_cast<MaskFrame>(output.value(DataFrame::Mask));
 
     // Dilate mask to create a wide border (value = 255)
-    shared_ptr<MaskFrame> outputMask = static_pointer_cast<MaskFrame>(maskFrame->clone());
+    /*shared_ptr<MaskFrame> outputMask = static_pointer_cast<MaskFrame>(maskFrame->clone());
     dilateUserMask(const_cast<uint8_t*>(outputMask->getDataPtr()));
 
     for (int i=0; i<maskFrame->height(); ++i)
@@ -186,7 +214,7 @@ void PrivacyFilter::produceFrames(QHashDataFrames &output)
                 maskFrame->setItem(i, j, uint8_t(255));
             }
         }
-    }
+    }*/
 
     //
     // Prepare Scene
@@ -209,15 +237,18 @@ void PrivacyFilter::produceFrames(QHashDataFrames &output)
     m_scene->addItem(silhouetteItem);
 
     // Add skeleton item to the scene
-    if (!skeletonItem)
-        skeletonItem.reset(new SkeletonItem);
+    if (output.contains(DataFrame::Skeleton)) {
+        if (!skeletonItem)
+            skeletonItem.reset(new SkeletonItem);
 
-    skeletonItem->setSkeleton( static_pointer_cast<SkeletonFrame>(output.value(DataFrame::Skeleton)) );
-    m_scene->addItem(skeletonItem);
+        skeletonItem->setSkeleton( static_pointer_cast<SkeletonFrame>(output.value(DataFrame::Skeleton)) );
+        m_scene->addItem(skeletonItem);
+    }
 
     // Enable Filter
     m_scene->enableFilter(m_filter);
-    if (m_filter == FILTER_3DMODEL)
+
+    if (m_filter == FILTER_3DMODEL && output.contains(DataFrame::Skeleton))
         m_ogreScene->enableFilter(true);
     else
         m_ogreScene->enableFilter(false);
@@ -231,7 +262,8 @@ void PrivacyFilter::produceFrames(QHashDataFrames &output)
     //
 
     // Render Avatar
-    m_ogreScene->render();
+    if (output.contains(DataFrame::Skeleton))
+        m_ogreScene->render();
 
     // Render and compose rest of the scene
     m_glContext->makeCurrent(&m_surface);
@@ -245,14 +277,14 @@ void PrivacyFilter::produceFrames(QHashDataFrames &output)
                          (GLvoid*) colorFrame->getDataPtr());
 
     // Face detection
-    std::vector<cv::Rect> faces = faceDetection(colorFrame);
+    /*std::vector<cv::Rect> faces = faceDetection(colorFrame);
 
     cv::Mat color_mat(colorFrame->height(), colorFrame->width(), CV_8UC3,
                       (void*) colorFrame->getDataPtr(), colorFrame->getStride());
 
     for (size_t i = 0; i < faces.size(); i++) {
         cv::rectangle(color_mat, faces[i], cv::Scalar(255, 255, 0));
-    }
+    }*/
 
     // Save color as JPEG
     if (m_make_capture) {

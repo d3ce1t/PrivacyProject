@@ -14,6 +14,8 @@
 #include <QFile>
 #include "types/Histogram.h"
 
+extern void PrivacyLib_InitResources();
+
 namespace dai {
 
 class PrivacyFilter : public FrameListener, public FrameGenerator
@@ -36,6 +38,7 @@ public:
     PrivacyFilter();
     ~PrivacyFilter();
     void newFrames(const QHashDataFrames dataFrames) override;
+    void singleFrame(const QHashDataFrames dataFrames);
     void enableFilter(ColorFilter filterType);
     void captureImage();
 
