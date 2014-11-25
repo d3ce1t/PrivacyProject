@@ -30,7 +30,6 @@ protected:
 
 private:
     void createFrameBuffer();
-    void enableBGRendering();
     void extractBackground();
     void renderBackground();
     void renderComposite();

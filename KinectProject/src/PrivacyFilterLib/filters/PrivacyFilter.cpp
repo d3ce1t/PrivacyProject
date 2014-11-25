@@ -33,7 +33,6 @@ PrivacyFilter::PrivacyFilter()
     , m_file("data.csv")
     , m_out(&m_file)
     , m_make_capture(false)
-    //, m_control(this)
 {
     QSurfaceFormat format;
     format.setMajorVersion(2);
@@ -68,8 +67,10 @@ PrivacyFilter::~PrivacyFilter()
    qDebug() << "PrivacyFilter::~PrivacyFilter";
 }
 
-void PrivacyFilter::initialise()
+void PrivacyFilter::initialise(int width, int height)
 {
+    m_width = width;
+    m_height = height;
     m_glContext = new QOpenGLContext;
     m_glContext->setFormat(m_surface.format());
 
@@ -80,25 +81,31 @@ void PrivacyFilter::initialise()
 
     m_glContext->makeCurrent(&m_surface);
     m_gles = m_glContext->functions();
-    m_ogreScene->initialise();
+    m_ogreScene->initialise(m_width, m_height);
     m_scene->setAvatarTexture(m_ogreScene->texture());
+    m_fboDisplay = createFBO(m_width, m_height);
+    m_glContext->doneCurrent();
+    m_initialised = true;
+}
 
-    // Create frame buffer Object
+QOpenGLFramebufferObject* PrivacyFilter::createFBO(int width, int height) const
+{
+    QOpenGLFramebufferObject* fbo = nullptr;
     QOpenGLFramebufferObjectFormat format;
     format.setInternalTextureFormat(GL_RGB);
     format.setTextureTarget(GL_TEXTURE_2D);
     format.setSamples(0);
     format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
 
-    m_fboDisplay = new QOpenGLFramebufferObject(QSize(640, 480), format);
+    fbo = new QOpenGLFramebufferObject(QSize(width, height), format);
 
-    if (!m_fboDisplay->isValid()) {
+    if (!fbo->isValid()) {
+        fbo = nullptr;
         qDebug() << "FBO Error";
         throw 2;
     }
 
-    m_glContext->doneCurrent();
-    m_initialised = true;
+    return fbo;
 }
 
 void PrivacyFilter::freeResources()
@@ -139,6 +146,25 @@ shared_ptr<QHashDataFrames> PrivacyFilter::allocateMemory()
     return m_frames;
 }
 
+void PrivacyFilter::resize(int width, int height)
+{
+    m_width = width;
+    m_height = height;
+
+    m_glContext->makeCurrent(&m_surface);
+    m_ogreScene->resize(m_width, m_height);
+    m_scene->setAvatarTexture(m_ogreScene->texture());
+
+    if (m_fboDisplay) {
+        delete m_fboDisplay;
+        m_fboDisplay = nullptr;
+    }
+
+    m_fboDisplay = createFBO(m_width, m_height);
+    m_scene->setSize(m_width, m_height);
+    m_glContext->doneCurrent();
+}
+
 // This method is called from a thread
 void PrivacyFilter::newFrames(const QHashDataFrames dataFrames)
 {
@@ -168,11 +194,13 @@ void PrivacyFilter::newFrames(const QHashDataFrames dataFrames)
     }
 }
 
-void PrivacyFilter::singleFrame(const QHashDataFrames dataFrames)
+void PrivacyFilter::singleFrame(const QHashDataFrames dataFrames, int width, int height)
 {
     if (!m_initialised) {
-        initialise();
+        initialise(width, height);
         FrameGenerator::begin(false);
+    } else {
+        resize(width, height);
     }
 
     // Copy frames (1 ms)
@@ -319,7 +347,7 @@ void PrivacyFilter::enableFilter(ColorFilter filterType)
 void PrivacyFilter::dilateUserMask(uint8_t *labels)
 {
     int dilationSize = 18;
-    cv::Mat newImag(480, 640, cv::DataType<uint8_t>::type, labels);
+    cv::Mat newImag(m_height, m_width, cv::DataType<uint8_t>::type, labels);
     cv::Mat kernel = cv::getStructuringElement(cv::MORPH_CROSS,
                                                cv::Size(2*dilationSize + 1, 2*dilationSize+1),
                                                cv::Point( dilationSize, dilationSize ) );

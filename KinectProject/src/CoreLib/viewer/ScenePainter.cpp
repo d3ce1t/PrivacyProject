@@ -4,6 +4,8 @@ namespace dai {
 
 ScenePainter::ScenePainter()
 {
+    m_scene_width = 640;
+    m_scene_height = 480;
     m_initialised = false;
     m_needLoading.store(0);
     m_dirty.store(0);

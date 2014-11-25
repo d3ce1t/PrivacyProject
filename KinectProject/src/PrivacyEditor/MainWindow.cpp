@@ -20,6 +20,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_mask_item = m_scene.addPath(QPainterPath(), m_pen);
     m_scene.installEventFilter(this);
     m_ui->graphicsView->setScene(&m_scene);
+    m_privacy.addListener(this);
 
     // Action: Open Folder (setup model)
     connect(m_ui->actionOpen_folder, &QAction::triggered, [=]() {
@@ -66,33 +67,15 @@ MainWindow::MainWindow(QWidget *parent) :
         m_mask_item->setBrush(brush);
 
         shared_ptr<dai::MaskFrame> mask = create_mask(pp);
-        cv::Mat mat_mask(mask->height(), mask->width(), CV_8UC1, (void*) mask->getDataPtr(), mask->getStride());
-        cv::Mat mat_color = cv::imread(m_current_image_path.toStdString());
-        shared_ptr<dai::ColorFrame> color = make_shared<dai::ColorFrame>(mat_color.cols, mat_color.rows,
-                                                                         (dai::RGBColor*) mat_color.data, mat_color.step);
+        cv::Mat color_mat = cv::imread(m_current_image_path.toStdString());
+        shared_ptr<dai::ColorFrame> color = make_shared<dai::ColorFrame>(color_mat.cols, color_mat.rows,
+                                                                         (dai::RGBColor*) color_mat.data, color_mat.step);
 
         dai::QHashDataFrames frames;
         frames.insert(dai::DataFrame::Color, color);
         frames.insert(dai::DataFrame::Mask, mask);
-
-        m_privacy.addListener(this);
-        m_privacy.newFrames(frames);
-
-        for (int i=0; i<mat_mask.rows; ++i)
-        {
-            uchar* mask_pixel = mat_mask.ptr<uchar>(i);
-            cv::Vec3b* color_pixel = mat_color.ptr<cv::Vec3b>(i);
-
-            for (int j=0; j<mat_mask.cols; ++j) {
-
-                if (mask_pixel[j] > 0) {
-                    color_pixel[j][0] = 255;
-                }
-            }
-        }
-
-        cv::imshow("image", mat_color);
-        cv::waitKey();
+        m_privacy.enableFilter(dai::FILTER_EMBOSS);
+        m_privacy.singleFrame(frames, color->width(), color->height());
     });
 
     // Action: Clear selection
@@ -238,7 +221,6 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         //pp.closeSubpath()
        // pp.lineTo(paint_event->scenePos());
         m_mask_item->setPath(pp);*/
-
     }
 
     return QObject::eventFilter(obj, event);
@@ -264,5 +246,8 @@ shared_ptr<dai::MaskFrame> MainWindow::create_mask(const QPainterPath& path)
 
 void MainWindow::newFrames(const dai::QHashDataFrames dataFrames)
 {
-    qDebug() << "Debug!";
+    qDebug() << dataFrames.size();
+    shared_ptr<dai::ColorFrame> color = static_pointer_cast<dai::ColorFrame>(dataFrames.value(dai::DataFrame::Color));
+    cv::Mat color_mat(color->height(), color->width(), CV_8UC3, (void*) color->getDataPtr(), color->getStride());
+    cv::imshow("image", color_mat);
 }

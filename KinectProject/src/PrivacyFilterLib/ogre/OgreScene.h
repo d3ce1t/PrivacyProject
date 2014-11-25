@@ -15,17 +15,18 @@ class OgreScene : public QOpenGLFunctions
 public:
     OgreScene();
     virtual ~OgreScene();
-    void initialise();
+    void initialise(int width = 640, int height = 480);
     void prepareData(const dai::QHashDataFrames frames);
     void render();
     void enableFilter(bool flag);
     GLuint texture() const;
+    void resize(int width, int height);
 
 protected:
     void setupResources();
-    void createPointCloud();
-    void loadDepthData(shared_ptr<dai::DepthFrame> depthFrame);
-    void loadColorData(shared_ptr<dai::ColorFrame> colorFrame);
+    //void createPointCloud();
+    //void loadDepthData(shared_ptr<dai::DepthFrame> depthFrame);
+    //void loadColorData(shared_ptr<dai::ColorFrame> colorFrame);
     void createCamera();
     void createScene();
     void convertDepthToRealWorld(int x, int y, float distance, float &outX, float &outY) const;
@@ -34,6 +35,8 @@ private:
     void createOpenGLContext();
     void activateOgreContext();
     void doneOgreContext();
+    void updateFBO(int width, int height);
+    void updateViewport();
 
     // OpenGL
     QOpenGLContext*         m_qtContext;
@@ -55,10 +58,10 @@ private:
     // Character and other items
     SinbadCharacterController* m_chara;
     QReadWriteLock          m_lock;
-    dai::OgrePointCloud*    m_pointCloud;
-    float*                  m_pDepthData;
-    float*                  m_pColorData;
-    int                     m_numPoints;
+    //dai::OgrePointCloud*    m_pointCloud;
+    //float*                  m_pDepthData;
+    //float*                  m_pColorData;
+    //int                     m_numPoints;
     bool                    m_initialised;
     qint64                  m_lastTime;
     QElapsedTimer           m_timer;

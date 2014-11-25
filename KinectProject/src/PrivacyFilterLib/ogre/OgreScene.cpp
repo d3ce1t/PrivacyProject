@@ -18,10 +18,10 @@ OgreScene::OgreScene()
     , m_renderTarget(nullptr)
     , m_viewport(nullptr)
     , m_chara(nullptr)
-    , m_pointCloud(nullptr)
-    , m_pDepthData(nullptr)
-    , m_pColorData(nullptr)
-    , m_numPoints(640*480)
+    //, m_pointCloud(nullptr)
+    //, m_pDepthData(nullptr)
+    //, m_pColorData(nullptr)
+    //, m_numPoints(640*480)
     , m_initialised(false)
     , m_lastTime(0)
     , m_userId(-1)
@@ -41,25 +41,25 @@ OgreScene::OgreScene()
 
 OgreScene::~OgreScene()
 {
-    if (m_pDepthData) {
+    /*if (m_pDepthData) {
         delete[] m_pDepthData;
         m_pDepthData = nullptr;
-    }
+    }*/
 
-    if (m_pColorData) {
+    /*if (m_pColorData) {
         delete[] m_pColorData;
         m_pColorData = nullptr;
-    }
+    }*/
 
     if (m_chara) {
         delete m_chara;
         m_chara = nullptr;
     }
 
-    if (m_pointCloud) {
+    /*if (m_pointCloud) {
         delete m_pointCloud;
         m_pointCloud = nullptr;
-    }
+    }*/
 
     if (m_root) {
         activateOgreContext();
@@ -69,7 +69,7 @@ OgreScene::~OgreScene()
     }
 }
 
-void OgreScene::initialise()
+void OgreScene::initialise(int width, int height)
 {
     createOpenGLContext();
     activateOgreContext();
@@ -96,27 +96,12 @@ void OgreScene::initialise()
     params["currentGLContext"] = "true"; // Linux GL Renderer
 #endif
 
-    m_ogreWindow = m_root->createRenderWindow("", 640, 480, false, &params);
+    m_ogreWindow = m_root->createRenderWindow("", width, height, false, &params);
     m_sceneManager = m_root->createSceneManager(Ogre::ST_GENERIC, "mySceneManager");
 
-    // First create Ogre RTT texture
-    Ogre::TexturePtr rttTexture = Ogre::TextureManager::getSingleton().createManual("RttTex",
-                                                                     Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-                                                                     Ogre::TEX_TYPE_2D, 640, 480, 0, Ogre::PF_R8G8B8A8,
-                                                                     Ogre::TU_RENDERTARGET, 0, false, 4);
-    m_renderTarget = rttTexture->getBuffer()->getRenderTarget();
-
-    Ogre::GLTexture* nativeTexture = static_cast<Ogre::GLTexture *>(rttTexture.get());
-    m_nativeTextureId = nativeTexture->getGLID();
-
+    updateFBO(width, height);
     createCamera();
-
-    m_viewport = m_renderTarget->addViewport(m_camera);
-    m_viewport->setDepthClear(1.0f);
-    m_viewport->setBackgroundColour(Ogre::ColourValue(0.0f, 0.0f, 0.0f, 0.0f));
-    m_viewport->setClearEveryFrame(true);
-    m_viewport->setOverlaysEnabled(false);
-
+    updateViewport();
     setupResources();
 
     // Create scene, cameras and others
@@ -127,6 +112,37 @@ void OgreScene::initialise()
 
     m_timer.start();
     m_initialised = true;
+}
+
+void OgreScene::updateFBO(int width, int height)
+{
+    // First create Ogre RTT texture
+    Ogre::TexturePtr rttTexture = Ogre::TextureManager::getSingleton().createManual("RttTex",
+                                                                     Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+                                                                     Ogre::TEX_TYPE_2D, width, height, 0, Ogre::PF_R8G8B8A8,
+                                                                     Ogre::TU_RENDERTARGET, 0, false, 4);
+
+    Ogre::GLTexture* nativeTexture = static_cast<Ogre::GLTexture *>(rttTexture.get());
+    m_nativeTextureId = nativeTexture->getGLID();
+    m_renderTarget = rttTexture->getBuffer()->getRenderTarget();
+}
+
+void OgreScene::updateViewport()
+{
+    m_viewport = m_renderTarget->addViewport(m_camera);
+    m_viewport->setDepthClear(1.0f);
+    m_viewport->setBackgroundColour(Ogre::ColourValue(0.0f, 0.0f, 0.0f, 0.0f));
+    m_viewport->setClearEveryFrame(true);
+    m_viewport->setOverlaysEnabled(false);
+}
+
+void OgreScene::resize(int width, int height)
+{
+    activateOgreContext();
+    //m_ogreWindow->resize(width, height);
+    updateFBO(width, height);
+    updateViewport();
+    doneOgreContext();
 }
 
 GLuint OgreScene::texture() const
@@ -168,7 +184,6 @@ void OgreScene::createCamera()
     m_camera->setNearClipDistance(0.1f);
     m_camera->setAspectRatio(4/3);
     m_camera->setFOVy(Ogre::Degree(45));
-    //m_camera->setPosition(Vector3(120, 0, 0));
     m_camera->setPosition(Ogre::Vector3(0, 0, 0));
     m_camera->lookAt(0, 0, 0);
 
@@ -200,7 +215,7 @@ void OgreScene::createScene()
     m_chara = new SinbadCharacterController(m_camera);
 }
 
-void OgreScene::createPointCloud()
+/*void OgreScene::createPointCloud()
 {
     // Init point cloud mesh and required data
     m_pDepthData = new float[m_numPoints*3];
@@ -215,7 +230,7 @@ void OgreScene::createPointCloud()
     node->scale(23, 23, 23);
     node->setPosition(0, 0, 0);
     node->attachObject(entity);
-}
+}*/
 
 void OgreScene::prepareData(const dai::QHashDataFrames frames)
 {
@@ -225,16 +240,16 @@ void OgreScene::prepareData(const dai::QHashDataFrames frames)
         return;
 
     // Load Depth
-    if (m_pointCloud && frames.contains(dai::DataFrame::Depth)) {
+    /*if (m_pointCloud && frames.contains(dai::DataFrame::Depth)) {
         shared_ptr<dai::DepthFrame> depthFrame = static_pointer_cast<dai::DepthFrame>(frames.value(dai::DataFrame::Depth));
         loadDepthData(depthFrame);
-    }
+    }*/
 
     // Load Color
-    if (m_pointCloud && frames.contains(dai::DataFrame::Color)) {
+    /*if (m_pointCloud && frames.contains(dai::DataFrame::Color)) {
         shared_ptr<dai::ColorFrame> colorFrame = static_pointer_cast<dai::ColorFrame>(frames.value(dai::DataFrame::Color));
         loadColorData(colorFrame);
-    }
+    }*/
 
     // Match skeleton with the character
     if (frames.contains(dai::DataFrame::Skeleton))
@@ -272,11 +287,11 @@ void OgreScene::render()
 {
     activateOgreContext();
 
-    if (m_pointCloud) {
+    /*if (m_pointCloud) {
         QReadLocker locker(&m_lock);
         m_pointCloud->updateVertexPositions(m_pDepthData, m_numPoints);
         m_pointCloud->updateVertexColours(m_pColorData, 640*480);
-    }
+    }*/
 
     if (m_ogreWindow && m_renderTarget) {
         m_renderTarget->update(true);
@@ -285,7 +300,7 @@ void OgreScene::render()
     doneOgreContext();
 }
 
-void OgreScene::loadDepthData(shared_ptr<dai::DepthFrame> depthFrame)
+/*void OgreScene::loadDepthData(shared_ptr<dai::DepthFrame> depthFrame)
 {
     QWriteLocker locker(&m_lock);
     float* pV = m_pDepthData;
@@ -314,9 +329,9 @@ void OgreScene::loadDepthData(shared_ptr<dai::DepthFrame> depthFrame)
             m_numPoints++;
         }
     }
-}
+}*/
 
-void OgreScene::loadColorData(shared_ptr<dai::ColorFrame> colorFrame)
+/*void OgreScene::loadColorData(shared_ptr<dai::ColorFrame> colorFrame)
 {
     QWriteLocker locker(&m_lock);
     float* pColorDest = m_pColorData;
@@ -339,7 +354,7 @@ void OgreScene::loadColorData(shared_ptr<dai::ColorFrame> colorFrame)
             m_numPoints++;
         }
     }
-}
+}*/
 
 void OgreScene::convertDepthToRealWorld(int x, int y, float distance, float &outX, float &outY) const
 {

@@ -33,17 +33,20 @@ class PrivacyFilter : public FrameListener, public FrameGenerator
     QTextStream m_out;
     bool m_make_capture;
     cv::CascadeClassifier m_face_cascade;
+    int m_width = 640;
+    int m_height = 480;
 
 public:
     PrivacyFilter();
     ~PrivacyFilter();
     void newFrames(const QHashDataFrames dataFrames) override;
-    void singleFrame(const QHashDataFrames dataFrames);
+    void singleFrame(const QHashDataFrames dataFrames, int width, int height);
     void enableFilter(ColorFilter filterType);
     void captureImage();
+    void resize(int width, int height);
 
 protected:
-    void initialise();
+    void initialise(int width = 640, int height = 480);
     void afterStop() override;
     shared_ptr<QHashDataFrames> allocateMemory() override;
     void produceFrames(QHashDataFrames& output) override;
@@ -53,6 +56,7 @@ private:
     void dilateUserMask(uint8_t *labels);
     std::vector<cv::Rect> faceDetection(shared_ptr<ColorFrame> frame);
     std::vector<cv::Rect> faceDetection(cv::Mat frameGray, bool equalised = false);
+    QOpenGLFramebufferObject* createFBO(int width, int height) const;
 };
 
 } // End Namespace

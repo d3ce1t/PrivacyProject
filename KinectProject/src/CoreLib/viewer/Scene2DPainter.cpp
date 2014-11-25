@@ -58,7 +58,7 @@ void Scene2DPainter::initialise()
     // Configure ViewPort and Clear Screen
     glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
     glClearDepth(1.0f);
-    glViewport(0, 0, 640, 480);
+    glViewport(0, 0, m_scene_width, m_scene_height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
@@ -88,7 +88,6 @@ void Scene2DPainter::render(QOpenGLFramebufferObject *target)
     setupTextures();
 
     // Stage 1
-    enableBGRendering();
     extractBackground();// background is in bgTexture, foreground is in fgTexture
     renderBackground(); // it renders bg or fg into fboFirstPass
 
@@ -125,18 +124,15 @@ void Scene2DPainter::setupTextures()
     }
 }
 
-void Scene2DPainter::enableBGRendering()
+void Scene2DPainter::extractBackground()
 {
     m_fboFirstPass->bind();
 
-    glViewport(0, 0, 640, 480);
+    glViewport(0, 0, m_scene_width, m_scene_height);
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClearDepth(1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
 
-void Scene2DPainter::extractBackground()
-{
     m_shaderProgram->setUniformValue(m_stageUniform, 1);
     m_vao.bind();
 
@@ -156,7 +152,7 @@ void Scene2DPainter::extractBackground()
     glDrawArrays(GL_TRIANGLE_FAN, m_posAttr, 4);
 
     // Copy rendered scene to bound texture (bgTexture) for read in next iteration
-    glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, 640, 480, 0);
+    glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, m_scene_width, m_scene_height, 0);
 
     // Unbind bgTexture
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -259,7 +255,7 @@ void Scene2DPainter::renderItems(QOpenGLFramebufferObject* target)
 
     // Second-pass (write to target, read from fboFirstPass)
     target->bind();
-    glViewport(0, 0, 640, 480);
+    glViewport(0, 0, m_scene_width, m_scene_height);
 
     m_shaderProgram->bind();
     m_vao.bind();
@@ -309,7 +305,7 @@ void Scene2DPainter::renderComposite()
 
 void Scene2DPainter::createFrameBuffer()
 {
-    m_fboFirstPass = new QOpenGLFramebufferObject(640, 480);
+    m_fboFirstPass = new QOpenGLFramebufferObject(m_scene_width, m_scene_height);
 
     if (!m_fboFirstPass->isValid()) {
         qDebug() << "FBO Error";
@@ -355,10 +351,10 @@ void Scene2DPainter::prepareShaderProgram()
 void Scene2DPainter::prepareVertexBuffer()
 {
     float vertexData[] = {
-        0.0, (float) 480,
-        (float) 640, (float) 480,
-        (float) 640, 0,
-        0.0, 0.0
+        0.0f, 480.0f,
+        640.0f, 480.0f,
+        640.0f, 0.0f,
+        0.0f, 0.0f
     };
 
     float texCoordsData[] = {
@@ -402,6 +398,7 @@ ColorFilter Scene2DPainter::currentFilter() const
 
 void Scene2DPainter::resetPerspective()
 {
+    qDebug() << "Reset Pers." << m_scene_width << m_scene_height;
     m_matrix.setToIdentity();
     m_matrix.ortho(0, 640, 480, 0, -1.0, 1.0);
 }
