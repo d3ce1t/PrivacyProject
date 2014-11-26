@@ -1,7 +1,7 @@
 CONFIG += c++11
 CONFIG -= debug_and_release
 
-ROOT_PATH = $$PWD/..
+ROOT_PATH = $$OUT_PWD/../..
 BUILD_PATH = $$ROOT_PATH/build
 BIN_PATH = $$ROOT_PATH/bin
 

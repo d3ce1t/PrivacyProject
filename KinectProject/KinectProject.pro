@@ -1,8 +1,6 @@
 TEMPLATE = subdirs
 CONFIG += ordered
 
-DESTDIR = $$PWD/bin
-
 SUBDIRS += src/CoreLib \
     src/PrivacyFilterLib \
     src/DatasetBrowser \
@@ -10,3 +8,4 @@ SUBDIRS += src/CoreLib \
     src/PrivacyFilters \
     src/PersonReid \
     src/PrivacyEditor
+
