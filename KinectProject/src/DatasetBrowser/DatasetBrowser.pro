@@ -58,33 +58,3 @@ win32 {
     # CoreLib Static
     PRE_TARGETDEPS += $$BIN_PATH/CoreLib.lib
 }
-
-# Install Linux Files
-unix:!macx {
-    # Config Files
-    Config.path = $$OUT_PWD
-    Config.files = ../config/linux/*
-}
-
-# Install Win Files
-win32 {
-    # Config Files
-    Config.path = $$DESTDIR
-    CONFIG(release, debug|release):Config.files = ../config/win/release/*
-    else:CONFIG(debug, debug|release):Config.files = ../config/win/debug/*
-
-    # OpenNI dll
-    win32:OPENNI_DIR = $$(OPENNI2_REDIST)
-    win32:OpenNI.path = $$DESTDIR
-    win32:OpenNI.files = $$OPENNI_DIR/OpenNI2.dll $$OPENNI_DIR/OpenNI2
-
-    # NiTE dll
-    NITE_DIR = $$(NITE2_REDIST)
-    NiTE.path = $$DESTDIR
-    NiTE.files = $$NITE_DIR/NiTE2.dll
-
-    INSTALLS += OpenNI NiTE
-}
-
-# make install
-INSTALLS += Config

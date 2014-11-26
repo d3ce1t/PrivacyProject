@@ -22,9 +22,6 @@ HEADERS += \
     ogre/SinbadCharacterController.h
 
 unix {
-    target.path = /usr/lib
-    INSTALLS += target
-
     # CoreLib
     INCLUDEPATH += $$PWD/../CoreLib
     DEPENDPATH += $$PWD/../CoreLib
