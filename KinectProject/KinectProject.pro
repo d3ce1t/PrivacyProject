@@ -1,13 +1,12 @@
 TEMPLATE = subdirs
+CONFIG += ordered
 
-SUBDIRS += \
-    CoreLib \
-    DatasetBrowser \
-    DatasetParser \
-    PrivacyFilters \
-    PersonReid \
-    PrivacyEditor \
-    PrivacyFilterLib
-    #QmlOgreLib
-    #OgreSinbad
-    #QmlOgreSinbad 
+DESTDIR = $$PWD/bin
+
+SUBDIRS += src/CoreLib \
+    src/PrivacyFilterLib \
+    src/DatasetBrowser \
+    src/DatasetParser \
+    src/PrivacyFilters \
+    src/PersonReid \
+    src/PrivacyEditor

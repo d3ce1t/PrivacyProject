@@ -1,16 +1,13 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2014-11-21T21:18:48
-#
-#-------------------------------------------------
+!include(../common.pri) {
+    error("Couldn't find the common.pri file!")
+}
 
 QT  = core gui
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = PrivacyFilterLib
 TEMPLATE = lib
-CONFIG += staticlib
-CONFIG += create_prl
-CONFIG += c++11
+CONFIG += staticlib create_prl thread
 
 SOURCES += \
     filters/PrivacyFilter.cpp \
@@ -49,7 +46,7 @@ unix {
 
 win32 {
     # ensure QMAKE_MOC contains the moc executable path
-    load(moc)
+    #load(moc)
 
     INCLUDEPATH += $$PWD
 
@@ -58,12 +55,10 @@ win32 {
     DEPENDPATH += $$PWD/../CoreLib
 
     # CoreLib Dynamic
-    CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../CoreLib/release/ -lCoreLib
-    else:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../CoreLib/debug/ -lCoreLib
+    LIBS += -L$$BIN_PATH -lCoreLib
 
     # CoreLib Static
-    CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/release/CoreLib.lib
-    else:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/debug/CoreLib.lib
+    PRE_TARGETDEPS += $$BIN_PATH/CoreLib.lib
 
     # Ogre
     OGREDIR = $$(OGRE_HOME)
@@ -90,5 +85,6 @@ win32 {
     # OpenCV2
     INCLUDEPATH += $$(OPENCV2_INCLUDE)
     DEPENDPATH += $$(OPENCV2_INCLUDE)
-    LIBS += -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_objdetect -lopencv_photo -lopencv_features2d -lopencv_nonfree -lopencv_flann
+    CONFIG(release, debug|release):LIBS += -L$$(OPENCV2_LIB) -lopencv_core2410 -lopencv_imgproc2410 -lopencv_highgui2410 -lopencv_objdetect2410 -lopencv_photo2410
+    else:CONFIG(debug, debug|release):LIBS += -L$$(OPENCV2_LIB) -lopencv_core2410d -lopencv_imgproc2410d -lopencv_highgui2410d -lopencv_objdetect2410d -lopencv_photo2410d
 }

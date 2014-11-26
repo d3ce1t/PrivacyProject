@@ -1,19 +1,14 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2014-08-19T15:38:43
-#
-#-------------------------------------------------
+!include(../common.pri) {
+    error("Couldn't find the common.pri file!")
+}
 
-QT       += core quick gui concurrent
+QT += core quick gui concurrent
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = PersonReid
-CONFIG   += console
-CONFIG   -= app_bundle
-CONFIG += link_prl
-CONFIG += c++11
-
 TEMPLATE = app
+CONFIG += console app_bundle link_prl
+
 
 HEADERS += \
     PersonReid.h \
@@ -65,12 +60,10 @@ win32 {
     DEPENDPATH += $$PWD/../CoreLib
 
     # CoreLib Dynamic
-    CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../CoreLib/release/ -lCoreLib
-    else:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../CoreLib/debug/ -lCoreLib
+    LIBS += -L$$BIN_PATH/ -lCoreLib
 
     # CoreLib Static
-    CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/release/CoreLib.lib
-    else:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/debug/CoreLib.lib
+    PRE_TARGETDEPS += $$BIN_PATH/CoreLib.lib
 
     # Boost
     BOOSTDIR = $$(BOOST_INCLUDEDIR)
@@ -99,6 +92,3 @@ win32 {
     CONFIG(release, debug|release):LIBS += -L$$(OPENCV2_LIB) -lopencv_core2410 -lopencv_imgproc2410 -lopencv_highgui2410 -lopencv_objdetect2410 -lopencv_photo2410 -lopencv_features2d2410 -lopencv_nonfree2410 -lopencv_flann2410
     else:CONFIG(debug, debug|release):LIBS += -L$$(OPENCV2_LIB) -lopencv_core2410d -lopencv_imgproc2410d -lopencv_highgui2410d -lopencv_objdetect2410d -lopencv_photo2410d -lopencv_features2d2410d -lopencv_nonfree2410d -lopencv_flann2410d
 }
-
-CONFIG(release, debug|release): DESTDIR = $$OUT_PWD/release
-else:CONFIG(debug, debug|release): DESTDIR = $$OUT_PWD/debug

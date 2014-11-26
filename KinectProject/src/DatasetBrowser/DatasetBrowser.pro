@@ -1,8 +1,6 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2013-09-18T13:29:56
-#
-#-------------------------------------------------
+!include(../common.pri) {
+    error("Couldn't find the common.pri file!")
+}
 
 QT       += core gui quick multimedia
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -10,7 +8,6 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = DatasetBrowser
 TEMPLATE = app
 CONFIG += link_prl
-CONFIG += c++11
 
 HEADERS  += \
     DatasetBrowser.h \
@@ -48,7 +45,7 @@ unix:!macx {
 }
 
 win32 {
-    load(moc)
+    #load(moc)
     INCLUDEPATH += $$PWD
 
     # CoreLib
@@ -56,16 +53,11 @@ win32 {
     DEPENDPATH += $$PWD/../CoreLib
 
     # CoreLib Dynamic
-    CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../CoreLib/release/ -lCoreLib
-    else:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../CoreLib/debug/ -lCoreLib
+    LIBS += -L$$BIN_PATH/ -lCoreLib
 
     # CoreLib Static
-    CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/release/CoreLib.lib
-    else:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/debug/CoreLib.lib
+    PRE_TARGETDEPS += $$BIN_PATH/CoreLib.lib
 }
-
-CONFIG(release, debug|release): DESTDIR = $$OUT_PWD/release
-else:CONFIG(debug, debug|release): DESTDIR = $$OUT_PWD/debug
 
 # Install Linux Files
 unix:!macx {

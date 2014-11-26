@@ -1,17 +1,13 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2013-09-18T13:28:07
-#
-#-------------------------------------------------
+!include(../common.pri) {
+    error("Couldn't find the common.pri file!")
+}
 
 QT       += core qml quick gui multimedia
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = CoreLib
 TEMPLATE = lib
-CONFIG += staticlib
-CONFIG += create_prl
-CONFIG += c++11
+CONFIG += staticlib create_prl
 
 SOURCES += \
     types/SkeletonJoint.cpp \
@@ -132,8 +128,6 @@ HEADERS += \
     dataset/DAI4REID_Parsed/DAI4REID_Parsed.h \
     dataset/DAI4REID_Parsed/DAI4REID_ParsedInstance.h
 
-OTHER_FILES +=
-
 RESOURCES += \
     corelib.qrc
 
@@ -155,7 +149,7 @@ unix:!macx {
 }
 
 win32 {
-    load(moc)
+    #load(moc)
     INCLUDEPATH += $$PWD
 
     # GLM

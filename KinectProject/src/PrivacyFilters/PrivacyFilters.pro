@@ -1,10 +1,13 @@
+!include(../common.pri) {
+    error("Couldn't find the common.pri file!")
+}
+
 QT += core qml quick gui
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = PrivacyFilters
 TEMPLATE = app
 CONFIG += link_prl
-CONFIG += c++11
 
 HEADERS += \
     MainWindow.h \
@@ -78,24 +81,20 @@ win32 {
     DEPENDPATH += $$PWD/../CoreLib
 
     # CoreLib Dynamic
-    CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../CoreLib/release/ -lCoreLib
-    else:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../CoreLib/debug/ -lCoreLib
+    LIBS += -L$$BIN_PATH -lCoreLib
 
     # CoreLib Static
-    CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/release/CoreLib.lib
-    else:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/debug/CoreLib.lib
+    PRE_TARGETDEPS += $$BIN_PATH/CoreLib.lib
 
     # PrivacyFiltersLib
     INCLUDEPATH += $$PWD/../PrivacyFilterLib
     DEPENDPATH += $$PWD/../PrivacyFilterLib
 
     # PrivacyFiltersLib Dynamic
-    CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../PrivacyFilterLib/release/ -lPrivacyFilterLib
-    else:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../PrivacyFilterLib/debug/ -lPrivacyFilterLib
+    LIBS += -L$$BIN_PATH -lPrivacyFilterLib
 
     # PrivacyFiltersLib Static
-    CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../PrivacyFilterLib/release/PrivacyFilterLib.lib
-    else:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../PrivacyFilterLib/debug/PrivacyFilterLib.lib
+    PRE_TARGETDEPS += $$BIN_PATH/PrivacyFilterLib.lib
 
     # Ogre
     OGREDIR = $$(OGRE_HOME)
@@ -130,12 +129,9 @@ win32 {
     # OpenCV2
     INCLUDEPATH += $$(OPENCV2_INCLUDE)
     DEPENDPATH += $$(OPENCV2_INCLUDE)
-    CONFIG(release, debug|release):LIBS += -L$$(OPENCV2_LIB) -lopencv_core2410 -lopencv_imgproc2410 -lopencv_highgui2410 -lopencv_objdetect2410 -lopencv_photo2410 -lopencv_features2d2410 -lopencv_nonfree2410 -lopencv_flann2410
-    else:CONFIG(debug, debug|release):LIBS += -L$$(OPENCV2_LIB) -lopencv_core2410d -lopencv_imgproc2410d -lopencv_highgui2410d -lopencv_objdetect2410d -lopencv_photo2410d -lopencv_features2d2410d -lopencv_nonfree2410d -lopencv_flann2410d
+    #CONFIG(release, debug|release):LIBS += -L$$(OPENCV2_LIB) -lopencv_core2410 -lopencv_imgproc2410 -lopencv_highgui2410 -lopencv_objdetect2410 -lopencv_photo2410 -lopencv_features2d2410 -lopencv_nonfree2410 -lopencv_flann2410
+    #else:CONFIG(debug, debug|release):LIBS += -L$$(OPENCV2_LIB) -lopencv_core2410d -lopencv_imgproc2410d -lopencv_highgui2410d -lopencv_objdetect2410d -lopencv_photo2410d -lopencv_features2d2410d -lopencv_nonfree2410d -lopencv_flann2410d
 }
-
-CONFIG(release, debug|release): DESTDIR = $$OUT_PWD
-else:CONFIG(debug, debug|release): DESTDIR = $$OUT_PWD
 
 # Install Linux Files
 unix:!macx {
