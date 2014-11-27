@@ -13,14 +13,14 @@ public:
 
     static double dotProduct(const Vector3D& v1, const Vector3D& v2)
     {
-        return v1[0]*v2[0] + v1[1]*v2[1] + v1[3]*v2[3];
+        return v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2];
     }
 
     static Vector3D crossProduct(const Vector3D& v1, const Vector3D& v2)
     {
         Vector3D result;
-        result.setX(v1[1]*v2[3] - v1[3]*v2[1]);
-        result.setY(v1[3]*v2[0] - v1[0]*v2[3]);
+        result.setX(v1[1]*v2[2] - v1[2]*v2[1]);
+        result.setY(v1[2]*v2[0] - v1[0]*v2[2]);
         result.setZ(v1[0]*v2[1] - v1[1]*v2[0]);
         return result;
     }

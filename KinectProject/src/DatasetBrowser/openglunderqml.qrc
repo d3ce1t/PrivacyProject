@@ -1,8 +1,0 @@
-<RCC>
-    <qresource prefix="/glsl">
-        <file>glsl/scene3d.fsh</file>
-        <file>glsl/scene3d.vsh</file>
-        <file>glsl/silhouette.fsh</file>
-        <file>glsl/silhouette.vsh</file>
-    </qresource>
-</RCC>

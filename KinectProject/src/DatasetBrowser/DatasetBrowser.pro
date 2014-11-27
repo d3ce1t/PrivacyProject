@@ -27,8 +27,7 @@ OTHER_FILES += \
     glsl/silhouette.fsh \
     glsl/silhouette.vsh
 
-RESOURCES += \
-    openglunderqml.qrc
+RESOURCES +=
 
 FORMS    += \
     DatasetBrowser.ui \
@@ -38,8 +37,8 @@ FORMS    += \
 # Linux
 unix:!macx {
     # CoreLib
-    LIBS += -L$$OUT_PWD/../CoreLib/ -lCoreLib
-    PRE_TARGETDEPS += $$OUT_PWD/../CoreLib/libCoreLib.a
+    LIBS += -L$$BIN_PATH/ -lCoreLib
+    PRE_TARGETDEPS += $$BIN_PATH/libCoreLib.a
     INCLUDEPATH += $$PWD/../CoreLib
     DEPENDPATH += $$PWD/../CoreLib
 }
