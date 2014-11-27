@@ -151,7 +151,7 @@ void ViewerEngine::renderOpenGLScene(QOpenGLFramebufferObject* fbo)
     m_vao.bind();
 
     m_positionsBuffer.bind();
-    m_positionsBuffer.write(0, vertexData, 4*2*sizeof(float));
+    m_positionsBuffer.write( 0, vertexData, 4*2*sizeof(float) );
     m_positionsBuffer.release();
 
     glActiveTexture(GL_TEXTURE0 + 0);

@@ -14,25 +14,57 @@
    <string>Privacy Editor</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="4,1">
+   <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="4,1">
     <item>
-     <widget class="QGraphicsView" name="graphicsView">
-      <property name="mouseTracking">
-       <bool>false</bool>
-      </property>
-      <property name="acceptDrops">
-       <bool>false</bool>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-      </property>
-      <property name="viewportUpdateMode">
-       <enum>QGraphicsView::MinimalViewportUpdate</enum>
-      </property>
-      <property name="rubberBandSelectionMode">
-       <enum>Qt::IntersectsItemBoundingRect</enum>
-      </property>
-     </widget>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,8">
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Display:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="comboBox">
+          <property name="currentIndex">
+           <number>0</number>
+          </property>
+          <item>
+           <property name="text">
+            <string>Input Image</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Output Image</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QGraphicsView" name="graphicsView">
+        <property name="mouseTracking">
+         <bool>false</bool>
+        </property>
+        <property name="acceptDrops">
+         <bool>false</bool>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+        </property>
+        <property name="viewportUpdateMode">
+         <enum>QGraphicsView::MinimalViewportUpdate</enum>
+        </property>
+        <property name="rubberBandSelectionMode">
+         <enum>Qt::IntersectsItemBoundingRect</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
     <item>
      <layout class="QVBoxLayout" name="verticalLayout">

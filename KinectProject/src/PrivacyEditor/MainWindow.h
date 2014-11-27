@@ -17,14 +17,27 @@ namespace Ui {
 class MainWindow;
 }
 
+class Display {
+    QGraphicsScene m_scene;
+    QGraphicsPixmapItem* m_bg_item;
+    QImage m_image;
+
+public:
+    Display();
+    QGraphicsScene* scene();
+    int imageWidth() const;
+    int imageHeight() const;
+    void setImage(const QImage &image);
+};
+
 class MainWindow : public QMainWindow, dai::FrameListener
 {
     Q_OBJECT
 
     Ui::MainWindow* m_ui;
     QFileSystemModel m_fs_model;
-    QGraphicsScene m_scene;
-    QGraphicsPixmapItem* m_bg_item;
+    Display m_input;
+    Display m_output;
     QGraphicsPathItem* m_mask_item;
     QImage m_current_image;
     const QSize MAX_IMAGE_SIZE = {600, 800};
@@ -44,12 +57,11 @@ protected:
     void newFrames(const dai::QHashDataFrames dataFrames);
 
 private slots:
-
     void first_setup();
     bool exceedSize(const QImage& image) const;
     void scaleImage(QImage &image) const;
-    void updateView();
     shared_ptr<dai::MaskFrame> create_mask(const QPainterPath& path);
+    void setOutputImage(QImage image);
 
 };
 

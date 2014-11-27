@@ -2,6 +2,29 @@
 
 namespace dai {
 
+QOpenGLFramebufferObject* ScenePainter::createFBO(int width, int height)
+{
+    QOpenGLFramebufferObject* fbo = nullptr;
+
+    QOpenGLFramebufferObjectFormat format;
+    format.setInternalTextureFormat(GL_RGB);
+    format.setTextureTarget(GL_TEXTURE_2D);
+    format.setSamples(0);
+    format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
+
+    fbo = new QOpenGLFramebufferObject(QSize(width, height), format);
+
+    if (!fbo->isValid()) {
+        fbo = nullptr;
+        qDebug() << "FBO Error";
+        throw 2;
+    }
+
+    qDebug() << "handle" << fbo->handle() << "texture" << fbo->texture();
+
+    return fbo;
+}
+
 ScenePainter::ScenePainter()
 {
     m_scene_width = 640;
@@ -55,16 +78,23 @@ shared_ptr<SceneItem> ScenePainter::getFirstItem(ItemType type) const
     return result;
 }
 
-void ScenePainter::setBackground(shared_ptr<DataFrame> background)
+void ScenePainter::setBackground(DataFramePtr background)
 {
     m_bg = background;
     m_needLoading.store(1);
 }
 
-void ScenePainter::setSize(int width, int height)
+void ScenePainter::resize(int width, int height)
 {
+    qDebug() << "ScenePainter" << width << height;
     m_scene_width = width;
     m_scene_height = height;
+}
+
+void ScenePainter::resetPerspective()
+{
+    m_matrix.setToIdentity();
+    m_matrix.perspective(45, 4/3, 0.1f, 100.0f);
 }
 
 int ScenePainter::width() const
@@ -87,21 +117,24 @@ QMatrix4x4& ScenePainter::getMatrix()
     return m_matrix;
 }
 
-void ScenePainter::resetPerspective()
+void ScenePainter::initScene(int width, int height)
 {
-    m_matrix.setToIdentity();
-    m_matrix.perspective(45, 4/3, 0.1f, 100.0f);
+    if (!m_initialised) {
+        m_scene_width = width;
+        m_scene_height = height;
+        initializeOpenGLFunctions();
+        initialise();
+        resetPerspective();
+        m_initialised = true;
+    }
 }
 
 void ScenePainter::renderScene(QOpenGLFramebufferObject *target)
 {
-    if (!m_initialised)
-    {
-        initializeOpenGLFunctions();
-        if (target) target->bind();
-        initialise();
-        resetPerspective();
-        m_initialised = true;
+    qDebug() << "FBO" << target;
+
+    if (!m_initialised) {
+        initScene();
     }
 
     if (isDirty()) {
@@ -127,6 +160,8 @@ void ScenePainter::loadVideoTexture(GLuint glTextureId, GLsizei width, GLsizei h
 {
     glBindTexture(GL_TEXTURE_2D, glTextureId);
     glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, texture);
@@ -138,6 +173,8 @@ void ScenePainter::loadMaskTexture(GLuint glTextureId, GLsizei width, GLsizei he
 {
     glBindTexture(GL_TEXTURE_2D, glTextureId);
     glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, texture);

@@ -16,6 +16,7 @@
 #include "ml/KMeans.h"
 #include <cmath>
 #include "opencv_utils.h"
+#include <QLabel>
 
 void PrivacyLib_InitResources()
 {
@@ -50,7 +51,7 @@ PrivacyFilter::PrivacyFilter()
     }
 
     m_scene = new Scene2DPainter;
-    m_ogreScene = new OgreScene;
+    //m_ogreScene = new OgreScene;
 
     // haarcascade_frontalface_default
     // haarcascade_frontalface_alt.xml
@@ -81,31 +82,12 @@ void PrivacyFilter::initialise(int width, int height)
 
     m_glContext->makeCurrent(&m_surface);
     m_gles = m_glContext->functions();
-    m_ogreScene->initialise(m_width, m_height);
-    m_scene->setAvatarTexture(m_ogreScene->texture());
-    m_fboDisplay = createFBO(m_width, m_height);
+    //m_ogreScene->initialise(m_width, m_height);
+    //m_scene->setAvatarTexture(m_ogreScene->texture());
+    m_fboDisplay = ScenePainter::createFBO(m_width, m_height);
+    m_scene->initScene(width, height);
     m_glContext->doneCurrent();
     m_initialised = true;
-}
-
-QOpenGLFramebufferObject* PrivacyFilter::createFBO(int width, int height) const
-{
-    QOpenGLFramebufferObject* fbo = nullptr;
-    QOpenGLFramebufferObjectFormat format;
-    format.setInternalTextureFormat(GL_RGB);
-    format.setTextureTarget(GL_TEXTURE_2D);
-    format.setSamples(0);
-    format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
-
-    fbo = new QOpenGLFramebufferObject(QSize(width, height), format);
-
-    if (!fbo->isValid()) {
-        fbo = nullptr;
-        qDebug() << "FBO Error";
-        throw 2;
-    }
-
-    return fbo;
 }
 
 void PrivacyFilter::freeResources()
@@ -114,10 +96,10 @@ void PrivacyFilter::freeResources()
     {
         m_glContext->makeCurrent(&m_surface);
 
-        if (m_ogreScene) {
+        /*if (m_ogreScene) {
             delete m_ogreScene;
             m_ogreScene = nullptr;
-        }
+        }*/
 
         if (m_scene) {
             delete m_scene;
@@ -152,16 +134,16 @@ void PrivacyFilter::resize(int width, int height)
     m_height = height;
 
     m_glContext->makeCurrent(&m_surface);
-    m_ogreScene->resize(m_width, m_height);
-    m_scene->setAvatarTexture(m_ogreScene->texture());
+    //m_ogreScene->resize(m_width, m_height);
+    //m_scene->setAvatarTexture(m_ogreScene->texture());
 
     if (m_fboDisplay) {
         delete m_fboDisplay;
         m_fboDisplay = nullptr;
     }
 
-    m_fboDisplay = createFBO(m_width, m_height);
-    m_scene->setSize(m_width, m_height);
+    m_fboDisplay = ScenePainter::createFBO(m_width, m_height);
+    m_scene->resize(m_width, m_height);
     m_glContext->doneCurrent();
 }
 
@@ -196,6 +178,8 @@ void PrivacyFilter::newFrames(const QHashDataFrames dataFrames)
 
 void PrivacyFilter::singleFrame(const QHashDataFrames dataFrames, int width, int height)
 {
+    qDebug() << QThread::currentThreadId() << width << height;
+
     if (!m_initialised) {
         initialise(width, height);
         FrameGenerator::begin(false);
@@ -206,7 +190,7 @@ void PrivacyFilter::singleFrame(const QHashDataFrames dataFrames, int width, int
     // Copy frames (1 ms)
     m_frames->clear();
 
-    foreach (DataFrame::FrameType key, dataFrames.keys()) {
+    for (DataFrame::FrameType key : dataFrames.keys()) {
         shared_ptr<DataFrame> frame = dataFrames.value(key);
         m_frames->insert(key, frame->clone());
     }
@@ -222,10 +206,12 @@ void PrivacyFilter::singleFrame(const QHashDataFrames dataFrames, int width, int
 
 void PrivacyFilter::produceFrames(QHashDataFrames &output)
 {
-    Q_ASSERT(output.contains(DataFrame::Color) && output.contains(DataFrame::Mask)); /*&& output.contains(DataFrame::Metadata));*/
+    Q_ASSERT(output.contains(DataFrame::Color) && output.contains(DataFrame::Mask));
 
-    shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(output.value(DataFrame::Color));
-    shared_ptr<MaskFrame> maskFrame = static_pointer_cast<MaskFrame>(output.value(DataFrame::Mask));
+    ColorFramePtr colorFrame = static_pointer_cast<ColorFrame>(output.value(DataFrame::Color));
+    MaskFramePtr maskFrame = static_pointer_cast<MaskFrame>(output.value(DataFrame::Mask));
+
+    qDebug() << "ColorFrame" << colorFrame->width() << colorFrame->height();
 
     // Dilate mask to create a wide border (value = 255)
     /*shared_ptr<MaskFrame> outputMask = static_pointer_cast<MaskFrame>(maskFrame->clone());
@@ -276,13 +262,13 @@ void PrivacyFilter::produceFrames(QHashDataFrames &output)
     // Enable Filter
     m_scene->enableFilter(m_filter);
 
-    if (m_filter == FILTER_3DMODEL && output.contains(DataFrame::Skeleton))
+    /*if (m_filter == FILTER_3DMODEL && output.contains(DataFrame::Skeleton))
         m_ogreScene->enableFilter(true);
     else
-        m_ogreScene->enableFilter(false);
+        m_ogreScene->enableFilter(false);*/
 
     // Prepare Data of the OgreScene
-    m_ogreScene->prepareData(output);
+    //m_ogreScene->prepareData(output);
     m_scene->markAsDirty();
 
     //
@@ -290,19 +276,20 @@ void PrivacyFilter::produceFrames(QHashDataFrames &output)
     //
 
     // Render Avatar
-    if (output.contains(DataFrame::Skeleton))
-        m_ogreScene->render();
+    /*if (output.contains(DataFrame::Skeleton))
+        m_ogreScene->render();*/
 
     // Render and compose rest of the scene
     m_glContext->makeCurrent(&m_surface);
-    m_scene->setSize(m_fboDisplay->width(), m_fboDisplay->height());
+    m_scene->resize(m_fboDisplay->width(), m_fboDisplay->height());
     m_scene->renderScene(m_fboDisplay);
 
     m_fboDisplay->bind();
 
     // Copy data back to ColorFrame
-    m_gles->glReadPixels(0,0, m_fboDisplay->width(), m_fboDisplay->height(), GL_RGB, GL_UNSIGNED_BYTE,
-                         (GLvoid*) colorFrame->getDataPtr());
+    /*m_gles->glReadPixels(0,0, m_fboDisplay->width(), m_fboDisplay->height(), GL_RGB, GL_UNSIGNED_BYTE,
+                         (GLvoid*) colorFrame->getDataPtr());*/
+    convertQImage2ColorFrame(m_fboDisplay->toImage(), colorFrame);
 
     // Face detection
     /*std::vector<cv::Rect> faces = faceDetection(colorFrame);
@@ -315,14 +302,14 @@ void PrivacyFilter::produceFrames(QHashDataFrames &output)
     }*/
 
     // Save color as JPEG
-    if (m_make_capture) {
+    /*if (m_make_capture) {
         static int capture_id = 1;
         QImage image( (uchar*) colorFrame->getDataPtr(), colorFrame->width(), colorFrame->height(),
                       colorFrame->getStride(), QImage::Format_RGB888);
         image.save("data/capture_" + QString::number(capture_id) + ".jpg");
         capture_id++;
         m_make_capture = false;
-    }
+    }*/
 
     m_fboDisplay->release();
     m_glContext->doneCurrent();
@@ -382,6 +369,29 @@ std::vector<cv::Rect> PrivacyFilter::faceDetection(cv::Mat frameGray, bool equal
     m_face_cascade.detectMultiScale( frameGray, faces, 1.1, 2, 0 | CV_HAAR_SCALE_IMAGE, Size(30, 30));
 
     return faces;
+}
+
+void PrivacyFilter::convertQImage2ColorFrame(const QImage& input_img, ColorFramePtr output_img)
+{
+    Q_ASSERT(input_img.width() == output_img->width() && input_img.height() == output_img->height());
+    cv::Mat res(input_img.height(), input_img.width(), CV_8UC4, (uchar*) input_img.constBits(), input_img.bytesPerLine());
+
+    for (int i=0; i<res.rows; ++i)
+    {
+        cv::Vec4b* in_pixel = res.ptr<cv::Vec4b>(i);
+        RGBColor* out_pixel = output_img->getRowPtr(i);
+
+        for (int j=0; j<res.cols; ++j)
+        {
+            out_pixel[j].red = in_pixel[j][2];
+            out_pixel[j].green = in_pixel[j][1];
+            out_pixel[j].blue = in_pixel[j][0];
+        }
+    }
+
+    /*QLabel* label = new QLabel;
+    label->setPixmap(QPixmap::fromImage(input_img));
+    label->show();*/
 }
 
 } // End Namespace

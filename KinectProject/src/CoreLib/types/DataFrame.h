@@ -39,7 +39,8 @@ protected:
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(DataFrame::SupportedFrames)
 
-typedef QHash<DataFrame::FrameType, shared_ptr<DataFrame>> QHashDataFrames;
+typedef shared_ptr<DataFrame> DataFramePtr;
+typedef QHash<DataFrame::FrameType, DataFramePtr> QHashDataFrames;
 
 } // End Namespace
 

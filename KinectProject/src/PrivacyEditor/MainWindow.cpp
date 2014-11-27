@@ -7,6 +7,32 @@
 #include <QDebug>
 #include <opencv2/opencv.hpp>
 
+Display::Display()
+{
+    //m_pen = {Qt::green, 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin};
+    m_bg_item = m_scene.addPixmap(QPixmap());
+}
+
+QGraphicsScene* Display::scene()
+{
+    return &m_scene;
+}
+
+int Display::imageWidth() const
+{
+    return m_bg_item->pixmap().width();
+}
+
+int Display::imageHeight() const
+{
+    return m_bg_item->pixmap().height();
+}
+
+void Display::setImage(const QImage& image)
+{
+    m_bg_item->setPixmap(QPixmap::fromImage(image));
+    m_scene.setSceneRect(m_bg_item->boundingRect());
+}
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -16,10 +42,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Setup scene
     m_pen = {Qt::green, 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin};
-    m_bg_item = m_scene.addPixmap(QPixmap());
-    m_mask_item = m_scene.addPath(QPainterPath(), m_pen);
-    m_scene.installEventFilter(this);
-    m_ui->graphicsView->setScene(&m_scene);
+    m_mask_item = m_input.scene()->addPath(QPainterPath(), m_pen);
+    m_input.scene()->installEventFilter(this);
+    m_ui->graphicsView->setScene(m_input.scene());
     m_privacy.addListener(this);
 
     // Action: Open Folder (setup model)
@@ -53,7 +78,7 @@ MainWindow::MainWindow(QWidget *parent) :
         // Scale Image if needed
         if (exceedSize(m_current_image)) {
             scaleImage(m_current_image);
-            updateView();
+            m_input.setImage(m_current_image);
             qDebug() << "Image has been scaled";
         }
     });
@@ -66,15 +91,15 @@ MainWindow::MainWindow(QWidget *parent) :
         m_mask_item->setPath(pp);
         m_mask_item->setBrush(brush);
 
-        shared_ptr<dai::MaskFrame> mask = create_mask(pp);
-        cv::Mat color_mat = cv::imread(m_current_image_path.toStdString());
-        shared_ptr<dai::ColorFrame> color = make_shared<dai::ColorFrame>(color_mat.cols, color_mat.rows,
-                                                                         (dai::RGBColor*) color_mat.data, color_mat.step);
+        dai::MaskFramePtr mask = create_mask(pp);
+        dai::ColorFramePtr color = make_shared<dai::ColorFrame>(m_current_image.width(), m_current_image.height());
+        dai::PrivacyFilter::convertQImage2ColorFrame(m_current_image, color);
 
         dai::QHashDataFrames frames;
         frames.insert(dai::DataFrame::Color, color);
         frames.insert(dai::DataFrame::Mask, mask);
-        m_privacy.enableFilter(dai::FILTER_EMBOSS);
+
+        m_privacy.enableFilter(dai::FILTER_DISABLED);
         m_privacy.singleFrame(frames, color->width(), color->height());
     });
 
@@ -87,8 +112,22 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_ui->actionPrint_Scene_Info, &QAction::triggered, [=]() {
 
         QPainterPath pp = m_mask_item->path();
-        qDebug() << "Number of Items:" << m_scene.items().size();
+        qDebug() << "Number of Items:" << m_input.scene()->items().size();
         qDebug() << "Path Lenght:" << pp.length();
+
+    });
+
+    // Action: Select Display
+    connect(m_ui->comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=](int index) {
+
+        // Input Image
+        if (index == 0) {
+            m_ui->graphicsView->setScene(m_input.scene());
+        }
+        // Output Image
+        else if (index == 1) {
+            m_ui->graphicsView->setScene(m_output.scene());
+        }
 
     });
 
@@ -116,6 +155,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // List View: Activate
     connect(m_ui->listView, &QListView::activated, [=]() {
         load_selected_image();
+        m_ui->comboBox->setCurrentIndex(0);
     });
 }
 
@@ -148,7 +188,9 @@ void MainWindow::load_selected_image()
             return;
         }
 
-        updateView();
+        m_input.setImage(m_current_image);
+        qDebug() << "Current Image Size" << m_current_image.size() << float(m_current_image.width()) / float(m_current_image.height()) <<
+                    std::sqrt(m_current_image.width()) << std::sqrt(m_current_image.height());
     }
 }
 
@@ -170,12 +212,6 @@ bool MainWindow::exceedSize(const QImage& image) const
 void MainWindow::scaleImage(QImage& image) const
 {
     image = image.scaled(MAX_IMAGE_SIZE, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-}
-
-void MainWindow::updateView()
-{
-    m_bg_item->setPixmap(QPixmap::fromImage(m_current_image));
-    m_scene.setSceneRect(m_bg_item->boundingRect());
 }
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
@@ -228,7 +264,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 
 shared_ptr<dai::MaskFrame> MainWindow::create_mask(const QPainterPath& path)
 {
-    shared_ptr<dai::MaskFrame> mask = std::make_shared<dai::MaskFrame>(m_bg_item->pixmap().width(), m_bg_item->pixmap().height());
+    shared_ptr<dai::MaskFrame> mask = std::make_shared<dai::MaskFrame>(m_input.imageWidth(), m_input.imageHeight());
     QRectF search_region = path.boundingRect();
 
     for (int i = search_region.top(); i < search_region.bottom(); ++i)
@@ -244,10 +280,20 @@ shared_ptr<dai::MaskFrame> MainWindow::create_mask(const QPainterPath& path)
     return mask;
 }
 
+void MainWindow::setOutputImage(QImage image)
+{
+    m_output.setImage(image);
+    m_ui->comboBox->setCurrentIndex(1);
+}
+
+// It's called from the notifier thread
 void MainWindow::newFrames(const dai::QHashDataFrames dataFrames)
 {
-    qDebug() << dataFrames.size();
-    shared_ptr<dai::ColorFrame> color = static_pointer_cast<dai::ColorFrame>(dataFrames.value(dai::DataFrame::Color));
-    cv::Mat color_mat(color->height(), color->width(), CV_8UC3, (void*) color->getDataPtr(), color->getStride());
-    cv::imshow("image", color_mat);
+    dai::ColorFramePtr color = static_pointer_cast<dai::ColorFrame>(dataFrames.value(dai::DataFrame::Color));
+    QImage output_image((uchar*)color->getDataPtr(), color->width(), color->height(), color->getStride(), QImage::Format_RGB888);
+    QMetaObject::invokeMethod(this, "setOutputImage", Q_ARG(QImage, output_image));
+    //cv::Mat color_mat(color->height(), color->width(), CV_8UC3, (void*) color->getDataPtr(), color->getStride());
+    //cv::imshow("Image Me", color_mat);
+    qDebug() << "Stride!" << color->getStride();
+    //cv::waitKey(0);
 }

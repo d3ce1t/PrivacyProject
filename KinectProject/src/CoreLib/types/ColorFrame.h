@@ -14,6 +14,7 @@ struct RGBColor {
 };
 
 typedef GenericFrame<RGBColor, DataFrame::Color> ColorFrame;
+typedef shared_ptr<ColorFrame> ColorFramePtr;
 
 } // End Namespace
 

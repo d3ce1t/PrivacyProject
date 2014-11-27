@@ -15,11 +15,13 @@ class Scene2DPainter : public ScenePainter
 {
 public:
     Scene2DPainter();
+    Scene2DPainter(int width, int height);
     ~Scene2DPainter();
     void setMask(shared_ptr<MaskFrame> mask);
     void setAvatarTexture(GLuint avatarTexture);
     void enableFilter(ColorFilter type);
     ColorFilter currentFilter() const;
+    void resize(int width, int height) override;
     void resetPerspective() override;
 
 protected:
@@ -29,7 +31,7 @@ protected:
     void render(QOpenGLFramebufferObject* target) override;
 
 private:
-    void createFrameBuffer();
+    void setupBGTexture(GLuint texture_id, int width, int height);
     void extractBackground();
     void renderBackground();
     void renderComposite();

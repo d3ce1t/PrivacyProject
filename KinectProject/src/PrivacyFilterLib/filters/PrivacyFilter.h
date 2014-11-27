@@ -26,7 +26,7 @@ class PrivacyFilter : public FrameListener, public FrameGenerator
     QOffscreenSurface m_surface;
     bool m_initialised;
     Scene2DPainter* m_scene;
-    OgreScene* m_ogreScene;
+    //OgreScene* m_ogreScene;
     QOpenGLFramebufferObject* m_fboDisplay;
     ColorFilter m_filter;
     QFile m_file;
@@ -37,6 +37,8 @@ class PrivacyFilter : public FrameListener, public FrameGenerator
     int m_height = 480;
 
 public:
+    static void convertQImage2ColorFrame(const QImage &input_img, ColorFramePtr output_img);
+
     PrivacyFilter();
     ~PrivacyFilter();
     void newFrames(const QHashDataFrames dataFrames) override;
@@ -56,7 +58,6 @@ private:
     void dilateUserMask(uint8_t *labels);
     std::vector<cv::Rect> faceDetection(shared_ptr<ColorFrame> frame);
     std::vector<cv::Rect> faceDetection(cv::Mat frameGray, bool equalised = false);
-    QOpenGLFramebufferObject* createFBO(int width, int height) const;
 };
 
 } // End Namespace

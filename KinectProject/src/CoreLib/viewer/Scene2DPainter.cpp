@@ -15,6 +15,15 @@ Scene2DPainter::Scene2DPainter()
     m_currentFilter = FILTER_DISABLED;
 }
 
+Scene2DPainter::Scene2DPainter(int width, int height)
+    : m_shaderProgram(nullptr)
+    , m_fboFirstPass(nullptr)
+{
+    m_currentFilter = FILTER_DISABLED;
+    m_scene_width = width;
+    m_scene_height = height;
+}
+
 Scene2DPainter::~Scene2DPainter()
 {
     if (m_shaderProgram) {
@@ -49,17 +58,15 @@ void Scene2DPainter::initialise()
     prepareVertexBuffer();
 
     // Create FBO for Render-To-Texture
-    createFrameBuffer();
+    m_fboFirstPass = ScenePainter::createFBO(m_scene_width, m_scene_height);
 
-    // Create texture
+    // Create textures
+    glGenTextures(1, &m_bgTextureId);
     glGenTextures(1, &m_fgTextureId);
     glGenTextures(1, &m_maskTextureId);
 
-    // Configure ViewPort and Clear Screen
-    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
-    glClearDepth(1.0f);
-    glViewport(0, 0, m_scene_width, m_scene_height);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // Setup BG Texture
+    setupBGTexture(m_bgTextureId, m_scene_width, m_scene_height);
 }
 
 void Scene2DPainter::render(QOpenGLFramebufferObject *target)
@@ -68,6 +75,12 @@ void Scene2DPainter::render(QOpenGLFramebufferObject *target)
     Q_ASSERT(target != nullptr);
 
     target->bind();
+
+    // Configure ViewPort and Clear Screen
+    glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
+    glClearDepth(1.0f);
+    glViewport(0, 0, m_scene_width, m_scene_height);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Init Each Frame (because QtQuick could change it)
     glDepthRange(0.0f, 1.0f);
@@ -88,14 +101,14 @@ void Scene2DPainter::render(QOpenGLFramebufferObject *target)
     setupTextures();
 
     // Stage 1
-    extractBackground();// background is in bgTexture, foreground is in fgTexture
+    //extractBackground();// background is in bgTexture, foreground is in fgTexture
     renderBackground(); // it renders bg or fg into fboFirstPass
 
     // Stage 2
-    renderItems(target); // items reindering (first-pass: fboFirstPass, second-pass: target)
+    //renderItems(target); // items reindering (first-pass: fboFirstPass, second-pass: target)
 
     // Stage 3
-    renderComposite();
+    //renderComposite();
 
     m_shaderProgram->release();
 
@@ -110,7 +123,7 @@ void Scene2DPainter::setupTextures()
 {
     if (m_needLoading.load())
     {
-        shared_ptr<ColorFrame> frame = static_pointer_cast<ColorFrame>(m_bg);
+        ColorFramePtr frame = static_pointer_cast<ColorFrame>(m_bg);
 
         // Load Foreground
         ScenePainter::loadVideoTexture(m_fgTextureId, frame->width(), frame->height(), (void *) frame->getDataPtr());
@@ -190,6 +203,17 @@ void Scene2DPainter::renderBackground()
 
     // Draw
     glDrawArrays(GL_TRIANGLE_FAN, m_posAttr, 4);
+    /*glPointSize(10.0f);
+    glDrawArrays(GL_POINTS, m_posAttr, 1);
+
+    glPointSize(8.0f);
+    glDrawArrays(GL_POINTS, m_posAttr+1, 1);
+
+    glPointSize(6.0f);
+    glDrawArrays(GL_POINTS, m_posAttr+2, 1);
+
+    glPointSize(4.0f);
+    glDrawArrays(GL_POINTS, m_posAttr+3, 1);*/
 
     // Unbind FG/BG texture
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -288,7 +312,20 @@ void Scene2DPainter::renderComposite()
 
     // Configure Viewport
     glViewport(0, 0, m_scene_width, m_scene_height);
+
+    // Write new size to pos buffer
+    float vertexData[] = {
+        0.0, m_scene_height,  // Top-Left
+        m_scene_width, m_scene_height, // Top-Right
+        m_scene_width, 0, // Bottom-Right
+        0.0, 0.0 // Bottom-Left
+    };
+
     m_vao.bind();
+
+    m_positionsBuffer.bind();
+    m_positionsBuffer.write( 0, vertexData, 4*2*sizeof(float) );
+    m_positionsBuffer.release();
 
     // Enabe FG
     glActiveTexture(GL_TEXTURE0 + 0);
@@ -303,21 +340,13 @@ void Scene2DPainter::renderComposite()
     m_vao.release();
 }
 
-void Scene2DPainter::createFrameBuffer()
+void Scene2DPainter::setupBGTexture(GLuint texture_id, int width, int height)
 {
-    m_fboFirstPass = new QOpenGLFramebufferObject(m_scene_width, m_scene_height);
-
-    if (!m_fboFirstPass->isValid()) {
-        qDebug() << "FBO Error";
-    }
-
-    // Background Texture
-    glGenTextures(1, &m_bgTextureId);
-    glBindTexture(GL_TEXTURE_2D, m_bgTextureId);
+    glBindTexture(GL_TEXTURE_2D, texture_id);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE); // automatic mipmap
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 640, 480, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
@@ -351,17 +380,17 @@ void Scene2DPainter::prepareShaderProgram()
 void Scene2DPainter::prepareVertexBuffer()
 {
     float vertexData[] = {
-        0.0f, 480.0f,
-        640.0f, 480.0f,
-        640.0f, 0.0f,
+        0.0f, float(m_scene_height),
+        float(m_scene_width), float(m_scene_height),
+        float(m_scene_width), 0.0f,
         0.0f, 0.0f
     };
 
     float texCoordsData[] = {
-        0, 0,
-        1, 0,
-        1, 1,
-        0, 1
+        0.0f, 0.0f,
+        1.0f, 0.0f,
+        1.0f, 1.0f,
+        0.0f, 1.0f
     };
 
     m_vao.create();
@@ -396,11 +425,51 @@ ColorFilter Scene2DPainter::currentFilter() const
     return m_currentFilter;
 }
 
+void Scene2DPainter::resize(int width, int height)
+{
+    ScenePainter::resize(width, height);
+
+    if (m_fboFirstPass) {
+        delete m_fboFirstPass;
+        m_fboFirstPass = nullptr;
+    }
+
+    m_fboFirstPass = ScenePainter::createFBO(width, height);
+    setupBGTexture(m_bgTextureId, width, height);
+
+    m_shaderProgram->bind();
+
+    // Write new size to pos buffer
+    /*float vertexData[] = {
+        0.0, height,  // Top-Left
+        width, height, // Top-Right
+        width, 0, // Bottom-Right
+        0.0, 0.0 // Bottom-Left
+    };*/
+
+    float vertexData[] = {
+        0.0, 0.0, // Bottom-Left
+        width, 0, // Bottom-Right
+        width, height, // Top-Right
+        0.0, height  // Top-Left
+    };
+
+    m_vao.bind();
+    m_positionsBuffer.bind();
+    m_positionsBuffer.write( 0, vertexData, 4*2*sizeof(float) );
+    m_positionsBuffer.release();
+    m_shaderProgram->release();
+    m_vao.release();
+
+    resetPerspective();
+}
+
 void Scene2DPainter::resetPerspective()
 {
     qDebug() << "Reset Pers." << m_scene_width << m_scene_height;
     m_matrix.setToIdentity();
-    m_matrix.ortho(0, 640, 480, 0, -1.0, 1.0);
+    m_matrix.ortho(0, m_scene_width, m_scene_height, 0, -1.0, 1.0);
+    //m_matrix.ortho(0, 640, 480, 0, -1.0, 1.0);
 }
 
 } // End Namespace
