@@ -25,5 +25,3 @@ void main()
     gl_Position = perspectiveMatrix * vec4(realPos.xyz, 1.0);
     v_distance = distanceAttr;
 }
-
-

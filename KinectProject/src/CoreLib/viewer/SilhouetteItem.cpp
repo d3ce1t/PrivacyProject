@@ -134,12 +134,22 @@ void SilhouetteItem::prepareShaderProgram()
 
 void SilhouetteItem::prepareVertexBuffer()
 {
+    /*float vertexData[] = {
+        -1.0, -1.0, 0.0,
+        1.0, -1.0, 0.0,
+        1.0, 1.0, 0.0,
+        -1.0, 1.0, 0.0
+    };*/
+
     float vertexData[] = {
         -1.0, -1.0, 0.0,
         1.0, -1.0, 0.0,
         1.0, 1.0, 0.0,
         -1.0, 1.0, 0.0
     };
+
+
+
 
     float texCoordsData[] = {
         0, 0,

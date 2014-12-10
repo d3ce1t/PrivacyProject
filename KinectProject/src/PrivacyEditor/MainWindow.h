@@ -40,7 +40,7 @@ class MainWindow : public QMainWindow, dai::FrameListener
     Display m_output;
     QGraphicsPathItem* m_mask_item;
     QImage m_current_image;
-    const QSize MAX_IMAGE_SIZE = {600, 800};
+    const QSize MAX_IMAGE_SIZE = {512, 512};
     QPointF m_last_pixel;
     QPen m_pen;
     QString m_current_image_path;
@@ -62,7 +62,6 @@ private slots:
     void scaleImage(QImage &image) const;
     shared_ptr<dai::MaskFrame> create_mask(const QPainterPath& path);
     void setOutputImage(QImage image);
-
 };
 
 #endif // MAINWINDOW_H

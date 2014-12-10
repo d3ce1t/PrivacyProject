@@ -6,42 +6,101 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>809</width>
-    <height>505</height>
+    <width>1126</width>
+    <height>602</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Privacy Editor</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="4,1">
+   <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="4,1">
     <item>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,8">
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
         <item>
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>Display:</string>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,1">
+          <item>
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>Filter</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="comboFilter">
+            <item>
+             <property name="text">
+              <string>No Filter</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Invisibility</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Blur</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Pixelation</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Emboss</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Silhouette</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Skeleton</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Avatar</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
-         <widget class="QComboBox" name="comboBox">
-          <property name="currentIndex">
-           <number>0</number>
-          </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,1">
           <item>
-           <property name="text">
-            <string>Input Image</string>
-           </property>
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Display:</string>
+            </property>
+           </widget>
           </item>
           <item>
-           <property name="text">
-            <string>Output Image</string>
-           </property>
+           <widget class="QComboBox" name="comboBox">
+            <property name="currentIndex">
+             <number>0</number>
+            </property>
+            <item>
+             <property name="text">
+              <string>Input Image</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Output Image</string>
+             </property>
+            </item>
+           </widget>
           </item>
-         </widget>
+         </layout>
         </item>
        </layout>
       </item>
@@ -75,6 +134,9 @@
           <property name="text">
            <string>&lt;&lt; Previous</string>
           </property>
+          <property name="shortcut">
+           <string>Ctrl+Left</string>
+          </property>
          </widget>
         </item>
         <item>
@@ -82,12 +144,18 @@
           <property name="text">
            <string>Next &gt;&gt;</string>
           </property>
+          <property name="shortcut">
+           <string>Ctrl+Right</string>
+          </property>
          </widget>
         </item>
         <item>
          <widget class="QPushButton" name="btnReload">
           <property name="text">
            <string>Reload</string>
+          </property>
+          <property name="shortcut">
+           <string>Ctrl+R</string>
           </property>
          </widget>
         </item>
@@ -115,8 +183,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>809</width>
-     <height>26</height>
+     <width>1126</width>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuOpen_image">
@@ -132,6 +200,7 @@
      <string>Edit</string>
     </property>
     <addaction name="actionFit_image_to_screen"/>
+    <addaction name="actionFinish_selection"/>
    </widget>
    <addaction name="menuOpen_image"/>
    <addaction name="menuEdit"/>
@@ -200,6 +269,9 @@
    </property>
    <property name="text">
     <string>Finish selection</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
    </property>
   </action>
   <action name="actionClearh_selection">

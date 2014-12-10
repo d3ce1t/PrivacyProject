@@ -101,11 +101,11 @@ void Scene2DPainter::render(QOpenGLFramebufferObject *target)
     setupTextures();
 
     // Stage 1
-    //extractBackground();// background is in bgTexture, foreground is in fgTexture
+    extractBackground();// background is in bgTexture, foreground is in fgTexture
     renderBackground(); // it renders bg or fg into fboFirstPass
 
     // Stage 2
-    //renderItems(target); // items reindering (first-pass: fboFirstPass, second-pass: target)
+    renderItems(target); // items reindering (first-pass: fboFirstPass, second-pass: target)
 
     // Stage 3
     //renderComposite();
@@ -440,19 +440,19 @@ void Scene2DPainter::resize(int width, int height)
     m_shaderProgram->bind();
 
     // Write new size to pos buffer
-    /*float vertexData[] = {
+    float vertexData[] = {
         0.0, height,  // Top-Left
         width, height, // Top-Right
         width, 0, // Bottom-Right
         0.0, 0.0 // Bottom-Left
-    };*/
+    };
 
-    float vertexData[] = {
+    /*float vertexData[] = {
         0.0, 0.0, // Bottom-Left
         width, 0, // Bottom-Right
         width, height, // Top-Right
         0.0, height  // Top-Left
-    };
+    };*/
 
     m_vao.bind();
     m_positionsBuffer.bind();
@@ -466,7 +466,7 @@ void Scene2DPainter::resize(int width, int height)
 
 void Scene2DPainter::resetPerspective()
 {
-    qDebug() << "Reset Pers." << m_scene_width << m_scene_height;
+    //qDebug() << "Reset Pers." << m_scene_width << m_scene_height;
     m_matrix.setToIdentity();
     m_matrix.ortho(0, m_scene_width, m_scene_height, 0, -1.0, 1.0);
     //m_matrix.ortho(0, 640, 480, 0, -1.0, 1.0);

@@ -20,7 +20,7 @@ QOpenGLFramebufferObject* ScenePainter::createFBO(int width, int height)
         throw 2;
     }
 
-    qDebug() << "handle" << fbo->handle() << "texture" << fbo->texture();
+    //qDebug() << "handle" << fbo->handle() << "texture" << fbo->texture();
 
     return fbo;
 }
@@ -86,7 +86,7 @@ void ScenePainter::setBackground(DataFramePtr background)
 
 void ScenePainter::resize(int width, int height)
 {
-    qDebug() << "ScenePainter" << width << height;
+    //qDebug() << "ScenePainter" << width << height;
     m_scene_width = width;
     m_scene_height = height;
 }
@@ -131,8 +131,6 @@ void ScenePainter::initScene(int width, int height)
 
 void ScenePainter::renderScene(QOpenGLFramebufferObject *target)
 {
-    qDebug() << "FBO" << target;
-
     if (!m_initialised) {
         initScene();
     }

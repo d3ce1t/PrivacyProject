@@ -76,15 +76,18 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_ui->actionFit_image_to_screen, &QAction::triggered, [=]() {
 
         // Scale Image if needed
-        if (exceedSize(m_current_image)) {
+        //if (exceedSize(m_current_image)) {
             scaleImage(m_current_image);
             m_input.setImage(m_current_image);
-            qDebug() << "Image has been scaled";
-        }
+        //}
     });
 
     // Action: Finish selection
     connect(m_ui->actionFinish_selection, &QAction::triggered, [=]() {
+
+        if (m_current_image.isNull())
+            return;
+
         QBrush brush(Qt::DiagCrossPattern);
         QPainterPath pp = m_mask_item->path();
         pp.closeSubpath();
@@ -99,7 +102,7 @@ MainWindow::MainWindow(QWidget *parent) :
         frames.insert(dai::DataFrame::Color, color);
         frames.insert(dai::DataFrame::Mask, mask);
 
-        m_privacy.enableFilter(dai::FILTER_DISABLED);
+        m_privacy.enableFilter(dai::ColorFilter(m_ui->comboFilter->currentIndex()));
         m_privacy.singleFrame(frames, color->width(), color->height());
     });
 
@@ -110,16 +113,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Action: Print info
     connect(m_ui->actionPrint_Scene_Info, &QAction::triggered, [=]() {
-
         QPainterPath pp = m_mask_item->path();
         qDebug() << "Number of Items:" << m_input.scene()->items().size();
         qDebug() << "Path Lenght:" << pp.length();
-
     });
 
     // Action: Select Display
     connect(m_ui->comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=](int index) {
-
         // Input Image
         if (index == 0) {
             m_ui->graphicsView->setScene(m_input.scene());
@@ -128,7 +128,6 @@ MainWindow::MainWindow(QWidget *parent) :
         else if (index == 1) {
             m_ui->graphicsView->setScene(m_output.scene());
         }
-
     });
 
     // Button: Next
@@ -137,14 +136,30 @@ MainWindow::MainWindow(QWidget *parent) :
         QModelIndex index = m_ui->listView->currentIndex();
 
         if (index.isValid()) {
-            QString filePath = m_fs_model.filePath(index);
-            qDebug() << filePath;
+            QModelIndex sibling = index.sibling(index.row()+1, 0);
+
+            if (sibling.isValid()) {
+                m_ui->listView->setCurrentIndex(sibling);
+                load_selected_image();
+                m_ui->comboBox->setCurrentIndex(0);
+            }
         }
     });
 
     // Button: Prev
     connect(m_ui->btnPrev, &QPushButton::clicked, [=]() {
 
+        QModelIndex index = m_ui->listView->currentIndex();
+
+        if (index.isValid()) {
+            QModelIndex sibling = index.sibling(index.row()-1, 0);
+
+            if (sibling.isValid()) {
+                m_ui->listView->setCurrentIndex(sibling);
+                load_selected_image();
+                m_ui->comboBox->setCurrentIndex(0);
+            }
+        }
     });
 
     // Button: Reload
@@ -188,9 +203,12 @@ void MainWindow::load_selected_image()
             return;
         }
 
-        m_input.setImage(m_current_image);
         qDebug() << "Current Image Size" << m_current_image.size() << float(m_current_image.width()) / float(m_current_image.height()) <<
                     std::sqrt(m_current_image.width()) << std::sqrt(m_current_image.height());
+
+        scaleImage(m_current_image);
+        //m_input.setImage(m_current_image);
+        m_input.setImage(m_current_image);
     }
 }
 
@@ -211,7 +229,10 @@ bool MainWindow::exceedSize(const QImage& image) const
 
 void MainWindow::scaleImage(QImage& image) const
 {
-    image = image.scaled(MAX_IMAGE_SIZE, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    image = image.scaled(MAX_IMAGE_SIZE, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+    QString str1 = image.width() % 2 == 0 ? "width mod 8" : "";
+    QString str2 = image.height() % 2 == 0 ? "height mod 8" : "";
+    qDebug() << "Image has been scaled -> New Size" << image.width() << image.height() << str1 << str2;
 }
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
@@ -294,6 +315,6 @@ void MainWindow::newFrames(const dai::QHashDataFrames dataFrames)
     QMetaObject::invokeMethod(this, "setOutputImage", Q_ARG(QImage, output_image));
     //cv::Mat color_mat(color->height(), color->width(), CV_8UC3, (void*) color->getDataPtr(), color->getStride());
     //cv::imshow("Image Me", color_mat);
-    qDebug() << "Stride!" << color->getStride();
+    //qDebug() << "Stride!" << color->getStride();
     //cv::waitKey(0);
 }

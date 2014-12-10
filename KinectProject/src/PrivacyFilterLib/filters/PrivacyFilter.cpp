@@ -178,7 +178,7 @@ void PrivacyFilter::newFrames(const QHashDataFrames dataFrames)
 
 void PrivacyFilter::singleFrame(const QHashDataFrames dataFrames, int width, int height)
 {
-    qDebug() << QThread::currentThreadId() << width << height;
+    //qDebug() << QThread::currentThreadId() << width << height;
 
     if (!m_initialised) {
         initialise(width, height);
@@ -211,7 +211,7 @@ void PrivacyFilter::produceFrames(QHashDataFrames &output)
     ColorFramePtr colorFrame = static_pointer_cast<ColorFrame>(output.value(DataFrame::Color));
     MaskFramePtr maskFrame = static_pointer_cast<MaskFrame>(output.value(DataFrame::Mask));
 
-    qDebug() << "ColorFrame" << colorFrame->width() << colorFrame->height();
+    //qDebug() << "ColorFrame" << colorFrame->width() << colorFrame->height();
 
     // Dilate mask to create a wide border (value = 255)
     /*shared_ptr<MaskFrame> outputMask = static_pointer_cast<MaskFrame>(maskFrame->clone());
@@ -289,7 +289,8 @@ void PrivacyFilter::produceFrames(QHashDataFrames &output)
     // Copy data back to ColorFrame
     /*m_gles->glReadPixels(0,0, m_fboDisplay->width(), m_fboDisplay->height(), GL_RGB, GL_UNSIGNED_BYTE,
                          (GLvoid*) colorFrame->getDataPtr());*/
-    convertQImage2ColorFrame(m_fboDisplay->toImage(), colorFrame);
+    convertQImage2ColorFrame(m_fboDisplay->toImage().mirrored(), colorFrame);
+
 
     // Face detection
     /*std::vector<cv::Rect> faces = faceDetection(colorFrame);
