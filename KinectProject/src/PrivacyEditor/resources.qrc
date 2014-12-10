@@ -6,5 +6,7 @@
         <file>icons/emblem-important.svg</file>
         <file>icons/process-stop.svg</file>
         <file>icons/edit-clear.svg</file>
+        <file>icons/skeleton icon.svg</file>
+        <file>icons/silhouette.svg</file>
     </qresource>
 </RCC>

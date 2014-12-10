@@ -34,6 +34,11 @@ void Display::setImage(const QImage& image)
     m_scene.setSceneRect(m_bg_item->boundingRect());
 }
 
+const QGraphicsPixmapItem* Display::background() const
+{
+    return m_bg_item;
+}
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     m_ui(new Ui::MainWindow)
@@ -46,6 +51,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_input.scene()->installEventFilter(this);
     m_ui->graphicsView->setScene(m_input.scene());
     m_privacy.addListener(this);
+    m_selected_joint = nullptr;
 
     // Action: Open Folder (setup model)
     connect(m_ui->actionOpen_folder, &QAction::triggered, [=]() {
@@ -118,7 +124,7 @@ MainWindow::MainWindow(QWidget *parent) :
         qDebug() << "Path Lenght:" << pp.length();
     });
 
-    // Action: Select Display
+    // Select Display
     connect(m_ui->comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=](int index) {
         // Input Image
         if (index == 0) {
@@ -128,6 +134,16 @@ MainWindow::MainWindow(QWidget *parent) :
         else if (index == 1) {
             m_ui->graphicsView->setScene(m_output.scene());
         }
+    });
+
+    // Action: Skeleton Mode
+    connect(m_ui->actionJointDrawingMode, &QAction::triggered, [=]() {
+        m_ui->actionSilhouetteMode->setChecked(false);
+    });
+
+    // Action: Silhouette Mode
+    connect(m_ui->actionSilhouetteMode, &QAction::triggered, [=]() {
+        m_ui->actionJointDrawingMode->setChecked(false);
     });
 
     // Button: Next
@@ -242,7 +258,17 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
             && event->type() != QEvent::GraphicsSceneMouseRelease)
         return QObject::eventFilter(obj, event);
 
-    // My own event handler
+    if (m_ui->actionSilhouetteMode->isChecked()) {
+        eventSilhouette(event);
+    } else {
+        eventSkeleton(event);
+    }
+
+    return QObject::eventFilter(obj, event);
+}
+
+void MainWindow::eventSilhouette(QEvent *event)
+{
     QGraphicsSceneMouseEvent* paint_event = static_cast< QGraphicsSceneMouseEvent* >( event );
     qreal x = paint_event->scenePos().x();
     qreal y = paint_event->scenePos().y();
@@ -279,8 +305,45 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
        // pp.lineTo(paint_event->scenePos());
         m_mask_item->setPath(pp);*/
     }
+}
 
-    return QObject::eventFilter(obj, event);
+void MainWindow::eventSkeleton(QEvent *event)
+{
+    QGraphicsSceneMouseEvent* paint_event = static_cast< QGraphicsSceneMouseEvent* >( event );
+
+    qreal x = paint_event->scenePos().x();
+    qreal y = paint_event->scenePos().y();
+
+    if (event->type() == QEvent::GraphicsSceneMousePress && paint_event->button() == Qt::LeftButton) {
+
+        QGraphicsItem* item = m_input.scene()->itemAt(x, y, QTransform());
+
+        if (item == m_input.background()) {
+            item = m_input.scene()->addRect(x-4, y-4, 9, 9, {Qt::blue, 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin}, {Qt::green});
+            item->setFlags(QGraphicsItem::ItemIsMovable);
+            item->setCursor(Qt::OpenHandCursor);
+        }
+        else if (item != nullptr) {
+            m_selected_joint = static_cast<QGraphicsRectItem*>(item);
+            m_selected_joint->setBrush({Qt::red});
+            m_selected_joint->setCursor(Qt::ClosedHandCursor);
+        }
+    }
+    else if (event->type() == QEvent::GraphicsSceneMouseMove) {
+        /*if (m_selected_joint) {
+            QPointF item_coords = m_selected_joint->mapFromScene(m_selected_joint->pos());
+            qDebug() << "Scene Coords" << x << y << "Item Coords" << item_coords;
+            //m_selected_joint->setPos(item_coords);
+        }*/
+    }
+    else if (event->type() == QEvent::GraphicsSceneMouseRelease && paint_event->button() == Qt::LeftButton) {
+
+        if (m_selected_joint) {
+            m_selected_joint->setBrush({Qt::green});
+            m_selected_joint->setCursor(Qt::OpenHandCursor);
+            m_selected_joint = nullptr;
+        }
+    }
 }
 
 shared_ptr<dai::MaskFrame> MainWindow::create_mask(const QPainterPath& path)

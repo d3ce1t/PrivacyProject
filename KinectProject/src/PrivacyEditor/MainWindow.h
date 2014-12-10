@@ -25,6 +25,7 @@ class Display {
 public:
     Display();
     QGraphicsScene* scene();
+    const QGraphicsPixmapItem* background() const;
     int imageWidth() const;
     int imageHeight() const;
     void setImage(const QImage &image);
@@ -45,6 +46,7 @@ class MainWindow : public QMainWindow, dai::FrameListener
     QPen m_pen;
     QString m_current_image_path;
     dai::PrivacyFilter m_privacy;
+    QGraphicsRectItem* m_selected_joint;
 
 public:
     explicit MainWindow(QWidget *parent = 0);
@@ -54,6 +56,8 @@ public:
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
+    void eventSilhouette(QEvent *event);
+    void eventSkeleton(QEvent *event);
     void newFrames(const dai::QHashDataFrames dataFrames);
 
 private slots:

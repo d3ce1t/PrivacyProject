@@ -13,8 +13,29 @@
   <property name="windowTitle">
    <string>Privacy Editor</string>
   </property>
+  <property name="animated">
+   <bool>false</bool>
+  </property>
+  <property name="unifiedTitleAndToolBarOnMac">
+   <bool>false</bool>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="4,1">
+    <property name="spacing">
+     <number>6</number>
+    </property>
+    <property name="leftMargin">
+     <number>3</number>
+    </property>
+    <property name="topMargin">
+     <number>6</number>
+    </property>
+    <property name="rightMargin">
+     <number>6</number>
+    </property>
+    <property name="bottomMargin">
+     <number>6</number>
+    </property>
     <item>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
@@ -209,6 +230,15 @@
    <property name="movable">
     <bool>false</bool>
    </property>
+   <property name="iconSize">
+    <size>
+     <width>28</width>
+     <height>28</height>
+    </size>
+   </property>
+   <property name="floatable">
+    <bool>false</bool>
+   </property>
    <attribute name="toolBarArea">
     <enum>LeftToolBarArea</enum>
    </attribute>
@@ -219,6 +249,8 @@
    <addaction name="actionPrint_Scene_Info"/>
    <addaction name="actionFinish_selection"/>
    <addaction name="actionClearh_selection"/>
+   <addaction name="actionJointDrawingMode"/>
+   <addaction name="actionSilhouetteMode"/>
   </widget>
   <action name="actionOpen_folder">
    <property name="icon">
@@ -281,6 +313,33 @@
    </property>
    <property name="text">
     <string>Clearh selection</string>
+   </property>
+  </action>
+  <action name="actionJointDrawingMode">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/skeleton icon.svg</normaloff>:/icons/icons/skeleton icon.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Joint Drawing Mode</string>
+   </property>
+  </action>
+  <action name="actionSilhouetteMode">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/silhouette.svg</normaloff>:/icons/icons/silhouette.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Joint Silhouette Mode</string>
    </property>
   </action>
  </widget>
