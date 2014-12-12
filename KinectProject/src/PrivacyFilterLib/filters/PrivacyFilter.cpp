@@ -51,7 +51,7 @@ PrivacyFilter::PrivacyFilter()
     }
 
     m_scene = new Scene2DPainter;
-    //m_ogreScene = new OgreScene;
+    m_ogreScene = new OgreScene;
 
     // haarcascade_frontalface_default
     // haarcascade_frontalface_alt.xml
@@ -82,8 +82,8 @@ void PrivacyFilter::initialise(int width, int height)
 
     m_glContext->makeCurrent(&m_surface);
     m_gles = m_glContext->functions();
-    //m_ogreScene->initialise(m_width, m_height);
-    //m_scene->setAvatarTexture(m_ogreScene->texture());
+    m_ogreScene->initialise(m_width, m_height);
+    m_scene->setAvatarTexture(m_ogreScene->texture());
     m_fboDisplay = ScenePainter::createFBO(m_width, m_height);
     m_scene->initScene(width, height);
     m_glContext->doneCurrent();
@@ -96,10 +96,10 @@ void PrivacyFilter::freeResources()
     {
         m_glContext->makeCurrent(&m_surface);
 
-        /*if (m_ogreScene) {
+        if (m_ogreScene) {
             delete m_ogreScene;
             m_ogreScene = nullptr;
-        }*/
+        }
 
         if (m_scene) {
             delete m_scene;
@@ -134,8 +134,8 @@ void PrivacyFilter::resize(int width, int height)
     m_height = height;
 
     m_glContext->makeCurrent(&m_surface);
-    //m_ogreScene->resize(m_width, m_height);
-    //m_scene->setAvatarTexture(m_ogreScene->texture());
+    m_ogreScene->resize(m_width, m_height);
+    m_scene->setAvatarTexture(m_ogreScene->texture());
 
     if (m_fboDisplay) {
         delete m_fboDisplay;
@@ -262,13 +262,13 @@ void PrivacyFilter::produceFrames(QHashDataFrames &output)
     // Enable Filter
     m_scene->enableFilter(m_filter);
 
-    /*if (m_filter == FILTER_3DMODEL && output.contains(DataFrame::Skeleton))
+    if (m_filter == FILTER_3DMODEL && output.contains(DataFrame::Skeleton))
         m_ogreScene->enableFilter(true);
     else
-        m_ogreScene->enableFilter(false);*/
+        m_ogreScene->enableFilter(false);
 
     // Prepare Data of the OgreScene
-    //m_ogreScene->prepareData(output);
+    m_ogreScene->prepareData(output);
     m_scene->markAsDirty();
 
     //
@@ -276,8 +276,8 @@ void PrivacyFilter::produceFrames(QHashDataFrames &output)
     //
 
     // Render Avatar
-    /*if (output.contains(DataFrame::Skeleton))
-        m_ogreScene->render();*/
+    if (output.contains(DataFrame::Skeleton))
+        m_ogreScene->render();
 
     // Render and compose rest of the scene
     m_glContext->makeCurrent(&m_surface);

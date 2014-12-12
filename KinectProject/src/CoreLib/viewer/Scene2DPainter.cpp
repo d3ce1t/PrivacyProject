@@ -108,7 +108,7 @@ void Scene2DPainter::render(QOpenGLFramebufferObject *target)
     renderItems(target); // items reindering (first-pass: fboFirstPass, second-pass: target)
 
     // Stage 3
-    //renderComposite();
+    renderComposite();
 
     m_shaderProgram->release();
 

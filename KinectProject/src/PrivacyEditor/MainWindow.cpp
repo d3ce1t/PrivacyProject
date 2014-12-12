@@ -103,10 +103,12 @@ MainWindow::MainWindow(QWidget *parent) :
         dai::MaskFramePtr mask = create_mask(pp);
         dai::ColorFramePtr color = make_shared<dai::ColorFrame>(m_current_image.width(), m_current_image.height());
         dai::PrivacyFilter::convertQImage2ColorFrame(m_current_image, color);
+        dai::SkeletonFramePtr skeleton = create_skeleton_from_scene();
 
         dai::QHashDataFrames frames;
         frames.insert(dai::DataFrame::Color, color);
         frames.insert(dai::DataFrame::Mask, mask);
+        frames.insert(dai::DataFrame::Skeleton, skeleton);
 
         m_privacy.enableFilter(dai::ColorFilter(m_ui->comboFilter->currentIndex()));
         m_privacy.singleFrame(frames, color->width(), color->height());
@@ -139,11 +141,13 @@ MainWindow::MainWindow(QWidget *parent) :
     // Action: Skeleton Mode
     connect(m_ui->actionJointDrawingMode, &QAction::triggered, [=]() {
         m_ui->actionSilhouetteMode->setChecked(false);
+        m_skeleton_root->setVisible(true);
     });
 
     // Action: Silhouette Mode
     connect(m_ui->actionSilhouetteMode, &QAction::triggered, [=]() {
         m_ui->actionJointDrawingMode->setChecked(false);
+        m_skeleton_root->setVisible(false);
     });
 
     // Button: Next
@@ -201,6 +205,9 @@ void MainWindow::first_setup()
 
     // Load image
     load_selected_image();
+
+    // Print Skeleton
+    setup_skeleton();
 }
 
 void MainWindow::load_selected_image()
@@ -223,7 +230,6 @@ void MainWindow::load_selected_image()
                     std::sqrt(m_current_image.width()) << std::sqrt(m_current_image.height());
 
         scaleImage(m_current_image);
-        //m_input.setImage(m_current_image);
         m_input.setImage(m_current_image);
     }
 }
@@ -269,11 +275,11 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 
 void MainWindow::eventSilhouette(QEvent *event)
 {
-    QGraphicsSceneMouseEvent* paint_event = static_cast< QGraphicsSceneMouseEvent* >( event );
+    QGraphicsSceneMouseEvent* paint_event = static_cast<QGraphicsSceneMouseEvent*>( event );
     qreal x = paint_event->scenePos().x();
     qreal y = paint_event->scenePos().y();
 
-    if (event->type() == QEvent::GraphicsSceneMousePress)
+    if (event->type() == QEvent::GraphicsSceneMousePress && paint_event->button() == Qt::LeftButton)
     {
         QPainterPath pp = m_mask_item->path();
 
@@ -283,12 +289,13 @@ void MainWindow::eventSilhouette(QEvent *event)
             m_mask_item->setBrush(QBrush());
             m_last_pixel.setX(x);
             m_last_pixel.setY(y);
+            m_drawing = true;
             qDebug() << "Last pixel" << m_last_pixel;
         } else {
 
         }
     }
-    else if (event->type() == QEvent::GraphicsSceneMouseMove)
+    else if (event->type() == QEvent::GraphicsSceneMouseMove && m_drawing)
     {
         QPainterPath pp = m_mask_item->path();
         pp.lineTo(paint_event->scenePos());
@@ -298,8 +305,9 @@ void MainWindow::eventSilhouette(QEvent *event)
         //m_last_pixel.setX(x);
         //m_last_pixel.setY(y);
     }
-    else if (event->type() == QEvent::GraphicsSceneMouseRelease)
+    else if (event->type() == QEvent::GraphicsSceneMouseRelease && paint_event->button() == Qt::LeftButton)
     {
+        m_drawing = false;
         /*QPainterPath pp = m_mask_item->path();
         //pp.closeSubpath()
        // pp.lineTo(paint_event->scenePos());
@@ -318,29 +326,17 @@ void MainWindow::eventSkeleton(QEvent *event)
 
         QGraphicsItem* item = m_input.scene()->itemAt(x, y, QTransform());
 
-        if (item == m_input.background()) {
-            item = m_input.scene()->addRect(x-4, y-4, 9, 9, {Qt::blue, 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin}, {Qt::green});
-            item->setFlags(QGraphicsItem::ItemIsMovable);
-            item->setCursor(Qt::OpenHandCursor);
-        }
-        else if (item != nullptr) {
+        if (item != nullptr && item != m_input.background()) {
             m_selected_joint = static_cast<QGraphicsRectItem*>(item);
             m_selected_joint->setBrush({Qt::red});
-            m_selected_joint->setCursor(Qt::ClosedHandCursor);
+            //m_selected_joint->setCursor(Qt::ClosedHandCursor);
         }
-    }
-    else if (event->type() == QEvent::GraphicsSceneMouseMove) {
-        /*if (m_selected_joint) {
-            QPointF item_coords = m_selected_joint->mapFromScene(m_selected_joint->pos());
-            qDebug() << "Scene Coords" << x << y << "Item Coords" << item_coords;
-            //m_selected_joint->setPos(item_coords);
-        }*/
     }
     else if (event->type() == QEvent::GraphicsSceneMouseRelease && paint_event->button() == Qt::LeftButton) {
 
         if (m_selected_joint) {
             m_selected_joint->setBrush({Qt::green});
-            m_selected_joint->setCursor(Qt::OpenHandCursor);
+            //m_selected_joint->setCursor(Qt::OpenHandCursor);
             m_selected_joint = nullptr;
         }
     }
@@ -380,4 +376,108 @@ void MainWindow::newFrames(const dai::QHashDataFrames dataFrames)
     //cv::imshow("Image Me", color_mat);
     //qDebug() << "Stride!" << color->getStride();
     //cv::waitKey(0);
+}
+
+void MainWindow::setup_skeleton()
+{
+    QGraphicsItem *last_item, *center_shoulder, *center_hip;
+
+    // Head
+    m_skeleton_root = addJoint(160, 10, dai::SkeletonJoint::JOINT_HEAD);
+
+    // Center Shoulder
+    center_shoulder = addJoint(0, 100, dai::SkeletonJoint::JOINT_CENTER_SHOULDER, m_skeleton_root);
+
+    // Left Shoulder
+    last_item = addJoint(-100, 5, dai::SkeletonJoint::JOINT_LEFT_SHOULDER, center_shoulder);
+
+    // Left Elbow
+    last_item = addJoint(-10, 100, dai::SkeletonJoint::JOINT_LEFT_ELBOW, last_item);
+
+    // Left Hand
+    last_item = addJoint(-10, 100, dai::SkeletonJoint::JOINT_LEFT_HAND, last_item);
+
+    // Right Shoulder
+    last_item = addJoint(100, 5, dai::SkeletonJoint::JOINT_RIGHT_SHOULDER, center_shoulder);
+
+    // Right Elbow
+    last_item = addJoint(10, 100, dai::SkeletonJoint::JOINT_RIGHT_ELBOW, last_item);
+
+    // Right Hand
+    last_item = addJoint(10, 100, dai::SkeletonJoint::JOINT_RIGHT_HAND, last_item);
+
+    // Center Hip
+    center_hip = addJoint(0, 150, dai::SkeletonJoint::JOINT_SPINE, center_shoulder);
+
+    // Left Hip
+    last_item = addJoint(-50, 30, dai::SkeletonJoint::JOINT_LEFT_HIP, center_hip);
+
+    // Left Knee
+    last_item = addJoint(0, 150, dai::SkeletonJoint::JOINT_LEFT_KNEE, last_item);
+
+    // Left Foot
+    last_item = addJoint(0, 150, dai::SkeletonJoint::JOINT_LEFT_FOOT, last_item);
+
+    // Right Hip
+    last_item = addJoint(50, 30, dai::SkeletonJoint::JOINT_RIGHT_HIP, center_hip);
+
+    // Right Knee
+    last_item = addJoint(0, 150, dai::SkeletonJoint::JOINT_RIGHT_KNEE, last_item);
+
+    // Right Foot
+    last_item = addJoint(0, 150, dai::SkeletonJoint::JOINT_RIGHT_FOOT, last_item);
+
+    m_skeleton_root->setVisible(false);
+}
+
+dai::SkeletonFramePtr MainWindow::create_skeleton_from_scene()
+{
+    dai::SkeletonFramePtr skeletonFrame = make_shared<dai::SkeletonFrame>();
+    dai::SkeletonPtr skeleton = make_shared<dai::Skeleton>(dai::Skeleton::SKELETON_OPENNI);
+    skeletonFrame->setSkeleton(1, skeleton);
+
+    for (QGraphicsItem* item : m_input.scene()->items()) {
+
+        if (item->type() == 3 && item->data(0).isValid()) {
+
+            qDebug() << "Item.Pos:" << item->scenePos();
+
+            dai::SkeletonJoint::JointType jointType = dai::SkeletonJoint::JointType(item->data(0).toInt());
+
+            float w_x, w_y, w_z = 1.5f;
+            dai::Skeleton::convertDepthCoordinatesToJoint(item->scenePos().x(), item->scenePos().y(), w_z, &w_x, &w_y);
+
+            dai::SkeletonJoint joint(dai::Point3f(w_x, w_y, w_z), jointType);
+            skeleton->setJoint(jointType, joint);
+        }
+    }
+
+    return skeletonFrame;
+}
+
+QGraphicsItem* MainWindow::addJoint(int x, int y, dai::SkeletonJoint::JointType type, QGraphicsItem* parent)
+{
+    QGraphicsItem* item = m_input.scene()->addRect(0, 0, 9, 9,
+                                   {Qt::blue, 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin},
+                                   {Qt::green});
+
+
+    item->setPos(x, y);
+    item->setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable);
+    item->setCursor(Qt::OpenHandCursor);
+    item->setParentItem(parent);
+    item->setZValue(1.0);
+    item->setData(0, QVariant(type));
+
+    /*if (parent != nullptr) {
+        qreal parent_x = parent->scenePos().x()+4;
+        qreal parent_y = parent->scenePos().y()+4;
+        qreal child_x = item->scenePos().x()+4;
+        qreal child_y = item->scenePos().y()+4;
+        qDebug() << parent->scenePos() << item->scenePos() << parent_x << parent_y << child_x << child_y;
+        QGraphicsLineItem* line = m_input.scene()->addLine(parent_x, parent_y, child_x, child_y, {Qt::blue, 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin});
+        line->setParentItem(parent);
+    }*/
+
+    return item;
 }

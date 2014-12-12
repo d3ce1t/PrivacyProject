@@ -26,7 +26,7 @@ class PrivacyFilter : public FrameListener, public FrameGenerator
     QOffscreenSurface m_surface;
     bool m_initialised;
     Scene2DPainter* m_scene;
-    //OgreScene* m_ogreScene;
+    OgreScene* m_ogreScene;
     QOpenGLFramebufferObject* m_fboDisplay;
     ColorFilter m_filter;
     QFile m_file;

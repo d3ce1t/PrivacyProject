@@ -11,6 +11,7 @@
 #include <QPen>
 #include "types/MaskFrame.h"
 #include "types/ColorFrame.h"
+#include "types/SkeletonFrame.h"
 #include "filters/PrivacyFilter.h"
 
 namespace Ui {
@@ -47,6 +48,8 @@ class MainWindow : public QMainWindow, dai::FrameListener
     QString m_current_image_path;
     dai::PrivacyFilter m_privacy;
     QGraphicsRectItem* m_selected_joint;
+    bool m_drawing = false;
+    QGraphicsItem* m_skeleton_root;
 
 public:
     explicit MainWindow(QWidget *parent = 0);
@@ -62,10 +65,13 @@ protected:
 
 private slots:
     void first_setup();
+    void setup_skeleton();
+    dai::SkeletonFramePtr create_skeleton_from_scene();
     bool exceedSize(const QImage& image) const;
     void scaleImage(QImage &image) const;
     shared_ptr<dai::MaskFrame> create_mask(const QPainterPath& path);
     void setOutputImage(QImage image);
+    QGraphicsItem *addJoint(int x, int y, dai::SkeletonJoint::JointType type, QGraphicsItem *parent = nullptr);
 };
 
 #endif // MAINWINDOW_H

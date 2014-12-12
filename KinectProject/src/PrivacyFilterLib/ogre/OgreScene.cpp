@@ -18,10 +18,6 @@ OgreScene::OgreScene()
     , m_renderTarget(nullptr)
     , m_viewport(nullptr)
     , m_chara(nullptr)
-    //, m_pointCloud(nullptr)
-    //, m_pDepthData(nullptr)
-    //, m_pColorData(nullptr)
-    //, m_numPoints(640*480)
     , m_initialised(false)
     , m_lastTime(0)
     , m_userId(-1)
@@ -41,25 +37,10 @@ OgreScene::OgreScene()
 
 OgreScene::~OgreScene()
 {
-    /*if (m_pDepthData) {
-        delete[] m_pDepthData;
-        m_pDepthData = nullptr;
-    }*/
-
-    /*if (m_pColorData) {
-        delete[] m_pColorData;
-        m_pColorData = nullptr;
-    }*/
-
     if (m_chara) {
         delete m_chara;
         m_chara = nullptr;
     }
-
-    /*if (m_pointCloud) {
-        delete m_pointCloud;
-        m_pointCloud = nullptr;
-    }*/
 
     if (m_root) {
         activateOgreContext();
@@ -139,7 +120,7 @@ void OgreScene::updateViewport()
 void OgreScene::resize(int width, int height)
 {
     activateOgreContext();
-    //m_ogreWindow->resize(width, height);
+    m_ogreWindow->resize(width, height);
     updateFBO(width, height);
     updateViewport();
     doneOgreContext();
@@ -208,29 +189,9 @@ void OgreScene::createScene()
     light->setPosition(0, 15, 10);
     light->setSpecularColour(Ogre::ColourValue::White);
 
-    // Create a Point Cloud Mesh
-    //createPointCloud();
-
     // Create our character controller
     m_chara = new SinbadCharacterController(m_camera);
 }
-
-/*void OgreScene::createPointCloud()
-{
-    // Init point cloud mesh and required data
-    m_pDepthData = new float[m_numPoints*3];
-    m_pColorData = new float[m_numPoints*3];
-    m_pointCloud = new dai::OgrePointCloud("PointCloud", "General", m_numPoints);
-    m_pointCloud->initialise();
-
-    // Create a Point Cloud entity
-    Ogre::Entity *entity = m_sceneManager->createEntity("PointCloud", "PointCloud", "General");
-    entity->setMaterialName("PointCloud");
-    Ogre::SceneNode *node = m_sceneManager->getRootSceneNode()->createChildSceneNode(Ogre::Vector3::UNIT_Y);
-    node->scale(23, 23, 23);
-    node->setPosition(0, 0, 0);
-    node->attachObject(entity);
-}*/
 
 void OgreScene::prepareData(const dai::QHashDataFrames frames)
 {
@@ -238,18 +199,6 @@ void OgreScene::prepareData(const dai::QHashDataFrames frames)
 
     if (!m_initialised || time_ms == m_lastTime)
         return;
-
-    // Load Depth
-    /*if (m_pointCloud && frames.contains(dai::DataFrame::Depth)) {
-        shared_ptr<dai::DepthFrame> depthFrame = static_pointer_cast<dai::DepthFrame>(frames.value(dai::DataFrame::Depth));
-        loadDepthData(depthFrame);
-    }*/
-
-    // Load Color
-    /*if (m_pointCloud && frames.contains(dai::DataFrame::Color)) {
-        shared_ptr<dai::ColorFrame> colorFrame = static_pointer_cast<dai::ColorFrame>(frames.value(dai::DataFrame::Color));
-        loadColorData(colorFrame);
-    }*/
 
     // Match skeleton with the character
     if (frames.contains(dai::DataFrame::Skeleton))
@@ -287,74 +236,12 @@ void OgreScene::render()
 {
     activateOgreContext();
 
-    /*if (m_pointCloud) {
-        QReadLocker locker(&m_lock);
-        m_pointCloud->updateVertexPositions(m_pDepthData, m_numPoints);
-        m_pointCloud->updateVertexColours(m_pColorData, 640*480);
-    }*/
-
     if (m_ogreWindow && m_renderTarget) {
         m_renderTarget->update(true);
     }
 
     doneOgreContext();
 }
-
-/*void OgreScene::loadDepthData(shared_ptr<dai::DepthFrame> depthFrame)
-{
-    QWriteLocker locker(&m_lock);
-    float* pV = m_pDepthData;
-    float* pDepth = (float*) depthFrame->getDataPtr();
-    pDepth = pDepth + 640*480;
-    m_numPoints = 0;
-
-    for (int i_y = 0; i_y < 480; ++i_y)
-    {
-        for (int i_x = 0; i_x < 640; ++i_x)
-        {
-            // Position
-            if (*pDepth > 0) {
-                int x = 640 - i_x; // flip x
-                int y = i_y;
-                convertDepthToRealWorld(x, y, *pDepth, pV[0], pV[1]);
-                pV[2] = -(*pDepth); // meters to cm (ogre +z is out of the screen)
-            } else {
-                pV[0] = 0.0f;
-                pV[1] = 0.0f;
-                pV[2] = 0.0f;
-            }
-
-            pV+=3;
-            pDepth--;
-            m_numPoints++;
-        }
-    }
-}*/
-
-/*void OgreScene::loadColorData(shared_ptr<dai::ColorFrame> colorFrame)
-{
-    QWriteLocker locker(&m_lock);
-    float* pColorDest = m_pColorData;
-    dai::RGBColor* pColorSource = (dai::RGBColor*) colorFrame->getDataPtr();
-    pColorSource = pColorSource + 640*480;
-    m_numPoints = 0;
-
-    for (int i_y = 0; i_y < 480; ++i_y)
-    {
-        for (int i_x = 0; i_x < 640; ++i_x)
-        {
-            // Update color
-            pColorDest[0] = pColorSource->red / 255.0f;
-            pColorDest[1] = pColorSource->green / 255.0f;
-            pColorDest[2] = pColorSource->blue / 255.0f;
-
-            // Move pointers
-            pColorDest += 3;
-            pColorSource--;
-            m_numPoints++;
-        }
-    }
-}*/
 
 void OgreScene::convertDepthToRealWorld(int x, int y, float distance, float &outX, float &outY) const
 {

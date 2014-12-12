@@ -75,6 +75,8 @@ private:
     DistanceUnits m_units;
 };
 
+typedef std::shared_ptr<dai::Skeleton> SkeletonPtr;
+
 } // End Namespace
 
 #endif // SKELETON_H
