@@ -101,6 +101,7 @@ void MSRActionSkeletonInstance::nextFrame(QHashDataFrames &output)
 
     if (skeleton == nullptr) {
         skeleton = make_shared<Skeleton>(Skeleton::SKELETON_KINECT);
+        skeleton->setDistanceUnits(dai::METERS);
         skeletonFrame->setSkeleton(1, skeleton);
     }
 
@@ -119,6 +120,7 @@ void MSRActionSkeletonInstance::nextFrame(QHashDataFrames &output)
         m_file >> w_confidence;
 
         SkeletonJoint joint(Point3f(w_x, w_y, w_z), staticMap[i]);
+        joint.setPositionConfidence(w_confidence);
         skeleton->setJoint(staticMap[i], joint);
     }
 
