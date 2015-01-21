@@ -9,6 +9,10 @@ TARGET = PersonReid
 TEMPLATE = app
 CONFIG += console app_bundle link_prl
 
+*-g++ {
+    QMAKE_CXXFLAGS += -Wno-unused-local-typedefs
+}
+
 
 HEADERS += \
     PersonReid.h \

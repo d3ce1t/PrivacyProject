@@ -551,7 +551,7 @@ shared_ptr<DatasetMetadata> DatasetMetadata::load_version3(QString xmlPath)
     QXmlStreamReader reader;
     reader.setDevice(&file);
 
-    bool insideCameras = false;
+    //bool insideCameras = false;
     bool insideActors = false;
     bool insideLabels = false;
     bool insideInstances = false;
@@ -580,7 +580,7 @@ shared_ptr<DatasetMetadata> DatasetMetadata::load_version3(QString xmlPath)
             }
             // Cameras tag
             else if (reader.name() == "cameras") {
-                insideCameras = true;
+                //insideCameras = true;
             }
             // Camera tag
             else if (reader.name() == "camera") {
@@ -683,7 +683,7 @@ shared_ptr<DatasetMetadata> DatasetMetadata::load_version3(QString xmlPath)
 
         case QXmlStreamReader::EndElement:
             if (reader.name() == "cameras") {
-                insideCameras = false;
+                //insideCameras = false;
             }
             else if (reader.name() == "actors") {
                 insideActors = false;

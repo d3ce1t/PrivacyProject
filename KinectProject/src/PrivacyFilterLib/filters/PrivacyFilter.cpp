@@ -1,4 +1,8 @@
 #include "PrivacyFilter.h"
+#include "ogre/OgreScene.h"
+#include "viewer/Scene2DPainter.h"
+#include <QOpenGLFunctions>
+#include <QOpenGLContext>
 #include "types/MaskFrame.h"
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>

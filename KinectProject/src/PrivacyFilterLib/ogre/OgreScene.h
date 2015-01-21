@@ -1,16 +1,26 @@
 #ifndef OGRESCENE_H
 #define OGRESCENE_H
 
-#include "ogre/SinbadCharacterController.h"
-#include "ogre/OgrePointCloud.h"
 #include "types/DepthFrame.h"
 #include "types/ColorFrame.h"
 #include <QWindow>
 #include <QElapsedTimer>
 #include <QReadWriteLock>
-#include <QOpenGLFunctions>
 
-class OgreScene : public QOpenGLFunctions
+class CharacterController;
+class QOpenGLContext;
+
+namespace Ogre {
+    class Root;
+    class RenderWindow;
+    class Camera;
+    class SceneManager;
+    class RenderTexture;
+    class Viewport;
+}
+
+
+class OgreScene
 {
 public:
     OgreScene();
@@ -19,7 +29,7 @@ public:
     void prepareData(const dai::QHashDataFrames frames);
     void render();
     void enableFilter(bool flag);
-    GLuint texture() const;
+    uint texture() const;
     void resize(int width, int height);
 
 protected:
@@ -42,18 +52,18 @@ private:
     QWindow                 m_surface;
 
     // Ogre
-    Ogre::String            m_resources_cfg;
-    Ogre::String            m_plugins_cfg;
+    QString                 m_resources_cfg;
+    QString                 m_plugins_cfg;
     Ogre::Root*             m_root;
     Ogre::RenderWindow*     m_ogreWindow;
     Ogre::Camera*           m_camera;
     Ogre::SceneManager*     m_sceneManager;
     Ogre::RenderTexture*    m_renderTarget;
-    GLuint                  m_nativeTextureId;
+    uint                    m_nativeTextureId;
     Ogre::Viewport*         m_viewport;
 
     // Character and other items
-    SinbadCharacterController* m_chara;
+    CharacterController* m_chara;
     QReadWriteLock          m_lock;
     bool                    m_initialised;
     qint64                  m_lastTime;

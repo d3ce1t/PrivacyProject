@@ -196,8 +196,6 @@ void parseETHC(const QString datasetPath)
     datasetDir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
     QStringList seqEntries = datasetDir.entryList();
 
-    int num_samples = 0;
-
     /*cout << "<dataset name=\"ETHZ\">" << endl << endl;
     cout << "\t" << "<activities size=\"3\">" << endl;
     cout << "\t\t" << "<activity key=\"1\">Sequence 1</activity>" << endl;
@@ -671,6 +669,7 @@ dai::InstanceInfo* findInstance(QString activity, int actor, int sample, QMap<in
 
 int main(int argc, char *argv[])
 {
+    Q_UNUSED(argc);
     CoreLib_InitResources();
 
     //parseMSRAction3D(argv[1]);

@@ -432,7 +432,7 @@ void OpenNIDevice::depth2color(shared_ptr<DepthFrame> depthFrame, shared_ptr<Mas
             // Start hack in order to get distance to sensor, rather than to the plane
             float out_x, out_y, out_z;
             m_oniUserTracker.convertDepthCoordinatesToJoint(j, i, pDepth[j], &out_x, &out_y);
-            out_z = Point3f::euclideanDistance(Point3f(0, 0, 0), Point3f(out_x, out_y, pDepth[j]));
+            out_z = Point3f::euclideanDistance(Point3f(0.0f, 0.0f, 0.0f), Point3f(out_x, out_y, float(pDepth[j]) ));
             // End hack
 
             glm::vec3 p3d;
@@ -542,12 +542,12 @@ bool OpenNIDevice::isFile() const
     return m_device.isFile();
 }
 
-int OpenNIDevice::getTotalFrames()
+uint OpenNIDevice::getTotalFrames()
 {
-    int result = -1;
+    uint result = 0;
 
     if (m_device.isFile()) {
-        result = dai::min<int>(m_device.getPlaybackControl()->getNumberOfFrames(m_oniColorStream),
+        result = dai::min<uint>(m_device.getPlaybackControl()->getNumberOfFrames(m_oniColorStream),
                     m_device.getPlaybackControl()->getNumberOfFrames(m_oniDepthStream));
     }
 

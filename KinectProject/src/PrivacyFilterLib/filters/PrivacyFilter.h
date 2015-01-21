@@ -3,20 +3,24 @@
 
 #include "playback/FrameListener.h"
 #include "playback/FrameGenerator.h"
-#include "ogre/OgreScene.h"
-#include "viewer/Scene2DPainter.h"
 #include <QOffscreenSurface>
-#include <QOpenGLFramebufferObject>
-#include <QOpenGLContext>
 #include <opencv2/opencv.hpp>
 #include <opencv2/objdetect/objdetect.hpp>
 #include <QImage>
 #include <QFile>
-#include "types/Histogram.h"
+#include "types/ColorFrame.h"
+#include "viewer/types.h"
 
 extern void PrivacyLib_InitResources();
 
+class QOpenGLContext;
+class QOpenGLFramebufferObject;
+class QOpenGLFunctions;
+class OgreScene;
+
 namespace dai {
+
+class Scene2DPainter;
 
 class PrivacyFilter : public FrameListener, public FrameGenerator
 {

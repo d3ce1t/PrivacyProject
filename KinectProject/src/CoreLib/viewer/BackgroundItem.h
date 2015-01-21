@@ -13,7 +13,7 @@ class BackgroundItem : public SceneItem
 {
 public:
     BackgroundItem();
-    ~BackgroundItem();
+    virtual ~BackgroundItem();
     void setBackground(shared_ptr<ColorFrame> background);
 
 protected:

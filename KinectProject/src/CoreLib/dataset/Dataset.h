@@ -21,6 +21,7 @@ public:
     };
 
     explicit Dataset(const QString& xmlDescriptor);
+    virtual ~Dataset() = default;
     void open(const QString& xmlDescriptor);
     void setPath(const QString& path);
     const DatasetMetadata& getMetadata() const;

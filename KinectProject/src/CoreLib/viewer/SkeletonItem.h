@@ -11,6 +11,7 @@ class SkeletonItem : public SceneItem
 {
 public:
     SkeletonItem();
+    virtual ~SkeletonItem() = default;
     void setSkeleton(shared_ptr<SkeletonFrame> skeleton);
     void setMode3D(bool value);
 

@@ -77,6 +77,7 @@ float RegionDescriptor::distance(const Descriptor& other_desc) const
 
 bool RegionDescriptor::operator==(const Descriptor& other) const
 {
+    Q_UNUSED(other);
     return true;
 }
 

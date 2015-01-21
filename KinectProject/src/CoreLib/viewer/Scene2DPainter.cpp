@@ -315,10 +315,10 @@ void Scene2DPainter::renderComposite()
 
     // Write new size to pos buffer
     float vertexData[] = {
-        0.0, m_scene_height,  // Top-Left
-        m_scene_width, m_scene_height, // Top-Right
-        m_scene_width, 0, // Bottom-Right
-        0.0, 0.0 // Bottom-Left
+        0.0f, float(m_scene_height),  // Top-Left
+        float(m_scene_width), float(m_scene_height), // Top-Right
+        float(m_scene_width), 0.0f, // Bottom-Right
+        0.0f, 0.0f // Bottom-Left
     };
 
     m_vao.bind();
@@ -441,10 +441,10 @@ void Scene2DPainter::resize(int width, int height)
 
     // Write new size to pos buffer
     float vertexData[] = {
-        0.0, height,  // Top-Left
-        width, height, // Top-Right
-        width, 0, // Bottom-Right
-        0.0, 0.0 // Bottom-Left
+        0.0f, float(height),  // Top-Left
+        float(width), float(height), // Top-Right
+        float(width), 0.0f, // Bottom-Right
+        0.0f, 0.0f // Bottom-Left
     };
 
     /*float vertexData[] = {

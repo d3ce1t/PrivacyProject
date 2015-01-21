@@ -9,17 +9,23 @@ TARGET = PrivacyFilterLib
 TEMPLATE = lib
 CONFIG += staticlib create_prl thread
 
+*-g++ {
+    QMAKE_CXXFLAGS += -Wno-unused-but-set-parameter -Wno-unused-parameter
+}
+
 SOURCES += \
     filters/PrivacyFilter.cpp \
     ogre/OgrePointCloud.cpp \
     ogre/OgreScene.cpp \
-    ogre/SinbadCharacterController.cpp
+    ogre/OgreWrapper.cpp \
+    ogre/CharacterController.cpp
 
 HEADERS += \
     filters/PrivacyFilter.h \
     ogre/OgrePointCloud.h \
     ogre/OgreScene.h \
-    ogre/SinbadCharacterController.h
+    ogre/OgreWrapper.h \
+    ogre/CharacterController.h
 
 unix {
     # CoreLib

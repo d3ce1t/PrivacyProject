@@ -208,7 +208,7 @@ void PersonReid::parseDataset()
         colorInstance->device().playbackControl()->setSpeed(0.10f);
 
         // Read frames
-        int previousFrame = 0;
+        uint previousFrame = 0;
 
         while (colorInstance->hasNext())
         {
@@ -1296,7 +1296,7 @@ shared_ptr<MaskFrame> PersonReid::getVoronoiCells(const DepthFrame& depthFrame, 
         {
             if (mask[j] > 0)
             {
-                Point3f point(0, 0, depth[j]);
+                Point3f point(0.0f, 0.0f, float(depth[j]));
                 Skeleton::convertDepthCoordinatesToJoint(j+depthFrame.offset()[0], i+depthFrame.offset()[1],
                         depth[j], &point[0], &point[1]);
 
@@ -1334,7 +1334,7 @@ shared_ptr<MaskFrame> PersonReid::getVoronoiCellsParallel(const DepthFrame& dept
         {
             if (mask[j] > 0)
             {
-                Point3f point(0, 0, depth[j]);
+                Point3f point(0.0f, 0.0f, float(depth[j]));
                 Skeleton::convertDepthCoordinatesToJoint(j+depthFrame.offset()[0], row+depthFrame.offset()[1],
                         depth[j], &point[0], &point[1]);
 

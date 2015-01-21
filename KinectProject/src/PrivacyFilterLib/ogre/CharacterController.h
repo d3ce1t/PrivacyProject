@@ -1,5 +1,5 @@
-#ifndef SINBAD_H
-#define SINBAD_H
+#ifndef CHARACTER_CONTROLLER_H
+#define CHARACTER_CONTROLLER_H
 
 #include <Ogre.h>
 #include <OgreStringConverter.h>
@@ -12,10 +12,10 @@
 
 using namespace std;
 
-class SinbadCharacterController
+class CharacterController
 {
 public:
-    SinbadCharacterController(Ogre::Camera* cam);
+    CharacterController(Ogre::Camera* cam);
     void addTime(Ogre::Real deltaTime);
     void setSkeleton(shared_ptr<dai::Skeleton> skeleton);
     void newUser(int userId);
@@ -42,4 +42,4 @@ private:
     bool m_userVisible;
 };
 
-#endif
+#endif // CHARACTER_CONTROLLER_H

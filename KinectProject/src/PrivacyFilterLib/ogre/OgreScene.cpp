@@ -1,7 +1,7 @@
-#include <RenderSystems/GL/OgreGLTexture.h>
 #include "OgreScene.h"
+#include "ogre/CharacterController.h"
+#include <RenderSystems/GL/OgreGLTexture.h>
 #include <QOpenGLContext>
-#include <OgreStringConverter.h>
 #include "types/SkeletonFrame.h"
 #include <QDebug>
 
@@ -21,7 +21,7 @@ OgreScene::OgreScene()
     , m_initialised(false)
     , m_lastTime(0)
     , m_userId(-1)
-{
+{   
     QSurfaceFormat format;
     format.setMajorVersion(2);
     format.setMinorVersion(0);
@@ -54,10 +54,10 @@ void OgreScene::initialise(int width, int height)
 {
     createOpenGLContext();
     activateOgreContext();
-    initializeOpenGLFunctions();
+    //initializeOpenGLFunctions();
 
     // Setup and Start up Ogre
-    m_root = new Ogre::Root(m_plugins_cfg);
+    m_root = new Ogre::Root(m_plugins_cfg.toStdString());
 
     // Set OpenGL render subsystem
     Ogre::RenderSystem *renderSystem = m_root->getRenderSystemByName("OpenGL Rendering Subsystem");
@@ -126,7 +126,7 @@ void OgreScene::resize(int width, int height)
     doneOgreContext();
 }
 
-GLuint OgreScene::texture() const
+uint OgreScene::texture() const
 {
     return m_nativeTextureId;
 }
@@ -135,7 +135,7 @@ void OgreScene::setupResources()
 {
     // Load resource paths from config file
     Ogre::ConfigFile cf;
-    cf.load(m_resources_cfg);
+    cf.load(m_resources_cfg.toStdString());
 
     // Go through all sections & settings in the file
     Ogre::ConfigFile::SectionIterator seci = cf.getSectionIterator();
@@ -190,7 +190,7 @@ void OgreScene::createScene()
     light->setSpecularColour(Ogre::ColourValue::White);
 
     // Create our character controller
-    m_chara = new SinbadCharacterController(m_camera);
+    m_chara = new CharacterController(m_camera);
 }
 
 void OgreScene::prepareData(const dai::QHashDataFrames frames)

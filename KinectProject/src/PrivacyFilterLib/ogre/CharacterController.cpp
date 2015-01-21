@@ -1,7 +1,7 @@
-#include "ogre/SinbadCharacterController.h"
+#include "ogre/CharacterController.h"
 #include <QDebug>
 
-SinbadCharacterController::SinbadCharacterController(Ogre::Camera* cam)
+CharacterController::CharacterController(Ogre::Camera* cam)
     : m_enabled(false)
     , mBodyNode(nullptr)
     , mCameraNode(nullptr)
@@ -12,12 +12,12 @@ SinbadCharacterController::SinbadCharacterController(Ogre::Camera* cam)
     setupAnimations();
 }
 
-void SinbadCharacterController::setSkeleton(shared_ptr<dai::Skeleton> skeleton)
+void CharacterController::setSkeleton(shared_ptr<dai::Skeleton> skeleton)
 {
     m_skeleton = skeleton;
 }
 
-void SinbadCharacterController::setVisible(bool visible)
+void CharacterController::setVisible(bool visible)
 {
     m_enabled = visible;
 
@@ -27,19 +27,19 @@ void SinbadCharacterController::setVisible(bool visible)
     }
 }
 
-void SinbadCharacterController::addTime(Ogre::Real deltaTime)
+void CharacterController::addTime(Ogre::Real deltaTime)
 {
     updateBody(deltaTime);
 }
 
-void SinbadCharacterController::newUser(int userId)
+void CharacterController::newUser(int userId)
 {
     Q_UNUSED(userId);
     mBodyEnt->setVisible(m_enabled);
     m_userVisible = true;
 }
 
-void SinbadCharacterController::lostUser(int userId)
+void CharacterController::lostUser(int userId)
 {
     Q_UNUSED(userId);
     resetBonesToInitialState();
@@ -47,7 +47,7 @@ void SinbadCharacterController::lostUser(int userId)
     m_userVisible = false;
 }
 
-void SinbadCharacterController::setupBody(Ogre::SceneManager* sceneMgr)
+void CharacterController::setupBody(Ogre::SceneManager* sceneMgr)
 {
     // create main model
     mBodyNode = sceneMgr->getRootSceneNode()->createChildSceneNode("Human", Ogre::Vector3::UNIT_Y);
@@ -58,7 +58,7 @@ void SinbadCharacterController::setupBody(Ogre::SceneManager* sceneMgr)
     mBodyNode->attachObject(mBodyEnt);
 }
 
-void SinbadCharacterController::setupAnimations()
+void CharacterController::setupAnimations()
 {
     // this is very important due to the nature of the exported animations
     mBodyEnt->getSkeleton()->setBlendMode(Ogre::ANIMBLEND_CUMULATIVE);
@@ -117,7 +117,7 @@ void SinbadCharacterController::setupAnimations()
     anim->destroyNodeTrack(mBodyEnt->getSkeleton()->getBone("Root")->getHandle());
 }
 
-void SinbadCharacterController::resetBonesToInitialState()
+void CharacterController::resetBonesToInitialState()
 {
     qDebug() << "resetBonesToInitialState";
     Ogre::Skeleton* skel = mBodyEnt->getSkeleton();
@@ -135,7 +135,7 @@ void SinbadCharacterController::resetBonesToInitialState()
     skel->getBone("Root")->resetToInitialState();
 }
 
-void SinbadCharacterController::updateBody(Ogre::Real deltaTime)
+void CharacterController::updateBody(Ogre::Real deltaTime)
 {
     Q_UNUSED(deltaTime)
 
@@ -172,14 +172,14 @@ void SinbadCharacterController::updateBody(Ogre::Real deltaTime)
     skel->getBone("Root")->setPosition(newPos);
 }
 
-void SinbadCharacterController::setupBone(const Ogre::String &name, const Ogre::Radian &angle, const Ogre::Vector3 axis)
+void CharacterController::setupBone(const Ogre::String &name, const Ogre::Radian &angle, const Ogre::Vector3 axis)
 {
     Ogre::Quaternion q;
     q.FromAngleAxis(angle,axis);
     setupBone(name, q);
 }
 
-void SinbadCharacterController::setupBone(const Ogre::String &name, const Ogre::Degree &yaw,const Ogre::Degree &pitch,const Ogre::Degree &roll)
+void CharacterController::setupBone(const Ogre::String &name, const Ogre::Degree &yaw,const Ogre::Degree &pitch,const Ogre::Degree &roll)
 {
     Ogre::Bone* bone = mBodyEnt->getSkeleton()->getBone(name);
     bone->setManuallyControlled(true);
@@ -191,7 +191,7 @@ void SinbadCharacterController::setupBone(const Ogre::String &name, const Ogre::
     bone->setInitialState();
 }
 
-void SinbadCharacterController::setupBone(const Ogre::String &name, const Ogre::Quaternion &q)
+void CharacterController::setupBone(const Ogre::String &name, const Ogre::Quaternion &q)
 {
     Ogre::Bone* bone = mBodyEnt->getSkeleton()->getBone(name);
     bone->setManuallyControlled(true);
@@ -201,7 +201,7 @@ void SinbadCharacterController::setupBone(const Ogre::String &name, const Ogre::
     bone->setInitialState();
 }
 
-void SinbadCharacterController::transformBone(const Ogre::String& modelBoneName, dai::SkeletonJoint::JointType jointType)
+void CharacterController::transformBone(const Ogre::String& modelBoneName, dai::SkeletonJoint::JointType jointType)
 {
     // Get the model skeleton bone info
     Ogre::Skeleton* skel = mBodyEnt->getSkeleton();
