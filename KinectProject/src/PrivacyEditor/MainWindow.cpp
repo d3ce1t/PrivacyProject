@@ -100,6 +100,26 @@ MainWindow::MainWindow(QWidget *parent) :
         //}
     });
 
+    // Action: Apply filter
+    connect(m_ui->actionApply_filter, &QAction::triggered, [=]() {
+
+        if (m_input.image().isNull() || m_mask.image().isNull() || m_background.image().isNull())
+            return;
+
+        dai::MaskFramePtr mask = create_mask(m_mask.image());
+        dai::ColorFramePtr color = make_shared<dai::ColorFrame>(m_input.imageWidth(), m_input.imageHeight());
+        dai::PrivacyFilter::convertQImage2ColorFrame(m_input.image(), color);
+        //dai::SkeletonFramePtr skeleton = create_skeleton_from_scene();
+
+        dai::QHashDataFrames frames;
+        frames.insert(dai::DataFrame::Color, color);
+        frames.insert(dai::DataFrame::Mask, mask);
+        //frames.insert(dai::DataFrame::Skeleton, skeleton);
+
+        m_privacy.enableFilter(dai::ColorFilter(m_ui->comboFilter->currentIndex()));
+        m_privacy.singleFrame(frames, color->width(), color->height());
+    });
+
     // Action: Finish selection
     connect(m_ui->actionFinish_selection, &QAction::triggered, [=]() {
 
@@ -371,9 +391,9 @@ void MainWindow::eventSkeleton(QEvent *event)
     }
 }
 
-shared_ptr<dai::MaskFrame> MainWindow::create_mask(const QPainterPath& path)
+dai::MaskFramePtr MainWindow::create_mask(const QPainterPath& path)
 {
-    shared_ptr<dai::MaskFrame> mask = std::make_shared<dai::MaskFrame>(m_input.imageWidth(), m_input.imageHeight());
+    dai::MaskFramePtr mask = make_shared<dai::MaskFrame>(m_input.imageWidth(), m_input.imageHeight());
     QRectF search_region = path.boundingRect();
 
     for (int i = search_region.top(); i < search_region.bottom(); ++i)
@@ -389,10 +409,32 @@ shared_ptr<dai::MaskFrame> MainWindow::create_mask(const QPainterPath& path)
     return mask;
 }
 
+dai::MaskFramePtr MainWindow::create_mask(const QImage& image)
+{
+    Q_ASSERT(!image.isNull());
+
+    dai::MaskFramePtr mask = make_shared<dai::MaskFrame>(image.width(), image.height());
+    cv::Mat mat(image.height(), image.width(), CV_8UC4, (uchar*) image.constBits(), image.bytesPerLine());
+
+    for (int i=0; i<mat.rows; ++i)
+    {
+        cv::Vec4b* in_pixel = mat.ptr<cv::Vec4b>(i);
+        uint8_t* out_pixel = mask->getRowPtr(i);
+
+        for (int j=0; j<mat.cols; ++j)
+        {
+            if (in_pixel[j][2] > 0) // Red channel
+                out_pixel[j] = 1;
+        }
+    }
+
+    return mask;
+}
+
 void MainWindow::setOutputImage(QImage image)
 {
     m_output.setImage(image);
-    m_ui->comboDisplaySelection->setCurrentIndex(1);
+    m_ui->comboDisplaySelection->setCurrentIndex(3);
 }
 
 // It's called from the notifier thread

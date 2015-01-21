@@ -72,7 +72,8 @@ private slots:
     dai::SkeletonFramePtr create_skeleton_from_scene();
     bool exceedSize(const QImage& image) const;
     void scaleImage(QImage &image) const;
-    shared_ptr<dai::MaskFrame> create_mask(const QPainterPath& path);
+    dai::MaskFramePtr create_mask(const QPainterPath& path);
+    dai::MaskFramePtr create_mask(const QImage& image);
     void setOutputImage(QImage image);
     QGraphicsItem *addJoint(int x, int y, dai::SkeletonJoint::JointType type, QGraphicsItem *parent = nullptr);
 };

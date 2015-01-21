@@ -235,6 +235,8 @@
     </property>
     <addaction name="actionFit_image_to_screen"/>
     <addaction name="actionFinish_selection"/>
+    <addaction name="separator"/>
+    <addaction name="actionApply_filter"/>
    </widget>
    <addaction name="menuOpen_image"/>
    <addaction name="menuEdit"/>
@@ -353,6 +355,11 @@
    </property>
    <property name="text">
     <string>Joint Silhouette Mode</string>
+   </property>
+  </action>
+  <action name="actionApply_filter">
+   <property name="text">
+    <string>Apply filter</string>
    </property>
   </action>
  </widget>
