@@ -6,6 +6,8 @@
 #include "dataset/DatasetMetadata.h"
 #include <QMultiMap>
 #include "dataset/MSRAction3D/MSR3Action3D.h"
+#include "types/SkeletonFrame.h"
+#include "Config.h"
 
 using namespace std;
 
@@ -383,17 +385,124 @@ void parseMSRAction3D(const QString datasetPath)
     cout << "</dataset>" << endl;
 }
 
+void parseGeorgeFeatures_Sample()
+{
+    QString long_str = "-0.35885 0.3639 2.7042 -0.004064 0.36632 2.6564 -0.19438 0.4108 2.5867 -0.16748 0.20959 2.7761 -0.31497 -0.006219 2.67 -0.03664 -0.024287 2.6339 -0.15886 -0.000245 2.775 -0.44069 0.11475 2.7613 0.15705 0.18282 2.545 -0.52374 -0.1575 2.8161 0.38695 0.039984 2.4413 -0.51265 -0.22357 2.8029 0.44926 0.01885 2.423 -0.32694 -0.57874 2.714 -0.069307 -0.59161 2.6957 -0.34793 -1.0002 2.7792 -0.057811 -1.0167 2.7342 -0.37771 -1.0241 2.6152 -0.078119 -1.0323 2.5678 -0.18657 0.66442 2.5568 0.358 0.20749 0.25615 0.37427 0.50936 0.42144 0.2684 0.56946 0.55818 0.85455 0.61525 0.92258 0.94323 0.99845 1.3662 1.4134 1.391 1.4307 0.37644 0.20749 0.25615 0.48542 0.39261 0.41521 0.51473 0.2684 0.75495 0.55286 0.79254 0.617 1.0004 0.96095 1.4145 1.3863 1.4403 1.4034 0.36343 0.27765 0.44202 0.46519 0.45351 0.42286 0.42097 0.69573 0.7047 0.74194 0.77115 1.0065 1.016 1.4323 1.4416 1.4468 1.4479 0.2555 0.28212 0.3034 0.21001 0.28958 0.39933 0.5131 0.66955 0.55452 0.73582 0.80669 0.81119 1.2232 1.2319 1.2618 1.2624 0.50531 0.28125 0.18822 0.19692 0.52362 0.29631 0.7397 0.32247 0.80355 0.57433 0.63537 1.0005 1.0447 1.0213 1.058 0.69214 0.18822 0.4459 0.29717 0.53684 0.46975 0.54302 0.53144 0.63096 0.57161 1.0346 0.99771 1.0565 1.0111 0.70904 0.30469 0.43153 0.39944 0.64102 0.41931 0.70289 0.6055 0.60334 1.0177 1.0223 1.0591 1.0558 0.70011 0.63932 0.28985 0.89052 0.34839 0.9569 0.70435 0.80074 1.119 1.1948 1.1499 1.2185 0.63917 0.80795 0.28985 0.82474 0.35657 0.91803 0.82079 1.3074 1.2332 1.3219 1.2379 0.59174 1.0044 0.068276 1.0641 0.47601 0.63988 0.86165 0.98084 0.90148 1.0127 0.92544 1.0048 0.068276 0.98329 0.81965 1.3177 1.1833 1.3218 1.1756 0.85569 1.0622 0.41053 0.58609 0.79427 0.91689 0.83324 0.94774 0.97746 1.0219 0.84612 1.342 1.1943 1.3448 1.1849 0.91594 0.25861 0.427 0.51446 0.459 0.53763 1.2609 0.50155 0.427 0.53724 0.459 1.2691 0.29405 0.16837 0.34427 1.6872 0.34139 0.16837 1.6954 0.30343 1.7003 1.7002 166.41 164.06 123.9 102.95 108.35 119.24 124.9 178.15 145.71 61.753 61.753 136.41 99.111 90.493 175.07 90 90.041 90.356 175.32 90 33.807 31.544 98.514 89.159 24.705 16.497 0.062306 -0.021134 -0.018248 0.2299 -0.14283 -0.10371 0.16111 -0.1835 -0.11139 0.19031 -0.044476 0.069665 -0.007807 -0.25363 0.029884 0.011093 -0.066077 -0.01313 -0.083052 -0.27225 0.054735 -0.081838 -0.24915 0.057159 -0.16447 -0.046897 0.11748 -0.026901 0.20121 -0.18943 -0.008616 0.20983 0.001143 -0.12222 0.024042 0.1411 0.032667 0.56732 -0.061811 -0.011496 0.42511 -0.038477 0.020308 0.015611 0.16642 0.15611 0.005974 0.10497 0.01197 0.57252 -0.043983 0.020989 0.42148 -0.065157 0.029772 0.02387 0.16399 0.11835 0.088487 -0.4839 0.86256 0.13868 0.14466 -0.41244 0.88867 0.47022 0.33869 0.61909 -0.53001 0.62289 -0.24742 0.094353 0.73614 0.58532 -0.45753 -0.064422 -0.66628 0.5057 -0.044962 -0.77661 -0.37298 0.46256 -0.51608 0.0041329 -0.72089 0.016131 -0.76676 0.10669 -0.6328 0.29483 -0.61627 0.041417 -0.72909 0.85828 0.056546 -0.34561 -0.37512 0.85828 0.14918 0.34702 0.3474 0.37128 -0.92332 -0.038404 0.090328 0.64871 -0.57679 -0.020982 -0.49603 0.70406 0.53821 0.019441 0.46287 0.043018 -0.21179 -0.093692 -0.97186 0.70711 -0.70169 -0.011131 0.086672 0.70685 -0.39404 -0.019378 0.58712 0.70491 0.39607 -0.0533 -0.586 0.04085 0.9366 0.0071486 0.34795 0.70711 -0.6951 0.052932 0.11849 0.9568 0.091956 -0.035068 -0.2736 0.96235 0.15338 0.021596 0.22336 0.65267 -0.2245 -0.21989 -0.6894 0.71227 -0.23139 -0.10684 -0.654 0.97685 -0.013736 0.026326 -0.21185 0.98966 -0.021335 0.026322 -0.13941 195.61 6.8076 120.48 202 7.3056 128.79 109.23 355.46 77.912 101.91 60.502 245.24 278.62 313.86 243.75 239.39 342.1 318.96 266.95 317.84 219.49 280.34 349.4 173.56 265.64 331.25 200.22 311.05 316.92 347.17 43.538 44.416 1.2015 8.026 7.9317 223.25 310.23 321.73 258.43 320.48 42.277 90.607 204.84 357.48 191.57 6.1377 7.9433 270.01 54.56 57.703 270 51.675 299.73 90.062 319.33 2.3967 175.89 13.924 5.3926 270.32 358.87 327.99 10.654 358.28 25.882 18.506 265.47 306.76 265.08 284.98 298.09 274.57 2.8731 335.5 359.01 2.753 343.92 357.92 0 4.6071e-16 0.079593 0.053776 0.122 0.1258 0 0.019508 0.13324 0.047415 0.23994 0.075518 0.2549 0.22811 0.21613 0.27637 0.28675 0.44341 0.45279 0.042232 0.104063621105483 0.0415830101470132 0.0110546305136231 0.00655882257019247 0.00444210343122973 0.00131657086220442 0.00156749563103369 0.107515732848432 0.104586997130892 0.080192512310883 0.0668525039229112 0.0462441386583774 0.0452571497749412 0.0316243348460039 0.0152674670280326 0.034067171168904 0.0328262883911501 0.0227827811390078 0.0157015863497795 0.00691055843524658 0.0106397786836064 0.0162670665897861 0.0850757505673015 0.107601927893965";
+    QStringList list = long_str.split(" ");
+
+    // Skeleton Poses (60)
+    qDebug() << "Positions:";
+    int c = 0;
+    for (int i=0; i<60; i+=3) {
+        qDebug() << c++ << list.value(i) << list.value(i+1) << list.value(i+2);
+    }
+
+    // Distances (190)
+    QString distances;
+    for (int i=60; i<250; ++i) {
+        distances += list.value(i) + " ";
+    }
+    qDebug() << "Distances" << distances.trimmed();
+
+    // Angles (26)
+    QString angles;
+    for (int i=250; i<276; ++i) {
+        angles += list.value(i) + " ";
+    }
+    qDebug() << "Angles" << angles.trimmed();
+
+    // Position diferences (57)
+    qDebug() << "Positions diff.:";
+    c = 0;
+    for (int i=276; i<333; i+=3) {
+        qDebug() << c++ << list.value(i) << list.value(i+1) << list.value(i+2);
+    }
+
+    // Quaternions (104)
+    qDebug() << "Quaternions:";
+    c = 0;
+    for (int i=333; i<437; i+=4) {
+        qDebug() << c++ << list.value(i) << list.value(i+1) << list.value(i+2) << list.value(i+3);
+    }
+
+    // Euler Angles (78)
+    qDebug() << "Euler Angles:";
+    c = 0;
+    for (int i=437; i<515; i+=3) {
+        qDebug() << c++ << list.value(i) << list.value(i+1) << list.value(i+2);
+    }
+
+    // Plane distances (20)
+    QString plane;
+    for (int i=515; i<535; ++i) {
+        plane += list.value(i) + " ";
+    }
+    qDebug() << "Plane Distances" << plane.trimmed();
+
+    qDebug() << list.size();
+}
+
 void parseMSRAction3D_Quaternions(const QString datasetPath)
 {
-    dai::Dataset* dataset = new dai::MSR3Action3D;
+    shared_ptr<dai::Dataset> dataset = static_pointer_cast<dai::Dataset>(make_shared<dai::MSR3Action3D>());
     dataset->setPath(datasetPath);
     const dai::DatasetMetadata& metadata = dataset->getMetadata();
 
-    metadata.instances();
+    // Get all instances of the MSRAction-3D dataset
+    //QList<shared_ptr<dai::InstanceInfo>> instances_info = metadata.instances({1},{1}, {{"act2","rep1"}});
+    QList<shared_ptr<dai::InstanceInfo>> instances_info = metadata.instances();
 
+    // Container for read frames
+    dai::QHashDataFrames readFrames;
+    readFrames.insert( dai::DataFrame::Skeleton, make_shared<dai::SkeletonFrame>() );
 
+    for (auto info : instances_info)
+    {
+        // Get Sample
+        shared_ptr<dai::StreamInstance> instance_tmp = dataset->getInstance(*info, dai::DataFrame::Skeleton);
+        shared_ptr<dai::DataInstance> instance = static_pointer_cast<dai::DataInstance>(instance_tmp);
 
-    delete dataset;
+        // Open Instance
+        QString fileName = datasetPath + "/" + info->getFileName(dai::DataFrame::Skeleton);
+        QString outputFile = fileName.replace("skeleton3D", "quaternion");
+        //QString outputFile = fileName.replace("skeleton3D", "eulerangles");
+        QFile of(outputFile);
+
+        instance->open();
+
+        if (!of.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            qDebug() << "Error opening file" << outputFile;
+            return;
+        }
+
+        QTextStream in(&of);
+
+        // Traverse
+        while (instance->hasNext()) {
+
+            // Read frames
+            instance->readNextFrame(readFrames);
+
+            // Get skeleton frame and first skeleton of the frame
+            shared_ptr<dai::SkeletonFrame> skeletonFrame = static_pointer_cast<dai::SkeletonFrame>(readFrames.value(dai::DataFrame::Skeleton));
+            shared_ptr<dai::Skeleton> skeleton = skeletonFrame->getSkeleton(1);
+
+            for (dai::Quaternion q : skeleton->quaternions())
+            {
+                //dai::Vector3d eulerAngles = q.toEulerAngles();
+                //in << eulerAngles.x() << " " << eulerAngles.y() << " " << eulerAngles.z() << " ";
+                in << q.toString() << " ";
+            }
+
+            in << endl;
+        }
+
+        // Close instance
+        of.close();
+        instance->close();
+    }
+
+    qDebug() << "Number of instances:" << instances_info.size();
 }
 
 void parseHuDaAct(const QStringList& entries)
@@ -562,6 +671,8 @@ dai::InstanceInfo* findInstance(QString activity, int actor, int sample, QMap<in
 
 int main(int argc, char *argv[])
 {
+    CoreLib_InitResources();
+
     //parseMSRAction3D(argv[1]);
     //parseCAVIAR4REID(argv[1]);
     //parseDAI4REID(argv[1]);
