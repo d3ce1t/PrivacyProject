@@ -47,6 +47,7 @@ public:
     const SkeletonJoint getJoint(SkeletonJoint::JointType type) const;
     QList<SkeletonJoint> joints() const;
     const Quaternion getQuaternion(Quaternion::QuaternionType type) const;
+    QList<Quaternion> quaternions() const;
     const SkeletonLimb* getLimbsMap() const;
     short getJointsCount() const;
     short getLimbsCount() const;
@@ -61,12 +62,12 @@ public:
     Skeleton& operator=(const Skeleton& other);
 
 private:
-    static SkeletonJoint::JointType staticQuaternionsMap[20][3];
+    static SkeletonJoint::JointType staticQuaternionsMap[22][3];
     static SkeletonLimb staticKinectLimbsMap[MAX_LIMBS];
     static SkeletonLimb staticOpenNILimbsMap[16];
 
     QMap<int, SkeletonJoint> m_joints; // joints with real world coordinates in meters
-    QHash<int, Quaternion> m_quaternions;
+    QMap<int, Quaternion> m_quaternions;
     SkeletonLimb m_limbs[MAX_LIMBS];
     short m_limbsSize;
     SkeletonType m_type;

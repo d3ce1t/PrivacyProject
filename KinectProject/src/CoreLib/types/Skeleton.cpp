@@ -6,7 +6,7 @@
 namespace dai {
 
 // Quaternions Map
-SkeletonJoint::JointType Skeleton::staticQuaternionsMap[20][3] = {
+SkeletonJoint::JointType Skeleton::staticQuaternionsMap[22][3] = {
     {SkeletonJoint::JOINT_HEAD,             SkeletonJoint::JOINT_CENTER_SHOULDER,   SkeletonJoint::JOINT_SPINE}, // Q1
     {SkeletonJoint::JOINT_HEAD,             SkeletonJoint::JOINT_CENTER_SHOULDER,   SkeletonJoint::JOINT_LEFT_SHOULDER}, // Q2
     {SkeletonJoint::JOINT_HEAD,             SkeletonJoint::JOINT_CENTER_SHOULDER,   SkeletonJoint::JOINT_RIGHT_SHOULDER}, // Q3
@@ -26,7 +26,9 @@ SkeletonJoint::JointType Skeleton::staticQuaternionsMap[20][3] = {
     {SkeletonJoint::JOINT_RIGHT_HIP,        SkeletonJoint::JOINT_RIGHT_KNEE,        SkeletonJoint::JOINT_RIGHT_ANKLE}, // Q17
     {SkeletonJoint::JOINT_LEFT_KNEE,        SkeletonJoint::JOINT_LEFT_ANKLE,        SkeletonJoint::JOINT_LEFT_FOOT}, // Q18
     {SkeletonJoint::JOINT_RIGHT_KNEE,       SkeletonJoint::JOINT_RIGHT_ANKLE,       SkeletonJoint::JOINT_RIGHT_FOOT}, // Q19
-    {SkeletonJoint::JOINT_LEFT_HIP,         SkeletonJoint::JOINT_CENTER_HIP,        SkeletonJoint::JOINT_RIGHT_HIP} // Q20
+    {SkeletonJoint::JOINT_LEFT_HIP,         SkeletonJoint::JOINT_CENTER_HIP,        SkeletonJoint::JOINT_RIGHT_HIP}, // Q20
+    {SkeletonJoint::JOINT_LEFT_SHOULDER,    SkeletonJoint::JOINT_CENTER_SHOULDER,   SkeletonJoint::JOINT_SPINE}, // Q21
+    {SkeletonJoint::JOINT_RIGHT_SHOULDER,   SkeletonJoint::JOINT_CENTER_SHOULDER,   SkeletonJoint::JOINT_SPINE}, // Q22
 };
 
 // Kinect Limbs
@@ -128,6 +130,11 @@ const Quaternion Skeleton::getQuaternion(Quaternion::QuaternionType type) const
     return m_quaternions.value(type);
 }
 
+QList<Quaternion> Skeleton::quaternions() const
+{
+    return m_quaternions.values();
+}
+
 const Skeleton::SkeletonLimb* Skeleton::getLimbsMap() const
 {
     return m_limbs;
@@ -166,7 +173,7 @@ void Skeleton::setDistanceUnits(DistanceUnits units)
 void Skeleton::computeQuaternions()
 {
     // Quaternions
-    for (int i=0; i<20; ++i) {
+    for (int i=0; i<22; ++i) {
         SkeletonJoint::JointType joint1 = staticQuaternionsMap[i][0];
         SkeletonJoint::JointType joint2 = staticQuaternionsMap[i][1]; // vertex
         SkeletonJoint::JointType joint3 = staticQuaternionsMap[i][2];

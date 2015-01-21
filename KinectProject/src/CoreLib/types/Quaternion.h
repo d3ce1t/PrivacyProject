@@ -1,5 +1,5 @@
-#ifndef SKELETONQUATERNION_H
-#define SKELETONQUATERNION_H
+#ifndef QUATERNION_H
+#define QUATERNION_H
 
 #include <QObject>
 #include "Vector3D.h"
@@ -33,7 +33,9 @@ public:
         QUATERNION_Q17,
         QUATERNION_Q18,
         QUATERNION_Q19,
-        QUATERNION_Q20
+        QUATERNION_Q20,
+        QUATERNION_Q21,
+        QUATERNION_Q22
     };
 
     /**
@@ -82,31 +84,33 @@ public:
     static double dotProduct(const Quaternion &q1, const Quaternion &q2);
 
     Quaternion();
-    Quaternion(float w, float i, float j, float k);
+    Quaternion(double w, double i, double j, double k);
     Quaternion(const Quaternion& other);
     Quaternion& operator=(const Quaternion& other);
-    void setScalar(float value);
-    void setVector(Vector3f vector);
-    void setVector(float i, float j, float k);
-    float scalar() const;
-    Vector3f vector() const;
+    void setScalar(double value);
+    void setVector(Vector3d vector);
+    void setVector(double i, double j, double k);
+    double scalar() const {return m_w;}
+    Vector3d vector() const {return m_vector;}
     double getAngle() const;
     double norm() const;
-    float w() const {return m_w;}
-    float x() const {return m_vector.x();}
-    float y() const {return m_vector.y();}
-    float z() const {return m_vector.z();}
+    double w() const {return m_w;}
+    double x() const {return m_vector.x();}
+    double y() const {return m_vector.y();}
+    double z() const {return m_vector.z();}
     void normalize();
     void print() const;
+    QString toString() const;
+    Vector3d toEulerAngles() const;
 
 protected:
     double sign(double value) const;
 
 private:
-    float m_w;
-    Vector3f m_vector; // i, j, k or x, y, z
+    double m_w;
+    Vector3d m_vector; // i, j, k or x, y, z
 };
 
 } // End Namespace
 
-#endif // SKELETONQUATERNION_H
+#endif // QUATERNION_H

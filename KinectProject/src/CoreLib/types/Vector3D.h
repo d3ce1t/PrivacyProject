@@ -77,6 +77,7 @@ private:
 };
 
 using Vector3f = Vector3D<float>;
+using Vector3d = Vector3D<double>;
 
 
 } // End namespace
