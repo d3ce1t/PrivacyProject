@@ -27,9 +27,11 @@ public:
     Display();
     QGraphicsScene* scene();
     const QGraphicsPixmapItem* background() const;
+    QImage& image();
     int imageWidth() const;
     int imageHeight() const;
     void setImage(const QImage &image);
+    void update();
 };
 
 class MainWindow : public QMainWindow, dai::FrameListener
@@ -39,9 +41,10 @@ class MainWindow : public QMainWindow, dai::FrameListener
     Ui::MainWindow* m_ui;
     QFileSystemModel m_fs_model;
     Display m_input;
+    Display m_mask;
+    Display m_background;
     Display m_output;
     QGraphicsPathItem* m_mask_item;
-    QImage m_current_image;
     const QSize MAX_IMAGE_SIZE = {512, 512};
     QPointF m_last_pixel;
     QPen m_pen;

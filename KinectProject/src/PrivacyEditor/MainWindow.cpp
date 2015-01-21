@@ -18,6 +18,11 @@ QGraphicsScene* Display::scene()
     return &m_scene;
 }
 
+QImage& Display::image()
+{
+    return m_image;
+}
+
 int Display::imageWidth() const
 {
     return m_bg_item->pixmap().width();
@@ -30,7 +35,13 @@ int Display::imageHeight() const
 
 void Display::setImage(const QImage& image)
 {
-    m_bg_item->setPixmap(QPixmap::fromImage(image));
+    m_image = image; // shallow copy
+    update();
+}
+
+void Display::update()
+{
+    m_bg_item->setPixmap(QPixmap::fromImage(m_image));
     m_scene.setSceneRect(m_bg_item->boundingRect());
 }
 
@@ -71,10 +82,11 @@ MainWindow::MainWindow(QWidget *parent) :
                 m_fs_model.disconnect();
             });
 
-            QStringList filters = {"*.jpg", "*.jpeg", "*.bmp", "*.png"};
+            QStringList filters = {"*_real.jpg", "*_real.jpeg", "*_real.bmp", "*_real.png"};
             m_fs_model.setRootPath(dirName);
             m_fs_model.setFilter(QDir::Files);
             m_fs_model.setNameFilters(filters);
+            m_fs_model.setNameFilterDisables(false);
         }
     });
 
@@ -82,16 +94,16 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_ui->actionFit_image_to_screen, &QAction::triggered, [=]() {
 
         // Scale Image if needed
-        //if (exceedSize(m_current_image)) {
-            scaleImage(m_current_image);
-            m_input.setImage(m_current_image);
+        //if (exceedSize(m_input.image())) {
+            scaleImage(m_input.image());
+            m_input.update();
         //}
     });
 
     // Action: Finish selection
     connect(m_ui->actionFinish_selection, &QAction::triggered, [=]() {
 
-        if (m_current_image.isNull())
+        if (m_input.image().isNull())
             return;
 
         QBrush brush(Qt::DiagCrossPattern);
@@ -101,8 +113,8 @@ MainWindow::MainWindow(QWidget *parent) :
         m_mask_item->setBrush(brush);
 
         dai::MaskFramePtr mask = create_mask(pp);
-        dai::ColorFramePtr color = make_shared<dai::ColorFrame>(m_current_image.width(), m_current_image.height());
-        dai::PrivacyFilter::convertQImage2ColorFrame(m_current_image, color);
+        dai::ColorFramePtr color = make_shared<dai::ColorFrame>(m_input.imageWidth(), m_input.imageHeight());
+        dai::PrivacyFilter::convertQImage2ColorFrame(m_input.image(), color);
         dai::SkeletonFramePtr skeleton = create_skeleton_from_scene();
 
         dai::QHashDataFrames frames;
@@ -127,13 +139,21 @@ MainWindow::MainWindow(QWidget *parent) :
     });
 
     // Select Display
-    connect(m_ui->comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=](int index) {
+    connect(m_ui->comboDisplaySelection, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=](int index) {
         // Input Image
         if (index == 0) {
             m_ui->graphicsView->setScene(m_input.scene());
         }
-        // Output Image
+        // Mask Image
         else if (index == 1) {
+            m_ui->graphicsView->setScene(m_mask.scene());
+        }
+        // BG Image
+        else if (index == 2) {
+            m_ui->graphicsView->setScene(m_background.scene());
+        }
+        // Output Image
+        else if (index == 3) {
             m_ui->graphicsView->setScene(m_output.scene());
         }
     });
@@ -161,7 +181,7 @@ MainWindow::MainWindow(QWidget *parent) :
             if (sibling.isValid()) {
                 m_ui->listView->setCurrentIndex(sibling);
                 load_selected_image();
-                m_ui->comboBox->setCurrentIndex(0);
+                m_ui->comboDisplaySelection->setCurrentIndex(0);
             }
         }
     });
@@ -177,7 +197,7 @@ MainWindow::MainWindow(QWidget *parent) :
             if (sibling.isValid()) {
                 m_ui->listView->setCurrentIndex(sibling);
                 load_selected_image();
-                m_ui->comboBox->setCurrentIndex(0);
+                m_ui->comboDisplaySelection->setCurrentIndex(0);
             }
         }
     });
@@ -190,7 +210,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // List View: Activate
     connect(m_ui->listView, &QListView::activated, [=]() {
         load_selected_image();
-        m_ui->comboBox->setCurrentIndex(0);
+        m_ui->comboDisplaySelection->setCurrentIndex(0);
     });
 }
 
@@ -219,18 +239,27 @@ void MainWindow::load_selected_image()
         m_current_image_path = m_fs_model.filePath(index);
         qDebug() << "Loading" << m_current_image_path;
 
-        m_current_image.load(m_current_image_path);
+        QImage image, mask, bg;
+        QString tmpPath = m_current_image_path;
 
-        if(m_current_image.isNull()) {
+        image.load(tmpPath);
+        mask.load(tmpPath.replace("_real.png", "_mask.png"));
+        bg.load(tmpPath.replace("_mask.png", "_bg.png"));
+
+        if(image.isNull()) {
             QMessageBox::information(this, "Privacy Editor","Error Displaying image");
             return;
         }
 
-        qDebug() << "Current Image Size" << m_current_image.size() << float(m_current_image.width()) / float(m_current_image.height()) <<
-                    std::sqrt(m_current_image.width()) << std::sqrt(m_current_image.height());
+        qDebug() << "Current Image Size" << image.size() << float(image.width()) / float(image.height()) <<
+                    std::sqrt(image.width()) << std::sqrt(image.height());
 
-        scaleImage(m_current_image);
-        m_input.setImage(m_current_image);
+        scaleImage(image);
+        scaleImage(mask);
+        scaleImage(bg);
+        m_input.setImage(image);
+        m_mask.setImage(mask);
+        m_background.setImage(bg);
     }
 }
 
@@ -363,7 +392,7 @@ shared_ptr<dai::MaskFrame> MainWindow::create_mask(const QPainterPath& path)
 void MainWindow::setOutputImage(QImage image)
 {
     m_output.setImage(image);
-    m_ui->comboBox->setCurrentIndex(1);
+    m_ui->comboDisplaySelection->setCurrentIndex(1);
 }
 
 // It's called from the notifier thread
