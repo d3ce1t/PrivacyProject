@@ -84,20 +84,20 @@ public:
     static double dotProduct(const Quaternion &q1, const Quaternion &q2);
 
     Quaternion();
-    Quaternion(double w, double i, double j, double k);
+    Quaternion(float w, float i, float j, float k);
     Quaternion(const Quaternion& other);
     Quaternion& operator=(const Quaternion& other);
-    void setScalar(double value);
-    void setVector(Vector3d vector);
-    void setVector(double i, double j, double k);
-    double scalar() const {return m_w;}
-    Vector3d vector() const {return m_vector;}
+    void setScalar(float value);
+    void setVector(Vector3f vector);
+    void setVector(float i, float j, float k);
+    float scalar() const {return m_w;}
+    Vector3f vector() const {return m_vector;}
     double getAngle() const;
     double norm() const;
-    double w() const {return m_w;}
-    double x() const {return m_vector.x();}
-    double y() const {return m_vector.y();}
-    double z() const {return m_vector.z();}
+    float w() const {return m_w;}
+    float x() const {return m_vector.x();}
+    float y() const {return m_vector.y();}
+    float z() const {return m_vector.z();}
     void normalize();
     void print() const;
     QString toString() const;
@@ -107,8 +107,8 @@ protected:
     double sign(double value) const;
 
 private:
-    double m_w;
-    Vector3d m_vector; // i, j, k or x, y, z
+    float m_w;
+    Vector3f m_vector; // i, j, k or x, y, z
 };
 
 } // End Namespace

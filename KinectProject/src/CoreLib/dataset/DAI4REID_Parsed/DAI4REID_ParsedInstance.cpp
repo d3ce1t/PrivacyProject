@@ -79,7 +79,7 @@ void DAI4REID_ParsedInstance::nextFrame(QHashDataFrames &output)
     depthFile.close();
     shared_ptr<DepthFrame> depthFrame = make_shared<DepthFrame>();
     depthFrame->loadData(buffer);
-    depthFrame->setDistanceUnits(dai::MILIMETERS);
+    depthFrame->setDistanceUnits(dai::DISTANCE_MILIMETERS);
     output.insert(DataFrame::Depth, depthFrame);
     /*instancePath = m_info.parent().getPath() + "/" + m_info.getFileName(DataFrame::Depth);
     cv::Mat depth_mat = cv::imread(instancePath.toStdString()); //, CV_LOAD_IMAGE_GRAYSCALE);

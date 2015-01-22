@@ -100,6 +100,17 @@ MainWindow::MainWindow(QWidget *parent) :
         //}
     });
 
+    // Action: Save skeleton
+    connect(m_ui->actionSave_skeleton, &QAction::triggered, [=]() {
+
+        QString fileName = QFileDialog::getSaveFileName(this,
+                                                        tr("Save File"),
+                                                        QDir::currentPath(),
+                                                        tr("Text Only (*.txt)"));
+
+        dai::SkeletonFramePtr skeleton = create_skeleton_from_scene();
+    });
+
     // Action: Apply filter
     connect(m_ui->actionApply_filter, &QAction::triggered, [=]() {
 
@@ -506,17 +517,19 @@ dai::SkeletonFramePtr MainWindow::create_skeleton_from_scene()
     dai::SkeletonFramePtr skeletonFrame = make_shared<dai::SkeletonFrame>();
     dai::SkeletonPtr skeleton = make_shared<dai::Skeleton>(dai::Skeleton::SKELETON_OPENNI);
     skeletonFrame->setSkeleton(1, skeleton);
+    skeleton->setDistanceUnits(dai::DISTANCE_PIXELS);
 
     for (QGraphicsItem* item : m_input.scene()->items()) {
 
         if (item->type() == 3 && item->data(0).isValid()) {
 
-            qDebug() << "Item.Pos:" << item->scenePos();
-
+            //qDebug() << "Item.Pos:" << item->scenePos();
             dai::SkeletonJoint::JointType jointType = dai::SkeletonJoint::JointType(item->data(0).toInt());
 
-            float w_x, w_y, w_z = 1.5f;
-            dai::Skeleton::convertDepthCoordinatesToJoint(item->scenePos().x(), item->scenePos().y(), w_z, &w_x, &w_y);
+            float w_x = float(item->scenePos().x());
+            float w_y = float(item->scenePos().y());
+            float w_z = 0.0f; //1.5f;
+            //dai::Skeleton::convertDepthCoordinatesToJoint(item->scenePos().x(), item->scenePos().y(), w_z, &w_x, &w_y);
 
             dai::SkeletonJoint joint(dai::Point3f(w_x, w_y, w_z), jointType);
             skeleton->setJoint(jointType, joint);
@@ -539,16 +552,6 @@ QGraphicsItem* MainWindow::addJoint(int x, int y, dai::SkeletonJoint::JointType 
     item->setParentItem(parent);
     item->setZValue(1.0);
     item->setData(0, QVariant(type));
-
-    /*if (parent != nullptr) {
-        qreal parent_x = parent->scenePos().x()+4;
-        qreal parent_y = parent->scenePos().y()+4;
-        qreal child_x = item->scenePos().x()+4;
-        qreal child_y = item->scenePos().y()+4;
-        qDebug() << parent->scenePos() << item->scenePos() << parent_x << parent_y << child_x << child_y;
-        QGraphicsLineItem* line = m_input.scene()->addLine(parent_x, parent_y, child_x, child_y, {Qt::blue, 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin});
-        line->setParentItem(parent);
-    }*/
 
     return item;
 }

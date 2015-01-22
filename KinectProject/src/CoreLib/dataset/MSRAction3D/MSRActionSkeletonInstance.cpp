@@ -101,7 +101,7 @@ void MSRActionSkeletonInstance::nextFrame(QHashDataFrames &output)
 
     if (skeleton == nullptr) {
         skeleton = make_shared<Skeleton>(Skeleton::SKELETON_KINECT);
-        skeleton->setDistanceUnits(dai::METERS);
+        skeleton->setDistanceUnits(dai::DISTANCE_METERS);
         skeletonFrame->setSkeleton(1, skeleton);
     }
 

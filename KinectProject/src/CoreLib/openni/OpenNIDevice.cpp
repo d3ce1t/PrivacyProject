@@ -223,7 +223,7 @@ void OpenNIDevice::readDepthFrame(shared_ptr<DepthFrame> depthFrame)
 
     depthFrame->setDataPtr(640, 480, (uint16_t*) m_oniDepthFrame.getData());
     depthFrame->setIndex(m_oniDepthFrame.getFrameIndex());
-    depthFrame->setDistanceUnits(dai::MILIMETERS);
+    depthFrame->setDistanceUnits(dai::DISTANCE_MILIMETERS);
 
     if (m_manual_registration) {
         depth2color(depthFrame);
@@ -289,7 +289,7 @@ void OpenNIDevice::readUserTrackerFrame(shared_ptr<DepthFrame> depthFrame, share
 
         depthFrame->setDataPtr(640, 480, (uint16_t*) m_oniDepthFrame.getData());
         depthFrame->setIndex(m_oniDepthFrame.getFrameIndex());
-        depthFrame->setDistanceUnits(dai::MILIMETERS);
+        depthFrame->setDistanceUnits(dai::DISTANCE_MILIMETERS);
     }
 
     // Load User Labels (copy)
@@ -484,7 +484,7 @@ void OpenNIDevice::copySkeleton(const nite::Skeleton& srcSkeleton, dai::Skeleton
         dstSkeleton.setJoint(_staticMap[j], joint);
     }
 
-    dstSkeleton.setDistanceUnits(dai::MILIMETERS);
+    dstSkeleton.setDistanceUnits(dai::DISTANCE_MILIMETERS);
 }
 
 void OpenNIDevice::convertJointCoordinatesToDepth(float x, float y, float z, float* pOutX, float* pOutY) const

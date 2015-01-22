@@ -159,7 +159,7 @@ void CharacterController::updateBody(Ogre::Real deltaTime)
     Ogre::Skeleton* skel = mBodyEnt->getSkeleton();
     Ogre::Vector3 newPos;
 
-    if (m_skeleton->distanceUnits() == dai::MILIMETERS) {
+    if (m_skeleton->distanceUnits() == dai::DISTANCE_MILIMETERS) {
         newPos.x = torsoJoint.getPosition().val(0) / 1000.0f;
         newPos.y = torsoJoint.getPosition().val(1) / 1000.0f - 0.25;
         newPos.z = -(torsoJoint.getPosition().val(2) / 1000.0f + 3.2f);

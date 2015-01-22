@@ -25,9 +25,14 @@ shared_ptr<DataFrame> SkeletonFrame::clone() const
     return shared_ptr<DataFrame>(new SkeletonFrame(*this));
 }
 
-shared_ptr<dai::Skeleton> SkeletonFrame::getSkeleton(int userId)
+SkeletonPtr SkeletonFrame::getSkeleton(int userId) const
 {
     return m_hashSkeletons.value(userId);;
+}
+
+QList<SkeletonPtr> SkeletonFrame::skeletons() const
+{
+    return m_hashSkeletons.values();
 }
 
 void SkeletonFrame::setSkeleton(int userId, shared_ptr<dai::Skeleton> skeleton)
@@ -43,6 +48,42 @@ QList<int> SkeletonFrame::getAllUsersId() const
 void SkeletonFrame::clear()
 {
     m_hashSkeletons.clear();
+}
+
+SkeletonFramePtr SkeletonFrame::fromBinary(const QByteArray& buffer)
+{
+    QByteArray bufferTmp = buffer;
+    SkeletonFramePtr skeletonFrame = make_shared<SkeletonFrame>();
+
+    int bytes_read = 0;
+    int num_skeletons = bufferTmp[0];
+    bufferTmp = bufferTmp.remove(0, 1);
+
+    for (int i=0; i<num_skeletons; ++i)
+    {
+        SkeletonPtr skeleton = dai::Skeleton::fromBinary(bufferTmp, &bytes_read);
+        skeletonFrame->setSkeleton(i+1, skeleton);
+        bufferTmp.remove(0, bytes_read);
+    }
+
+    return skeletonFrame;
+}
+
+QByteArray SkeletonFrame::toBinary() const
+{
+    QByteArray buffer;
+
+    // Header
+    buffer.append(m_hashSkeletons.size()); // Number of skeletons
+
+    // Body
+    for (SkeletonPtr skeleton : m_hashSkeletons)
+    {
+        QByteArray skeletonBin = skeleton->toBinary();
+        buffer.append(skeletonBin);
+    }
+
+    return buffer;
 }
 
 } // End Namespace

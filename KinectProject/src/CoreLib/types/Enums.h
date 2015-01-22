@@ -4,8 +4,9 @@
 namespace dai {
 
 enum DistanceUnits {
-    MILIMETERS,
-    METERS
+    DISTANCE_MILIMETERS,
+    DISTANCE_METERS,
+    DISTANCE_PIXELS
 };
 
 } // End Namespace

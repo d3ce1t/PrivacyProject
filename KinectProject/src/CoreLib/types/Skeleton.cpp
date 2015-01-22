@@ -83,7 +83,7 @@ Skeleton::SkeletonLimb Skeleton::staticOpenNILimbsMap[16] = {
 Skeleton::Skeleton(SkeletonType type)
 {
     m_type = type;
-    m_units = dai::MILIMETERS;
+    m_units = dai::DISTANCE_MILIMETERS;
 
     if (type == SKELETON_OPENNI) {
         memcpy(m_limbs, staticOpenNILimbsMap, 16 * sizeof(SkeletonLimb));
@@ -206,13 +206,13 @@ void Skeleton::convertDepthCoordinatesToJoint(float x, float y, float z, float* 
 
 QByteArray Skeleton::toBinary() const
 {
-    QByteArray data_mem(m_joints.size() * 37 + 1, 0);
+    QByteArray data_mem(m_joints.size() * 37 + 2, 0);
     uchar* pData = (uchar*) data_mem.data();
 
-    *pData = m_joints.size(); // Number of joints (1 byte)
-    pData++;
+    *pData++ = m_joints.size(); // Number of joints (1 byte)
+    *pData++ = m_units; // Units (1 byte)
 
-    foreach (SkeletonJoint joint, m_joints)
+    for (SkeletonJoint joint : m_joints)
     {
         *pData = joint.getType(); // Joint type (1 byte)
         pData++;
@@ -253,11 +253,12 @@ QByteArray Skeleton::toBinary() const
     return data_mem;
 }
 
-std::shared_ptr<Skeleton> Skeleton::fromBinary(const QByteArray& buffer)
+SkeletonPtr Skeleton::fromBinary(const QByteArray& buffer, int* read_bytes)
 {
+    int read_bytes_tmp = 0;
     uchar* binData = (uchar*) buffer.data();
-    uchar number_joints = *binData;
-    binData++;
+    uchar number_joints = *binData++;
+    DistanceUnits units = (DistanceUnits) *binData++;
 
     SkeletonType skelType;
 
@@ -267,6 +268,9 @@ std::shared_ptr<Skeleton> Skeleton::fromBinary(const QByteArray& buffer)
         skelType = SKELETON_KINECT;
 
     std::shared_ptr<Skeleton> skeleton = std::make_shared<Skeleton>(skelType);
+    skeleton->setDistanceUnits(units);
+
+    read_bytes_tmp = 2;
 
     for (int i=0; i<number_joints; ++i)
     {
@@ -297,7 +301,11 @@ std::shared_ptr<Skeleton> Skeleton::fromBinary(const QByteArray& buffer)
 
         // Move pointer
         binData = (uchar*) pItem;
+        read_bytes_tmp += 37;
     }
+
+    if (read_bytes)
+        *read_bytes = read_bytes_tmp;
 
     return skeleton;
 }

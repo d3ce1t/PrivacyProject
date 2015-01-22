@@ -8,19 +8,19 @@ namespace dai {
 
 DepthFrame::DepthFrame()
 {
-    m_units = METERS;
+    m_units = DISTANCE_METERS;
 }
 
 DepthFrame::DepthFrame(int width, int height)
     : GenericFrame<uint16_t,DataFrame::Depth>(width, height)
 {
-     m_units = METERS;
+     m_units = DISTANCE_METERS;
 }
 
 DepthFrame::DepthFrame(int width, int height, uint16_t *pData, uint stride)
     : GenericFrame<uint16_t,DataFrame::Depth>(width, height, pData, stride)
 {
-     m_units = METERS;
+     m_units = DISTANCE_METERS;
 }
 
 DepthFrame::DepthFrame(const DepthFrame& other)

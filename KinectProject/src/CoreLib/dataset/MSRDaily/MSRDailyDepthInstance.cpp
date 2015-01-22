@@ -73,7 +73,7 @@ void MSRDailyDepthInstance::nextFrame(QHashDataFrames &output)
 {
     Q_ASSERT(output.size() > 0);
     shared_ptr<DepthFrame> depthFrame = static_pointer_cast<DepthFrame>(output.value(DataFrame::Depth));
-    depthFrame->setDistanceUnits(dai::MILIMETERS);
+    depthFrame->setDistanceUnits(dai::DISTANCE_MILIMETERS);
 
     // Read Data from File
     m_file.read( (char *) m_readBuffer, sizeof(m_readBuffer) );

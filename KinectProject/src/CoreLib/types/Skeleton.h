@@ -12,6 +12,9 @@
 
 namespace dai {
 
+class Skeleton;
+typedef std::shared_ptr<Skeleton> SkeletonPtr;
+
 /**
  * Skeleton depth distances are in meter in real world coordinates.
  *
@@ -35,7 +38,7 @@ public:
         SkeletonJoint::JointType joint2;
     };
 
-    static std::shared_ptr<Skeleton> fromBinary(const QByteArray &binData);
+    static SkeletonPtr fromBinary(const QByteArray &binData, int* read_bytes = nullptr);
     static void convertJointCoordinatesToDepth(float x, float y, float z, float* pOutX, float* pOutY);
     static void convertDepthCoordinatesToJoint(float x, float y, float z, float* pOutX, float* pOutY);
 
@@ -66,7 +69,7 @@ private:
     static SkeletonLimb staticKinectLimbsMap[MAX_LIMBS];
     static SkeletonLimb staticOpenNILimbsMap[16];
 
-    QMap<int, SkeletonJoint> m_joints; // joints with real world coordinates in meters
+    QMap<int, SkeletonJoint> m_joints;
     QMap<int, Quaternion> m_quaternions;
     SkeletonLimb m_limbs[MAX_LIMBS];
     short m_limbsSize;
@@ -74,8 +77,6 @@ private:
     //SkeletonState m_state;
     DistanceUnits m_units;
 };
-
-typedef std::shared_ptr<dai::Skeleton> SkeletonPtr;
 
 } // End Namespace
 

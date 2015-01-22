@@ -77,44 +77,44 @@ bool Quaternion::fuzzyCompare(const QVector3D& v1, const Vector3f &v2)
 Quaternion::Quaternion()
 {
     // Identity quaternion
-    m_w = 1.0;
-    m_vector = Vector3d(0, 0, 0);
+    m_w = 1.0f;
+    m_vector = Vector3f(0.0f, 0.0f, 0.0f);
 }
 
-Quaternion::Quaternion(double w, double i, double j, double k)
+Quaternion::Quaternion(float w, float i, float j, float k)
 {
     // Identity quaternion
     m_w = w;
-    m_vector = Vector3d(i, j, k);
+    m_vector = Vector3f(i, j, k);
 }
 
 Quaternion::Quaternion(const Quaternion& other)
     : QObject(0)
 {
-    m_w = other.scalar();
-    m_vector = other.vector();
+    m_w = other.m_w;
+    m_vector = other.m_vector;
 }
 
 Quaternion& Quaternion::operator=(const Quaternion& other)
 {
-    this->setScalar(other.scalar());
-    this->setVector(other.vector());
+    m_w = other.m_w;
+    m_vector = other.m_vector;
     return *this;
 }
 
-void Quaternion::setScalar(double value)
+void Quaternion::setScalar(float value)
 {
     m_w = value;
 }
 
-void Quaternion::setVector(Vector3d vector)
+void Quaternion::setVector(Vector3f vector)
 {
     m_vector = vector;
 }
 
-void Quaternion::setVector(double i, double j, double k)
+void Quaternion::setVector(float i, float j, float k)
 {
-    m_vector = Vector3d(i, j, k);
+    m_vector = Vector3f(i, j, k);
 }
 
 double Quaternion::getAngle() const
@@ -122,7 +122,7 @@ double Quaternion::getAngle() const
     // Calculate the rotation angle for this quaternion
     // in order to get it cached.
     // From q2rot function of Octave Quaternions package
-    double theta = acos(m_w) * 2;
+    double theta = acos(double(m_w)) * 2.0;
 
     if (fabs(theta) > M_PI)
         theta = theta - sign (theta) * M_PI;
@@ -132,10 +132,10 @@ double Quaternion::getAngle() const
 
 double Quaternion::norm() const
 {
-    return sqrt(pow(m_w, 2) +
-                pow(m_vector.x(), 2) +
-                pow(m_vector.y(), 2) +
-                pow(m_vector.z(), 2));
+    return sqrt(pow(double(m_w), 2) +
+                pow(double(m_vector.x()), 2) +
+                pow(double(m_vector.y()), 2) +
+                pow(double(m_vector.z()), 2));
 }
 
 void Quaternion::normalize()
@@ -149,8 +149,11 @@ void Quaternion::normalize()
     m_vector.setY(norm_j);
     m_vector.setZ(norm_k);
 
-    if (fabs(this->norm() - 1) > 1e-12) {
-        qDebug() << "Quaternion::normalize() -> Not a normalized quaternion (" << this->norm() << ")";
+    float norm_f = this->norm();
+    float diff = fabs(norm_f - 1.0f);
+
+    if (diff > 1e-7) {
+        qDebug() << "Quaternion::normalize() -> Not a normalized quaternion (" << diff << ")";
     }
 }
 
@@ -194,8 +197,9 @@ Quaternion Quaternion::getRotationBetween(const Vector3f &v1, const Vector3f &v2
     {
         double scalarPart = k + k_cos_theta;    
         Vector3d vectorialPart = Vector3d::crossProduct(v1d, v2d); // Not unit vector
+        Vector3f vectorialPart_f(vectorialPart.x(), vectorialPart.y(), vectorialPart.z());
         result.setScalar(scalarPart);
-        result.setVector(vectorialPart);
+        result.setVector(vectorialPart_f);
         result.normalize();
     }
     else
@@ -231,36 +235,37 @@ double Quaternion::getDistanceBetween(const Quaternion &q1, const Quaternion &q2
 
 double Quaternion::dotProduct(const Quaternion &q1, const Quaternion &q2)
 {
-    return q1.scalar() * q2.scalar() +
-           q1.vector().x() * q2.vector().x() +
-           q1.vector().y() * q2.vector().y() +
-           q1.vector().z() * q2.vector().z();
+    return double(q1.scalar()) * double(q2.scalar()) +
+           double(q1.vector().x()) * double(q2.vector().x()) +
+           double(q1.vector().y()) * double(q2.vector().y()) +
+           double(q1.vector().z()) * double(q2.vector().z());
 }
 
 // Return euler angles from the quaternion as degrees between 0 and 360
 Vector3d Quaternion::toEulerAngles() const
 {
-    double test = m_vector.x() * m_vector.y() + m_vector.z() * m_w;
+    double d_v[4] = {double(m_w), double(m_vector.x()), double(m_vector.y()), double(m_vector.z())};
+    double test = d_v[1] * d_v[2] + d_v[3] * d_v[0];
     double heading = 0.0, attitude = 0.0, bank = 0.0;
 
     if (test > 0.499) { // singularity at north pole
-        heading = 2 * atan2(m_vector.x(), m_w);
+        heading = 2 * atan2(d_v[1], d_v[0]);
         attitude = M_PI/2.0;
         bank = 0.0;
     }
     else if (test < -0.499) { // singularity at south pole
-        heading = -2 * atan2(m_vector.x(), m_w);
+        heading = -2 * atan2(d_v[1], d_v[0]);
         attitude = -M_PI/2.0;
         bank = 0.0;
     }
     else {
-        double sqx = m_vector.x()*m_vector.x();
-        double sqy = m_vector.y()*m_vector.y();
-        double sqz = m_vector.z()*m_vector.z();
+        double sqx = d_v[1]*d_v[1];
+        double sqy = d_v[2]*d_v[2];
+        double sqz = d_v[3]*d_v[3];
         //double sqw = m_w*m_w;
-        heading = atan2(2*m_vector.y()*m_w-2*m_vector.x()*m_vector.z() , 1 - 2*sqy - 2*sqz);
+        heading = atan2(2*d_v[2]*d_v[0]-2*d_v[1]*d_v[3], 1 - 2*sqy - 2*sqz);
         attitude = asin(2*test);
-        bank = atan2(2*m_vector.x()*m_w-2*m_vector.y()*m_vector.z() , 1 - 2*sqx - 2*sqz);
+        bank = atan2(2*d_v[1]*d_v[0]-2*d_v[2]*d_v[3], 1 - 2*sqx - 2*sqz);
         // George
         //heading = atan2(2*m_vector.y()*m_w-2*m_vector.x()*m_vector.z(), sqx - sqy - sqz + sqw);
         //attitude = asin(2*test);

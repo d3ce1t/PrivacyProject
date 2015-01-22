@@ -3,7 +3,7 @@
 
 #include "types/DataFrame.h"
 #include "types/Skeleton.h"
-#include <QHash>
+#include <QMap>
 #include <memory>
 //#include <QFile>
 
@@ -11,27 +11,33 @@ using namespace std;
 
 namespace dai {
 
+class SkeletonFrame;
+typedef shared_ptr<SkeletonFrame> SkeletonFramePtr;
+
 class SkeletonFrame : public DataFrame
 {
-    QHash<int, dai::SkeletonPtr> m_hashSkeletons;
+    QMap<int, SkeletonPtr> m_hashSkeletons;
 
 public:
+
+    static SkeletonFramePtr fromBinary(const QByteArray &buffer);
+
     // Constructor
     SkeletonFrame();
     SkeletonFrame(const SkeletonFrame& other);
 
     // Methods
     shared_ptr<DataFrame> clone() const override;
-    dai::SkeletonPtr getSkeleton(int userId);
+    SkeletonPtr getSkeleton(int userId) const;
+    QList<SkeletonPtr> skeletons() const;
     void setSkeleton(int userId, const dai::SkeletonPtr skeleton);
     QList<int> getAllUsersId() const;
     void clear();
+    QByteArray toBinary() const;
 
     // Overload operators
     SkeletonFrame& operator=(const SkeletonFrame& other);
 };
-
-typedef std::shared_ptr<dai::SkeletonFrame> SkeletonFramePtr;
 
 } // End Namespace
 
