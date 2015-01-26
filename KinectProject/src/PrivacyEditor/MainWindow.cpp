@@ -6,6 +6,7 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QDebug>
 #include <opencv2/opencv.hpp>
+#include <QStack>
 
 Display::Display()
 {
@@ -50,9 +51,10 @@ const QGraphicsPixmapItem* Display::background() const
     return m_bg_item;
 }
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    m_ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
+    , m_ui(new Ui::MainWindow)
+    , m_skeleton_root(nullptr)
 {
     m_ui->setupUi(this);
 
@@ -104,7 +106,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_ui->actionLoad_skeleton, &QAction::triggered, [=]() {
 
         QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),
-                                                        QDir::currentPath(),
+                                                        m_fs_model.rootPath(),
                                                         tr("Skeleton Binary (*.bin)"));
 
         QFile skeletonFile(fileName);
@@ -115,17 +117,15 @@ MainWindow::MainWindow(QWidget *parent) :
         }
 
         QByteArray data = skeletonFile.readAll();
-        skeletonFile.close();;
+        skeletonFile.close();
 
         if (!data.isEmpty()) {
             dai::SkeletonFramePtr skeletonFrame = dai::SkeletonFrame::fromBinary(data);
-
-            for (dai::SkeletonPtr skeleton : skeletonFrame->skeletons())
-            {
-                qDebug() << "Skeleton Type" << skeleton->getType();
-                qDebug() << "Skeleton Joints" << skeleton->getJointsCount();
-            }
+            dai::SkeletonPtr skeleton = skeletonFrame->getSkeleton(1);
+            setup_skeleton(skeleton);
         }
+
+        m_ui->actionJointDrawingMode->trigger();
     });
 
     // Action: Save skeleton
@@ -135,7 +135,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
         QString filePath = QFileDialog::getSaveFileName(this,
                                                         tr("Save File"),
-                                                        QDir::currentPath(),
+                                                        m_fs_model.rootPath(),
                                                         tr("Skeleton Binary (*.bin)"));
 
         QFile skeletonFile(filePath);
@@ -194,6 +194,8 @@ MainWindow::MainWindow(QWidget *parent) :
     // Action: Clear selection
     connect(m_ui->actionClearh_selection, &QAction::triggered, [=]() {
        m_mask_item->setPath(QPainterPath());
+       m_input.scene()->removeItem(m_skeleton_root);
+       m_skeleton_root = nullptr;
     });
 
     // Action: Print info
@@ -226,13 +228,14 @@ MainWindow::MainWindow(QWidget *parent) :
     // Action: Skeleton Mode
     connect(m_ui->actionJointDrawingMode, &QAction::triggered, [=]() {
         m_ui->actionSilhouetteMode->setChecked(false);
+        if (!m_skeleton_root) setup_skeleton();
         m_skeleton_root->setVisible(true);
     });
 
     // Action: Silhouette Mode
     connect(m_ui->actionSilhouetteMode, &QAction::triggered, [=]() {
         m_ui->actionJointDrawingMode->setChecked(false);
-        m_skeleton_root->setVisible(false);
+        if (m_skeleton_root) m_skeleton_root->setVisible(false);
     });
 
     // Button: Next
@@ -276,6 +279,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_ui->listView, &QListView::activated, [=]() {
         load_selected_image();
         m_ui->comboDisplaySelection->setCurrentIndex(0);
+    });
+
+    // Quit
+    connect(m_ui->actionQuit, &QAction::triggered, [=]() {
+       QApplication::quit();
     });
 }
 
@@ -496,13 +504,6 @@ void MainWindow::newFrames(const dai::QHashDataFrames dataFrames)
 
 void MainWindow::setup_skeleton(dai::SkeletonPtr skeleton)
 {
-    struct MapData {
-        float x;
-        float y;
-        dai::SkeletonJoint::JointType joint;
-        int parent;
-    };
-
     MapData coords[15] = {
         160.0f, 10.0f, dai::SkeletonJoint::JOINT_HEAD, -1,          // 0) Head
         0.0f, 100.0f, dai::SkeletonJoint::JOINT_CENTER_SHOULDER, 0, // 1) Center Shoulder
@@ -522,7 +523,28 @@ void MainWindow::setup_skeleton(dai::SkeletonPtr skeleton)
     };
 
     if (skeleton) {
-        //memcpy(coords, coords_tmp, sizeof(coords_tmp));
+        MapData coords_tmp[15];
+        convertJointToMapData(coords_tmp[0], skeleton->getJoint(dai::SkeletonJoint::JOINT_HEAD), -1, nullptr);
+        convertJointToMapData(coords_tmp[1], skeleton->getJoint(dai::SkeletonJoint::JOINT_CENTER_SHOULDER), 0, coords_tmp);
+        convertJointToMapData(coords_tmp[2], skeleton->getJoint(dai::SkeletonJoint::JOINT_LEFT_SHOULDER), 1, coords_tmp);
+        convertJointToMapData(coords_tmp[3], skeleton->getJoint(dai::SkeletonJoint::JOINT_LEFT_ELBOW), 2, coords_tmp);
+        convertJointToMapData(coords_tmp[4], skeleton->getJoint(dai::SkeletonJoint::JOINT_LEFT_HAND), 3, coords_tmp);
+        convertJointToMapData(coords_tmp[5], skeleton->getJoint(dai::SkeletonJoint::JOINT_RIGHT_SHOULDER), 1, coords_tmp);
+        convertJointToMapData(coords_tmp[6], skeleton->getJoint(dai::SkeletonJoint::JOINT_RIGHT_ELBOW), 5, coords_tmp);
+        convertJointToMapData(coords_tmp[7], skeleton->getJoint(dai::SkeletonJoint::JOINT_RIGHT_HAND), 6, coords_tmp);
+        convertJointToMapData(coords_tmp[8], skeleton->getJoint(dai::SkeletonJoint::JOINT_SPINE), 1, coords_tmp);
+        convertJointToMapData(coords_tmp[9], skeleton->getJoint(dai::SkeletonJoint::JOINT_LEFT_HIP), 8, coords_tmp);
+        convertJointToMapData(coords_tmp[10], skeleton->getJoint(dai::SkeletonJoint::JOINT_LEFT_KNEE), 9, coords_tmp);
+        convertJointToMapData(coords_tmp[11], skeleton->getJoint(dai::SkeletonJoint::JOINT_LEFT_FOOT), 10, coords_tmp);
+        convertJointToMapData(coords_tmp[12], skeleton->getJoint(dai::SkeletonJoint::JOINT_RIGHT_HIP), 8, coords_tmp);
+        convertJointToMapData(coords_tmp[13], skeleton->getJoint(dai::SkeletonJoint::JOINT_RIGHT_KNEE), 12, coords_tmp);
+        convertJointToMapData(coords_tmp[14], skeleton->getJoint(dai::SkeletonJoint::JOINT_RIGHT_FOOT), 13, coords_tmp);
+        memcpy(coords, coords_tmp, sizeof(coords_tmp));
+    }
+
+    if (m_skeleton_root) {
+        m_input.scene()->removeItem(m_skeleton_root);
+        m_skeleton_root = nullptr;
     }
 
     // Create skeleton
@@ -541,6 +563,32 @@ void MainWindow::setup_skeleton(dai::SkeletonPtr skeleton)
 
     m_skeleton_root = items[0];
     m_skeleton_root->setVisible(false);
+}
+
+void MainWindow::convertJointToMapData(MapData& data, const dai::SkeletonJoint& joint, int parent, MapData* coords)
+{
+    QStack<int> stack;
+    int tmp_parent = parent;
+
+    while (tmp_parent != -1) {
+        stack.push(tmp_parent);
+        tmp_parent = coords[tmp_parent].parent;
+    }
+
+    // Coordinates are relative to parent
+    float pos_x = joint.getPosition()[0];
+    float pos_y = joint.getPosition()[1];
+
+    while (!stack.isEmpty()) {
+        tmp_parent = stack.pop();
+        pos_x -= coords[tmp_parent].x;
+        pos_y -= coords[tmp_parent].y;
+    }
+
+    data.joint = joint.getType();
+    data.parent = parent;
+    data.x = pos_x;
+    data.y = pos_y;
 }
 
 dai::SkeletonFramePtr MainWindow::create_skeleton_from_scene()

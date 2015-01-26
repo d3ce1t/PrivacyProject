@@ -18,6 +18,13 @@ namespace Ui {
 class MainWindow;
 }
 
+struct MapData {
+    float x;
+    float y;
+    dai::SkeletonJoint::JointType joint;
+    int parent;
+};
+
 class Display {
     QGraphicsScene m_scene;
     QGraphicsPixmapItem* m_bg_item;
@@ -68,13 +75,17 @@ protected:
 
 private slots:
     void first_setup();
+    void setOutputImage(QImage image);
+
+private:
     void setup_skeleton(dai::SkeletonPtr skeleton = nullptr);
     dai::SkeletonFramePtr create_skeleton_from_scene();
     bool exceedSize(const QImage& image) const;
     void scaleImage(QImage &image) const;
+    void convertJointToMapData(MapData& data, const dai::SkeletonJoint& joint, int parent, MapData* coords);
     dai::MaskFramePtr create_mask(const QPainterPath& path);
     dai::MaskFramePtr create_mask(const QImage& image);
-    void setOutputImage(QImage image);
+
     QGraphicsItem *addJoint(int x, int y, dai::SkeletonJoint::JointType type, QGraphicsItem *parent = nullptr);
 };
 
