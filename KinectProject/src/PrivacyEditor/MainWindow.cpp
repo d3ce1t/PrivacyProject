@@ -100,15 +100,49 @@ MainWindow::MainWindow(QWidget *parent) :
         //}
     });
 
+    // Action: Load skeleton
+    connect(m_ui->actionLoad_skeleton, &QAction::triggered, [=]() {
+
+        QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),
+                                                        QDir::currentPath(),
+                                                        tr("Skeleton Binary (*.bin)"));
+
+        QFile skeletonFile(fileName);
+
+        if (!skeletonFile.open(QIODevice::ReadOnly)) {
+            qDebug() << "File do not exist";
+            return;
+        }
+
+        QByteArray data = skeletonFile.readAll();
+        skeletonFile.close();;
+
+        if (!data.isEmpty()) {
+            dai::SkeletonFramePtr skeletonFrame = dai::SkeletonFrame::fromBinary(data);
+
+            for (dai::SkeletonPtr skeleton : skeletonFrame->skeletons())
+            {
+                qDebug() << "Skeleton Type" << skeleton->getType();
+                qDebug() << "Skeleton Joints" << skeleton->getJointsCount();
+            }
+        }
+    });
+
     // Action: Save skeleton
     connect(m_ui->actionSave_skeleton, &QAction::triggered, [=]() {
 
-        QString fileName = QFileDialog::getSaveFileName(this,
+        dai::SkeletonFramePtr skeletonFrame = create_skeleton_from_scene();
+
+        QString filePath = QFileDialog::getSaveFileName(this,
                                                         tr("Save File"),
                                                         QDir::currentPath(),
-                                                        tr("Text Only (*.txt)"));
+                                                        tr("Skeleton Binary (*.bin)"));
 
-        dai::SkeletonFramePtr skeleton = create_skeleton_from_scene();
+        QFile skeletonFile(filePath);
+        QByteArray data = skeletonFrame->toBinary();
+        skeletonFile.open(QIODevice::WriteOnly);
+        skeletonFile.write(data);
+        skeletonFile.close();
     });
 
     // Action: Apply filter
@@ -460,55 +494,52 @@ void MainWindow::newFrames(const dai::QHashDataFrames dataFrames)
     //cv::waitKey(0);
 }
 
-void MainWindow::setup_skeleton()
+void MainWindow::setup_skeleton(dai::SkeletonPtr skeleton)
 {
-    QGraphicsItem *last_item, *center_shoulder, *center_hip;
+    struct MapData {
+        float x;
+        float y;
+        dai::SkeletonJoint::JointType joint;
+        int parent;
+    };
 
-    // Head
-    m_skeleton_root = addJoint(160, 10, dai::SkeletonJoint::JOINT_HEAD);
+    MapData coords[15] = {
+        160.0f, 10.0f, dai::SkeletonJoint::JOINT_HEAD, -1,          // 0) Head
+        0.0f, 100.0f, dai::SkeletonJoint::JOINT_CENTER_SHOULDER, 0, // 1) Center Shoulder
+        -100.0f, 5.0f, dai::SkeletonJoint::JOINT_LEFT_SHOULDER, 1,  // 2) Left Shoulder
+        -10.0f, 100.0f, dai::SkeletonJoint::JOINT_LEFT_ELBOW, 2,    // 3) Left Elbow
+        -10.0f, 100.0f, dai::SkeletonJoint::JOINT_LEFT_HAND, 3,     // 4) Left Hand
+        100.0f, 5.0f, dai::SkeletonJoint::JOINT_RIGHT_SHOULDER, 1,  // 5) Right Shoulder
+        10.0f, 100.0f, dai::SkeletonJoint::JOINT_RIGHT_ELBOW, 5,    // 6) Right Elbow
+        10.0f, 100.0f, dai::SkeletonJoint::JOINT_RIGHT_HAND, 6,     // 7) Right Hand
+        0.0f, 150.0f, dai::SkeletonJoint::JOINT_SPINE, 1,           // 8) Center HIp
+        -50.0f, 30.0f, dai::SkeletonJoint::JOINT_LEFT_HIP, 8,       // 9) Left Hip
+        0.0f, 150.0f, dai::SkeletonJoint::JOINT_LEFT_KNEE, 9,       // 10) Left Knee
+        0.0f, 150.0f, dai::SkeletonJoint::JOINT_LEFT_FOOT, 10,      // 11) Left Foot
+        50.0f, 30.0f, dai::SkeletonJoint::JOINT_RIGHT_HIP, 8,       // 12) Right Hip
+        0.0f, 150.0f, dai::SkeletonJoint::JOINT_RIGHT_KNEE, 12,     // 13) Right Knee
+        0.0f, 150.0f, dai::SkeletonJoint::JOINT_RIGHT_FOOT, 13,     // 14) Right Foot
+    };
 
-    // Center Shoulder
-    center_shoulder = addJoint(0, 100, dai::SkeletonJoint::JOINT_CENTER_SHOULDER, m_skeleton_root);
+    if (skeleton) {
+        //memcpy(coords, coords_tmp, sizeof(coords_tmp));
+    }
 
-    // Left Shoulder
-    last_item = addJoint(-100, 5, dai::SkeletonJoint::JOINT_LEFT_SHOULDER, center_shoulder);
+    // Create skeleton
+    QGraphicsItem* items[15];
 
-    // Left Elbow
-    last_item = addJoint(-10, 100, dai::SkeletonJoint::JOINT_LEFT_ELBOW, last_item);
+    for (int i=0; i<15; ++i)
+    {
+        QGraphicsItem* parent = nullptr;
 
-    // Left Hand
-    last_item = addJoint(-10, 100, dai::SkeletonJoint::JOINT_LEFT_HAND, last_item);
+        if (coords[i].parent != -1) {
+            parent = items[coords[i].parent];
+        }
 
-    // Right Shoulder
-    last_item = addJoint(100, 5, dai::SkeletonJoint::JOINT_RIGHT_SHOULDER, center_shoulder);
+        items[i] = addJoint(coords[i].x, coords[i].y, coords[i].joint, parent);
+    }
 
-    // Right Elbow
-    last_item = addJoint(10, 100, dai::SkeletonJoint::JOINT_RIGHT_ELBOW, last_item);
-
-    // Right Hand
-    last_item = addJoint(10, 100, dai::SkeletonJoint::JOINT_RIGHT_HAND, last_item);
-
-    // Center Hip
-    center_hip = addJoint(0, 150, dai::SkeletonJoint::JOINT_SPINE, center_shoulder);
-
-    // Left Hip
-    last_item = addJoint(-50, 30, dai::SkeletonJoint::JOINT_LEFT_HIP, center_hip);
-
-    // Left Knee
-    last_item = addJoint(0, 150, dai::SkeletonJoint::JOINT_LEFT_KNEE, last_item);
-
-    // Left Foot
-    last_item = addJoint(0, 150, dai::SkeletonJoint::JOINT_LEFT_FOOT, last_item);
-
-    // Right Hip
-    last_item = addJoint(50, 30, dai::SkeletonJoint::JOINT_RIGHT_HIP, center_hip);
-
-    // Right Knee
-    last_item = addJoint(0, 150, dai::SkeletonJoint::JOINT_RIGHT_KNEE, last_item);
-
-    // Right Foot
-    last_item = addJoint(0, 150, dai::SkeletonJoint::JOINT_RIGHT_FOOT, last_item);
-
+    m_skeleton_root = items[0];
     m_skeleton_root->setVisible(false);
 }
 

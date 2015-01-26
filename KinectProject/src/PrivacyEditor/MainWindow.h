@@ -68,7 +68,7 @@ protected:
 
 private slots:
     void first_setup();
-    void setup_skeleton();
+    void setup_skeleton(dai::SkeletonPtr skeleton = nullptr);
     dai::SkeletonFramePtr create_skeleton_from_scene();
     bool exceedSize(const QImage& image) const;
     void scaleImage(QImage &image) const;

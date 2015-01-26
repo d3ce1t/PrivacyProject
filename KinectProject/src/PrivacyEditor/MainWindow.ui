@@ -226,6 +226,8 @@
      <string>File</string>
     </property>
     <addaction name="actionOpen_folder"/>
+    <addaction name="separator"/>
+    <addaction name="actionLoad_skeleton"/>
     <addaction name="actionSave_skeleton"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
@@ -366,6 +368,11 @@
   <action name="actionSave_skeleton">
    <property name="text">
     <string>Save skeleton...</string>
+   </property>
+  </action>
+  <action name="actionLoad_skeleton">
+   <property name="text">
+    <string>Load skeleton...</string>
    </property>
   </action>
  </widget>
