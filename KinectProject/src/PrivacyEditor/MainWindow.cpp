@@ -143,12 +143,12 @@ MainWindow::MainWindow(QWidget *parent)
         dai::MaskFramePtr mask = create_mask(m_mask.image());
         dai::ColorFramePtr color = make_shared<dai::ColorFrame>(m_input.imageWidth(), m_input.imageHeight());
         dai::PrivacyFilter::convertQImage2ColorFrame(m_input.image(), color);
-        //dai::SkeletonFramePtr skeleton = create_skeleton_from_scene();
+        dai::SkeletonFramePtr skeleton = create_skeleton_from_scene();
 
         dai::QHashDataFrames frames;
         frames.insert(dai::DataFrame::Color, color);
         frames.insert(dai::DataFrame::Mask, mask);
-        //frames.insert(dai::DataFrame::Skeleton, skeleton);
+        frames.insert(dai::DataFrame::Skeleton, skeleton);
 
         m_privacy.enableFilter(dai::ColorFilter(m_ui->comboFilter->currentIndex()));
         m_privacy.singleFrame(frames, color->width(), color->height());
@@ -243,7 +243,8 @@ MainWindow::MainWindow(QWidget *parent)
             if (sibling.isValid()) {
                 m_ui->listView->setCurrentIndex(sibling);
                 load_selected_image();
-                m_ui->comboDisplaySelection->setCurrentIndex(0);
+                if (m_ui->comboDisplaySelection->currentIndex() == 3)
+                    m_ui->comboDisplaySelection->setCurrentIndex(0);
             }
         }
     });
@@ -259,7 +260,8 @@ MainWindow::MainWindow(QWidget *parent)
             if (sibling.isValid()) {
                 m_ui->listView->setCurrentIndex(sibling);
                 load_selected_image();
-                m_ui->comboDisplaySelection->setCurrentIndex(0);
+                if (m_ui->comboDisplaySelection->currentIndex() == 3)
+                    m_ui->comboDisplaySelection->setCurrentIndex(0);
             }
         }
     });
@@ -272,7 +274,8 @@ MainWindow::MainWindow(QWidget *parent)
     // List View: Activate
     connect(m_ui->listView, &QListView::activated, [=]() {
         load_selected_image();
-        m_ui->comboDisplaySelection->setCurrentIndex(0);
+        if (m_ui->comboDisplaySelection->currentIndex() == 3)
+            m_ui->comboDisplaySelection->setCurrentIndex(0);
     });
 
     // Quit
