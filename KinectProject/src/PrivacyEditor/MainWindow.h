@@ -66,6 +66,7 @@ public:
     ~MainWindow();
 
     void load_selected_image();
+    dai::SkeletonPtr load_skeleton(QString fileName) const;
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);

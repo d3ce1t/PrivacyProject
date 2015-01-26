@@ -109,23 +109,12 @@ MainWindow::MainWindow(QWidget *parent)
                                                         m_fs_model.rootPath(),
                                                         tr("Skeleton Binary (*.bin)"));
 
-        QFile skeletonFile(fileName);
+        dai::SkeletonPtr skeleton = load_skeleton(fileName);
 
-        if (!skeletonFile.open(QIODevice::ReadOnly)) {
-            qDebug() << "File do not exist";
-            return;
-        }
-
-        QByteArray data = skeletonFile.readAll();
-        skeletonFile.close();
-
-        if (!data.isEmpty()) {
-            dai::SkeletonFramePtr skeletonFrame = dai::SkeletonFrame::fromBinary(data);
-            dai::SkeletonPtr skeleton = skeletonFrame->getSkeleton(1);
+        if (skeleton) {
             setup_skeleton(skeleton);
+            m_ui->actionJointDrawingMode->trigger();
         }
-
-        m_ui->actionJointDrawingMode->trigger();
     });
 
     // Action: Save skeleton
@@ -226,7 +215,12 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
     // Action: Skeleton Mode
-    connect(m_ui->actionJointDrawingMode, &QAction::triggered, [=]() {
+    connect(m_ui->actionJointDrawingMode, &QAction::triggered, [=](bool checked) {
+
+        if (!checked) {
+            m_ui->actionJointDrawingMode->setChecked(true);
+        }
+
         m_ui->actionSilhouetteMode->setChecked(false);
         if (!m_skeleton_root) setup_skeleton();
         m_skeleton_root->setVisible(true);
@@ -298,9 +292,6 @@ void MainWindow::first_setup()
 
     // Load image
     load_selected_image();
-
-    // Print Skeleton
-    setup_skeleton();
 }
 
 void MainWindow::load_selected_image()
@@ -315,11 +306,13 @@ void MainWindow::load_selected_image()
         QImage image, mask, bg;
         QString tmpPath = m_current_image_path;
 
+        // Load images and skeleton
         image.load(tmpPath);
         mask.load(tmpPath.replace("_real.png", "_mask.png"));
         bg.load(tmpPath.replace("_mask.png", "_bg.png"));
+        dai::SkeletonPtr skeleton = load_skeleton(tmpPath.replace("_bg.png", ".bin"));
 
-        if(image.isNull()) {
+        if(image.isNull() || mask.isNull() || bg.isNull()) {
             QMessageBox::information(this, "Privacy Editor","Error Displaying image");
             return;
         }
@@ -327,13 +320,47 @@ void MainWindow::load_selected_image()
         qDebug() << "Current Image Size" << image.size() << float(image.width()) / float(image.height()) <<
                     std::sqrt(image.width()) << std::sqrt(image.height());
 
+        // Scale images
         scaleImage(image);
         scaleImage(mask);
         scaleImage(bg);
+
+        // Display Images
         m_input.setImage(image);
         m_mask.setImage(mask);
         m_background.setImage(bg);
+
+        // Display skeleton
+        if (skeleton) {
+            setup_skeleton(skeleton);
+            m_ui->actionJointDrawingMode->trigger();
+        } else {
+            setup_skeleton();
+        }
     }
+}
+
+dai::SkeletonPtr MainWindow::load_skeleton(QString fileName) const
+{
+    dai::SkeletonPtr skeleton = nullptr;
+    QFile skeletonFile(fileName);
+
+    if (!skeletonFile.open(QIODevice::ReadOnly)) {
+        qDebug() << "Skeleton file does not exist";
+        return nullptr;
+    }
+
+    qDebug() << "Loading skeleton" << fileName;
+
+    QByteArray data = skeletonFile.readAll();
+    skeletonFile.close();
+
+    if (!data.isEmpty()) {
+        dai::SkeletonFramePtr skeletonFrame = dai::SkeletonFrame::fromBinary(data);
+        skeleton = skeletonFrame->getSkeleton(1);
+    }
+
+    return skeleton;
 }
 
 MainWindow::~MainWindow()
