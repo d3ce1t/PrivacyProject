@@ -55,6 +55,7 @@ void SilhouetteItem::renderFirstPass()
     m_vao.bind();
 
     m_shaderProgram->setUniformValue(m_stageUniform, 1);
+    m_shaderProgram->setUniformValue(m_textureSizeUniform, QVector2D(m_user->width(), m_user->height()));
     m_shaderProgram->setUniformValue(m_silhouetteEffectUniform, m_drawingEffect);
 
     // Enable FG
@@ -121,6 +122,7 @@ void SilhouetteItem::prepareShaderProgram()
     m_texCoord = m_shaderProgram->attributeLocation("texCoord");
     m_silhouetteEffectUniform = m_shaderProgram->uniformLocation("silhouetteEffect");
     m_stageUniform = m_shaderProgram->uniformLocation("stage");
+    m_textureSizeUniform = m_shaderProgram->uniformLocation("textureSize");
     m_texFGSampler = m_shaderProgram->uniformLocation("texForeground");
     m_texMaskSampler = m_shaderProgram->uniformLocation("texMask");
 

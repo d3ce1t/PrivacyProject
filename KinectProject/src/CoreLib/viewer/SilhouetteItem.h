@@ -48,6 +48,7 @@ private:
     GLuint                   m_posAttr; // Pos attr in the shader
     GLuint                   m_texCoord; // Texture coord in the shader
     GLuint                   m_stageUniform;
+    GLuint                   m_textureSizeUniform;
     GLuint                   m_silhouetteEffectUniform;
     GLuint                   m_maskTextureId;
     GLuint                   m_texFGSampler;

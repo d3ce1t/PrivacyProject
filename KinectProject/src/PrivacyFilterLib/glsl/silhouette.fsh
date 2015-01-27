@@ -1,9 +1,9 @@
 #version 130
 varying vec2 v_texCoord;
-// 0: normal, 1: blur, 2: pixelation, 3_ emboss
-uniform int silhouetteEffect;
+uniform int silhouetteEffect; // 0: normal, 1: blur, 2: pixelation, 3_ emboss
 
 uniform int stage;
+uniform vec2 textureSize;
 uniform sampler2D texForeground;
 uniform sampler2D texMask;
 
@@ -12,9 +12,8 @@ vec4 blurEffectV();
 vec4 pixelation();
 vec4 embossEffect();
 
-const vec2 textureSize = vec2(640, 480);
-const float blurSizeH = 1.0/(0.5 * textureSize.x);
-const float blurSizeV = 1.0/(0.5 * textureSize.y);
+const float pixels_radio = 9;
+const float blur_weight = 1 / (pixels_radio*2+1);
 
 void main()
 {
@@ -59,56 +58,43 @@ void main()
 
 vec4 blurEffectH()
 {
+    vec2 pixelSize = 1/textureSize;
     vec4 sum = vec4(0.0);
 
-    // blur in y (vertical)
-    // take nine samples, with the distance blurSize between them
-    sum += texture2D(texForeground, vec2(v_texCoord.x - 4.0*blurSizeH, v_texCoord.y)) * 0.05;
-    sum += texture2D(texForeground, vec2(v_texCoord.x - 3.0*blurSizeH, v_texCoord.y)) * 0.09;
-    sum += texture2D(texForeground, vec2(v_texCoord.x - 2.0*blurSizeH, v_texCoord.y)) * 0.12;
-    sum += texture2D(texForeground, vec2(v_texCoord.x - blurSizeH, v_texCoord.y)) * 0.15;
-    sum += texture2D(texForeground, vec2(v_texCoord.x, v_texCoord.y)) * 0.16;
-    sum += texture2D(texForeground, vec2(v_texCoord.x + blurSizeH, v_texCoord.y)) * 0.15;
-    sum += texture2D(texForeground, vec2(v_texCoord.x + 2.0*blurSizeH, v_texCoord.y)) * 0.12;
-    sum += texture2D(texForeground, vec2(v_texCoord.x + 3.0*blurSizeH, v_texCoord.y)) * 0.09;
-    sum += texture2D(texForeground, vec2(v_texCoord.x + 4.0*blurSizeH, v_texCoord.y)) * 0.05;
+    for (float i=-pixels_radio; i<=pixels_radio; ++i) {
+        sum += texture2D(texForeground, vec2(v_texCoord.x + i*pixelSize.x, v_texCoord.y)) * blur_weight;
+    }
 
     return sum;
 }
 
 vec4 blurEffectV()
 {
+    vec2 pixelSize = 1/textureSize;
     vec4 sum = vec4(0.0);
 
-    // blur in y (vertical)
-    // take nine samples, with the distance blurSize between them
-    sum += texture2D(texForeground, vec2(v_texCoord.x, v_texCoord.y - 4.0*blurSizeV)) * 0.05;
-    sum += texture2D(texForeground, vec2(v_texCoord.x, v_texCoord.y - 3.0*blurSizeV)) * 0.09;
-    sum += texture2D(texForeground, vec2(v_texCoord.x, v_texCoord.y - 2.0*blurSizeV)) * 0.12;
-    sum += texture2D(texForeground, vec2(v_texCoord.x, v_texCoord.y - blurSizeV)) * 0.15;
-    sum += texture2D(texForeground, vec2(v_texCoord.x, v_texCoord.y)) * 0.16;
-    sum += texture2D(texForeground, vec2(v_texCoord.x, v_texCoord.y + blurSizeV)) * 0.15;
-    sum += texture2D(texForeground, vec2(v_texCoord.x, v_texCoord.y + 2.0*blurSizeV)) * 0.12;
-    sum += texture2D(texForeground, vec2(v_texCoord.x, v_texCoord.y + 3.0*blurSizeV)) * 0.09;
-    sum += texture2D(texForeground, vec2(v_texCoord.x, v_texCoord.y + 4.0*blurSizeV)) * 0.05;
+    for (float i=-pixels_radio; i<=pixels_radio; ++i) {
+        sum += texture2D(texForeground, vec2(v_texCoord.x, v_texCoord.y + i*pixelSize.y)) * blur_weight;
+    }
 
     return sum;
 }
 
 vec4 pixelation()
 {
-    vec2 dpos = 7 * (1/textureSize);
+    vec2 pixelSize = 1/textureSize;
+    vec2 dpos = 2*pixels_radio * pixelSize;
     vec2 coord = vec2(dpos.x * floor(v_texCoord.x / dpos.x), dpos.y * floor(v_texCoord.y / dpos.y));
     return texture2D(texForeground, coord);
 }
 
 vec4 embossEffect()
 {
-    vec2 onePixel = 1 / textureSize;
+    vec2 pixelSize = 1/textureSize;
     vec4 color;
     color.rgb = vec3(0.5);
-    color -= texture2D(texForeground, v_texCoord - onePixel) * 5.0;
-    color += texture2D(texForeground, v_texCoord + onePixel) * 5.0;
+    color -= texture2D(texForeground, v_texCoord - pixelSize) * 5.0;
+    color += texture2D(texForeground, v_texCoord + pixelSize) * 5.0;
     color.rgb = vec3((color.r + color.g + color.b) / 3.0);
     return vec4(color.rgb, 1);
 }
