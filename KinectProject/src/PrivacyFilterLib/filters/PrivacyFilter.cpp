@@ -134,6 +134,9 @@ shared_ptr<QHashDataFrames> PrivacyFilter::allocateMemory()
 
 void PrivacyFilter::resize(int width, int height)
 {
+    if (width == m_width && height == m_height)
+        return;
+
     m_width = width;
     m_height = height;
 
@@ -215,10 +218,8 @@ void PrivacyFilter::produceFrames(QHashDataFrames &output)
     ColorFramePtr colorFrame = static_pointer_cast<ColorFrame>(output.value(DataFrame::Color));
     MaskFramePtr maskFrame = static_pointer_cast<MaskFrame>(output.value(DataFrame::Mask));
 
-    //qDebug() << "ColorFrame" << colorFrame->width() << colorFrame->height();
-
     // Dilate mask to create a wide border (value = 255)
-    /*shared_ptr<MaskFrame> outputMask = static_pointer_cast<MaskFrame>(maskFrame->clone());
+    shared_ptr<MaskFrame> outputMask = static_pointer_cast<MaskFrame>(maskFrame->clone());
     dilateUserMask(const_cast<uint8_t*>(outputMask->getDataPtr()));
 
     for (int i=0; i<maskFrame->height(); ++i)
@@ -232,7 +233,7 @@ void PrivacyFilter::produceFrames(QHashDataFrames &output)
                 maskFrame->setItem(i, j, uint8_t(255));
             }
         }
-    }*/
+    }
 
     //
     // Prepare Scene

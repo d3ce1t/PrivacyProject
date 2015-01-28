@@ -140,17 +140,24 @@ MainWindow::MainWindow(QWidget *parent)
         if (m_input.image().isNull() || m_mask.image().isNull() || m_background.image().isNull())
             return;
 
+        dai::MaskFramePtr empty_mask = make_shared<dai::MaskFrame>(m_input.imageWidth(), m_input.imageHeight());
         dai::MaskFramePtr mask = create_mask(m_mask.image());
         dai::ColorFramePtr color = make_shared<dai::ColorFrame>(m_input.imageWidth(), m_input.imageHeight());
+        dai::ColorFramePtr bg = make_shared<dai::ColorFrame>(m_background.imageWidth(), m_background.imageHeight());
         dai::PrivacyFilter::convertQImage2ColorFrame(m_input.image(), color);
+        dai::PrivacyFilter::convertQImage2ColorFrame(m_background.image(), bg);
         dai::SkeletonFramePtr skeleton = create_skeleton_from_scene();
 
+        // Patch to have a proper background inside PrivacyFilter class
         dai::QHashDataFrames frames;
-        frames.insert(dai::DataFrame::Color, color);
-        frames.insert(dai::DataFrame::Mask, mask);
+        frames.insert(dai::DataFrame::Color, bg);
+        frames.insert(dai::DataFrame::Mask, empty_mask);
         frames.insert(dai::DataFrame::Skeleton, skeleton);
 
-        m_privacy.enableFilter(dai::ColorFilter(m_ui->comboFilter->currentIndex()));
+        m_privacy.enableFilter(dai::ColorFilter(m_ui->comboFilter->currentIndex()));        
+        m_privacy.singleFrame(frames, color->width(), color->height());
+        frames.insert(dai::DataFrame::Color, color);
+        frames.insert(dai::DataFrame::Mask, mask);
         m_privacy.singleFrame(frames, color->width(), color->height());
     });
 
