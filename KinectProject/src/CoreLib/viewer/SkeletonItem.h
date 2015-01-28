@@ -9,6 +9,19 @@ namespace dai {
 
 class SkeletonItem : public SceneItem
 {
+    QOpenGLShaderProgram* m_shaderProgram;
+    shared_ptr<SkeletonFrame> m_frame;
+    bool m_mode3d;
+
+    // OpenGL identifiers
+    GLuint m_posAttr;
+    GLuint m_colorAttr; // Texture coord in the shader
+    GLuint m_perspectiveMatrix; // Matrix in the shader
+    GLuint m_pointSizeUniform;
+    GLuint m_unitsUniform;
+    GLuint m_frameSizeUniform;
+    GLuint m_mode3dUniform;
+
 public:
     SkeletonItem();
     virtual ~SkeletonItem() = default;
@@ -21,22 +34,8 @@ protected:
 
 private:
     static QVector3D staticJointsColor[20];
-
     void prepareShaderProgram();
     void drawLimb(const SkeletonJoint& joint1, const SkeletonJoint& joint2);
-
-    QOpenGLShaderProgram*    m_shaderProgram;
-    shared_ptr<SkeletonFrame> m_frame;
-    bool                    m_mode3d;
-
-    // OpenGL identifiers
-    GLuint                  m_posAttr;
-    GLuint                  m_colorAttr; // Texture coord in the shader
-    GLuint                  m_perspectiveMatrix; // Matrix in the shader
-    GLuint                  m_pointSizeUniform;
-    GLuint                  m_mode3dUniform;
-    GLuint                  m_widthUniform;
-    GLuint                  m_heightUniform;
 };
 
 } // End Namespace

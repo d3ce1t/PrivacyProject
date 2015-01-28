@@ -67,14 +67,17 @@ void SkeletonItem::render(int pass)
 
     m_shaderProgram->bind();
     m_shaderProgram->setUniformValue(m_mode3dUniform, m_mode3d);
+    m_shaderProgram->setUniformValue(m_frameSizeUniform, QVector2D(m_frame->width(), m_frame->height()));
 
-    foreach (int userId, m_frame->getAllUsersId())
-    {
-        const dai::Skeleton& skeleton = *(m_frame->getSkeleton(userId));
-        const dai::Skeleton::SkeletonLimb* limbMap = skeleton.getLimbsMap();
+    for (SkeletonPtr skeleton : m_frame->skeletons()) {
 
-        for (int i=0; i<skeleton.getLimbsCount(); ++i) {
-            drawLimb( skeleton.getJoint(limbMap[i].joint1), skeleton.getJoint(limbMap[i].joint2) );
+        m_shaderProgram->setUniformValue( m_unitsUniform, int(skeleton->distanceUnits()) );
+
+        const dai::Skeleton::SkeletonLimb* limbMap = skeleton->getLimbsMap();
+
+        for (int i=0; i<skeleton->getLimbsCount(); ++i) {
+            drawLimb( skeleton->getJoint(limbMap[i].joint1),
+                      skeleton->getJoint(limbMap[i].joint2) );
         }
     }
 
@@ -94,17 +97,17 @@ void SkeletonItem::prepareShaderProgram()
     m_posAttr = m_shaderProgram->attributeLocation("posAttr");
     m_colorAttr = m_shaderProgram->attributeLocation("colAttr");
     m_pointSizeUniform = m_shaderProgram->uniformLocation("pointSize");
-    m_widthUniform = m_shaderProgram->uniformLocation("width");
-    m_heightUniform = m_shaderProgram->uniformLocation("height");
     m_mode3dUniform = m_shaderProgram->uniformLocation("mode3d");
+    m_unitsUniform = m_shaderProgram->uniformLocation("units");
+    m_frameSizeUniform = m_shaderProgram->uniformLocation("frameSize");
+
     m_perspectiveMatrix = m_shaderProgram->uniformLocation("perspectiveMatrix");
 
     m_shaderProgram->bind();
     m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
     m_shaderProgram->setUniformValue(m_pointSizeUniform, 2.0f);
-    //m_shaderProgram->setUniformValue(m_widthUniform, 320.0f); //scene()->windowWidth());
-    //m_shaderProgram->setUniformValue(m_heightUniform, 240.0f); //(float) scene()->windowHeight());
     m_shaderProgram->setUniformValue(m_mode3dUniform, m_mode3d);
+    m_shaderProgram->setUniformValue(m_frameSizeUniform, QVector2D(640, 480));
     m_shaderProgram->release();
 }
 
@@ -126,13 +129,15 @@ void SkeletonItem::drawLimb(const dai::SkeletonJoint& joint1, const dai::Skeleto
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
     glDisable(GL_DEPTH_TEST);
 
+    m_shaderProgram->setUniformValue(m_pointSizeUniform, 8.0f);
+    m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
+
     // Draw Line from joint1 to joint2
     m_shaderProgram->setAttributeArray(m_posAttr, vertexData, 3);
     m_shaderProgram->setAttributeArray(m_colorAttr, colorData, 3);
-    m_shaderProgram->setUniformValue(m_pointSizeUniform, 8.0f);
-    m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
     m_shaderProgram->enableAttributeArray(m_posAttr);
     m_shaderProgram->enableAttributeArray(m_colorAttr);
+
     glDrawArrays(GL_LINES, m_posAttr, 2);
 
     // Draw Joint 1

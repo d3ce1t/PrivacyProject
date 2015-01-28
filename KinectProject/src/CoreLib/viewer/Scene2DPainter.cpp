@@ -203,17 +203,6 @@ void Scene2DPainter::renderBackground()
 
     // Draw
     glDrawArrays(GL_TRIANGLE_FAN, m_posAttr, 4);
-    /*glPointSize(10.0f);
-    glDrawArrays(GL_POINTS, m_posAttr, 1);
-
-    glPointSize(8.0f);
-    glDrawArrays(GL_POINTS, m_posAttr+1, 1);
-
-    glPointSize(6.0f);
-    glDrawArrays(GL_POINTS, m_posAttr+2, 1);
-
-    glPointSize(4.0f);
-    glDrawArrays(GL_POINTS, m_posAttr+3, 1);*/
 
     // Unbind FG/BG texture
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -466,10 +455,8 @@ void Scene2DPainter::resize(int width, int height)
 
 void Scene2DPainter::resetPerspective()
 {
-    //qDebug() << "Reset Pers." << m_scene_width << m_scene_height;
     m_matrix.setToIdentity();
     m_matrix.ortho(0, m_scene_width, m_scene_height, 0, -1.0, 1.0);
-    //m_matrix.ortho(0, 640, 480, 0, -1.0, 1.0);
 }
 
 } // End Namespace

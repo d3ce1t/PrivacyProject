@@ -17,16 +17,18 @@ typedef shared_ptr<SkeletonFrame> SkeletonFramePtr;
 class SkeletonFrame : public DataFrame
 {
     QMap<int, SkeletonPtr> m_hashSkeletons;
+    int m_width;
+    int m_height;
 
 public:
 
     static SkeletonFramePtr fromBinary(const QByteArray &buffer);
 
-    // Constructor
     SkeletonFrame();
+    SkeletonFrame(int width, int height);
     SkeletonFrame(const SkeletonFrame& other);
-
-    // Methods
+    int width() const {return m_width;}
+    int height() const {return m_height;}
     shared_ptr<DataFrame> clone() const override;
     SkeletonPtr getSkeleton(int userId) const;
     QList<SkeletonPtr> skeletons() const;

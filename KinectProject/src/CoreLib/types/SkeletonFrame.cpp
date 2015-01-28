@@ -5,18 +5,31 @@ namespace dai {
 SkeletonFrame::SkeletonFrame()
     : DataFrame(DataFrame::Skeleton)
 {
+    m_width = 0;
+    m_height = 0;
+}
+
+SkeletonFrame::SkeletonFrame(int width, int height)
+    : DataFrame(DataFrame::Skeleton)
+{
+    m_width = width;
+    m_height = height;
 }
 
 SkeletonFrame::SkeletonFrame(const SkeletonFrame& other)
     : DataFrame(other)
 {
     m_hashSkeletons = other.m_hashSkeletons; // implicit sharing
+    m_width = other.m_width;
+    m_height = other.m_height;
 }
 
 SkeletonFrame& SkeletonFrame::operator=(const SkeletonFrame& other)
 {
     DataFrame::operator=(other);
     m_hashSkeletons = other.m_hashSkeletons;
+    m_width = other.m_width;
+    m_height = other.m_height;
     return *this;
 }
 

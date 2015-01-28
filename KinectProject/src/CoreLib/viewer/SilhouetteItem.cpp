@@ -150,9 +150,6 @@ void SilhouetteItem::prepareVertexBuffer()
         -1.0, 1.0, 0.0
     };
 
-
-
-
     float texCoordsData[] = {
         0, 0,
         1, 0,
