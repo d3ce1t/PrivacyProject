@@ -149,16 +149,17 @@ MainWindow::MainWindow(QWidget *parent)
         dai::SkeletonFramePtr skeleton = create_skeleton_from_scene();
 
         // Patch to have a proper background inside PrivacyFilter class
+        m_privacy.enableFilter(dai::ColorFilter(m_ui->comboFilter->currentIndex()));
+
         dai::QHashDataFrames frames;
         frames.insert(dai::DataFrame::Color, bg);
         frames.insert(dai::DataFrame::Mask, empty_mask);
-        frames.insert(dai::DataFrame::Skeleton, skeleton);
+        m_privacy.singleFrame(frames, color->width(), color->height()); // Send BG frame with no mask
 
-        m_privacy.enableFilter(dai::ColorFilter(m_ui->comboFilter->currentIndex()));        
-        m_privacy.singleFrame(frames, color->width(), color->height());
         frames.insert(dai::DataFrame::Color, color);
         frames.insert(dai::DataFrame::Mask, mask);
-        m_privacy.singleFrame(frames, color->width(), color->height());
+        frames.insert(dai::DataFrame::Skeleton, skeleton);
+        m_privacy.singleFrame(frames, color->width(), color->height()); // Send FG frame with mask
     });
 
     // Action: Finish selection
@@ -630,7 +631,7 @@ void MainWindow::convertJointToMapData(MapData& data, const dai::SkeletonJoint& 
 
 dai::SkeletonFramePtr MainWindow::create_skeleton_from_scene()
 {
-    dai::SkeletonFramePtr skeletonFrame = make_shared<dai::SkeletonFrame>();
+    dai::SkeletonFramePtr skeletonFrame = make_shared<dai::SkeletonFrame>(m_input.imageWidth(), m_input.imageHeight());
     dai::SkeletonPtr skeleton = make_shared<dai::Skeleton>(dai::Skeleton::SKELETON_OPENNI);
     skeletonFrame->setSkeleton(1, skeleton);
     skeleton->setDistanceUnits(dai::DISTANCE_PIXELS);
@@ -639,12 +640,11 @@ dai::SkeletonFramePtr MainWindow::create_skeleton_from_scene()
 
         if (item->type() == 3 && item->data(0).isValid()) {
 
-            //qDebug() << "Item.Pos:" << item->scenePos();
             dai::SkeletonJoint::JointType jointType = dai::SkeletonJoint::JointType(item->data(0).toInt());
 
             float w_x = float(item->scenePos().x());
             float w_y = float(item->scenePos().y());
-            float w_z = 0.0f; //1.5f;
+            float w_z = 0.0f;
             //dai::Skeleton::convertDepthCoordinatesToJoint(item->scenePos().x(), item->scenePos().y(), w_z, &w_x, &w_y);
 
             dai::SkeletonJoint joint(dai::Point3f(w_x, w_y, w_z), jointType);
