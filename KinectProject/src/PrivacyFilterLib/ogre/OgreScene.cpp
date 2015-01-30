@@ -21,6 +21,7 @@ OgreScene::OgreScene()
     , m_initialised(false)
     , m_lastTime(0)
     , m_userId(-1)
+    , m_useGivenMatrix(false)
 {   
     QSurfaceFormat format;
     format.setMajorVersion(2);
@@ -33,6 +34,9 @@ OgreScene::OgreScene()
     m_surface.setSurfaceType(QSurface::OpenGLSurface);
     m_surface.setFormat(format);
     m_surface.create();
+
+    m_width = 0;
+    m_height = 0;
 }
 
 OgreScene::~OgreScene()
@@ -52,9 +56,11 @@ OgreScene::~OgreScene()
 
 void OgreScene::initialise(int width, int height)
 {
+    m_width = width;
+    m_height = height;
+
     createOpenGLContext();
     activateOgreContext();
-    //initializeOpenGLFunctions();
 
     // Setup and Start up Ogre
     m_root = new Ogre::Root(m_plugins_cfg.toStdString());
@@ -77,7 +83,7 @@ void OgreScene::initialise(int width, int height)
     params["currentGLContext"] = "true"; // Linux GL Renderer
 #endif
 
-    m_ogreWindow = m_root->createRenderWindow("", width, height, false, &params);
+    m_ogreWindow = m_root->createRenderWindow("", width, height, false, &params); 
     m_sceneManager = m_root->createSceneManager(Ogre::ST_GENERIC, "mySceneManager");
 
     updateFBO(width, height);
@@ -95,102 +101,21 @@ void OgreScene::initialise(int width, int height)
     m_initialised = true;
 }
 
-void OgreScene::updateFBO(int width, int height)
-{
-    // First create Ogre RTT texture
-    Ogre::TexturePtr rttTexture = Ogre::TextureManager::getSingleton().createManual("RttTex",
-                                                                     Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-                                                                     Ogre::TEX_TYPE_2D, width, height, 0, Ogre::PF_R8G8B8A8,
-                                                                     Ogre::TU_RENDERTARGET, 0, false, 4);
-
-    Ogre::GLTexture* nativeTexture = static_cast<Ogre::GLTexture *>(rttTexture.get());
-    m_nativeTextureId = nativeTexture->getGLID();
-    m_renderTarget = rttTexture->getBuffer()->getRenderTarget();
-}
-
-void OgreScene::updateViewport()
-{
-    m_viewport = m_renderTarget->addViewport(m_camera);
-    m_viewport->setDepthClear(1.0f);
-    m_viewport->setBackgroundColour(Ogre::ColourValue(0.0f, 0.0f, 0.0f, 0.0f));
-    m_viewport->setClearEveryFrame(true);
-    m_viewport->setOverlaysEnabled(false);
-}
-
 void OgreScene::resize(int width, int height)
 {
+    m_width = width;
+    m_height = height;
     activateOgreContext();
     m_ogreWindow->resize(width, height);
+
+    if (m_useGivenMatrix) {
+        m_camera->setCustomProjectionMatrix(true, m_matrix);
+    } else {
+        m_camera->setOrthoWindow(m_width, m_height);
+    }
     updateFBO(width, height);
     updateViewport();
     doneOgreContext();
-}
-
-uint OgreScene::texture() const
-{
-    return m_nativeTextureId;
-}
-
-void OgreScene::setupResources()
-{
-    // Load resource paths from config file
-    Ogre::ConfigFile cf;
-    cf.load(m_resources_cfg.toStdString());
-
-    // Go through all sections & settings in the file
-    Ogre::ConfigFile::SectionIterator seci = cf.getSectionIterator();
-
-    Ogre::String secName, typeName, archName;
-    while (seci.hasMoreElements())
-    {
-        secName = seci.peekNextKey();
-        Ogre::ConfigFile::SettingsMultiMap *settings = seci.getNext();
-        Ogre::ConfigFile::SettingsMultiMap::iterator i;
-        for (i = settings->begin(); i != settings->end(); ++i)
-        {
-            typeName = i->first;
-            archName = i->second;
-
-            Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
-                archName, typeName, secName);
-        }
-    }
-
-    Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
-}
-
-void OgreScene::createCamera()
-{
-    m_camera = m_sceneManager->createCamera("PlayerCam");
-    m_camera->setNearClipDistance(0.1f);
-    m_camera->setAspectRatio(4/3);
-    m_camera->setFOVy(Ogre::Degree(45));
-    m_camera->setPosition(Ogre::Vector3(0, 0, 0));
-    m_camera->lookAt(0, 0, 0);
-
-    Ogre::SceneNode* m_node = Ogre::Root::getSingleton().getSceneManager("mySceneManager")->getRootSceneNode()->createChildSceneNode();
-    m_node->attachObject(m_camera);
-}
-
-void OgreScene::createScene()
-{
-    // set shadow properties
-    m_sceneManager->setShadowTechnique(Ogre::SHADOWTYPE_TEXTURE_MODULATIVE);
-    m_sceneManager->setShadowColour(Ogre::ColourValue(0.5, 0.5, 0.5));
-    m_sceneManager->setShadowTextureSize(1024);
-    m_sceneManager->setShadowTextureCount(1);
-
-    // use a small amount of ambient lighting
-    //m_sceneManager->setAmbientLight(Ogre::ColourValue(0.5, 0.5, 0.3));
-
-    // add a bright light above the scene
-    Ogre::Light* light = m_sceneManager->createLight();
-    light->setType(Ogre::Light::LT_POINT);
-    light->setPosition(0, 15, 10);
-    light->setSpecularColour(Ogre::ColourValue::White);
-
-    // Create our character controller
-    m_chara = new CharacterController(m_camera);
 }
 
 void OgreScene::prepareData(const dai::QHashDataFrames frames)
@@ -209,7 +134,7 @@ void OgreScene::prepareData(const dai::QHashDataFrames frames)
         if (userId > 0 && m_userId == -1) {
             // New user
             m_userId = userId;
-            shared_ptr<dai::Skeleton> skeleton = skeletonFrame->getSkeleton(userId);
+            dai::SkeletonPtr skeleton = skeletonFrame->getSkeleton(userId);
             m_chara->setSkeleton(skeleton);
             m_chara->newUser(userId);
         }
@@ -243,6 +168,131 @@ void OgreScene::render()
     doneOgreContext();
 }
 
+void OgreScene::enableFilter(bool flag)
+{
+    if (m_chara) {
+        m_chara->setVisible(flag);
+    }
+}
+
+uint OgreScene::texture() const
+{
+    return m_nativeTextureId;
+}
+
+void OgreScene::setMatrix(const QMatrix4x4& matrix)
+{
+    m_matrix[0][0] = matrix(0,0);
+    m_matrix[0][1] = matrix(0,1);
+    m_matrix[0][2] = matrix(0,2);
+    m_matrix[0][3] = matrix(0,3);
+
+    m_matrix[1][0] = matrix(1,0);
+    m_matrix[1][1] = matrix(1,1);
+    m_matrix[1][2] = matrix(1,2);
+    m_matrix[1][3] = matrix(1,3);
+
+    m_matrix[2][0] = matrix(2,0);
+    m_matrix[2][1] = matrix(2,1);
+    m_matrix[2][2] = matrix(2,2);
+    m_matrix[2][3] = matrix(2,3);
+
+    m_matrix[3][0] = matrix(3,0);
+    m_matrix[3][1] = matrix(3,1);
+    m_matrix[3][2] = matrix(3,2);
+    m_matrix[3][3] = matrix(3,3);
+
+    m_useGivenMatrix = true;
+}
+
+void OgreScene::setupResources()
+{
+    // Load resource paths from config file
+    Ogre::ConfigFile cf;
+    cf.load(m_resources_cfg.toStdString());
+
+    // Go through all sections & settings in the file
+    Ogre::ConfigFile::SectionIterator seci = cf.getSectionIterator();
+
+    Ogre::String secName, typeName, archName;
+    while (seci.hasMoreElements())
+    {
+        secName = seci.peekNextKey();
+        Ogre::ConfigFile::SettingsMultiMap *settings = seci.getNext();
+        Ogre::ConfigFile::SettingsMultiMap::iterator i;
+        for (i = settings->begin(); i != settings->end(); ++i)
+        {
+            typeName = i->first;
+            archName = i->second;
+
+            Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
+                archName, typeName, secName);
+        }
+    }
+
+    Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
+}
+
+void OgreScene::createCamera()
+{
+    m_camera = m_sceneManager->createCamera("PlayerCam");
+
+    if (m_useGivenMatrix) {
+        m_camera->setCustomProjectionMatrix(true, m_matrix);
+    } else {
+        m_camera->setNearClipDistance(0.1f);
+        m_camera->setOrthoWindow(m_width, m_height);
+    }
+
+    m_camera->setPosition(Ogre::Vector3(0, 0, 0));
+    m_camera->lookAt(0, 0, 0);
+    Ogre::SceneNode* m_node = Ogre::Root::getSingleton().getSceneManager("mySceneManager")->getRootSceneNode()->createChildSceneNode();
+    m_node->attachObject(m_camera);
+}
+
+void OgreScene::updateFBO(int width, int height)
+{
+    // First create Ogre RTT texture
+    Ogre::TexturePtr rttTexture = Ogre::TextureManager::getSingleton().createManual("RttTex",
+                                                                     Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+                                                                     Ogre::TEX_TYPE_2D, width, height, 0, Ogre::PF_R8G8B8A8,
+                                                                     Ogre::TU_RENDERTARGET, 0, false, 4);
+
+    Ogre::GLTexture* nativeTexture = static_cast<Ogre::GLTexture *>(rttTexture.get());
+    m_nativeTextureId = nativeTexture->getGLID();
+    m_renderTarget = rttTexture->getBuffer()->getRenderTarget();
+}
+
+void OgreScene::updateViewport()
+{
+    m_viewport = m_renderTarget->addViewport(m_camera);
+    m_viewport->setDepthClear(1.0f);
+    m_viewport->setBackgroundColour(Ogre::ColourValue(0.0f, 0.0f, 0.0f, 0.0f));
+    m_viewport->setClearEveryFrame(true);
+    m_viewport->setOverlaysEnabled(false);
+}
+
+void OgreScene::createScene()
+{
+    // set shadow properties
+    m_sceneManager->setShadowTechnique(Ogre::SHADOWTYPE_TEXTURE_MODULATIVE);
+    m_sceneManager->setShadowColour(Ogre::ColourValue(0.5, 0.5, 0.5));
+    m_sceneManager->setShadowTextureSize(1024);
+    m_sceneManager->setShadowTextureCount(1);
+
+    // use a small amount of ambient lighting
+    //m_sceneManager->setAmbientLight(Ogre::ColourValue(0.5, 0.5, 0.3));
+
+    // add a bright light above the scene
+    Ogre::Light* light = m_sceneManager->createLight();
+    light->setType(Ogre::Light::LT_POINT);
+    light->setPosition(0, 15, 10);
+    light->setSpecularColour(Ogre::ColourValue::White);
+
+    // Create our character controller
+    m_chara = new CharacterController(m_camera);
+}
+
 void OgreScene::convertDepthToRealWorld(int x, int y, float distance, float &outX, float &outY) const
 {
     const double fd_x = 1.0 / 5.9421434211923247e+02;
@@ -251,13 +301,6 @@ void OgreScene::convertDepthToRealWorld(int x, int y, float distance, float &out
     const double cd_y = 0.5 * 480;
     outX = (x - cd_x) * distance * fd_x;
     outY = (y - cd_y) * distance * fd_y;
-}
-
-void OgreScene::enableFilter(bool flag)
-{
-    if (m_chara) {
-        m_chara->setVisible(flag);
-    }
 }
 
 void OgreScene::createOpenGLContext()

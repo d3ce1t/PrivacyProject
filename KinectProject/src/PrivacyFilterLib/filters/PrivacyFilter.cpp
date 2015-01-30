@@ -86,10 +86,11 @@ void PrivacyFilter::initialise(int width, int height)
 
     m_glContext->makeCurrent(&m_surface);
     m_gles = m_glContext->functions();
-    m_ogreScene->initialise(m_width, m_height);
-    m_scene->setAvatarTexture(m_ogreScene->texture());
     m_fboDisplay = ScenePainter::createFBO(m_width, m_height);
     m_scene->initScene(width, height);
+    //m_ogreScene->setMatrix(m_scene->getMatrix());
+    m_ogreScene->initialise(m_width, m_height);
+    m_scene->setAvatarTexture(m_ogreScene->texture());
     m_glContext->doneCurrent();
     m_initialised = true;
 }
@@ -140,9 +141,9 @@ void PrivacyFilter::resize(int width, int height)
     m_width = width;
     m_height = height;
 
-    m_glContext->makeCurrent(&m_surface);
-    m_ogreScene->resize(m_width, m_height);
     m_scene->setAvatarTexture(m_ogreScene->texture());
+
+    m_glContext->makeCurrent(&m_surface);
 
     if (m_fboDisplay) {
         delete m_fboDisplay;
@@ -151,6 +152,8 @@ void PrivacyFilter::resize(int width, int height)
 
     m_fboDisplay = ScenePainter::createFBO(m_width, m_height);
     m_scene->resize(m_width, m_height);
+    //m_ogreScene->setMatrix(m_scene->getMatrix());
+    m_ogreScene->resize(m_width, m_height);
     m_glContext->doneCurrent();
 }
 
@@ -274,6 +277,7 @@ void PrivacyFilter::produceFrames(QHashDataFrames &output)
 
     // Prepare Data of the OgreScene
     m_ogreScene->prepareData(output);
+    //m_ogreScene->setMatrix(m_scene->getMatrix());
     m_scene->markAsDirty();
 
     //
@@ -286,9 +290,7 @@ void PrivacyFilter::produceFrames(QHashDataFrames &output)
 
     // Render and compose rest of the scene
     m_glContext->makeCurrent(&m_surface);
-    m_scene->resize(m_fboDisplay->width(), m_fboDisplay->height());
     m_scene->renderScene(m_fboDisplay);
-
     m_fboDisplay->bind();
 
     // Copy data back to ColorFrame

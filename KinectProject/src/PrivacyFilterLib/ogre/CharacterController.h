@@ -35,7 +35,6 @@ private:
     bool m_enabled;
     Ogre::AnimationState* mAnimIdle;
     Ogre::SceneNode* mBodyNode;
-    Ogre::SceneNode* mCameraNode;
     Ogre::Entity* mBodyEnt;
     Ogre::Real mTimer;                // general timer to see how long animations have been playing
     shared_ptr<dai::Skeleton> m_skeleton;
