@@ -77,6 +77,7 @@ MainWindow::MainWindow(QWidget *parent)
             // FS Model loaded (setup view)
             connect(&m_fs_model, &QFileSystemModel::directoryLoaded, [=](QString path) {
                 qDebug() << "Directory" << path << "loaded";
+                m_output_path = path;
                 QModelIndex parentIndex = m_fs_model.index(m_fs_model.rootPath());
                 m_ui->listView->setModel(&m_fs_model);
                 m_ui->listView->setRootIndex(parentIndex);
@@ -127,11 +128,28 @@ MainWindow::MainWindow(QWidget *parent)
                                                         m_fs_model.rootPath(),
                                                         tr("Skeleton Binary (*.bin)"));
 
-        QFile skeletonFile(filePath);
-        QByteArray data = skeletonFrame->toBinary();
-        skeletonFile.open(QIODevice::WriteOnly);
-        skeletonFile.write(data);
-        skeletonFile.close();
+        if (!filePath.isEmpty()) {
+            QFile skeletonFile(filePath);
+            QByteArray data = skeletonFrame->toBinary();
+            skeletonFile.open(QIODevice::WriteOnly);
+            skeletonFile.write(data);
+            skeletonFile.close();
+        }
+    });
+
+    // Action: Save output
+    connect(m_ui->actionSave_output, &QAction::triggered, [=]() {
+
+        QString filePath = QFileDialog::getSaveFileName(this,
+                                                        tr("Save File"),
+                                                        m_output_path,
+                                                        tr("PNG images (*.png)"));
+        if (!filePath.isEmpty()) {
+            const QImage& output_image = m_output.image();
+            output_image.save(filePath);
+            int end = filePath.lastIndexOf("/");
+            m_output_path = filePath.mid(0, end);
+        }
     });
 
     // Action: Apply filter
@@ -522,22 +540,18 @@ dai::MaskFramePtr MainWindow::create_mask(const QImage& image)
     return mask;
 }
 
-void MainWindow::setOutputImage(QImage image)
-{
-    m_output.setImage(image);
-    m_ui->comboDisplaySelection->setCurrentIndex(3);
-}
-
 // It's called from the notifier thread
 void MainWindow::newFrames(const dai::QHashDataFrames dataFrames)
 {
     dai::ColorFramePtr color = static_pointer_cast<dai::ColorFrame>(dataFrames.value(dai::DataFrame::Color));
     QImage output_image((uchar*)color->getDataPtr(), color->width(), color->height(), color->getStride(), QImage::Format_RGB888);
     QMetaObject::invokeMethod(this, "setOutputImage", Q_ARG(QImage, output_image));
-    //cv::Mat color_mat(color->height(), color->width(), CV_8UC3, (void*) color->getDataPtr(), color->getStride());
-    //cv::imshow("Image Me", color_mat);
-    //qDebug() << "Stride!" << color->getStride();
-    //cv::waitKey(0);
+}
+
+void MainWindow::setOutputImage(QImage image)
+{
+    m_output.setImage(image);
+    m_ui->comboDisplaySelection->setCurrentIndex(3);
 }
 
 void MainWindow::setup_skeleton(dai::SkeletonPtr skeleton)
@@ -660,7 +674,6 @@ QGraphicsItem* MainWindow::addJoint(int x, int y, dai::SkeletonJoint::JointType 
     QGraphicsItem* item = m_input.scene()->addRect(0, 0, 9, 9,
                                    {Qt::blue, 1, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin},
                                    {Qt::green});
-
 
     item->setPos(x, y);
     item->setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable);

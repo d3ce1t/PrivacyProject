@@ -60,6 +60,7 @@ class MainWindow : public QMainWindow, dai::FrameListener
     QGraphicsRectItem* m_selected_joint;
     bool m_drawing = false;
     QGraphicsItem* m_skeleton_root;
+    QString m_output_path;
 
 public:
     explicit MainWindow(QWidget *parent = 0);
