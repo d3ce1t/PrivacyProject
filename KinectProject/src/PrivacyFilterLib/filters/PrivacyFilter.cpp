@@ -260,11 +260,22 @@ void PrivacyFilter::produceFrames(QHashDataFrames &output)
 
     // Add skeleton item to the scene
     if (output.contains(DataFrame::Skeleton)) {
-        if (!skeletonItem)
+        if (!skeletonItem) // Create item if not exist (only first time)
             skeletonItem.reset(new SkeletonItem);
 
-        skeletonItem->setSkeleton( static_pointer_cast<SkeletonFrame>(output.value(DataFrame::Skeleton)) );
+        shared_ptr<SkeletonFrame> skeletonFrame = static_pointer_cast<SkeletonFrame>(output.value(DataFrame::Skeleton));
+        skeletonItem->setSkeleton( skeletonFrame );
         m_scene->addItem(skeletonItem);
+
+        /*QList<int> usersId = skeletonFrame->getAllUsersId();
+
+        if (usersId.size() > 0) {
+            SkeletonPtr skeleton = skeletonFrame->getSkeleton(usersId.at(0));
+            if (skeleton != nullptr) {
+                const SkeletonJoint joint = skeleton->getJoint(SkeletonJoint::JOINT_HEAD);
+                qDebug() << "Skeleton detected" << joint.getPosition().toString();
+            }
+        }*/
     }
 
     // Enable Filter

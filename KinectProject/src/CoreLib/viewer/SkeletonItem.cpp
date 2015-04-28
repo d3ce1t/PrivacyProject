@@ -67,7 +67,8 @@ void SkeletonItem::render(int pass)
 
     m_shaderProgram->bind();
     m_shaderProgram->setUniformValue(m_mode3dUniform, m_mode3d);
-    m_shaderProgram->setUniformValue(m_frameSizeUniform, QVector2D(m_frame->width(), m_frame->height()));
+    m_shaderProgram->setUniformValue(m_frameSizeUniform, QVector2D(640, 480));
+    //qDebug() << m_frame->width() << m_frame->height();
 
     for (SkeletonPtr skeleton : m_frame->skeletons()) {
 
@@ -130,7 +131,7 @@ void SkeletonItem::drawLimb(const dai::SkeletonJoint& joint1, const dai::Skeleto
     glEnable(GL_LINE_SMOOTH);
     glDisable(GL_DEPTH_TEST);
 
-    m_shaderProgram->setUniformValue(m_pointSizeUniform, 20.0f);
+    m_shaderProgram->setUniformValue(m_pointSizeUniform, 15.0f);
     m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
 
     // Draw Line from joint1 to joint2
@@ -139,7 +140,7 @@ void SkeletonItem::drawLimb(const dai::SkeletonJoint& joint1, const dai::Skeleto
     m_shaderProgram->enableAttributeArray(m_posAttr);
     m_shaderProgram->enableAttributeArray(m_colorAttr);
 
-    glLineWidth(4.0f);
+    glLineWidth(3.0f);
     glDrawArrays(GL_LINES, m_posAttr, 2);
 
     // Draw Joint 1

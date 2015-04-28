@@ -49,19 +49,19 @@ private:
     QOpenGLBuffer             m_texCoordBuffer;
 
     // OpenGL identifiers
-    GLuint                   m_bgTextureId;
-    GLuint                   m_fgTextureId;
-    GLuint                   m_maskTextureId;
-    GLuint                   m_avatarTextureId;
+    GLuint                    m_bgTextureId;
+    GLuint                    m_fgTextureId;
+    GLuint                    m_maskTextureId;
+    GLuint                    m_avatarTextureId;
 
     // Shader identifiers
-    GLuint                   m_perspectiveMatrixUniform;
-    GLuint                   m_posAttr;
-    GLuint                   m_textCoordAttr;
-    GLuint                   m_stageUniform;
-    GLuint                   m_texColorSampler;
-    GLuint                   m_texMaskSampler;
-    GLuint                   m_texBackgroundSampler;
+    GLuint                    m_perspectiveMatrixUniform;
+    GLuint                    m_posAttr;
+    GLuint                    m_textCoordAttr;
+    GLuint                    m_stageUniform;
+    GLuint                    m_texColorSampler;
+    GLuint                    m_texMaskSampler;
+    GLuint                    m_texBackgroundSampler;
 };
 
 } // End Namespace

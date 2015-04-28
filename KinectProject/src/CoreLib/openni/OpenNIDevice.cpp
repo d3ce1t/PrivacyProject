@@ -364,6 +364,7 @@ void OpenNIDevice::readUserTrackerFrame(shared_ptr<DepthFrame> depthFrame, share
 
                     if (daiSkeleton == nullptr) {
                         daiSkeleton = make_shared<dai::Skeleton>(dai::Skeleton::SKELETON_OPENNI);
+                        daiSkeleton->setDistanceUnits(dai::DISTANCE_MILIMETERS);
                         skeletonFrame->setSkeleton(user.getId(), daiSkeleton);
                     }
 
