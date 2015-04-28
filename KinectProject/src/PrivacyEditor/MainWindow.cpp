@@ -8,6 +8,8 @@
 #include <opencv2/opencv.hpp>
 #include <QStack>
 
+const QSize MainWindow::MAX_IMAGE_SIZE = {512, 512};
+
 Display::Display()
 {
     //m_pen = {Qt::green, 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin};
@@ -18,7 +20,6 @@ QGraphicsScene* Display::scene()
 {
     return &m_scene;
 }
-
 QImage& Display::image()
 {
     return m_image;
@@ -158,12 +159,24 @@ MainWindow::MainWindow(QWidget *parent)
         if (m_input.image().isNull() || m_mask.image().isNull() || m_background.image().isNull())
             return;
 
-        dai::MaskFramePtr empty_mask = make_shared<dai::MaskFrame>(m_input.imageWidth(), m_input.imageHeight());
-        dai::MaskFramePtr mask = create_mask(m_mask.image());
-        dai::ColorFramePtr color = make_shared<dai::ColorFrame>(m_input.imageWidth(), m_input.imageHeight());
-        dai::ColorFramePtr bg = make_shared<dai::ColorFrame>(m_background.imageWidth(), m_background.imageHeight());
-        dai::PrivacyFilter::convertQImage2ColorFrame(m_input.image(), color);
-        dai::PrivacyFilter::convertQImage2ColorFrame(m_background.image(), bg);
+        // Scale all images before sending it to our framework
+        QImage maskTmp = m_mask.image();
+        QImage colorTmp = m_input.image();
+        QImage bgTmp = m_background.image();
+
+        //scaleImage(maskTmp, QSize(640, 640), Qt::KeepAspectRatio);
+        //scaleImage(colorTmp, QSize(640, 640), Qt::KeepAspectRatio);
+        //scaleImage(bgTmp, QSize(640, 640), Qt::KeepAspectRatio);
+
+        //qDebug() << "Image Size" << colorTmp.size();
+
+        // Convert to our structures
+        dai::MaskFramePtr empty_mask = make_shared<dai::MaskFrame>(colorTmp.width(), colorTmp.height());
+        dai::MaskFramePtr mask = create_mask(maskTmp);
+        dai::ColorFramePtr color = make_shared<dai::ColorFrame>(colorTmp.width(), colorTmp.height());
+        dai::ColorFramePtr bg = make_shared<dai::ColorFrame>(bgTmp.width(), bgTmp.height());
+        dai::PrivacyFilter::convertQImage2ColorFrame(colorTmp, color);
+        dai::PrivacyFilter::convertQImage2ColorFrame(bgTmp, bg);
         dai::SkeletonFramePtr skeleton = create_skeleton_from_scene();
 
         // Patch to have a proper background inside PrivacyFilter class
@@ -407,9 +420,9 @@ bool MainWindow::exceedSize(const QImage& image) const
     return result;
 }
 
-void MainWindow::scaleImage(QImage& image) const
+void MainWindow::scaleImage(QImage& image, const QSize size, Qt::AspectRatioMode aspectMode) const
 {
-    image = image.scaled(MAX_IMAGE_SIZE, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+    image = image.scaled(size, aspectMode, Qt::SmoothTransformation);
     QString str1 = image.width() % 2 == 0 ? "width mod 8" : "";
     QString str2 = image.height() % 2 == 0 ? "height mod 8" : "";
     qDebug() << "Image has been scaled -> New Size" << image.width() << image.height() << str1 << str2;
@@ -545,6 +558,7 @@ void MainWindow::newFrames(const dai::QHashDataFrames dataFrames)
 {
     dai::ColorFramePtr color = static_pointer_cast<dai::ColorFrame>(dataFrames.value(dai::DataFrame::Color));
     QImage output_image((uchar*)color->getDataPtr(), color->width(), color->height(), color->getStride(), QImage::Format_RGB888);
+    scaleImage(output_image, QSize(512, 512), Qt::KeepAspectRatio);
     QMetaObject::invokeMethod(this, "setOutputImage", Q_ARG(QImage, output_image));
 }
 

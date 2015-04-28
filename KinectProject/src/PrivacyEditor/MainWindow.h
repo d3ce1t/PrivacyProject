@@ -45,14 +45,15 @@ class MainWindow : public QMainWindow, dai::FrameListener
 {
     Q_OBJECT
 
+    const static QSize MAX_IMAGE_SIZE;
+
     Ui::MainWindow* m_ui;
     QFileSystemModel m_fs_model;
     Display m_input;
     Display m_mask;
     Display m_background;
     Display m_output;
-    QGraphicsPathItem* m_mask_item;
-    const QSize MAX_IMAGE_SIZE = {512, 512};
+    QGraphicsPathItem* m_mask_item;    
     QPointF m_last_pixel;
     QPen m_pen;
     QString m_current_image_path;
@@ -83,7 +84,7 @@ private:
     void setup_skeleton(dai::SkeletonPtr skeleton = nullptr);
     dai::SkeletonFramePtr create_skeleton_from_scene();
     bool exceedSize(const QImage& image) const;
-    void scaleImage(QImage &image) const;
+    void scaleImage(QImage &image, const QSize size = MAX_IMAGE_SIZE, Qt::AspectRatioMode aspectMode = Qt::KeepAspectRatioByExpanding) const;
     void convertJointToMapData(MapData& data, const dai::SkeletonJoint& joint, int parent, MapData* coords);
     dai::MaskFramePtr create_mask(const QPainterPath& path);
     dai::MaskFramePtr create_mask(const QImage& image);

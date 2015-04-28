@@ -120,16 +120,17 @@ void SkeletonItem::drawLimb(const dai::SkeletonJoint& joint1, const dai::Skeleto
     };
 
     float colorData[] = {
-        0.0, 0.0, 0.0,
-        0.0, 0.0, 0.0,
+        0.0, 1.0, 1.0,
+        0.0, 1.0, 1.0,
         0.0, 0.0, 0.0,
         0.0, 0.0, 0.0
     };
 
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+    glEnable(GL_LINE_SMOOTH);
     glDisable(GL_DEPTH_TEST);
 
-    m_shaderProgram->setUniformValue(m_pointSizeUniform, 8.0f);
+    m_shaderProgram->setUniformValue(m_pointSizeUniform, 20.0f);
     m_shaderProgram->setUniformValue(m_perspectiveMatrix, m_matrix);
 
     // Draw Line from joint1 to joint2
@@ -138,6 +139,7 @@ void SkeletonItem::drawLimb(const dai::SkeletonJoint& joint1, const dai::Skeleto
     m_shaderProgram->enableAttributeArray(m_posAttr);
     m_shaderProgram->enableAttributeArray(m_colorAttr);
 
+    glLineWidth(4.0f);
     glDrawArrays(GL_LINES, m_posAttr, 2);
 
     // Draw Joint 1
@@ -161,6 +163,7 @@ void SkeletonItem::drawLimb(const dai::SkeletonJoint& joint1, const dai::Skeleto
 
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
+    glDisable(GL_LINE_SMOOTH);
 }
 
 } // End Namespace
