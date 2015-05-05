@@ -75,7 +75,7 @@ void FrameGenerator::begin(bool doubleBuffer)
     m_initialised = true;
 }
 
-// Devuelve True si ha producido y false en caso contrario
+// Devuelve True si ha producido un frame y false en caso contrario
 bool FrameGenerator::generate()
 {
     Q_ASSERT(m_initialised == true);

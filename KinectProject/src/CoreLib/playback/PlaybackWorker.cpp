@@ -10,6 +10,7 @@ PlaybackWorker::PlaybackWorker()
     : m_playloop_enabled(false)
     , m_slotTime(40 * 1000000) // 40 ms in ns, 25 fps
     , m_running(false)
+    , m_paused(false)
     , m_supportedFrames(DataFrame::Unknown)
 {
     superTimer.start();
@@ -19,6 +20,10 @@ PlaybackWorker::~PlaybackWorker()
 {
     m_instances.clear();
     m_supportedFrames = DataFrame::Unknown;
+}
+
+void PlaybackWorker::pause() {
+    m_paused = !m_paused;
 }
 
 bool PlaybackWorker::addInstance(shared_ptr<StreamInstance> instance)
@@ -95,13 +100,15 @@ void PlaybackWorker::run()
         if (global_deviation >= -m_slotTime)
         {
             // Do something
-            bool hasProduced = generate();
+            if (!m_paused) {
+                bool hasProduced = generate();
 
-            if (!hasProduced || subscribersCount() == 0)
-                m_running = false;
+                if (!hasProduced || subscribersCount() == 0)
+                    m_running = false;
 
-            // Time management: Do I have free time?
-            remainingTime = m_slotTime - timer.nsecsElapsed();
+                // Time management: Do I have free time?
+                remainingTime = m_slotTime - timer.nsecsElapsed();
+            }
 
             if (remainingTime > 1500000) {
                 QThread::currentThread()->usleep((remainingTime - 1000000) / 1000); // FIX: usleep resolution is between 1 ms

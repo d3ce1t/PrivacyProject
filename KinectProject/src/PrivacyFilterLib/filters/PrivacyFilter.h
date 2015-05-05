@@ -25,6 +25,7 @@ class Scene2DPainter;
 class PrivacyFilter : public FrameListener, public FrameGenerator
 {
     shared_ptr<QHashDataFrames> m_frames;
+    QHashDataFrames m_framesCopy;
     QOpenGLContext* m_glContext;
     QOpenGLFunctions* m_gles;
     QOffscreenSurface m_surface;
@@ -39,6 +40,7 @@ class PrivacyFilter : public FrameListener, public FrameGenerator
     cv::CascadeClassifier m_face_cascade;
     int m_width = 640;
     int m_height = 480;
+    bool m_paused = false;
 
 public:
     static void convertQImage2ColorFrame(const QImage &input_img, ColorFramePtr output_img);
@@ -50,6 +52,7 @@ public:
     void enableFilter(ColorFilter filterType);
     void captureImage();
     void resize(int width, int height);
+    void pause();
 
 protected:
     void initialise(int width = 640, int height = 480);

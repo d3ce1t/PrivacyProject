@@ -59,3 +59,8 @@ void ControlWindow::on_btnSaveImage_clicked()
 {
     m_privacy->captureImage();
 }
+
+void ControlWindow::on_btnPause_clicked()
+{
+    m_privacy->pause();
+}

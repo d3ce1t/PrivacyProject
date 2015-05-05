@@ -28,6 +28,7 @@ public:
 // These could be slots
     void play(bool restartAll = false);
     void stop();
+    void pause();
 
 private:
     QThread         m_workerThread;

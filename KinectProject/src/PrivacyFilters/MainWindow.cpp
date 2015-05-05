@@ -91,24 +91,20 @@ void MainWindow::on_btnStartKinect_clicked()
     m_playback.clearInstances();
     m_playback.addInstance(colorInstance);
     m_playback.addInstance(userTrackerInstance);
-    //m_playback.addListener(&m_depthFilter);
     m_playback.addListener(&m_privacyFilter);
 
     // Create viewers
     dai::InstanceViewerWindow* out_viewer_color = new dai::InstanceViewerWindow;
-    //dai::InstanceViewerWindow* out_viewer_depth = new dai::InstanceViewerWindow;
     //out_viewer->setDrawMode(ViewerEngine::BoundingBox);
 
     // Connect viewers
     //m_playback.addListener(out_viewer_color);
-    //m_depthFilter.addListener(out_viewer_depth);
     m_privacyFilter.addListener(out_viewer_color);
 
     // Run
     m_privacyFilter.enableFilter(FILTER_DISABLED);
     m_control.show();
     out_viewer_color->show();
-    //out_viewer_depth->show();
     m_playback.play();
 }
 
@@ -161,11 +157,6 @@ void MainWindow::onMinusKeyPressed()
     float speed = control->getSpeed();
     control->setSpeed(speed - 0.05);
     qDebug() << "Current speed" << control->getSpeed();*/
-}
-
-void MainWindow::onSpaceKeyPressed()
-{
-    //m_playback->pause();
 }
 
 void MainWindow::on_btnQuit_clicked()

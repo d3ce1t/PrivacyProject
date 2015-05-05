@@ -31,6 +31,8 @@ private slots:
 
     void on_btnSaveImage_clicked();
 
+    void on_btnPause_clicked();
+
 private:
     Ui::ControlWindow *ui;
     dai::PrivacyFilter *m_privacy;

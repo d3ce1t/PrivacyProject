@@ -24,7 +24,6 @@ class MainWindow : public QMainWindow
     dai::OpenNIDevice*    m_device;
     dai::PlaybackControl  m_playback;
     dai::PrivacyFilter    m_privacyFilter;
-    //dai::DepthFilter      m_depthFilter;
     Ui::MainWindow *ui;
     QString m_configFile;
     ControlWindow m_control;
@@ -37,7 +36,6 @@ public:
 private slots:
     void onPlusKeyPressed();
     void onMinusKeyPressed();
-    void onSpaceKeyPressed();
     void on_btnStartKinect_clicked();
     void on_btnQuit_clicked();
 };

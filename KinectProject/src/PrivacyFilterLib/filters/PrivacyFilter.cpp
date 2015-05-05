@@ -133,6 +133,11 @@ shared_ptr<QHashDataFrames> PrivacyFilter::allocateMemory()
     return m_frames;
 }
 
+void PrivacyFilter::pause()
+{
+    m_paused = !m_paused;
+}
+
 void PrivacyFilter::resize(int width, int height)
 {
     if (width == m_width && height == m_height)
@@ -166,11 +171,29 @@ void PrivacyFilter::newFrames(const QHashDataFrames dataFrames)
     }
 
     // Copy frames (1 ms)
-    m_frames->clear();
+    if (!m_paused)
+    {
+        m_frames->clear();
+        m_framesCopy.clear();
 
-    foreach (DataFrame::FrameType key, dataFrames.keys()) {
-        shared_ptr<DataFrame> frame = dataFrames.value(key);
-        m_frames->insert(key, frame->clone());
+        foreach (DataFrame::FrameType key, dataFrames.keys()) {
+            shared_ptr<DataFrame> frame = dataFrames.value(key);
+            m_frames->insert(key, frame->clone());
+        }
+    }
+    else {
+
+        if (m_framesCopy.empty()) {
+            foreach (DataFrame::FrameType key, dataFrames.keys()) {
+                shared_ptr<DataFrame> frame = dataFrames.value(key);
+                m_framesCopy.insert(key, frame->clone());
+            }
+        }
+
+        foreach (DataFrame::FrameType key, m_framesCopy.keys()) {
+            shared_ptr<DataFrame> frame = m_framesCopy.value(key);
+            m_frames->insert(key, frame->clone());
+        }
     }
 
     // Check if the frames has been copied correctly

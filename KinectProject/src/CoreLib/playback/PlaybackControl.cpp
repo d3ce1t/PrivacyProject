@@ -37,6 +37,11 @@ void PlaybackControl::stop()
     qDebug() << "PlaybackControl::stop()";
 }
 
+void PlaybackControl::pause()
+{
+    m_worker->pause();
+}
+
 void PlaybackControl::setFPS(float fps)
 {
     m_worker->setFPS(fps);

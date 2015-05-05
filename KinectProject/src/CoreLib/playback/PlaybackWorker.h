@@ -23,6 +23,7 @@ class PlaybackWorker : public QObject, public FrameGenerator
 public:
     PlaybackWorker();
     ~PlaybackWorker();
+    void pause();
 
 public slots:
     void run();
@@ -46,6 +47,7 @@ private:
     bool                               m_playloop_enabled;
     qint64                             m_slotTime;
     bool                               m_running;
+    bool                               m_paused;
     DataFrame::SupportedFrames         m_supportedFrames;
 };
 
