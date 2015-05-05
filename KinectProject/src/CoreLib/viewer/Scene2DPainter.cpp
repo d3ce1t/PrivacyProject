@@ -101,7 +101,12 @@ void Scene2DPainter::render(QOpenGLFramebufferObject *target)
     setupTextures();
 
     // Stage 1
-    extractBackground();// background is in bgTexture, foreground is in fgTexture
+    m_fboFirstPass->bind();
+
+    //if (m_bg->getIndex() <= 25) {
+        extractBackground();// background is in bgTexture, foreground is in fgTexture
+    //}
+
     renderBackground(); // it renders bg or fg into fboFirstPass
 
     // Stage 2
@@ -139,8 +144,6 @@ void Scene2DPainter::setupTextures()
 
 void Scene2DPainter::extractBackground()
 {
-    m_fboFirstPass->bind();
-
     glViewport(0, 0, m_scene_width, m_scene_height);
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClearDepth(1.0f);

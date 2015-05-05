@@ -1,5 +1,6 @@
 #include "SilhouetteItem.h"
 #include "viewer/ScenePainter.h"
+#include <cmath>
 
 namespace dai {
 
@@ -8,6 +9,7 @@ SilhouetteItem::SilhouetteItem()
 {
     m_user = nullptr;
     m_neededPasses = 2;
+    createKernel(15.0f);
 }
 
 void SilhouetteItem::setUser(shared_ptr<MaskFrame> user)
@@ -122,6 +124,7 @@ void SilhouetteItem::prepareShaderProgram()
     m_texCoord = m_shaderProgram->attributeLocation("texCoord");
     m_silhouetteEffectUniform = m_shaderProgram->uniformLocation("silhouetteEffect");
     m_stageUniform = m_shaderProgram->uniformLocation("stage");
+    m_kernelUniform = m_shaderProgram->uniformLocation("kernel");
     m_textureSizeUniform = m_shaderProgram->uniformLocation("textureSize");
     m_texFGSampler = m_shaderProgram->uniformLocation("texForeground");
     m_texMaskSampler = m_shaderProgram->uniformLocation("texMask");
@@ -131,6 +134,7 @@ void SilhouetteItem::prepareShaderProgram()
     m_shaderProgram->setUniformValue(m_stageUniform, 1);
     m_shaderProgram->setUniformValue(m_texFGSampler, 0);
     m_shaderProgram->setUniformValue(m_texMaskSampler, 1);
+    m_shaderProgram->setUniformValueArray(m_kernelUniform, m_kernel, 15, 1);
     m_shaderProgram->release();
 }
 
@@ -177,6 +181,33 @@ void SilhouetteItem::prepareVertexBuffer()
     m_texCoordBuffer.release();
 
     m_vao.release();
+}
+
+float SilhouetteItem::gaussFunction(float x, float y, float sigma)
+{
+     return ( 1.0f / 2.0f*M_PI*pow(sigma,2) ) * pow(M_E, -( (pow(x,2)+pow(y, 2)) / (2*pow(sigma, 2)) ));
+}
+
+float SilhouetteItem::gaussFunction(float x, float sigma)
+{
+    return (1.0f / (sqrt(2*M_PI) * sigma)) * pow(M_E, -(pow(x,2)/(2*pow(sigma,2))));
+}
+
+void SilhouetteItem::createKernel(float sigma)
+{
+    float sum = 0;
+
+    for (int i = -7; i<=7; ++i) {
+        m_kernel[i+7] = gaussFunction(i, sigma);
+        sum += m_kernel[i+7];
+    }
+
+    // Average kernel
+    for (int i = 0; i<15; ++i) {
+        m_kernel[i] = m_kernel[i] / sum;
+    }
+
+    return;
 }
 
 } // End Namespace
