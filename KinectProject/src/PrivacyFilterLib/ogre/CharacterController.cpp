@@ -50,10 +50,10 @@ void CharacterController::setupBody(Ogre::SceneManager* sceneMgr)
 {
     // create main model
     mBodyNode = sceneMgr->getRootSceneNode()->createChildSceneNode("Human", Ogre::Vector3::UNIT_Y);
-    //mBodyNode->scale(10.5, 10.5, 10.5);
-    //mBodyNode->setPosition(0, 0, 0);
-    mBodyNode->scale(1.0f/10, 1.0f/10.0f, 1.0f/10.0f);
-    mBodyNode->setPosition(0, 0, -3.0f);
+    mBodyNode->scale(10.5, 10.5, 10.5);
+    mBodyNode->setPosition(0, 0, 0);
+    //mBodyNode->scale(1.0f/10, 1.0f/10.0f, 1.0f/10.0f);
+    //mBodyNode->setPosition(0, 0, -3.0f);
     mBodyEnt = sceneMgr->createEntity("HumanBody", "generic_male_01.mesh");
     mBodyEnt->setVisible(false);
     mBodyNode->attachObject(mBodyEnt);
