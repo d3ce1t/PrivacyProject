@@ -2,7 +2,8 @@
 varying vec2 v_texCoord;
 uniform int silhouetteEffect; // 0: normal, 1: blur, 2: pixelation, 3_ emboss
 
-uniform float kernel[15];
+uniform float kernel[51];
+uniform int blurRadio;
 uniform int stage;
 uniform vec2 textureSize;
 uniform sampler2D texForeground;
@@ -12,9 +13,6 @@ vec4 blurEffectH();
 vec4 blurEffectV();
 vec4 pixelation();
 vec4 embossEffect();
-
-const int pixels_radio = 7;
-const float blur_weight = 1 / (pixels_radio*2+1);
 
 void main()
 {
@@ -62,8 +60,8 @@ vec4 blurEffectH()
     vec2 pixelSize = 1/textureSize;
     vec4 sum = vec4(0.0);
 
-    for (int i=-pixels_radio; i<=pixels_radio; ++i) {
-        sum += texture2D(texForeground, vec2(v_texCoord.x + i*pixelSize.x, v_texCoord.y))  * kernel[i+pixels_radio];
+    for (int i=-blurRadio; i<=blurRadio; ++i) {
+        sum += texture2D(texForeground, vec2(v_texCoord.x + i*pixelSize.x, v_texCoord.y))  * kernel[i+blurRadio];
     }
 
     return sum;
@@ -74,8 +72,8 @@ vec4 blurEffectV()
     vec2 pixelSize = 1/textureSize;
     vec4 sum = vec4(0.0);
 
-    for (int i=-pixels_radio; i<=pixels_radio; ++i) {
-        sum += texture2D(texForeground, vec2(v_texCoord.x, v_texCoord.y + i*pixelSize.y)) * kernel[i+pixels_radio];
+    for (int i=-blurRadio; i<=blurRadio; ++i) {
+        sum += texture2D(texForeground, vec2(v_texCoord.x, v_texCoord.y + i*pixelSize.y)) * kernel[i+blurRadio];
     }
 
     return sum;
@@ -84,7 +82,8 @@ vec4 blurEffectV()
 vec4 pixelation()
 {
     vec2 pixelSize = 1/textureSize;
-    vec2 dpos = pixels_radio * pixelSize;
+    const int pixelDiameter = 10;
+    vec2 dpos = pixelDiameter * pixelSize;
     vec2 coord = vec2(dpos.x * floor(v_texCoord.x / dpos.x), dpos.y * floor(v_texCoord.y / dpos.y));
     return texture2D(texForeground, coord);
 }

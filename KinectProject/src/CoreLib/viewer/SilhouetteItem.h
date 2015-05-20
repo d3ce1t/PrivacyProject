@@ -37,7 +37,7 @@ private:
     void prepareVertexBuffer();
     float gaussFunction(float x, float y, float sigma);
     float gaussFunction(float x, float sigma);
-    void createKernel(float sigma);
+    void createKernel(int radio);
 
 
     SilhouetteEffect         m_drawingEffect;
@@ -47,12 +47,15 @@ private:
     QOpenGLVertexArrayObject m_vao;
     QOpenGLBuffer            m_positionsBuffer;
     QOpenGLBuffer            m_texCoordBuffer;
-    float                    m_kernel[15];
+    int                      m_blur_radio;
+    float                    m_kernel[51];
+
 
     // OpenGL identifiers
     GLuint                   m_posAttr; // Pos attr in the shader
     GLuint                   m_texCoord; // Texture coord in the shader
     GLuint                   m_kernelUniform;
+    GLuint                   m_blurRadioUniform;
     GLuint                   m_stageUniform;
     GLuint                   m_textureSizeUniform;
     GLuint                   m_silhouetteEffectUniform;

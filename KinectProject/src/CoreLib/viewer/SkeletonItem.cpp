@@ -68,7 +68,7 @@ void SkeletonItem::render(int pass)
     m_shaderProgram->bind();
     m_shaderProgram->setUniformValue(m_mode3dUniform, m_mode3d);
     m_shaderProgram->setUniformValue(m_frameSizeUniform, QVector2D(640, 480));
-    //qDebug() << m_frame->width() << m_frame->height();
+
 
     for (SkeletonPtr skeleton : m_frame->skeletons()) {
 

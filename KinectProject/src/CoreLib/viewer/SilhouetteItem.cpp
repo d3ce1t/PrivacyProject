@@ -6,10 +6,11 @@ namespace dai {
 
 SilhouetteItem::SilhouetteItem()
     : SceneItem(ITEM_SILHOUETTE)
+    , m_blur_radio(15)
 {
     m_user = nullptr;
     m_neededPasses = 2;
-    createKernel(15.0f);
+    createKernel(m_blur_radio);
 }
 
 void SilhouetteItem::setUser(shared_ptr<MaskFrame> user)
@@ -125,6 +126,7 @@ void SilhouetteItem::prepareShaderProgram()
     m_silhouetteEffectUniform = m_shaderProgram->uniformLocation("silhouetteEffect");
     m_stageUniform = m_shaderProgram->uniformLocation("stage");
     m_kernelUniform = m_shaderProgram->uniformLocation("kernel");
+    m_blurRadioUniform = m_shaderProgram->uniformLocation("blurRadio");
     m_textureSizeUniform = m_shaderProgram->uniformLocation("textureSize");
     m_texFGSampler = m_shaderProgram->uniformLocation("texForeground");
     m_texMaskSampler = m_shaderProgram->uniformLocation("texMask");
@@ -134,7 +136,8 @@ void SilhouetteItem::prepareShaderProgram()
     m_shaderProgram->setUniformValue(m_stageUniform, 1);
     m_shaderProgram->setUniformValue(m_texFGSampler, 0);
     m_shaderProgram->setUniformValue(m_texMaskSampler, 1);
-    m_shaderProgram->setUniformValueArray(m_kernelUniform, m_kernel, 15, 1);
+    m_shaderProgram->setUniformValueArray(m_kernelUniform, m_kernel, m_blur_radio*2+1, 1);
+    m_shaderProgram->setUniformValue(m_blurRadioUniform, m_blur_radio);
     m_shaderProgram->release();
 }
 
@@ -193,21 +196,22 @@ float SilhouetteItem::gaussFunction(float x, float sigma)
     return (1.0f / (sqrt(2*M_PI) * sigma)) * pow(M_E, -(pow(x,2)/(2*pow(sigma,2))));
 }
 
-void SilhouetteItem::createKernel(float sigma)
+void SilhouetteItem::createKernel(int radio)
 {
+    Q_ASSERT(radio <= 25);
+
+    float sigma = (radio*2.0f)/6.0f;
     float sum = 0;
 
-    for (int i = -7; i<=7; ++i) {
-        m_kernel[i+7] = gaussFunction(i, sigma);
-        sum += m_kernel[i+7];
+    for (int i = -radio; i<=radio; ++i) {
+        m_kernel[i+radio] = gaussFunction(i, sigma);
+        sum += m_kernel[i+radio];
     }
 
     // Average kernel
-    for (int i = 0; i<15; ++i) {
+    for (int i = 0; i<=radio*2.0; ++i) {
         m_kernel[i] = m_kernel[i] / sum;
     }
-
-    return;
 }
 
 } // End Namespace

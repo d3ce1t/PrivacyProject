@@ -103,9 +103,10 @@ void Scene2DPainter::render(QOpenGLFramebufferObject *target)
     // Stage 1
     m_fboFirstPass->bind();
 
-    //if (m_bg->getIndex() <= 25) {
+    //if (m_bg->getIndex() == 450) {
         extractBackground();// background is in bgTexture, foreground is in fgTexture
     //}
+    //qDebug() << m_bg->getIndex();
 
     renderBackground(); // it renders bg or fg into fboFirstPass
 
@@ -335,9 +336,11 @@ void Scene2DPainter::renderComposite()
 void Scene2DPainter::setupBGTexture(GLuint texture_id, int width, int height)
 {
     glBindTexture(GL_TEXTURE_2D, texture_id);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE); // automatic mipmap
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    //glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE); // automatic mipmap
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
     glBindTexture(GL_TEXTURE_2D, 0);
 }
