@@ -131,6 +131,8 @@ void OpenNIDevice::open()
         }
 
         // Start
+        m_lastFrame = 0;
+
         if (m_oniColorStream.start() != openni::STATUS_OK)
             throw 6;
 
@@ -147,8 +149,8 @@ void OpenNIDevice::open()
         m_opened = true;
 
         if (m_device.isFile()) {
-            qDebug() << "Color" << m_device.getPlaybackControl()->getNumberOfFrames(m_oniColorStream);
-            qDebug() << "Depth" << m_device.getPlaybackControl()->getNumberOfFrames(m_oniDepthStream);
+            qDebug() << "Color" << m_device.getPlaybackControl()->getNumberOfFrames(m_oniColorStream) << "frames";
+            qDebug() << "Depth" << m_device.getPlaybackControl()->getNumberOfFrames(m_oniDepthStream) << "frames";
         }
     }
     catch (int ex)
@@ -175,6 +177,14 @@ bool OpenNIDevice::is_open() const
     return m_device.isValid();
 }
 
+bool OpenNIDevice::hasNext()
+{
+    if (!m_device.isFile())
+        return true;
+
+    return m_lastFrame < getTotalFrames();
+}
+
 openni::PlaybackControl* OpenNIDevice::playbackControl()
 {
     return m_device.getPlaybackControl();
@@ -187,11 +197,18 @@ void OpenNIDevice::setRegistration(bool flag)
 
 void OpenNIDevice::readColorFrame(shared_ptr<ColorFrame> colorFrame)
 {
+    // Because readFrame method is a waiting read, if readColorFrame is invoked when
+    // last frame has already been read, then return inmediately.
+    if (m_device.isFile() && m_lastFrame >= this->getTotalFrames())
+        return;
+
     if (m_oniColorStream.readFrame(&m_oniColorFrame) != openni::STATUS_OK)
         throw 1;
 
     if (!m_oniColorFrame.isValid())
         throw 2;
+
+    m_lastFrame = dai::max<int>(m_lastFrame, m_oniColorFrame.getFrameIndex());
 
     int stride = m_oniColorFrame.getStrideInBytes() / sizeof(openni::RGB888Pixel) - m_oniColorFrame.getWidth();
 
@@ -206,6 +223,11 @@ void OpenNIDevice::readColorFrame(shared_ptr<ColorFrame> colorFrame)
 
 void OpenNIDevice::readDepthFrame(shared_ptr<DepthFrame> depthFrame)
 {
+    // Because readFrame method is a waiting read, if readDepthFrame is invoked when
+    // last frame has already been read, then return inmediately.
+    if (m_device.isFile() && m_lastFrame >= this->getTotalFrames())
+        return;
+
     if (m_oniDepthStream.readFrame(&m_oniDepthFrame) != openni::STATUS_OK) {
         throw 1;
     }
@@ -213,6 +235,8 @@ void OpenNIDevice::readDepthFrame(shared_ptr<DepthFrame> depthFrame)
     if (!m_oniDepthFrame.isValid()) {
         throw 2;
     }
+
+    m_lastFrame = dai::max<int>(m_lastFrame, m_oniDepthFrame.getFrameIndex());
 
     int strideDepth = m_oniDepthFrame.getStrideInBytes() / sizeof(openni::DepthPixel) - m_oniDepthFrame.getWidth();
 
@@ -268,6 +292,11 @@ void OpenNIDevice::readUserTrackerFrame(shared_ptr<DepthFrame> depthFrame, share
 {
     nite::UserTrackerFrameRef oniUserTrackerFrame;
 
+    // Because readFrame method is a waiting read, if readUserTrackerFrame is invoked when
+    // last frame has already been read, then return inmediately.
+    if (m_device.isFile() && m_lastFrame >= this->getTotalFrames())
+        return;
+
     if (m_oniUserTracker.readFrame(&oniUserTrackerFrame) != nite::STATUS_OK) {
         throw 1;
     }
@@ -275,6 +304,8 @@ void OpenNIDevice::readUserTrackerFrame(shared_ptr<DepthFrame> depthFrame, share
     if (!oniUserTrackerFrame.isValid()) {
         throw 2;
     }
+
+    m_lastFrame = dai::max<int>(m_lastFrame, oniUserTrackerFrame.getFrameIndex());
 
     // Depth Frame
     if (depthFrame) {
@@ -543,12 +574,12 @@ bool OpenNIDevice::isFile() const
     return m_device.isFile();
 }
 
-uint OpenNIDevice::getTotalFrames()
+int OpenNIDevice::getTotalFrames()
 {
-    uint result = 0;
+    int result = 0;
 
     if (m_device.isFile()) {
-        result = dai::min<uint>(m_device.getPlaybackControl()->getNumberOfFrames(m_oniColorStream),
+        result = dai::min<int>(m_device.getPlaybackControl()->getNumberOfFrames(m_oniColorStream),
                     m_device.getPlaybackControl()->getNumberOfFrames(m_oniDepthStream));
     }
 

@@ -10,14 +10,12 @@ OpenNIColorInstance::OpenNIColorInstance()
     : StreamInstance(DataFrame::Color, 640, 480)
 {
     m_device = nullptr;
-    eof = false;
 }
 
 OpenNIColorInstance::OpenNIColorInstance(OpenNIDevice* device)
     : StreamInstance(DataFrame::Color, 640, 480)
 {
     m_device = device;
-    eof = false;
 }
 
 OpenNIColorInstance::~OpenNIColorInstance()
@@ -37,10 +35,7 @@ bool OpenNIColorInstance::is_open() const
 
 bool OpenNIColorInstance::hasNext() const
 {
-    if (!m_device->isFile())
-        return true;
-
-    return true;//!eof;
+    return m_device->hasNext();
 }
 
 bool OpenNIColorInstance::openInstance()
@@ -80,10 +75,6 @@ void OpenNIColorInstance::nextFrame(QHashDataFrames &output)
     Q_ASSERT(output.size() > 0);
     shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(output.value(DataFrame::Color));
     m_device->readColorFrame(colorFrame);
-
-    if (m_device->isFile() && m_device->getTotalFrames() == colorFrame->getIndex()) {
-        eof = true;
-    }
 }
 
 } // End namespace

@@ -25,7 +25,6 @@ protected:
 
 private:
     OpenNIDevice* m_device;
-    bool eof;
 };
 
 } // End namespace

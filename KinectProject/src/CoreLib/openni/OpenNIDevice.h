@@ -34,6 +34,7 @@ class OpenNIDevice
     QMutex                     m_mutex;
     bool                       m_opened;
     bool                       m_manual_registration;
+    int                        m_lastFrame;
 
 public:
     static const QString ANY_DEVICE;
@@ -44,12 +45,13 @@ public:
     void open();
     void close();
     bool is_open() const;
+    bool hasNext();
     void readColorFrame(shared_ptr<ColorFrame> colorFrame);
     void readDepthFrame(shared_ptr<DepthFrame> depthFrame);
     void readUserTrackerFrame(shared_ptr<DepthFrame> depthFrame, shared_ptr<MaskFrame> maskFrame, shared_ptr<SkeletonFrame> skeletonFrame, shared_ptr<MetadataFrame> metadataFrame);
     openni::PlaybackControl* playbackControl();
     bool isFile() const;
-    uint getTotalFrames();
+    int getTotalFrames();
     void setRegistration(bool flag);
     void convertJointCoordinatesToDepth(float x, float y, float z, float* pOutX, float* pOutY) const;
     void convertDepthCoordinatesToJoint(int x, int y, int z, float* pOutX, float* pOutY) const;
