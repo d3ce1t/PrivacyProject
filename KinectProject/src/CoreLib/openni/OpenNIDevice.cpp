@@ -139,13 +139,19 @@ void OpenNIDevice::open()
         if (m_oniDepthStream.start() != openni::STATUS_OK)
             throw 7;
 
+#ifndef __APPLE__
         if (m_oniUserTracker.create(&m_device) != nite::STATUS_OK)
             throw 8;
 
-        if (!m_oniUserTracker.isValid() || !m_oniColorStream.isValid() || !m_oniDepthStream.isValid())
+        if (!m_oniUserTracker.isValid())
             throw 9;
 
         m_oniUserTracker.setSkeletonSmoothingFactor(0.4f);
+#endif
+
+        if(!m_oniColorStream.isValid() || !m_oniDepthStream.isValid())
+            throw 9;
+
         m_opened = true;
 
         if (m_device.isFile()) {
@@ -164,7 +170,11 @@ void OpenNIDevice::close()
 {
     QMutexLocker locker(&m_mutex);
     // Destroy streams and close device
+
+#ifndef __APPLE__
     m_oniUserTracker.destroy();
+#endif
+
     m_oniDepthStream.destroy();
     m_oniColorStream.stop();
     m_oniColorStream.destroy();
@@ -287,6 +297,7 @@ void OpenNIDevice::readDepthFrame(shared_ptr<DepthFrame> depthFrame)
     return m_depthFrame;
 }*/
 
+#ifndef __APPLE__
 void OpenNIDevice::readUserTrackerFrame(shared_ptr<DepthFrame> depthFrame, shared_ptr<MaskFrame> maskFrame,
                                         shared_ptr<SkeletonFrame> skeletonFrame, shared_ptr<MetadataFrame> metadataFrame)
 {
@@ -409,6 +420,7 @@ void OpenNIDevice::readUserTrackerFrame(shared_ptr<DepthFrame> depthFrame, share
         }
     } // End for
 }
+#endif
 
 void OpenNIDevice::depth2color(shared_ptr<DepthFrame> depthFrame, shared_ptr<MaskFrame> mask) const
 {
@@ -462,10 +474,16 @@ void OpenNIDevice::depth2color(shared_ptr<DepthFrame> depthFrame, shared_ptr<Mas
             // sensor, whereas OpenNI gives it as a distance from the point to the sensor plane.
 
             // Start hack in order to get distance to sensor, rather than to the plane
-            float out_x, out_y, out_z;
+            float out_z;
+
+#ifndef __APPLE__
+            float out_x, out_y;
             m_oniUserTracker.convertDepthCoordinatesToJoint(j, i, pDepth[j], &out_x, &out_y);
             out_z = Point3f::euclideanDistance(Point3f(0.0f, 0.0f, 0.0f), Point3f(out_x, out_y, float(pDepth[j]) ));
             // End hack
+#else
+            out_z = pDepth[j];
+#endif
 
             glm::vec3 p3d;
             p3d.x = (j - cx_d) * out_z / fx_d;
@@ -496,6 +514,7 @@ void OpenNIDevice::depth2color(shared_ptr<DepthFrame> depthFrame, shared_ptr<Mas
     }
 }
 
+#ifndef __APPLE__
 void OpenNIDevice::copySkeleton(const nite::Skeleton& srcSkeleton, dai::Skeleton& dstSkeleton)
 {
     for (int j=0; j<15; ++j)
@@ -528,6 +547,7 @@ void OpenNIDevice::convertDepthCoordinatesToJoint(int x, int y, int z, float* pO
 {
     m_oniUserTracker.convertDepthCoordinatesToJoint(x, y, z, pOutX, pOutY);
 }
+#endif
 
 OpenNIDevice* OpenNIDevice::create(const QString devicePath)
 {
@@ -549,8 +569,10 @@ void OpenNIDevice::initOpenNI()
         if (openni::OpenNI::initialize() != openni::STATUS_OK)
             throw 1;
 
+#ifndef __APPLE__
         if (nite::NiTE::initialize() != nite::STATUS_OK)
             throw 2;
+#endif
 
         _initialised = true;
     }
@@ -563,7 +585,9 @@ void OpenNIDevice::initOpenNI()
 void OpenNIDevice::shutdownOpenNI()
 {
     // Shutdown library
+#ifndef __APPLE__
     nite::NiTE::shutdown();
+#endif
     openni::OpenNI::shutdown();
 
     _initialised = false;

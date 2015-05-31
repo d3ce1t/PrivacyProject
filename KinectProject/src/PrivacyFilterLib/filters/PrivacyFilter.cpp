@@ -401,14 +401,14 @@ std::vector<cv::Rect> PrivacyFilter::faceDetection(shared_ptr<ColorFrame> frame)
 std::vector<cv::Rect> PrivacyFilter::faceDetection(cv::Mat frameGray, bool equalised)
 {
     using namespace cv;
-    std::vector<Rect> faces;
+    std::vector<cv::Rect> faces;
 
     if (!equalised) {
         equalizeHist( frameGray, frameGray );
     }
 
     // Detect faces
-    m_face_cascade.detectMultiScale( frameGray, faces, 1.1, 2, 0 | CV_HAAR_SCALE_IMAGE, Size(30, 30));
+    m_face_cascade.detectMultiScale( frameGray, faces, 1.1, 2, 0 | CV_HAAR_SCALE_IMAGE, cv::Size(30, 30));
 
     return faces;
 }

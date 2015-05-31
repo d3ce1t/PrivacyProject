@@ -33,7 +33,9 @@ unix {
     DEPENDPATH += $$PWD/../CoreLib
     LIBS += -L$$BIN_PATH -lCoreLib
     PRE_TARGETDEPS += $$BIN_PATH/libCoreLib.a
+}
 
+unix:!macx {
     # Ogre
     CONFIG += link_pkgconfig
     PKGCONFIG += OGRE
@@ -45,6 +47,21 @@ unix {
     #INCLUDEPATH += $$(OPENCV2_INCLUDE)
     #DEPENDPATH += $$(OPENCV2_INCLUDE)
     LIBS += -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_objdetect -lopencv_photo -lopencv_features2d -lopencv_nonfree -lopencv_flann
+}
+
+unix:macx {
+    # Ogre
+    INCLUDEPATH += $$(OGRE_INCLUDE)
+    DEPENDPATH += $$(OGRE_INCLUDE)
+
+    # Boost
+    INCLUDEPATH += $$(BOOST_INCLUDE)
+    DEPENDPATH += $$(BOOST_INCLUDE)
+    LIBS += -L$$(BOOST_LIB) -lboost_system
+
+    # OpenCV2
+    INCLUDEPATH += $$(OPENCV2_INCLUDE)
+    DEPENDPATH += $$(OPENCV2_INCLUDE)
 }
 
 win32 {

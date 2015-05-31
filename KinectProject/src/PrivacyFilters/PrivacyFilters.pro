@@ -34,7 +34,7 @@ FORMS += \
     mainwindow.ui \
     ControlWindow.ui
 
-unix:!macx {
+unix {
     # CoreLib
     INCLUDEPATH += $$PWD/../CoreLib
     DEPENDPATH += $$PWD/../CoreLib
@@ -49,9 +49,11 @@ unix:!macx {
 
     # OpenNI2
     #LIBS += -L/opt/OpenNI-Linux-x64-2.2/Tools/ -lOpenNI2
-    INCLUDEPATH += /opt/OpenNI-Linux-x64-2.2/Include
-    DEPENDPATH += /opt/OpenNI-Linux-x64-2.2/Include
+    INCLUDEPATH += $$(OPENNI2_INCLUDE)
+    DEPENDPATH += $$(OPENNI2_INCLUDE)
+}
 
+unix:!macx {
     # NiTE2
     #LIBS += -L/opt/NiTE-Linux-x64-2.2/Redist/ -lNiTE2
     INCLUDEPATH += /opt/NiTE-Linux-x64-2.2/Include
@@ -69,6 +71,23 @@ unix:!macx {
     #DEPENDPATH += $$(OPENCV2_INCLUDE)
     LIBS += -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_objdetect -lopencv_photo -lopencv_features2d -lopencv_nonfree -lopencv_flann
 }
+
+unix:macx {
+    # Ogre
+    INCLUDEPATH += $$(OGRE_INCLUDE)
+    DEPENDPATH += $$(OGRE_INCLUDE)
+    LIBS += -F$$(OGRE_LIB)/macosx/Release -framework Ogre
+
+    # Boost
+    INCLUDEPATH += $$(BOOST_INCLUDE)
+    DEPENDPATH += $$(BOOST_INCLUDE)
+    LIBS += -L$$(BOOST_LIB) -lboost_system
+
+    # OpenCV2
+    INCLUDEPATH += $$(OPENCV2_INCLUDE)
+    DEPENDPATH += $$(OPENCV2_INCLUDE)
+}
+
 
 win32 {
     # ensure QMAKE_MOC contains the moc executable path

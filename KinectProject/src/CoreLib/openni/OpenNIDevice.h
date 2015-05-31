@@ -2,7 +2,11 @@
 #define OPENNIDEVICE_H
 
 #include <OpenNI.h>
+
+#ifndef __APPLE__
 #include <NiTE.h>
+#endif
+
 #include <memory>
 #include "types/DepthFrame.h"
 #include "types/ColorFrame.h"
@@ -28,7 +32,11 @@ class OpenNIDevice
     openni::VideoStream        m_oniColorStream;
     openni::VideoStream**      m_depthStreams;
     openni::VideoStream**	   m_colorStreams;
+
+#ifndef __APPLE__
     nite::UserTracker          m_oniUserTracker;
+#endif
+
     openni::VideoFrameRef      m_oniDepthFrame;
     openni::VideoFrameRef      m_oniColorFrame;
     QMutex                     m_mutex;
@@ -39,7 +47,10 @@ class OpenNIDevice
 public:
     static const QString ANY_DEVICE;
     static OpenNIDevice* create(const QString devicePath = OpenNIDevice::ANY_DEVICE);
+
+#ifndef __APPLE__
     static void copySkeleton(const nite::Skeleton& srcSkeleton, dai::Skeleton& dstSkeleton);
+#endif
 
     ~OpenNIDevice();
     void open();
@@ -48,14 +59,17 @@ public:
     bool hasNext();
     void readColorFrame(shared_ptr<ColorFrame> colorFrame);
     void readDepthFrame(shared_ptr<DepthFrame> depthFrame);
+#ifndef __APPLE__
     void readUserTrackerFrame(shared_ptr<DepthFrame> depthFrame, shared_ptr<MaskFrame> maskFrame, shared_ptr<SkeletonFrame> skeletonFrame, shared_ptr<MetadataFrame> metadataFrame);
+#endif
     openni::PlaybackControl* playbackControl();
     bool isFile() const;
     int getTotalFrames();
     void setRegistration(bool flag);
+#ifndef __APPLE__
     void convertJointCoordinatesToDepth(float x, float y, float z, float* pOutX, float* pOutY) const;
     void convertDepthCoordinatesToJoint(int x, int y, int z, float* pOutX, float* pOutY) const;
-
+#endif
 
 private:
     OpenNIDevice(const QString devicePath);

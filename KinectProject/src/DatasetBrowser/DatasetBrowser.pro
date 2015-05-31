@@ -34,8 +34,8 @@ FORMS    += \
     SettingsDialog.ui \
     DatasetSelector.ui
 
-# Linux
-unix:!macx {
+# Linux y MacOSX
+unix {
     # CoreLib
     LIBS += -L$$BIN_PATH/ -lCoreLib
     PRE_TARGETDEPS += $$BIN_PATH/libCoreLib.a

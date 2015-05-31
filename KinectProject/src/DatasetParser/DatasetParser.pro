@@ -12,7 +12,7 @@ CONFIG   -= app_bundle
 
 SOURCES += main.cpp
 
-unix:!macx {
+unix {
     # CoreLib
     LIBS += -L$$BIN_PATH -lCoreLib
     PRE_TARGETDEPS += $$BIN_PATH/libCoreLib.a

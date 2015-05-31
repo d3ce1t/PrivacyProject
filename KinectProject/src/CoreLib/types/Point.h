@@ -113,7 +113,7 @@ public:
     explicit Point(T firstValue, Args...params)
     {
         Q_ASSERT(sizeof...(params) == N-1);
-        T data[N]={firstValue, params...};
+        T data[N]={firstValue, static_cast<float>(params)...};
         memcpy(m_data, data, N * sizeof(T));
     }
 

@@ -22,7 +22,7 @@ float DistancesFeature::distance(const Descriptor& other_desc) const
 
     while (it1 != m_distances.constEnd() && it2 != other.m_distances.constEnd())
     {
-        distance += std::abs(*it1 - *it2);
+        distance += abs(*it1 - *it2);
         ++it1;
         ++it2;
     }

@@ -29,14 +29,32 @@ unix {
     INCLUDEPATH += $$PWD/../PrivacyFilterLib
     DEPENDPATH += $$PWD/../PrivacyFilterLib
     LIBS += -L$$BIN_PATH -lPrivacyFilterLib
-    PRE_TARGETDEPS += $$BIN_PATH/libPrivacyFilterLib.a
+    PRE_TARGETDEPS += $$BIN_PATH/libPrivacyFilterLib.a    
+}
 
+unix:!macx {
     # Ogre
     CONFIG += link_pkgconfig
     PKGCONFIG += OGRE
 
     # Boost
     LIBS += -lboost_system
+}
+
+unix:macx {
+    # Ogre
+    INCLUDEPATH += $$(OGRE_INCLUDE)
+    DEPENDPATH += $$(OGRE_INCLUDE)
+    LIBS += -F$$(OGRE_LIB)/macosx/Release -framework Ogre
+
+    # Boost
+    INCLUDEPATH += $$(BOOST_INCLUDE)
+    DEPENDPATH += $$(BOOST_INCLUDE)
+    LIBS += -L$$(BOOST_LIB) -lboost_system
+
+    # OpenCV2
+    INCLUDEPATH += $$(OPENCV2_INCLUDE)
+    DEPENDPATH += $$(OPENCV2_INCLUDE)
 }
 
 win32 {

@@ -58,11 +58,13 @@ void OpenNIUserTrackerInstance::restartInstance()
 void OpenNIUserTrackerInstance::nextFrame(QHashDataFrames& output)
 {
     Q_ASSERT(output.size() > 0);
+#ifndef __APPLE__
     shared_ptr<DepthFrame> depthFrame = static_pointer_cast<DepthFrame>(output.value(DataFrame::Depth));
     shared_ptr<MaskFrame> maskFrame = static_pointer_cast<MaskFrame>(output.value(DataFrame::Mask));
     shared_ptr<SkeletonFrame> skeletonFrame = static_pointer_cast<SkeletonFrame>(output.value(DataFrame::Skeleton));
     shared_ptr<MetadataFrame> metadataFrame = static_pointer_cast<MetadataFrame>(output.value(DataFrame::Metadata));
     m_device->readUserTrackerFrame(depthFrame, maskFrame, skeletonFrame, metadataFrame);
+#endif
 }
 
 } // End Namespace

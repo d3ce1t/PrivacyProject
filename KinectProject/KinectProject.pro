@@ -16,11 +16,24 @@ DESTDIR = $$OUT_PWD/bin
 Resources.path = $$DESTDIR/resources
 Resources.files = $$PWD/OgreData/*
 
+unix:macx {
+    # Config Files
+    Config.path = $$DESTDIR
+    Config.files = $$PWD/config/linux/*
+
+    # OpenNI dll
+    OpenNI.path = $$DESTDIR
+    OpenNI.files = $$(OPENNI2_REDIST)/libOpenNI2.dylib $$(OPENNI2_REDIST)/OpenNI2
+
+    INSTALLS += OpenNI
+}
+
+
 # Install Linux Files
 unix:!macx {
     # Config Files
     Config.path = $$DESTDIR
-    Config.files = $$PWD/config/linux/*
+    Config.files = $$PWD/config/linux/* 
 }
 
 # Install Win Files
