@@ -59,7 +59,9 @@ SOURCES += \
     dataset/CAVIAR4REID/CAVIAR4REIDInstance.cpp \
     dataset/DAI4REID/DAI4REID.cpp \
     dataset/DAI4REID_Parsed/DAI4REID_Parsed.cpp \
-    dataset/DAI4REID_Parsed/DAI4REID_ParsedInstance.cpp
+    dataset/DAI4REID_Parsed/DAI4REID_ParsedInstance.cpp \
+    dataset/IASLAB_RGBD_ID/IASLAB_RGBD_ID.cpp \
+    dataset/IASLAB_RGBD_ID/IASLAB_RGBD_ID_Instance.cpp
 
 HEADERS += \
     types/Vector3D.h \
@@ -126,7 +128,9 @@ HEADERS += \
     types/Enums.h \
     dataset/DAI4REID/DAI4REID.h \
     dataset/DAI4REID_Parsed/DAI4REID_Parsed.h \
-    dataset/DAI4REID_Parsed/DAI4REID_ParsedInstance.h
+    dataset/DAI4REID_Parsed/DAI4REID_ParsedInstance.h \
+    dataset/IASLAB_RGBD_ID/IASLAB_RGBD_ID_Instance.h \
+    dataset/IASLAB_RGBD_ID/IASLAB_RGBD_ID.h
 
 RESOURCES += \
     corelib.qrc

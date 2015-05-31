@@ -13,6 +13,119 @@ using namespace std;
 
 dai::InstanceInfo* findInstance(QString activity, int actor, int sample, QMap<int, QMap<int, QMap<int, dai::InstanceInfo *> > > list);
 
+struct DatasetSample {
+    int actorId;
+    int sampleId;
+    int cameraId;
+    QString file_color;
+    QString file_depth;
+    QString file_mask;
+    QString file_skel;
+};
+
+void writeXML(QMap<int, QMap<int, QMap<int, DatasetSample> > > samples)
+{
+    int file_id = 1;
+
+    cout << "\t" << "<instances>" << endl;
+
+    for (auto cameras = samples.constBegin(); cameras != samples.constEnd(); ++cameras)
+    {
+        const QMap<int, QMap<int, DatasetSample>>& cameras_map = *cameras;
+
+        for (auto frames = cameras_map.constBegin(); frames != cameras_map.constEnd(); ++frames)
+        {
+            const QMap<int, DatasetSample>& frames_map = *frames;
+
+            foreach (DatasetSample sample, frames_map.values()) {
+                cout << "\t\t" << "<instance actor=\"" << sample.actorId << "\" camera=\"" << sample.cameraId << "\" sample=\"" << sample.sampleId << "\">" << endl;
+                cout << "\t\t\t" << "<file id=\"" << file_id << "\">" << sample.file_color.toStdString() << "</file>" << endl;
+                cout << "\t\t\t" << "<file id=\"" << file_id+1 << "\">" << sample.file_depth.toStdString() << "</file>" << endl;
+                cout << "\t\t\t" << "<file id=\"" << file_id+2 << "\">" << sample.file_mask.toStdString() << "</file>" << endl;
+                cout << "\t\t\t" << "<file id=\"" << file_id+3 << "\">" << sample.file_skel.toStdString() << "</file>" << endl;
+                cout << "\t\t\t" << "<data type=\"color\" file-ref=\"" << file_id << "\" />" << endl;
+                cout << "\t\t\t" << "<data type=\"depth\" file-ref=\"" << file_id+1 << "\" />" << endl;
+                cout << "\t\t\t" << "<data type=\"mask\" file-ref=\"" << file_id+2 << "\" />" << endl;
+                cout << "\t\t\t" << "<data type=\"skeleton\" file-ref=\"" << file_id+3 << "\" />" << endl;
+                cout << "\t\t" << "</instance>" << endl;
+                file_id+=4;
+            }
+        }
+    }
+
+    cout << "\t" << "</instances>" << endl;
+}
+
+void parseIAS_LAB_RGBD_ID(const QString datasetPath)
+{
+    QList<QString> actor_folders = {"000", "001", "002", "003", "004", "005", "006", "007", "008", "009", "010"};
+    QMap<int, QMap<int, QMap<int, DatasetSample> > > samples;
+    int num_samples = 0;
+
+    // Lambda function -> Parse Dataset
+    auto parseDataset = [datasetPath, actor_folders, &samples, &num_samples](QString subfolder, int camera)
+    {
+        for (QString actor_folder : actor_folders)
+        {
+            QDir datasetDir(datasetPath + "/" + subfolder + "/" + actor_folder);
+            QStringList filters;
+            filters << "*_rgb.jpg";
+            datasetDir.setNameFilters(filters);
+
+            QStringList sampleEntries = datasetDir.entryList();
+
+            for (QString fileName : sampleEntries)
+            {
+                DatasetSample sample;
+                sample.actorId = actor_folder.toInt() + 1;
+                sample.cameraId = camera;
+                sample.sampleId = ++num_samples;
+
+                sample.file_color = subfolder + "/" + actor_folder + "/" + fileName;
+                sample.file_depth = subfolder + "/" + actor_folder + "/" + QString(fileName).replace("_rgb.jpg", "_depth.pgm");
+                sample.file_mask  = subfolder + "/" + actor_folder + "/" + QString(fileName).replace("_rgb.jpg", "_userMap.pgm");
+                sample.file_skel  = subfolder + "/" + actor_folder + "/" + QString(fileName).replace("_rgb.jpg", "_skel.txt");
+
+                if (!QFile::exists(datasetPath + "/" + sample.file_depth) ||
+                        !QFile::exists(datasetPath + "/" + sample.file_mask) ||
+                        !QFile::exists(datasetPath + "/" + sample.file_skel)) {
+                    qDebug() << "Some missing files";
+                    throw 1;
+                }
+
+                samples[sample.actorId][sample.cameraId][sample.sampleId] = sample;
+            }
+        }
+    };
+
+    parseDataset("Training", 1);
+    parseDataset("TestingB", 2);
+
+    cout << "<dataset name=\"IAS-LAB-RGBD-ID\">" << endl << endl;
+
+    // Cameras
+    cout << "\t" << "<cameras size=\"2\">" << endl;
+    cout << "\t\t" << "<camera key=\"1\">Camera 1</camera>" << endl;
+    cout << "\t\t" << "<camera key=\"2\">Camera 2</camera>" << endl;
+    cout << "\t" << "</cameras>" << endl << endl;
+
+    // Actors
+    int i = 1;
+    cout << "\t" << "<actors size=\"" << actor_folders.size() << "\">" << endl;
+
+    for (QString actor_folder : actor_folders)  {
+        cout << "\t\t" << "<actor key=\"" << i++ << "\">" << "Actor " << actor_folder.toStdString() << "</actor>" << endl;
+    }
+
+    cout << "\t" << "</actors>" << endl << endl;
+
+    // Samples
+    writeXML(samples);
+
+    cout << "</dataset>" << endl;
+}
+
+
 void parseDAI4REID(const QString datasetPath)
 {
     cout << "<dataset name=\"DAI4REID-Bin\">" << endl << endl;
@@ -671,10 +784,10 @@ int main(int argc, char *argv[])
 {
     Q_UNUSED(argc);
     CoreLib_InitResources();
-
     //parseMSRAction3D(argv[1]);
     //parseCAVIAR4REID(argv[1]);
     //parseDAI4REID(argv[1]);
-    parseMSRAction3D_Quaternions(argv[1]);
+    //parseMSRAction3D_Quaternions(argv[1]);
+    parseIAS_LAB_RGBD_ID((argv[1]));
 }
 
