@@ -7,6 +7,7 @@
 #include "dataset/CAVIAR4REID/CAVIAR4REID.h"
 #include "dataset/DAI4REID/DAI4REID.h"
 #include "dataset/DAI4REID_Parsed/DAI4REID_Parsed.h"
+#include "dataset/IASLAB_RGBD_ID/IASLAB_RGBD_ID.h"
 #include "viewer/InstanceViewerWindow.h"
 #include "Config.h"
 #include "opencv2/features2d/features2d.hpp"
@@ -158,7 +159,8 @@ void PersonReid::execute()
     //parseDataset();
     //test_DAI4REID();
     //test_CAVIAR4REID();
-    test_DAI4REID_Parsed();
+    //test_DAI4REID_Parsed();
+    test_IASLAB();
     //test2();
     //test3();
 
@@ -168,24 +170,21 @@ void PersonReid::execute()
 void PersonReid::parseDataset()
 {
     Dataset* dataset = new DAI4REID;
-    dataset->setPath("C:/datasets/DAI4REID");
+    dataset->setPath("/files/DAI4REID");
     const DatasetMetadata& metadata = dataset->getMetadata();
 
-    // Create memory for colorFrame
+    // Create memory for all kind of frames
     QHashDataFrames readFrames = allocateMemory();
 
-    QList<int> actors = {4,5};//{1, 2, 3};
+    // For each actor, parse his/her samples
+    QList<int> actors = {1,2,3,4,5};
 
-    // For each actor, compute the feature that minimises the distance to each other sample of
-    // the same actor.
     for (int actor : actors)
     {
         QList<shared_ptr<InstanceInfo>> instances_md = metadata.instances({actor},
-                                                                       {1},
+                                                                       {2},
                                                                        DatasetMetadata::ANY_LABEL);
-
         shared_ptr<InstanceInfo> instance_info = instances_md.at(0);
-
         std::string fileName = instance_info->getFileName(DataFrame::Color).toStdString();
 
         printf("actor %i sample %i file %s\n", instance_info->getActor(),
@@ -194,7 +193,7 @@ void PersonReid::parseDataset()
 
         std::fflush(stdout);
 
-        // Get Sample
+        // Get instances
         QList<shared_ptr<StreamInstance>> instances;
         instances << dataset->getInstance(*instance_info, DataFrame::Color);
         instances << dataset->getInstance(*instance_info, DataFrame::Metadata);
@@ -205,7 +204,7 @@ void PersonReid::parseDataset()
         }
 
         shared_ptr<OpenNIColorInstance> colorInstance = static_pointer_cast<OpenNIColorInstance>(instances.at(0));
-        colorInstance->device().playbackControl()->setSpeed(0.10f);
+        colorInstance->device().playbackControl()->setSpeed(0.15f);
 
         // Read frames
         uint previousFrame = 0;
@@ -226,11 +225,13 @@ void PersonReid::parseDataset()
             if (previousFrame + 1 != colorFrame->getIndex())
                 qDebug() << "Frame Skip" << colorFrame->getIndex();
 
+            qDebug() << "Processing frame" << colorFrame->getIndex();
+
             // Process
             QList<int> users = skeletonFrame->getAllUsersId();
 
             // Work with the user inside of the Bounding Box
-            if (!users.isEmpty() && !metadataFrame->boundingBoxes().isEmpty() && colorFrame->getIndex() > 140)
+            if (!users.isEmpty() && !metadataFrame->boundingBoxes().isEmpty() /*&& colorFrame->getIndex() > 140*/)
             {
                 int firstUser = users.at(0);
                 shared_ptr<Skeleton> skeleton = skeletonFrame->getSkeleton(firstUser);
@@ -291,6 +292,8 @@ void PersonReid::parseDataset()
             instance->close();
         }
     }
+
+    qDebug() << "Parse Finished!";
 }
 
 // Test feature of n-parts localised histograms (corresponding to joints) with OpenNI
@@ -545,9 +548,9 @@ void PersonReid::test_DAI4REID_Parsed()
     //QList<DescriptorPtr> gallery = create_gallery_DAI4REID_Parsed();
 
     for (DescriptorPtr target : gallery) {
-        shared_ptr<DistancesFeature> op = static_pointer_cast<DistancesFeature>(target);
-        qDebug() << target->label().getActor() << target->label().getSample() <<
-                    op->distances().at(0) << op->distances().at(1);
+        //shared_ptr<DistancesFeature> op = static_pointer_cast<DistancesFeature>(target);
+        qDebug() << target->label().getActor() << target->label().getSample(); // <<
+                    //op->distances().at(0) << op->distances().at(1);
     }
 
     // Validation
@@ -645,10 +648,11 @@ QList<DescriptorPtr> PersonReid::create_gallery_DAI4REID_Parsed()
 QList<DescriptorPtr> PersonReid::train_DAI4REID_Parsed(QList<int> actors)
 {
     Dataset* dataset = new DAI4REID_Parsed;
-    dataset->setPath("/mnt/files2/datasets/DAI4REID/parse_subset");
+    dataset->setPath("/files/DAI4REID_Parsed");
     const DatasetMetadata& metadata = dataset->getMetadata();
 
     //QList<shared_ptr<Feature>> samples;
+    QList<DescriptorPtr> gallery;
     QList<DescriptorPtr> actor_samples;
     QList<DescriptorPtr> centroids;
 
@@ -690,10 +694,10 @@ QList<DescriptorPtr> PersonReid::train_DAI4REID_Parsed(QList<int> actors)
             //highLightMask(*colorFrame, *maskFrame);
             //highLightDepth(*colorFrame, *depthFrame);
             //drawJoints(*colorFrame, skeleton->joints());
-            //DescriptorPtr feature = feature_joints_hist(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
+            DescriptorPtr feature = feature_joints_hist(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
             //DescriptorPtr feature = feature_region_descriptor(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
             //DescriptorPtr feature = feature_skeleton_distances(*colorFrame, *skeleton, *instance_info);
-            DescriptorPtr feature = feature_joint_descriptor(*colorFrame, *skeleton, *instance_info);
+            //DescriptorPtr feature = feature_joint_descriptor(*colorFrame, *skeleton, *instance_info);
             //DescriptorPtr feature = feature_fusion(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
 
             //qDebug() << feature->sizeInBytes();
@@ -704,10 +708,10 @@ QList<DescriptorPtr> PersonReid::train_DAI4REID_Parsed(QList<int> actors)
             }
 
             // Show
-           /* cv::Mat color_mat(colorFrame->height(), colorFrame->width(), CV_8UC3,
+            cv::Mat color_mat(colorFrame->height(), colorFrame->width(), CV_8UC3,
                               (void*) colorFrame->getDataPtr(), colorFrame->getStride());
             cv::imshow("Image", color_mat);
-            cv::waitKey(1);*/
+            cv::waitKey(1);
             //QCoreApplication::processEvents();
 
             // Close Instances
@@ -717,11 +721,24 @@ QList<DescriptorPtr> PersonReid::train_DAI4REID_Parsed(QList<int> actors)
         }
 
         qDebug() << "Actor samples" << actor_samples.size();
+
+        // Learn Minimum: Use the signature that minimise its distance to all of the other signatures for the same actor
+        /*
         DescriptorPtr selectedFeature = Descriptor::minFeatureParallel(actor_samples);
         centroids << selectedFeature;
         qDebug("Init. Centroid %i = actor %i %i %i", actor, selectedFeature->label().getActor(),
                                                        selectedFeature->label().getSample(),
                                                        selectedFeature->frameId());
+        */
+
+        // Learn K features for the same actor (K=3)
+        qDebug() << "Computing K-Means";
+        auto kmeans = KMeans<Descriptor>::execute(actor_samples, 5, 5);
+
+        foreach (auto cluster, kmeans->getClusters()) {
+            gallery << cluster.centroid;
+        }
+
         actor_samples.clear();
     }
 
@@ -739,15 +756,14 @@ QList<DescriptorPtr> PersonReid::train_DAI4REID_Parsed(QList<int> actors)
 
     // Learn B: Use the signature that minimises the distance to the rest of signatures
     // of each actor.
-    QList<DescriptorPtr> gallery = centroids;
-
+    //QList<DescriptorPtr> gallery = centroids;
     return gallery;
 }
 
 QVector<float> PersonReid::validate_DAI4REID_Parsed(const QList<int> &actors, const QList<DescriptorPtr>& gallery, int *num_tests)
 {
     Dataset* dataset = new DAI4REID_Parsed;
-    dataset->setPath("/mnt/files2/datasets/DAI4REID/parse_subset");
+    dataset->setPath("/files/DAI4REID_Parsed");
     const DatasetMetadata& metadata = dataset->getMetadata();
     int total_tests = 0;
 
@@ -789,10 +805,214 @@ QVector<float> PersonReid::validate_DAI4REID_Parsed(const QList<int> &actors, co
         QList<int> users = skeletonFrame->getAllUsersId();
         shared_ptr<Skeleton> skeleton = skeletonFrame->getSkeleton(users.at(0));
 
-        //DescriptorPtr query = feature_joints_hist(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
+        DescriptorPtr query = feature_joints_hist(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
         //DescriptorPtr query = feature_region_descriptor(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
         //DescriptorPtr query = feature_skeleton_distances(*colorFrame, *skeleton, *instance_info);
-        DescriptorPtr query = feature_joint_descriptor(*colorFrame, *skeleton, *instance_info);
+        //DescriptorPtr query = feature_joint_descriptor(*colorFrame, *skeleton, *instance_info);
+        //DescriptorPtr query = feature_fusion(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
+
+        if (query) {
+            // CMC
+            QMap<float, int> query_results = compute_distances_to_all_samples(*query, gallery);
+            int pos = cummulative_match_curve(query_results, results, query->label().getActor());
+            qDebug("Results for actor %i %i (pos=%i)", instance_info->getActor(), instance_info->getSample(), pos+1);
+            print_query_results(query_results, pos);
+            qDebug() << "--------------------------";
+            total_tests++;
+        }
+
+        // Close Instances
+        instance->close();
+    }
+
+    if (num_tests) {
+        *num_tests = total_tests;
+    }
+
+    return results;
+}
+
+void PersonReid::test_IASLAB()
+{
+    QList<int> actors = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+
+    // Training
+    QList<DescriptorPtr> gallery = train_IASLAB(actors);
+
+    for (DescriptorPtr target : gallery) {
+        qDebug() << target->label().getActor() << target->label().getSample();
+    }
+
+    // Validation
+    int num_tests = 0;
+    QVector<float> results = validate_IASLAB(actors, gallery, &num_tests);
+
+    // Show Results
+    normalise_results(results, num_tests);
+    print_results(results);
+}
+
+QList<DescriptorPtr> PersonReid::train_IASLAB(QList<int> actors)
+{
+    Dataset* dataset = new IASLAB_RGBD_ID;
+    dataset->setPath("/files/IASLAB-RGBD-ID");
+    const DatasetMetadata& metadata = dataset->getMetadata();
+
+    QList<DescriptorPtr> actor_samples;
+    QList<DescriptorPtr> centroids;
+
+    // Create container for read frames
+    QHashDataFrames readFrames;
+
+    // For each actor, compute the feature that minimises the distance to each other sample of
+    // the same actor.
+    for (int actor : actors)
+    {
+        QList<shared_ptr<InstanceInfo>> instances = metadata.instances({actor},
+                                                                       {1},
+                                                                       DatasetMetadata::ANY_LABEL);
+
+        for (shared_ptr<InstanceInfo> instance_info : instances)
+        {
+            QElapsedTimer timer;
+            timer.start();
+
+            // Get Sample
+            shared_ptr<StreamInstance> instance = dataset->getInstance(*instance_info, DataFrame::Color);
+
+            // Open Instances
+            instance->open();
+
+            // Read frames
+            instance->readNextFrame(readFrames);
+
+            // Get Frames
+            auto colorFrame = static_pointer_cast<ColorFrame>(readFrames.value(DataFrame::Color));
+            auto depthFrame = static_pointer_cast<DepthFrame>(readFrames.value(DataFrame::Depth));
+            auto maskFrame = static_pointer_cast<MaskFrame>(readFrames.value(DataFrame::Mask));
+            auto skeletonFrame = static_pointer_cast<SkeletonFrame>(readFrames.value(DataFrame::Skeleton));
+            colorFrame->setOffset(depthFrame->offset());
+
+            // Process
+            QList<int> users = skeletonFrame->getAllUsersId();
+            shared_ptr<Skeleton> skeleton = skeletonFrame->getSkeleton(users.at(0));
+            //highLightMask(*colorFrame, *maskFrame);
+            //highLightDepth(*colorFrame, *depthFrame);
+            //drawJoints(*colorFrame, skeleton->joints());
+            DescriptorPtr feature = feature_joints_hist(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
+            //DescriptorPtr feature = feature_region_descriptor(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
+            //DescriptorPtr feature = feature_skeleton_distances(*colorFrame, *skeleton, *instance_info);
+            //DescriptorPtr feature = feature_joint_descriptor(*colorFrame, *skeleton, *instance_info);
+            //DescriptorPtr feature = feature_fusion(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
+
+            //qDebug() << feature->sizeInBytes();
+
+            if (feature) {
+                actor_samples << feature;
+                //samples << feature;
+            }
+
+            // Show
+            cv::Mat color_mat(colorFrame->height(), colorFrame->width(), CV_8UC3,
+                              (void*) colorFrame->getDataPtr(), colorFrame->getStride());
+            cv::imshow("Image", color_mat);
+            cv::waitKey(1);
+            //QCoreApplication::processEvents();
+
+            // Close Instances
+            instance->close();
+
+            qDebug("actor %i sample %i fps %f", instance_info->getActor(), instance_info->getSample(), 1000.0f / timer.elapsed());
+        }
+
+        qDebug() << "Actor samples" << actor_samples.size();
+
+        // Learn Minimum: Use the signature that minimise its distance to all of the other signatures for the same actor
+        DescriptorPtr selectedFeature = Descriptor::minFeatureParallel(actor_samples);
+        centroids << selectedFeature;
+        qDebug("Init. Centroid %i = actor %i %i %i", actor, selectedFeature->label().getActor(),
+                                                       selectedFeature->label().getSample(),
+                                                       selectedFeature->frameId());
+
+        // Learn K features for the same actor (K=3)
+        /*qDebug() << "Computing K-Means";
+        auto kmeans = KMeans<Descriptor>::execute(actor_samples, 5, 5);
+
+        foreach (auto cluster, kmeans->getClusters()) {
+            gallery << cluster.centroid;
+        }*/
+
+        actor_samples.clear();
+    }
+
+    // Learn A: Learning a signature is the same as clustering the input data into num_actor sets
+    // and use the centroid of each cluster as model.
+    /*qDebug() << "Computing K-Means";
+    auto kmeans = KMeans<Feature>::execute(samples, actors.size(), centroids);
+    printClusters(kmeans->getClusters());
+
+    QList<shared_ptr<Feature>> gallery;
+
+    foreach (auto cluster, kmeans->getClusters()) {
+        gallery << cluster.centroid;
+    }*/
+
+    // Learn B: Use the signature that minimises the distance to the rest of signatures
+    // of each actor.
+    QList<DescriptorPtr> gallery = centroids;
+
+    return gallery;
+}
+
+QVector<float> PersonReid::validate_IASLAB(const QList<int> &actors, const QList<DescriptorPtr>& gallery, int *num_tests)
+{
+    Dataset* dataset = new DAI4REID_Parsed;
+    dataset->setPath("/files/IASLAB-RGBD-ID");
+    const DatasetMetadata& metadata = dataset->getMetadata();
+    int total_tests = 0;
+
+    QList<shared_ptr<InstanceInfo>> instances = metadata.instances(actors,
+                                                                   {2},
+                                                                   DatasetMetadata::ANY_LABEL);
+
+    // Create container for read frames
+    QHashDataFrames readFrames;
+
+    // Start validation
+    QVector<float> results(actors.size());
+
+    for (shared_ptr<InstanceInfo> instance_info : instances)
+    {
+        std::string fileName = instance_info->getFileName(DataFrame::Color).toStdString();
+
+        qDebug("actor %i sample %i file %s", instance_info->getActor(),
+               instance_info->getSample(),
+               fileName.c_str());
+
+        // Get Sample
+        shared_ptr<StreamInstance> instance = dataset->getInstance(*instance_info, DataFrame::Color);
+
+        // Open Instances
+        instance->open();
+
+        // Read frames
+        instance->readNextFrame(readFrames);
+
+        // Get Frames
+        auto colorFrame = static_pointer_cast<ColorFrame>(readFrames.value(DataFrame::Color));
+        auto depthFrame = static_pointer_cast<DepthFrame>(readFrames.value(DataFrame::Depth));
+        auto maskFrame = static_pointer_cast<MaskFrame>(readFrames.value(DataFrame::Mask));
+        auto skeletonFrame = static_pointer_cast<SkeletonFrame>(readFrames.value(DataFrame::Skeleton));
+        colorFrame->setOffset(depthFrame->offset());
+
+        // Process
+        QList<int> users = skeletonFrame->getAllUsersId();
+        shared_ptr<Skeleton> skeleton = skeletonFrame->getSkeleton(users.at(0));
+
+        DescriptorPtr query = feature_joints_hist(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
+        //DescriptorPtr query = feature_region_descriptor(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
+        //DescriptorPtr query = feature_skeleton_distances(*colorFrame, *skeleton, *instance_info);
+        //DescriptorPtr query = feature_joint_descriptor(*colorFrame, *skeleton, *instance_info);
         //DescriptorPtr query = feature_fusion(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
 
         if (query) {
@@ -1032,12 +1252,27 @@ DescriptorPtr PersonReid::feature_fusion(ColorFrame &colorFrame, DepthFrame &dep
     return feature;
 }
 
+/**
+ * Característica que divide la silueta de la persona en 15 voronoi cells que tienen como centro
+ * las articulaciones del esqueleto. La región de cada célula se describe mediante el histograma
+ * de color HSV (Full). Concretamente, se computa el histograma utilizando el canal H.
+ *
+ * La misma característica se puede utilizar añadiendo más articulaciones
+ *
+ * @brief PersonReid::feature_joints_hist
+ * @param colorFrame
+ * @param depthFrame
+ * @param maskFrame
+ * @param skeleton
+ * @param instance_info
+ * @return
+ */
 DescriptorPtr PersonReid::feature_joints_hist(ColorFrame& colorFrame, DepthFrame& depthFrame,
                                            MaskFrame&  maskFrame, Skeleton& skeleton, const InstanceInfo &instance_info) const
 {
     // Build Voronoi cells as a mask
     Skeleton skeleton_tmp = skeleton; // copy
-    //makeUpJoints(skeleton_tmp);
+    //makeUpJoints(skeleton_tmp); // Better voronoi
     shared_ptr<MaskFrame> voronoiMask = getVoronoiCellsParallel(depthFrame, maskFrame, skeleton_tmp);
 
     // Compute histograms for each Voronoi cell obtained from joints
@@ -1049,7 +1284,7 @@ DescriptorPtr PersonReid::feature_joints_hist(ColorFrame& colorFrame, DepthFrame
 
     // Convert image to HSV
     cv::Mat hsv_mat;
-    cv::cvtColor(color_mat, hsv_mat, CV_RGB2HSV_FULL);
+    cv::cvtColor(color_mat, hsv_mat, CV_RGB2HSV);
     std::vector<cv::Mat> hsv_planes;
     cv::split(hsv_mat, hsv_planes);
     cv::Mat indexed_mat = hsv_planes[0];
@@ -1068,11 +1303,25 @@ DescriptorPtr PersonReid::feature_joints_hist(ColorFrame& colorFrame, DepthFrame
         }
     }
 
-    //colorImageWithVoronoid(colorFrame, *voronoiMask);
+    colorImageWithVoronoid(colorFrame, *voronoiMask);
 
     return feature;
 }
 
+/**
+ * Característica que divide la silueta de la persona en 15 voronoi cells que tienen como centro
+ * las articulaciones del esqueleto. De la región de cada célula se extraen puntos característicos,
+ * como SURF, SIFT o FAST, que son luego empleados para describir la región empleando un descriptor
+ * SURF o SIFT.
+ *
+ * @brief PersonReid::feature_region_descriptor
+ * @param colorFrame
+ * @param depthFrame
+ * @param maskFrame
+ * @param skeleton
+ * @param instance_info
+ * @return
+ */
 DescriptorPtr PersonReid::feature_region_descriptor(ColorFrame &colorFrame, DepthFrame &depthFrame, MaskFrame &maskFrame,
                                         Skeleton &skeleton, const InstanceInfo& instance_info) const
 {
@@ -1106,6 +1355,9 @@ DescriptorPtr PersonReid::feature_region_descriptor(ColorFrame &colorFrame, Dept
         //{
             uchar mask_filter = joint.getType() + 1;
             cv::Mat joint_mask;
+
+            // Create a mask for a given joint with 1 values in pixels matching this
+            // joint in the voronoit mat
             filterMask(voronoi_mat, joint_mask, [&](uchar in, uchar& out) {
                 out = in == mask_filter ? 1 : 0;
             });
@@ -1133,6 +1385,16 @@ DescriptorPtr PersonReid::feature_region_descriptor(ColorFrame &colorFrame, Dept
     return feature;
 }
 
+/**
+ * Característica que utiliza cada articulación del esqueleto como punto característico. Estos puntos son utilizados
+ * para describir cada articulación mediante un descriptor SURF o SIFT.
+ *
+ * @brief PersonReid::feature_joint_descriptor
+ * @param colorFrame
+ * @param skeleton
+ * @param instance_info
+ * @return
+ */
 DescriptorPtr PersonReid::feature_joint_descriptor(ColorFrame &colorFrame, Skeleton &skeleton, const InstanceInfo& instance_info) const
 {
     cv::Mat color_mat(colorFrame.height(), colorFrame.width(), CV_8UC3,
@@ -1210,6 +1472,15 @@ DescriptorPtr PersonReid::feature_joint_descriptor(ColorFrame &colorFrame, Skele
     return feature;
 }
 
+/**
+ * Característica que divide la persona en dos mitades, parte superior y parte inferior, y computa para cada una de ellas
+ * su histograma.
+ *
+ * @brief PersonReid::feature_2parts_hist
+ * @param colorFrame
+ * @param instance_info
+ * @return
+ */
 DescriptorPtr PersonReid::feature_2parts_hist(shared_ptr<ColorFrame> colorFrame, const InstanceInfo& instance_info) const
 {
     cv::Mat inputImg(colorFrame->height(), colorFrame->width(),
@@ -1238,6 +1509,14 @@ DescriptorPtr PersonReid::feature_2parts_hist(shared_ptr<ColorFrame> colorFrame,
     return feature;
 }
 
+/**
+ * Característica que utiliza distancias antropométricas basándose en el esqueleto.
+ * @brief PersonReid::feature_skeleton_distances
+ * @param colorFrame
+ * @param skeleton
+ * @param instance_info
+ * @return
+ */
 DescriptorPtr PersonReid::feature_skeleton_distances(ColorFrame &colorFrame, Skeleton &skeleton, const InstanceInfo& instance_info) const
 {
     shared_ptr<DistancesFeature> feature = make_shared<DistancesFeature>(instance_info, colorFrame.getIndex());

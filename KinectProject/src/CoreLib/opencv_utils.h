@@ -418,6 +418,15 @@ void for_each_pixel(cv::Mat input, std::function<void (const T& pixel)> func)
     }
 }
 
+/**
+ * Process each pixel of the input image using a filter function and obtaint as a result
+ * an output image. The image used as input is not modified.
+ *
+ * @brief filterMask
+ * @param input
+ * @param output
+ * @param filter
+ */
 void filterMask(cv::Mat input, cv::Mat& output, std::function<void (uchar in, uchar& out)> filter)
 {
     Q_ASSERT(output.data == nullptr || (input.rows == output.rows && input.cols == output.cols) );

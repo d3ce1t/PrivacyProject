@@ -344,14 +344,14 @@ void PrivacyFilter::produceFrames(QHashDataFrames &output)
     }*/
 
     // Save color as JPEG
-    /*if (m_make_capture) {
+    if (m_make_capture) {
         static int capture_id = 1;
         QImage image( (uchar*) colorFrame->getDataPtr(), colorFrame->width(), colorFrame->height(),
                       colorFrame->getStride(), QImage::Format_RGB888);
-        image.save("data/capture_" + QString::number(capture_id) + ".jpg");
+        image.save("data/capture_" + QString::number(capture_id) + ".png");
         capture_id++;
         m_make_capture = false;
-    }*/
+    }
 
     m_fboDisplay->release();
     m_glContext->doneCurrent();
@@ -375,7 +375,7 @@ void PrivacyFilter::enableFilter(ColorFilter filterType)
 
 void PrivacyFilter::dilateUserMask(uint8_t *labels)
 {
-    int dilationSize = 18;
+    int dilationSize = 22;
     cv::Mat newImag(m_height, m_width, cv::DataType<uint8_t>::type, labels);
     cv::Mat kernel = cv::getStructuringElement(cv::MORPH_CROSS,
                                                cv::Size(2*dilationSize + 1, 2*dilationSize+1),

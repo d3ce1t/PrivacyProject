@@ -39,6 +39,12 @@ public:
     QList<DescriptorPtr> create_gallery_DAI4REID_Parsed();
     QVector<float> validate_DAI4REID_Parsed(const QList<int> &actors, const QList<DescriptorPtr>& gallery, int *num_tests = nullptr);
 
+    // IASLAB
+    void test_IASLAB();
+    QList<DescriptorPtr> train_IASLAB(QList<int> actors);
+    //QList<DescriptorPtr> create_gallery_DAI4REID_Parsed();
+    QVector<float> validate_IASLAB(const QList<int> &actors, const QList<DescriptorPtr>& gallery, int *num_tests = nullptr);
+
     // CAVIAR4REID
     void test_CAVIAR4REID();
     QList<DescriptorPtr> train_CAVIAR4REID(QList<int> actors);
