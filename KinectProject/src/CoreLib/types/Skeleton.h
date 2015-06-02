@@ -55,6 +55,7 @@ public:
     SkeletonType getType() const;
     DistanceUnits distanceUnits() const;
     void setJoint(SkeletonJoint::JointType type, const SkeletonJoint& joint);
+    void removeJoint(SkeletonJoint::JointType joint_type);
     void computeQuaternions();
     void setDistanceUnits(DistanceUnits units);
     QByteArray toBinary() const;

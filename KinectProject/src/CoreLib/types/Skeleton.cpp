@@ -174,6 +174,11 @@ void Skeleton::setJoint(SkeletonJoint::JointType type, const SkeletonJoint& join
     m_joints.insert(type, joint); // copy
 }
 
+void Skeleton::removeJoint(SkeletonJoint::JointType joint_type)
+{
+    m_joints.remove(joint_type);
+}
+
 void Skeleton::setDistanceUnits(DistanceUnits units)
 {
     m_units = units;

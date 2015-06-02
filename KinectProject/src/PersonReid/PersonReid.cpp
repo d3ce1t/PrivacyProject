@@ -28,26 +28,26 @@
 namespace dai {
 
 RGBColor PersonReid::_colors[20] = {
-    255,   0,   0,
-      0, 255,   0,
-      0,   0, 255,
-    255, 255, 255,
-    255, 255,   0,
-      0, 255, 255,
-    255,   0, 255,
-      0,   0,   0,
-    128,   0,   0,
-      0, 128,   0,
-      0,   0, 128,
-    128, 128,   0,
-      0, 128, 128,
-    128,   0, 128,
-    128, 128, 128,
-    255, 128, 128,
-    128, 255, 128,
-    128, 128, 255,
-    100, 255,  10,
-    10,  100, 255
+    {255,   0,   0},
+    {  0, 255,   0},
+    {  0,   0, 255},
+    {255, 255, 255},
+    {255, 255,   0},
+    {  0, 255, 255},
+    {255,   0, 255},
+    {  0,   0,   0},
+    {128,   0,   0},
+    {  0, 128,   0},
+    {  0,   0, 128},
+    {128, 128,   0},
+    {  0, 128, 128},
+    {128,   0, 128},
+    {128, 128, 128},
+    {255, 128, 128},
+    {128, 255, 128},
+    {128, 128, 255},
+    {100, 255,  10},
+    {10,  100, 255}
 };
 
 
@@ -158,14 +158,14 @@ void PersonReid::execute()
     //parseDataset();
 
     // Select dataset
-    //Dataset* dataset = new IASLAB_RGBD_ID;
-    //dataset->setPath("/Volumes/Files/Datasets/IASLAB-RGBD-ID");
-    Dataset* dataset = new DAI4REID_Parsed;
-    dataset->setPath("/Volumes/Files/Datasets/DAI4REID_Parsed");
+    Dataset* dataset = new IASLAB_RGBD_ID;
+    dataset->setPath("/Volumes/Files/Datasets/IASLAB-RGBD-ID");
+    //Dataset* dataset = new DAI4REID_Parsed;
+    //dataset->setPath("/Volumes/Files/Datasets/DAI4REID_Parsed");
 
     // Select actors
-    //QList<int> actors = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
-    QList<int> actors = {1, 2, 3, 4, 5};
+    QList<int> actors = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+    //QList<int> actors = {1, 2, 3, 4, 5};
 
     // Start
     QVector<float> results(actors.size());
@@ -236,6 +236,7 @@ QList<DescriptorPtr> PersonReid::train(Dataset* dataset, QList<int> actors, int 
             //highLightMask(*colorFrame, *maskFrame);
             //highLightDepth(*colorFrame, *depthFrame);
             //drawJoints(*colorFrame, skeleton->joints());
+            //DescriptorPtr feature = feature_global_hist(*colorFrame, *maskFrame, *instance_info);
             DescriptorPtr feature = feature_joints_hist(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
             //DescriptorPtr feature = feature_region_descriptor(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
             //DescriptorPtr feature = feature_skeleton_distances(*colorFrame, *skeleton, *instance_info);
@@ -250,7 +251,7 @@ QList<DescriptorPtr> PersonReid::train(Dataset* dataset, QList<int> actors, int 
             }
 
             // Show
-            show_images(colorFrame, maskFrame, depthFrame, skeleton);
+            //show_images(colorFrame, maskFrame, depthFrame, skeleton);
 
             // Close Instances
             instance->close();
@@ -336,6 +337,7 @@ void PersonReid::validate(Dataset* dataset, const QList<int> &actors, int camera
         QList<int> users = skeletonFrame->getAllUsersId();
         shared_ptr<Skeleton> skeleton = skeletonFrame->getSkeleton(users.at(0));
 
+        //DescriptorPtr query = feature_global_hist(*colorFrame, *maskFrame, *instance_info);
         DescriptorPtr query = feature_joints_hist(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
         //DescriptorPtr query = feature_region_descriptor(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
         //DescriptorPtr query = feature_skeleton_distances(*colorFrame, *skeleton, *instance_info);
@@ -1087,6 +1089,31 @@ DescriptorPtr PersonReid::feature_fusion(ColorFrame &colorFrame, DepthFrame &dep
     return feature;
 }
 
+DescriptorPtr PersonReid::feature_global_hist(ColorFrame& colorFrame, MaskFrame&  maskFrame, const InstanceInfo &instance_info) const
+{
+    // Compute histograms global histogram of the silhouette
+    cv::Mat color_mat(colorFrame.height(), colorFrame.width(), CV_8UC3,
+                      (void*) colorFrame.getDataPtr(), colorFrame.getStride());
+
+    cv::Mat mask_mat(maskFrame.height(), maskFrame.width(), CV_8UC1,
+                      (void*) maskFrame.getDataPtr(), maskFrame.getStride());
+
+    // Convert image to HSV
+    cv::Mat hsv_mat;
+    cv::cvtColor(color_mat, hsv_mat, CV_RGB2HSV);
+    std::vector<cv::Mat> hsv_planes;
+    cv::split(hsv_mat, hsv_planes);
+    cv::Mat indexed_mat = hsv_planes[0];
+
+    shared_ptr<JointHistograms1c> feature = make_shared<JointHistograms1c>(instance_info, colorFrame.getIndex());
+    auto hist = Histogram1c::create(indexed_mat, {0, 255}, mask_mat);
+    feature->addHistogram(*hist);
+
+    colorImageWithVoronoid(colorFrame, maskFrame);
+
+    return feature;
+}
+
 /**
  * Característica que divide la silueta de la persona en 15 voronoi cells que tienen como centro
  * las articulaciones del esqueleto. La región de cada célula se describe mediante el histograma
@@ -1105,9 +1132,17 @@ DescriptorPtr PersonReid::feature_fusion(ColorFrame &colorFrame, DepthFrame &dep
 DescriptorPtr PersonReid::feature_joints_hist(ColorFrame& colorFrame, DepthFrame& depthFrame,
                                            MaskFrame&  maskFrame, Skeleton& skeleton, const InstanceInfo &instance_info) const
 {
+    QSet<SkeletonJoint::JointType> ignore_joints = {
+        //SkeletonJoint::JOINT_HEAD,
+        //SkeletonJoint::JOINT_LEFT_HAND,
+        //SkeletonJoint::JOINT_RIGHT_HAND,
+        //SkeletonJoint::JOINT_LEFT_FOOT,
+        //SkeletonJoint::JOINT_RIGHT_FOOT
+    };
+
     // Build Voronoi cells as a mask
     Skeleton skeleton_tmp = skeleton; // copy
-    makeUpOnlySomeJoints(skeleton); // Modify passed skeleton in order to view changes in show_images method (called outside of this method)
+    //makeUpOnlySomeJoints(skeleton); // Modify passed skeleton in order to view changes in show_images method (called outside of this method)
     shared_ptr<MaskFrame> voronoiMask = getVoronoiCells(depthFrame, maskFrame, skeleton);
 
     // Compute histograms for each Voronoi cell obtained from joints
@@ -1125,12 +1160,6 @@ DescriptorPtr PersonReid::feature_joints_hist(ColorFrame& colorFrame, DepthFrame
     cv::Mat indexed_mat = hsv_planes[0];
 
     shared_ptr<JointHistograms1c> feature = make_shared<JointHistograms1c>(instance_info, colorFrame.getIndex());
-    QSet<SkeletonJoint::JointType> ignore_joints = {//SkeletonJoint::JOINT_HEAD,
-                                                    SkeletonJoint::JOINT_LEFT_HAND,
-                                                    SkeletonJoint::JOINT_RIGHT_HAND,
-                                                    SkeletonJoint::JOINT_LEFT_FOOT,
-                                                    SkeletonJoint::JOINT_RIGHT_FOOT
-                                                   };
 
     for (SkeletonJoint& joint : skeleton_tmp.joints()) // I use the skeleton of 15 or 20 joints not the modified one
     {
@@ -1141,7 +1170,7 @@ DescriptorPtr PersonReid::feature_joints_hist(ColorFrame& colorFrame, DepthFrame
         }
     }
 
-    colorImageWithVoronoid(colorFrame, *voronoiMask);
+    //colorImageWithVoronoid(colorFrame, *voronoiMask);
 
     return feature;
 }
