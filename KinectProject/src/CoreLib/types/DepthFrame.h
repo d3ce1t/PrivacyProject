@@ -42,7 +42,7 @@ public:
 
     // Extra
     void convertCoordinatesToWorld(float x, float y, float z, float* pOutX, float* pOutY) const;
-    void setDepthCameraIntrinsics(double fx_d, double cx_d, double fy_d, double cy_d);
+    void setCameraIntrinsics(double fx_d, double cx_d, double fy_d, double cy_d);
 
 private:
     // Depth Intrinsics

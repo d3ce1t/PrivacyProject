@@ -101,6 +101,17 @@ public:
         return sqrt(sum) / maxDistance;
     }
 
+    static Point middlePoint(const Point& p1, const Point& p2)
+    {
+        Point vector = Point::vector(p1, p2);
+        Point medium_point;
+
+        for (int i=0; i<N; ++i)
+            medium_point[i] = p1[i] + vector[i]/2;
+
+        return medium_point;
+    }
+
     Point()
     {
         for (int i=0; i<N; ++i) {

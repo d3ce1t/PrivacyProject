@@ -107,7 +107,7 @@ void IASLAB_RGBD_ID_Instance::nextFrame(QHashDataFrames &output)
     shared_ptr<DepthFrame> depthFrame = shared_ptr<DepthFrame>(new DepthFrame(*depthFrame_tmp)); // Clone!
     depthFrame->setDistanceUnits(dai::DISTANCE_MILIMETERS);
     // Set Depth intrinsics of the camera that generated this frame
-    depthFrame->setDepthCameraIntrinsics(fx_d, cx_d, fy_d, cy_d);
+    depthFrame->setCameraIntrinsics(fx_d, cx_d, fy_d, cy_d);
     output.insert(DataFrame::Depth, depthFrame);
 
     // Read Mask File
@@ -121,15 +121,6 @@ void IASLAB_RGBD_ID_Instance::nextFrame(QHashDataFrames &output)
     output.insert(DataFrame::Mask, maskFrame);
 
     // Read Skeleton txt file (line by line)
-    instancePath = m_info.parent().getPath() + "/" + m_info.getFileName(DataFrame::Skeleton);
-    QFile skeletonFile(instancePath);
-    skeletonFile.open(QIODevice::ReadOnly);
-    QTextStream in(&skeletonFile);
-    shared_ptr<Skeleton> skeleton = make_shared<Skeleton>();
-
-    // Register depth to color
-    depth2color(depthFrame, maskFrame);
-
     /*For every frame, a skeleton file is available. For every joint, a row with the following information is written to the skeleton file:
     [id]: person ID,
     [x3D], [y3D], [z3D]: joint 3D position,
@@ -141,10 +132,14 @@ void IASLAB_RGBD_ID_Instance::nextFrame(QHashDataFrames &output)
     NiTE provides 15 joints, but these are remapped to the 20 joints that Microsoft Kinect SDK estimates, in order to have the same format (the joint positions missing in NiTE (wrists, ankles) are copied from other joints (hands, feet)).
     For more information, please visit http://msdn.microsoft.com/en-us/library/hh973074.aspx.
     You can also visualize the data with the "visualize_IASLab_RGBDID_dataset.m" Matlab script we provided.*/
-
-    int lineCount = 0;
+    instancePath = m_info.parent().getPath() + "/" + m_info.getFileName(DataFrame::Skeleton);
+    QFile skeletonFile(instancePath);
+    skeletonFile.open(QIODevice::ReadOnly);
+    QTextStream in(&skeletonFile);
+    shared_ptr<Skeleton> skeleton = make_shared<Skeleton>();
 
     QList<int> ignore_lines = {1, 7, 11, 15, 19};
+    int lineCount = 0;
 
     while (!in.atEnd())
     {
@@ -170,12 +165,18 @@ void IASLAB_RGBD_ID_Instance::nextFrame(QHashDataFrames &output)
     }
 
     skeletonFile.close();
+
+    // Set intrinsics of the camera that generated this frame (depth camera in this case)
+    skeleton->setCameraIntrinsics(fx_d, cx_d, fy_d, cy_d);
     shared_ptr<SkeletonFrame> skeletonFrame = make_shared<SkeletonFrame>();
     skeletonFrame->setSkeleton(1, skeleton);
     output.insert(DataFrame::Skeleton, skeletonFrame);
+
+    // Register depth to color
+    depth2color(depthFrame, maskFrame, skeleton);
 }
 
-void IASLAB_RGBD_ID_Instance::depth2color(shared_ptr<DepthFrame> depthFrame, shared_ptr<MaskFrame> mask) const
+void IASLAB_RGBD_ID_Instance::depth2color(shared_ptr<DepthFrame> depthFrame, shared_ptr<MaskFrame> mask, shared_ptr<Skeleton> skeleton) const
 {
     /*const glm::mat3 r_matrix = {
         999.979, 6.497, -0.801,
@@ -185,17 +186,22 @@ void IASLAB_RGBD_ID_Instance::depth2color(shared_ptr<DepthFrame> depthFrame, sha
 
     // Translation Transform (millimeters)
     const glm::vec3 t_vector = {
-        0.025, 0.0, 0.0
+        25, 0.0, 0.0
     };
 
     // Do Registration
     shared_ptr<DepthFrame> outputDepth = make_shared<DepthFrame>(640, 480);
-    shared_ptr<MaskFrame> outputMask = mask ? make_shared<MaskFrame>(640, 480) : nullptr;
+    shared_ptr<MaskFrame> outputMask = make_shared<MaskFrame>(640, 480);
 
+    // Because it will be alined to color image, it camera intrinsics are now those
+    // of the colour camera
+    outputDepth->setCameraIntrinsics(fx_rgb, cx_rgb, fy_rgb, cy_rgb);
+
+    // Transform depth and mask
     for (int i=0; i<depthFrame->height(); ++i)
     {
         uint16_t* pDepth = depthFrame->getRowPtr(i);
-        uint8_t* pMask = mask ? mask->getRowPtr(i) : nullptr;
+        uint8_t* pMask = mask->getRowPtr(i);
 
         for (int j=0; j<depthFrame->width(); ++j)
         {
@@ -217,18 +223,28 @@ void IASLAB_RGBD_ID_Instance::depth2color(shared_ptr<DepthFrame> depthFrame, sha
 
             if (p2d.x >= 0 && p2d.y >= 0 && p2d.x < 640 && p2d.y < 480) {
                 outputDepth->setItem(p2d.y, p2d.x, pDepth[j]);
-                if (outputMask) {
-                    outputMask->setItem(p2d.y, p2d.x, pMask[j]);
-                }
+                outputMask->setItem(p2d.y, p2d.x, pMask[j]);
             }
         }
     }
 
-    *depthFrame = *outputDepth; // Copy
+    // Transform skeleton
+    skeleton->setCameraIntrinsics(fx_rgb, cx_rgb, fy_rgb, cy_rgb);
 
-    if (mask) {
-        *mask = *outputMask; // Copy
+    for (SkeletonJoint joint : skeleton->joints())
+    {
+        glm::vec3 p3d_skel;
+        p3d_skel.x = joint.getPosition()[0];
+        p3d_skel.y = joint.getPosition()[1];
+        p3d_skel.z = joint.getPosition()[2];
+        // Translate (there is no rotation in this dataset)
+        p3d_skel = p3d_skel + t_vector;
+        joint.setPosition(Point3f(p3d_skel.x, p3d_skel.y, p3d_skel.z));
+        skeleton->setJoint(joint.getType(), joint);
     }
+
+    *depthFrame = *outputDepth; // Copy
+    *mask = *outputMask; // Copy
 }
 
 } // End namespace

@@ -101,6 +101,11 @@ Skeleton::Skeleton(const Skeleton& other)
     m_joints = other.m_joints;  // implicit sharing
     m_quaternions = other.m_quaternions; // implicit sharing
     m_units = other.m_units;
+    m_units = other.m_units;
+    m_fx_rgb = other.m_fx_rgb;
+    m_fy_rgb = other.m_fy_rgb;
+    m_cx_rgb = other.m_cx_rgb;
+    m_cy_rgb = other.m_cy_rgb;
     memcpy(m_limbs, other.m_limbs, other.m_limbsSize * sizeof(SkeletonLimb));
 }
 
@@ -111,6 +116,10 @@ Skeleton& Skeleton::operator=(const Skeleton& other)
     m_joints = other.m_joints;
     m_quaternions = other.m_quaternions;
     m_units = other.m_units;
+    m_fx_rgb = other.m_fx_rgb;
+    m_fy_rgb = other.m_fy_rgb;
+    m_cx_rgb = other.m_cx_rgb;
+    m_cy_rgb = other.m_cy_rgb;
     memcpy(m_limbs, other.m_limbs, other.m_limbsSize * sizeof(SkeletonLimb));
     return *this;
 }
@@ -183,15 +192,18 @@ void Skeleton::computeQuaternions()
     }
 }
 
+void Skeleton::setCameraIntrinsics(double fx, double cx, double fy, double cy) {
+    m_fx_rgb = fx;
+    m_cx_rgb = cx;
+    m_fy_rgb = fy;
+    m_cy_rgb = cy;
+}
+
 // http://ksimek.github.io/2013/08/13/intrinsic/
-void Skeleton::convertJointCoordinatesToDepth(float x, float y, float z, float* pOutX, float* pOutY)
+void Skeleton::convertCoordinatesToDepth(float x, float y, float z, float* pOutX, float* pOutY)
 {
-    const double fd_x = 594.21434211923247;
-    const double fd_y = 591.04053696870778;
-    const double cd_x = 640 / 2.0;
-    const double cd_y = 480 / 2.0;
-    *pOutX = x * fd_x / z + cd_x;
-    *pOutY = 480 - (y * fd_y / z + cd_y);
+    *pOutX = (x * m_fx_rgb / z) + m_cx_rgb;
+    *pOutY = (y * m_fy_rgb / z) + m_cy_rgb;
 }
 
 QByteArray Skeleton::toBinary() const

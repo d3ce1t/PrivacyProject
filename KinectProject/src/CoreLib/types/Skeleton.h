@@ -39,7 +39,6 @@ public:
     };
 
     static SkeletonPtr fromBinary(const QByteArray &binData, int* read_bytes = nullptr);
-    static void convertJointCoordinatesToDepth(float x, float y, float z, float* pOutX, float* pOutY);
 
     // Constructors
     Skeleton(SkeletonType type = SKELETON_OPENNI);
@@ -63,6 +62,10 @@ public:
     // Operators Overload
     Skeleton& operator=(const Skeleton& other);
 
+    // Extra
+    void convertCoordinatesToDepth(float x, float y, float z, float* pOutX, float* pOutY);
+    void setCameraIntrinsics(double fx, double cx, double fy, double cy);
+
 private:
     static SkeletonJoint::JointType staticQuaternionsMap[22][3];
     static SkeletonLimb staticKinectLimbsMap[MAX_LIMBS];
@@ -75,6 +78,12 @@ private:
     SkeletonType m_type;
     //SkeletonState m_state;
     DistanceUnits m_units;
+
+    // RGB Intrinsics
+    double m_fx_rgb = 594.21434211923247;
+    double m_fy_rgb = 591.04053696870778;
+    double m_cx_rgb = 320.0;
+    double m_cy_rgb = 240.0;
 };
 
 } // End Namespace
