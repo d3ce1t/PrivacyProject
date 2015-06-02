@@ -2,6 +2,7 @@
 #define PERSONREID_H
 
 #include <QObject>
+#include "dataset/Dataset.h"
 #include "Descriptor.h"
 #include "types/ColorFrame.h"
 #include "types/MaskFrame.h"
@@ -16,7 +17,6 @@ class PersonReid : public QObject
     Q_OBJECT
 
 public:
-
     void test1();
     void test2();
     void test3();
@@ -34,16 +34,11 @@ public:
     QVector<float> validate_DAI4REID(const QList<int> &actors, const QList<DescriptorPtr>& gallery, int *num_tests = nullptr);
 
     // DAI4REID Parsed
-    void test_DAI4REID_Parsed();
-    QList<DescriptorPtr> train_DAI4REID_Parsed(QList<int> actors);
     QList<DescriptorPtr> create_gallery_DAI4REID_Parsed();
-    QVector<float> validate_DAI4REID_Parsed(const QList<int> &actors, const QList<DescriptorPtr>& gallery, int *num_tests = nullptr);
 
-    // IASLAB
-    void test_IASLAB();
-    QList<DescriptorPtr> train_IASLAB(QList<int> actors);
-    //QList<DescriptorPtr> create_gallery_DAI4REID_Parsed();
-    QVector<float> validate_IASLAB(const QList<int> &actors, const QList<DescriptorPtr>& gallery, int *num_tests = nullptr);
+    // Generic training and testing method
+    QList<DescriptorPtr> train(Dataset *dataset, QList<int> actors, int camera);
+    void validate(Dataset *dataset, const QList<int> &actors, int camera, const QList<DescriptorPtr>& gallery, QVector<float>& results, int *num_tests = nullptr);
 
     // CAVIAR4REID
     void test_CAVIAR4REID();
@@ -87,6 +82,8 @@ public slots:
     void execute();
 
 private:
+    void show_images(shared_ptr<ColorFrame> colorFrame, shared_ptr<MaskFrame> maskFrame, shared_ptr<DepthFrame> depthFrame, shared_ptr<Skeleton> skeleton);
+
     OpenNIDevice* m_device;
     void printClusters(const QList<Cluster<Descriptor> > &clusters) const;
     void drawJoints(ColorFrame &colorFrame, const QList<SkeletonJoint>& joints);

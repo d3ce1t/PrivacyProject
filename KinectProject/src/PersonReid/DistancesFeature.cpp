@@ -1,5 +1,6 @@
 #include "DistancesFeature.h"
 #include "Utils.h"
+#include <cmath>
 
 namespace dai {
 
@@ -22,7 +23,8 @@ float DistancesFeature::distance(const Descriptor& other_desc) const
 
     while (it1 != m_distances.constEnd() && it2 != other.m_distances.constEnd())
     {
-        distance += abs(*it1 - *it2);
+        distance += abs(*it1 - *it2);  // d1
+        //distance += pow(*it1 - *it2, 2); // d2
         ++it1;
         ++it2;
     }
