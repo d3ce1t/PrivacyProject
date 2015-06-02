@@ -45,11 +45,11 @@ public:
     };
 
     SkeletonJoint();
-    explicit SkeletonJoint(const Point3f point, JointType type);
+    explicit SkeletonJoint(const Point3f& point, JointType type);
     SkeletonJoint(const SkeletonJoint& other);
     SkeletonJoint& operator=(const SkeletonJoint& other);
     void setType(JointType type);
-    void setPosition(const Point3f point);
+    void setPosition(const Point3f &point);
     void setPositionConfidence(float value);
     void setOrientation(const Quaternion& orientation);
     void setOrientationConfidence(float value);

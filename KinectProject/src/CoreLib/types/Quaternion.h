@@ -1,17 +1,14 @@
 #ifndef QUATERNION_H
 #define QUATERNION_H
 
-#include <QObject>
 #include "Vector3D.h"
+#include <QtGui/QVector3D>
 #include "Point.h"
 
 namespace dai {
 
-class Quaternion : public QObject
+class Quaternion
 {  
-    Q_OBJECT
-    Q_ENUMS(QuaternionType)
-
 public:
     enum QuaternionType {
         QUATERNION_Q1 = 0,

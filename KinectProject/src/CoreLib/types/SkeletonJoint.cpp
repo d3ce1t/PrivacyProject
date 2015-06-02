@@ -9,7 +9,7 @@ SkeletonJoint::SkeletonJoint()
     m_orientation_confidence = 0.0f;
 }
 
-SkeletonJoint::SkeletonJoint(const Point3f point, JointType type)
+SkeletonJoint::SkeletonJoint(const Point3f& point, JointType type)
 {
     m_realworld_point = point;
     m_type = type;
@@ -41,7 +41,7 @@ void SkeletonJoint::setType(JointType type)
     m_type = type;
 }
 
-void SkeletonJoint::setPosition(const Point3f point)
+void SkeletonJoint::setPosition(const Point3f &point)
 {
     m_realworld_point = point;
 }

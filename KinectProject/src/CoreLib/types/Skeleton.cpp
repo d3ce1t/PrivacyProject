@@ -304,7 +304,6 @@ SkeletonPtr Skeleton::fromBinary(const QByteArray& buffer, int* read_bytes)
 
         // Add to skeleton
         skeleton->setJoint(type, joint);
-        SkeletonJoint other = skeleton->getJoint(type);
 
         // Move pointer
         binData = (uchar*) pItem;

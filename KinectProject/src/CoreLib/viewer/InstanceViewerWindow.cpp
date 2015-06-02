@@ -298,17 +298,21 @@ void InstanceViewerWindow::setupQuaternionModel(QStandardItemModel &model)
     m_quaternions_table_view.setModel(&model);
     m_quaternions_table_view.setMinimumSize(510, 545);
 
-    const QMetaObject &quaternionMetaObject = Quaternion::staticMetaObject;
-    int index = quaternionMetaObject.indexOfEnumerator("QuaternionType");
-    QMetaEnum metaEnum = quaternionMetaObject.enumerator(index);
+    //const QMetaObject &quaternionMetaObject = Quaternion::staticMetaObject;
+    //int index = quaternionMetaObject.indexOfEnumerator("QuaternionType");
+    //QMetaEnum metaEnum = quaternionMetaObject.enumerator(index);
 
     QStringList list = {"Tensor", "pos X", "pos Y", "pos Z", "angle"};
     model.setHorizontalHeaderLabels(list);
     list.clear();
 
     for (int i=0; i<20; ++i) {
-        QString name(metaEnum.valueToKey(i));
-        list << name.mid(11);
+        //QString name(metaEnum.valueToKey(i));
+        //list << name.mid(11);
+        list << "Q1" << "Q2" << "Q3" << "Q4" << "Q5" << "Q6" <<
+                "Q7" << "Q8" << "Q9" << "Q10" << "Q11" << "Q12" <<
+                "Q13" << "Q14" << "Q15" << "Q16" << "Q17" << "Q18" <<
+                "Q19" << "Q20" << "Q21" << "Q22";
     }
 
     for (int i=0; i<20; ++i) {

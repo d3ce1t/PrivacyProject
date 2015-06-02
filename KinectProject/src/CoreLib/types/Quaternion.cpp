@@ -89,7 +89,6 @@ Quaternion::Quaternion(float w, float i, float j, float k)
 }
 
 Quaternion::Quaternion(const Quaternion& other)
-    : QObject(0)
 {
     m_w = other.m_w;
     m_vector = other.m_vector;
