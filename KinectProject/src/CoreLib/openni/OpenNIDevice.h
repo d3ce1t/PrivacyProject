@@ -21,7 +21,6 @@ namespace dai {
 class OpenNIDevice
 {
     static QHash<QString, OpenNIDevice*> _created_instances;
-    static SkeletonJoint::JointType _staticMap[15];
     static QMutex                   _mutex_counter;
     static int                      _instance_counter;
     static bool                     _initialised;
@@ -45,6 +44,7 @@ class OpenNIDevice
     int                        m_lastFrame;
 
 public:
+    static SkeletonJoint::JointType _staticMap[15];
     static const QString ANY_DEVICE;
     static OpenNIDevice* create(const QString devicePath = OpenNIDevice::ANY_DEVICE);
 

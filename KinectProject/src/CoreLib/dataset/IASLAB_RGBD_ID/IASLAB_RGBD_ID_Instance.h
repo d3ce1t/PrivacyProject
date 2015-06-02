@@ -2,11 +2,13 @@
 #define IASLAB_RGBD_ID_INSTANCE_H
 
 #include "dataset/DataInstance.h"
+#include "types/SkeletonJoint.h"
 
 namespace dai {
 
 class IASLAB_RGBD_ID_Instance : public DataInstance
 {
+    static SkeletonJoint::JointType _staticMap[20];
     int  m_width;
     int  m_height;
     bool m_open;

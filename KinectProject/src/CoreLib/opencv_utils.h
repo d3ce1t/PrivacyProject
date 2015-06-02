@@ -406,14 +406,14 @@ void discretiseRGBImage(cv::Mat input_img, cv::Mat output_img)
 }
 
 template <class T>
-void for_each_pixel(cv::Mat input, std::function<void (const T& pixel)> func)
+void for_each_pixel(cv::Mat input, std::function<void (T& pixel, int row, int column)> func)
 {
     for (int i=0; i<input.rows; ++i)
     {
         T* input_pixel = input.ptr<T>(i);
 
         for (int j=0; j<input.cols; ++j) {
-            func(input_pixel[j]);
+            func(input_pixel[j], i, j);
         }
     }
 }
