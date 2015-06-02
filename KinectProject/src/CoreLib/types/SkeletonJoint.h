@@ -7,11 +7,8 @@
 
 namespace dai {
 
-class SkeletonJoint : public QObject
+class SkeletonJoint
 {
-    Q_OBJECT
-    Q_ENUMS(JointType)
-
 public:
     enum JointType {
         JOINT_HEAD = 0,

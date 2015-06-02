@@ -215,17 +215,24 @@ void InstanceViewerWindow::setupJointsModel(QStandardItemModel &model)
     m_joints_table_view.setModel(&model);
     m_joints_table_view.setMinimumSize(460, 630);
 
-    const QMetaObject &metaObject = dai::SkeletonJoint::staticMetaObject;
-    int index = metaObject.indexOfEnumerator("JointType"); // watch out during refactorings
-    QMetaEnum metaEnum = metaObject.enumerator(index);
+    //const QMetaObject &metaObject = dai::SkeletonJoint::staticMetaObject;
+    //int index = metaObject.indexOfEnumerator("JointType"); // watch out during refactorings
+    //QMetaEnum metaEnum = metaObject.enumerator(index);
 
     QStringList list = {"pos X", "pos Y", "pos Z"};
     model.setHorizontalHeaderLabels(list);
     list.clear();
 
     for (int i=0; i<20; ++i) {
-        QString name(metaEnum.valueToKey(i));
-        list << name.mid(6);
+        //QString name(metaEnum.valueToKey(i));
+        //list << name.mid(6);
+        list << "HEAD" << "CENTER_SHOULDER" << "L.SHOULDER" <<
+                "R.SHOULDER" << "L.ELBOW" << "R.ELBOW" <<
+                "L.WRIST" << "R.WRIST" << "L.HAND" <<
+                "R.HAND" << "SPINE" << "CENTER HIP" << "L.HIP" <<
+                "R.HIP" << "L.KNEE" << "R.KNEE" << "L.ANKLE" <<
+                "R.ANKLE" << "L.FOOT" << "R.FOOT";
+
     }
 
     for (int i=0; i<20; ++i) {
@@ -250,15 +257,21 @@ void InstanceViewerWindow::setupDistancesModel(QStandardItemModel &model)
     m_distances_table_view.setModel(&model);
     m_distances_table_view.setMinimumSize(600, 640);
 
-    const QMetaObject &skeletonJointMetaObject = SkeletonJoint::staticMetaObject;
-    int index = skeletonJointMetaObject.indexOfEnumerator("JointType"); // watch out during refactorings
-    QMetaEnum metaEnum = skeletonJointMetaObject.enumerator(index);
+    //const QMetaObject &skeletonJointMetaObject = SkeletonJoint::staticMetaObject;
+    //int index = skeletonJointMetaObject.indexOfEnumerator("JointType"); // watch out during refactorings
+    //QMetaEnum metaEnum = skeletonJointMetaObject.enumerator(index);
 
     QStringList list;
 
     for (int i=0; i<20; ++i) {
-        QString name(metaEnum.valueToKey(i));
-        list << name.mid(6);
+        //QString name(metaEnum.valueToKey(i));
+        //list << name.mid(6);
+        list << "HEAD" << "CENTER_SHOULDER" << "L.SHOULDER" <<
+                "R.SHOULDER" << "L.ELBOW" << "R.ELBOW" <<
+                "L.WRIST" << "R.WRIST" << "L.HAND" <<
+                "R.HAND" << "SPINE" << "CENTER HIP" << "L.HIP" <<
+                "R.HIP" << "L.KNEE" << "R.KNEE" << "L.ANKLE" <<
+                "R.ANKLE" << "L.FOOT" << "R.FOOT";
     }
 
     model.setHorizontalHeaderLabels(list);
