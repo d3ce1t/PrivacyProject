@@ -158,10 +158,10 @@ void PersonReid::execute()
     //parseDataset();
 
     // Select dataset
-    Dataset* dataset = new IASLAB_RGBD_ID;
-    dataset->setPath("/Volumes/Files/Datasets/IASLAB-RGBD-ID");
-    //Dataset* dataset = new DAI4REID_Parsed;
-    //dataset->setPath("/Volumes/Files/Datasets/DAI4REID_Parsed");
+    //Dataset* dataset = new IASLAB_RGBD_ID;
+    //dataset->setPath("/Volumes/Files/Datasets/IASLAB-RGBD-ID");
+    Dataset* dataset = new DAI4REID_Parsed;
+    dataset->setPath("/Volumes/Files/Datasets/DAI4REID_Parsed");
 
     // Select actors
     //QList<int> actors = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
@@ -229,7 +229,6 @@ QList<DescriptorPtr> PersonReid::train(Dataset* dataset, QList<int> actors, int 
             auto depthFrame = static_pointer_cast<DepthFrame>(readFrames.value(DataFrame::Depth));
             auto maskFrame = static_pointer_cast<MaskFrame>(readFrames.value(DataFrame::Mask));
             auto skeletonFrame = static_pointer_cast<SkeletonFrame>(readFrames.value(DataFrame::Skeleton));
-            //colorFrame->setOffset(depthFrame->offset());
 
             // Process
             QList<int> users = skeletonFrame->getAllUsersId();
@@ -332,7 +331,6 @@ void PersonReid::validate(Dataset* dataset, const QList<int> &actors, int camera
         auto depthFrame = static_pointer_cast<DepthFrame>(readFrames.value(DataFrame::Depth));
         auto maskFrame = static_pointer_cast<MaskFrame>(readFrames.value(DataFrame::Mask));
         auto skeletonFrame = static_pointer_cast<SkeletonFrame>(readFrames.value(DataFrame::Skeleton));
-        colorFrame->setOffset(depthFrame->offset());
 
         // Process
         QList<int> users = skeletonFrame->getAllUsersId();
@@ -823,12 +821,12 @@ void PersonReid::show_images(shared_ptr<ColorFrame> colorFrame, shared_ptr<MaskF
     Q_UNUSED(depthFrame);
 
     // Mask Frame
-    cv::Mat mask_mat(maskFrame->height(), maskFrame->width(), CV_8UC1,
+    /*cv::Mat mask_mat(maskFrame->height(), maskFrame->width(), CV_8UC1,
                      (void*) maskFrame->getDataPtr(), maskFrame->getStride());
 
     filterMask(mask_mat, mask_mat, [&](uchar in, uchar &out){
         out = in == 1 ? 255 : 0;
-    });
+    });*/
 
     // Color Frame
     cv::Mat color_src(colorFrame->height(), colorFrame->width(), CV_8UC3,
@@ -852,13 +850,13 @@ void PersonReid::show_images(shared_ptr<ColorFrame> colorFrame, shared_ptr<MaskF
     // Skeleton Frame
     //ColorFramePtr skeleton_color = make_shared<ColorFrame>(colorFrame->width(), colorFrame->height());
     //skeleton_color->setOffset(colorFrame->offset());
-    drawJoints(*(colorFrame.get()), skeleton->joints());
+    drawSkeleton(*(colorFrame.get()), skeleton);
     /*cv::Mat skeleton_mat(skeleton_color->height(), skeleton_color->width(), CV_8UC3,
                          (void*) skeleton_color->getDataPtr(), skeleton_color->getStride());*/
 
     // Show frames
     cv::imshow("Original", color_src);
-    cv::imshow("Mask", mask_mat);
+    //cv::imshow("Mask", mask_mat);
     //cv::imshow("Depth", depth_mat);
     //cv::imshow("Skeleton", skeleton_mat);
     cv::waitKey(1);
@@ -1109,8 +1107,8 @@ DescriptorPtr PersonReid::feature_joints_hist(ColorFrame& colorFrame, DepthFrame
 {
     // Build Voronoi cells as a mask
     Skeleton skeleton_tmp = skeleton; // copy
-    //makeUpJoints(skeleton_tmp); // Better voronoi
-    shared_ptr<MaskFrame> voronoiMask = getVoronoiCells(depthFrame, maskFrame, skeleton_tmp);
+    makeUpOnlySomeJoints(skeleton); // Modify passed skeleton in order to view changes in show_images method (called outside of this method)
+    shared_ptr<MaskFrame> voronoiMask = getVoronoiCells(depthFrame, maskFrame, skeleton);
 
     // Compute histograms for each Voronoi cell obtained from joints
     cv::Mat color_mat(colorFrame.height(), colorFrame.width(), CV_8UC3,
@@ -1129,9 +1127,12 @@ DescriptorPtr PersonReid::feature_joints_hist(ColorFrame& colorFrame, DepthFrame
     shared_ptr<JointHistograms1c> feature = make_shared<JointHistograms1c>(instance_info, colorFrame.getIndex());
     QSet<SkeletonJoint::JointType> ignore_joints = {//SkeletonJoint::JOINT_HEAD,
                                                     SkeletonJoint::JOINT_LEFT_HAND,
-                                                    SkeletonJoint::JOINT_RIGHT_HAND};
+                                                    SkeletonJoint::JOINT_RIGHT_HAND,
+                                                    SkeletonJoint::JOINT_LEFT_FOOT,
+                                                    SkeletonJoint::JOINT_RIGHT_FOOT
+                                                   };
 
-    for (SkeletonJoint& joint : skeleton.joints()) // I use the skeleton of 15 or 20 joints not the temp one.
+    for (SkeletonJoint& joint : skeleton_tmp.joints()) // I use the skeleton of 15 or 20 joints not the modified one
     {
         if (!ignore_joints.contains(joint.getType())) {
             uchar mask_filter = joint.getType() + 1;
@@ -1140,7 +1141,7 @@ DescriptorPtr PersonReid::feature_joints_hist(ColorFrame& colorFrame, DepthFrame
         }
     }
 
-    //colorImageWithVoronoid(colorFrame, *voronoiMask);
+    colorImageWithVoronoid(colorFrame, *voronoiMask);
 
     return feature;
 }
@@ -1270,7 +1271,7 @@ DescriptorPtr PersonReid::feature_joint_descriptor(ColorFrame &colorFrame, Skele
             const Point3f& point_3d = joint.getPosition();
             cv::Point2f point_2d;
 
-            Skeleton::convertJointCoordinatesToDepth(point_3d[0], point_3d[1], point_3d[2], &point_2d.x, &point_2d.y);
+            skeleton_tmp.convertCoordinatesToDepth(point_3d[0], point_3d[1], point_3d[2], &point_2d.x, &point_2d.y);
             point_2d.x = point_2d.x - colorFrame.offset()[0];
             point_2d.y = point_2d.y - colorFrame.offset()[1];
 
@@ -1508,7 +1509,7 @@ shared_ptr<MaskFrame> PersonReid::getVoronoiCells(const DepthFrame& depthFrame, 
                 Point3f point(0.0f, 0.0f, float(depth[j]));
                 depthFrame.convertCoordinatesToWorld(j, i, depth[j], &point[0], &point[1]);
                 SkeletonJoint closerJoint = getCloserJoint(point, joints);
-                mask[j] = closerJoint.getType()+1;
+                mask[j] = closerJoint.getType()+1; // 0 means no user, and joint type starts at 0, so I increase it by one
             }
         }
     }
@@ -1558,19 +1559,17 @@ shared_ptr<MaskFrame> PersonReid::getVoronoiCellsParallel(const DepthFrame& dept
     return output_mask;
 }
 
-void PersonReid::drawJoints(ColorFrame& colorFrame, const QList<SkeletonJoint>& joints) {
+void PersonReid::drawSkeleton(ColorFrame& colorFrame, shared_ptr<Skeleton> skeleton) {
     // Draw Joints
-    for (SkeletonJoint joint : joints) {
+    for (SkeletonJoint joint : skeleton->joints()) {
         float x, y;
-        Skeleton::convertJointCoordinatesToDepth(joint.getPosition()[0],
+        skeleton->convertCoordinatesToDepth(joint.getPosition()[0],
                 joint.getPosition()[1], joint.getPosition()[2], &x, &y);
-        /*m_device->convertJointCoordinatesToDepth(joint.getPosition()[0],
-                joint.getPosition()[1], joint.getPosition()[2], &x, &y);*/
 
         if (joint.getType() > SkeletonJoint::JOINT_USER_RESERVED)
-            drawPoint(colorFrame, x - colorFrame.offset()[0], y - colorFrame.offset()[1], {255, 0, 0});
+            drawPoint(colorFrame, x - colorFrame.offset()[0], y - colorFrame.offset()[1], {255, 255, 0});
         else
-            drawPoint(colorFrame, x - colorFrame.offset()[0], y - colorFrame.offset()[1], {0, 0, 255});
+            drawPoint(colorFrame, x - colorFrame.offset()[0], y - colorFrame.offset()[1], {0, 255, 255});
     }
 }
 
@@ -1722,6 +1721,31 @@ void PersonReid::makeUpJoints(Skeleton& skeleton, bool only_middle_points) const
         }
     }
 }
+
+void PersonReid::makeUpOnlySomeJoints(Skeleton& skeleton) const
+{
+    int user_joint_id = 1;
+
+    SkeletonJoint knee_right = skeleton.getJoint(SkeletonJoint::JOINT_RIGHT_KNEE);
+    SkeletonJoint hip_right  = skeleton.getJoint(SkeletonJoint::JOINT_RIGHT_HIP);
+    skeleton.setJoint( (SkeletonJoint::JointType) (SkeletonJoint::JOINT_USER_RESERVED + user_joint_id++),
+                       SkeletonJoint(Point3f::middlePoint(knee_right.getPosition(), hip_right.getPosition()), knee_right.getType()));
+
+    SkeletonJoint knee_left  = skeleton.getJoint(SkeletonJoint::JOINT_LEFT_KNEE);
+    SkeletonJoint hip_left   = skeleton.getJoint(SkeletonJoint::JOINT_LEFT_HIP);
+    skeleton.setJoint( (SkeletonJoint::JointType) (SkeletonJoint::JOINT_USER_RESERVED + user_joint_id++),
+                       SkeletonJoint(Point3f::middlePoint(knee_left.getPosition(), hip_left.getPosition()), knee_left.getType()));
+
+    /*SkeletonJoint shoulder_right = skeleton.getJoint(SkeletonJoint::JOINT_RIGHT_SHOULDER);
+    skeleton.setJoint( (SkeletonJoint::JointType) (SkeletonJoint::JOINT_USER_RESERVED + user_joint_id++),
+                       SkeletonJoint(Point3f::middlePoint(shoulder_right.getPosition(), hip_right.getPosition()), SkeletonJoint::JOINT_SPINE));
+
+    SkeletonJoint shoulder_left = skeleton.getJoint(SkeletonJoint::JOINT_LEFT_SHOULDER);
+    skeleton.setJoint( (SkeletonJoint::JointType) (SkeletonJoint::JOINT_USER_RESERVED + user_joint_id++),
+                       SkeletonJoint(Point3f::middlePoint(shoulder_left.getPosition(), hip_left.getPosition()), SkeletonJoint::JOINT_SPINE));*/
+}
+
+
 
 void PersonReid::drawPoint(ColorFrame& colorFrame, int x, int y, RGBColor color) const
 {

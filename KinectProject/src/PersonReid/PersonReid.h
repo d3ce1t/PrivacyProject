@@ -64,6 +64,7 @@ public:
 
     // Utils
     void makeUpJoints(Skeleton& skeleton, bool only_middle_points = false) const;
+    void makeUpOnlySomeJoints(Skeleton& skeleton) const;
     void drawPoint(ColorFrame &colorFrame, int x, int y, RGBColor color = {255, 0, 0}) const;
     SkeletonJoint getCloserJoint(const Point3f& cloudPoint, const QList<SkeletonJoint>& joints) const;
     shared_ptr<MaskFrame> getVoronoiCells(const DepthFrame& depthFrame, const MaskFrame& maskFrame, const Skeleton& skeleton) const;
@@ -86,7 +87,7 @@ private:
 
     OpenNIDevice* m_device;
     void printClusters(const QList<Cluster<Descriptor> > &clusters) const;
-    void drawJoints(ColorFrame &colorFrame, const QList<SkeletonJoint>& joints);
+    void drawSkeleton(ColorFrame &colorFrame, shared_ptr<Skeleton> skeleton);
     static RGBColor _colors[20];
 
 };
