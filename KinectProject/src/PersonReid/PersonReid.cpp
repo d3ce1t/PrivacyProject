@@ -1161,7 +1161,7 @@ DescriptorPtr PersonReid::feature_joints_hist(ColorFrame& colorFrame, DepthFrame
 
     shared_ptr<JointHistograms1c> feature = make_shared<JointHistograms1c>(instance_info, colorFrame.getIndex());
 
-    for (SkeletonJoint& joint : skeleton_tmp.joints()) // I use the skeleton of 15 or 20 joints not the modified one
+    for (const SkeletonJoint& joint : skeleton_tmp.joints()) // I use the skeleton of 15 or 20 joints not the modified one
     {
         if (!ignore_joints.contains(joint.getType())) {
             uchar mask_filter = joint.getType() + 1;
@@ -1216,7 +1216,7 @@ DescriptorPtr PersonReid::feature_region_descriptor(ColorFrame &colorFrame, Dept
     cv::SurfFeatureDetector detector;//( minHessian );
     cv::SurfDescriptorExtractor extractor;
 
-    for (SkeletonJoint& joint : skeleton.joints()) // I use the skeleton of 15 or 20 joints not the temp one.
+    for (const SkeletonJoint& joint : skeleton.joints()) // I use the skeleton of 15 or 20 joints not the temp one.
     {
         //if (!ignore_joints.contains(joint.getType()))
         //{
@@ -1293,7 +1293,7 @@ DescriptorPtr PersonReid::feature_joint_descriptor(ColorFrame &colorFrame, Skele
     vector<cv::Point2f> points;
 
     // Get Key Points from the Skeleton Joints
-    for (SkeletonJoint& joint : skeleton_tmp.joints())
+    for (const SkeletonJoint& joint : skeleton_tmp.joints())
     {
         if (!ignore_joints.contains(joint.getType()))
         {
@@ -1590,7 +1590,7 @@ shared_ptr<MaskFrame> PersonReid::getVoronoiCellsParallel(const DepthFrame& dept
 
 void PersonReid::drawSkeleton(ColorFrame& colorFrame, shared_ptr<Skeleton> skeleton) {
     // Draw Joints
-    for (SkeletonJoint joint : skeleton->joints()) {
+    for (const SkeletonJoint& joint : skeleton->joints()) {
         float x, y;
         skeleton->convertCoordinatesToDepth(joint.getPosition()[0],
                 joint.getPosition()[1], joint.getPosition()[2], &x, &y);
@@ -1607,7 +1607,7 @@ SkeletonJoint PersonReid::getCloserJoint(const Point3f& cloudPoint, const QList<
     SkeletonJoint minJoint;
     float minDistance = numeric_limits<float>::max();
 
-    for (SkeletonJoint joint : joints)
+    for (const SkeletonJoint& joint : joints)
     {
         float distance = Point3f::euclideanDistanceSquared(cloudPoint, joint.getPosition());
 

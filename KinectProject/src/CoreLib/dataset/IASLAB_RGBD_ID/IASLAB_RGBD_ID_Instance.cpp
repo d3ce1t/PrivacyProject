@@ -231,7 +231,7 @@ void IASLAB_RGBD_ID_Instance::depth2color(shared_ptr<DepthFrame> depthFrame, sha
     // Transform skeleton
     skeleton->setCameraIntrinsics(fx_rgb, cx_rgb, fy_rgb, cy_rgb);
 
-    for (SkeletonJoint joint : skeleton->joints())
+    for (SkeletonJoint& joint : skeleton->joints())
     {
         glm::vec3 p3d_skel;
         p3d_skel.x = joint.getPosition()[0];
