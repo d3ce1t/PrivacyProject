@@ -113,4 +113,19 @@ shared_ptr<DepthFrame> DepthFrame::subFrame(int row, int column, int width, int 
     return result;
 }
 
+void DepthFrame::setDepthCameraIntrinsics(double fx_d, double cx_d, double fy_d, double cy_d){
+    m_fx_d = fx_d;
+    m_cx_d = cx_d;
+    m_fy_d = fy_d;
+    m_cy_d = cy_d;
+}
+
+void DepthFrame::convertCoordinatesToWorld(float x, float y, float z, float* pOutX, float* pOutY) const
+{
+    x = x + offset()[0];
+    y = y + offset()[1];
+    *pOutX = (x - m_cx_d) * z / m_fx_d;
+    *pOutY = (480 - y - m_cy_d) * z / m_fy_d;
+}
+
 } // End Namespace

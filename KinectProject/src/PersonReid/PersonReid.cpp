@@ -25,7 +25,6 @@
 #include "RegionDescriptor.h"
 #include "DescriptorSet.h"
 
-
 namespace dai {
 
 RGBColor PersonReid::_colors[20] = {
@@ -159,10 +158,10 @@ void PersonReid::execute()
     //parseDataset();
 
     // Select dataset
-    //Dataset* dataset = new IASLAB_RGBD_ID;
-    //dataset->setPath("/Volumes/Files/Datasets/IASLAB-RGBD-ID");
-    Dataset* dataset = new DAI4REID_Parsed;
-    dataset->setPath("/Volumes/Files/Datasets/DAI4REID_Parsed");
+    Dataset* dataset = new IASLAB_RGBD_ID;
+    dataset->setPath("/Volumes/Files/Datasets/IASLAB-RGBD-ID");
+    //Dataset* dataset = new DAI4REID_Parsed;
+    //dataset->setPath("/Volumes/Files/Datasets/DAI4REID_Parsed");
 
     // Select actors
     //QList<int> actors = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
@@ -252,7 +251,7 @@ QList<DescriptorPtr> PersonReid::train(Dataset* dataset, QList<int> actors, int 
             }
 
             // Show
-            //show_images(colorFrame, maskFrame, depthFrame, skeleton);
+            show_images(colorFrame, maskFrame, depthFrame, skeleton);
 
             // Close Instances
             instance->close();
@@ -821,19 +820,22 @@ QList<DescriptorPtr> PersonReid::create_gallery_DAI4REID_Parsed()
 
 void PersonReid::show_images(shared_ptr<ColorFrame> colorFrame, shared_ptr<MaskFrame> maskFrame, shared_ptr<DepthFrame> depthFrame, shared_ptr<Skeleton> skeleton)
 {
-    // Make Frame
-    /*cv::Mat mask_mat(maskFrame->height(), maskFrame->width(), CV_8UC1,
+    Q_UNUSED(depthFrame);
+
+    // Mask Frame
+    cv::Mat mask_mat(maskFrame->height(), maskFrame->width(), CV_8UC1,
                      (void*) maskFrame->getDataPtr(), maskFrame->getStride());
 
     filterMask(mask_mat, mask_mat, [&](uchar in, uchar &out){
         out = in == 1 ? 255 : 0;
     });
-*/
+
     // Color Frame
     cv::Mat color_src(colorFrame->height(), colorFrame->width(), CV_8UC3,
                       (void*) colorFrame->getDataPtr(), colorFrame->getStride());
 
     cv::cvtColor(color_src, color_src, CV_BGR2RGB);
+
     /*for_each_pixel<cv::Vec3b>(color_src, [&](cv::Vec3b& pixel, int row, int column) {
         if (mask_mat.at<uchar>(row, column) == 0) {
             pixel[0] = 0;
@@ -846,21 +848,20 @@ void PersonReid::show_images(shared_ptr<ColorFrame> colorFrame, shared_ptr<MaskF
     /*cv::Mat depth_mat(depthFrame->height(), depthFrame->width(), CV_16UC1,
                      (void*) depthFrame->getDataPtr(), depthFrame->getStride());
     */
+
     // Skeleton Frame
-    /*ColorFramePtr skeleton_color = make_shared<ColorFrame>(colorFrame->width(), colorFrame->height());
-    skeleton_color->setOffset(colorFrame->offset());
-    drawJoints(*(skeleton_color.get()), skeleton->joints());
-    cv::Mat skeleton_mat(skeleton_color->height(), skeleton_color->width(), CV_8UC3,
+    //ColorFramePtr skeleton_color = make_shared<ColorFrame>(colorFrame->width(), colorFrame->height());
+    //skeleton_color->setOffset(colorFrame->offset());
+    drawJoints(*(colorFrame.get()), skeleton->joints());
+    /*cv::Mat skeleton_mat(skeleton_color->height(), skeleton_color->width(), CV_8UC3,
                          (void*) skeleton_color->getDataPtr(), skeleton_color->getStride());*/
 
     // Show frames
     cv::imshow("Original", color_src);
-    //cv::imshow("Mask", mask_mat);
+    cv::imshow("Mask", mask_mat);
     //cv::imshow("Depth", depth_mat);
     //cv::imshow("Skeleton", skeleton_mat);
     cv::waitKey(1);
-
-    //QCoreApplication::processEvents();
 
     /*if (instance_info->getSample() == 440) {
         cv::imwrite("paco_src.png", color_src);
@@ -870,7 +871,6 @@ void PersonReid::show_images(shared_ptr<ColorFrame> colorFrame, shared_ptr<MaskF
         cv::waitKey(3000);
     }*/
 }
-
 
 
 // Test feature of 2-parts Histogram (upper and lower) with CAVIAR4REID
@@ -1127,9 +1127,9 @@ DescriptorPtr PersonReid::feature_joints_hist(ColorFrame& colorFrame, DepthFrame
     cv::Mat indexed_mat = hsv_planes[0];
 
     shared_ptr<JointHistograms1c> feature = make_shared<JointHistograms1c>(instance_info, colorFrame.getIndex());
-    QSet<SkeletonJoint::JointType> ignore_joints = {/*SkeletonJoint::JOINT_HEAD,
+    QSet<SkeletonJoint::JointType> ignore_joints = {//SkeletonJoint::JOINT_HEAD,
                                                     SkeletonJoint::JOINT_LEFT_HAND,
-                                                    SkeletonJoint::JOINT_RIGHT_HAND*/};
+                                                    SkeletonJoint::JOINT_RIGHT_HAND};
 
     for (SkeletonJoint& joint : skeleton.joints()) // I use the skeleton of 15 or 20 joints not the temp one.
     {
@@ -1493,10 +1493,6 @@ QHashDataFrames PersonReid::allocateMemory() const
 shared_ptr<MaskFrame> PersonReid::getVoronoiCells(const DepthFrame& depthFrame, const MaskFrame& maskFrame, const Skeleton& skeleton) const
 {
     Q_ASSERT(depthFrame.width() == maskFrame.width() && depthFrame.height() == maskFrame.height());
-
-    //QElapsedTimer timer;
-    //timer.start();
-
     shared_ptr<MaskFrame> result = static_pointer_cast<MaskFrame>(maskFrame.clone());   
     QList<SkeletonJoint> joints = skeleton.joints();
 
@@ -1510,19 +1506,12 @@ shared_ptr<MaskFrame> PersonReid::getVoronoiCells(const DepthFrame& depthFrame, 
             if (mask[j] > 0)
             {
                 Point3f point(0.0f, 0.0f, float(depth[j]));
-                Skeleton::convertDepthCoordinatesToJoint(j+depthFrame.offset()[0], i+depthFrame.offset()[1],
-                        depth[j], &point[0], &point[1]);
-
-                /*m_device->convertDepthCoordinatesToJoint(j+depthFrame.offset()[0], i+depthFrame.offset()[1],
-                        depth[j], &point[0], &point[1]);*/
-
+                depthFrame.convertCoordinatesToWorld(j, i, depth[j], &point[0], &point[1]);
                 SkeletonJoint closerJoint = getCloserJoint(point, joints);
                 mask[j] = closerJoint.getType()+1;
             }
         }
     }
-
-    //qDebug() << "Voronoi Cells" << timer.elapsed();
 
     return result;
 }
@@ -1547,12 +1536,7 @@ shared_ptr<MaskFrame> PersonReid::getVoronoiCellsParallel(const DepthFrame& dept
             if (mask[j] > 0)
             {
                 Point3f point(0.0f, 0.0f, float(depth[j]));
-                Skeleton::convertDepthCoordinatesToJoint(j+depthFrame.offset()[0], row+depthFrame.offset()[1],
-                        depth[j], &point[0], &point[1]);
-
-                /*m_device->convertDepthCoordinatesToJoint(j+depthFrame.offset()[0], row+depthFrame.offset()[1],
-                            depth[j], &point[0], &point[1]);*/
-
+                depthFrame.convertCoordinatesToWorld(j, row, depth[j], &point[0], &point[1]);
                 SkeletonJoint closerJoint = this->getCloserJoint(point, joints);
                 mask[j] = closerJoint.getType()+1;
             }

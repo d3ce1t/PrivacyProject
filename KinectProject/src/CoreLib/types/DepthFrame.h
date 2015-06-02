@@ -40,7 +40,16 @@ public:
     // Overriden operators
     DepthFrame& operator=(const DepthFrame& other);
 
+    // Extra
+    void convertCoordinatesToWorld(float x, float y, float z, float* pOutX, float* pOutY) const;
+    void setDepthCameraIntrinsics(double fx_d, double cx_d, double fy_d, double cy_d);
+
 private:
+    // Depth Intrinsics
+    double m_fx_d = 594.21434211923247;
+    double m_fy_d = 591.04053696870778;
+    double m_cx_d = 320.0;
+    double m_cy_d = 240.0;
     DistanceUnits m_units;
 };
 

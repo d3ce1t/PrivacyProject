@@ -8,6 +8,7 @@
 #include <opencv2/opencv.hpp>
 #include <QFile>
 #include "Utils.h"
+#include <glm/glm.hpp>
 #include <QDebug>
 
 namespace dai {
@@ -105,6 +106,8 @@ void IASLAB_RGBD_ID_Instance::nextFrame(QHashDataFrames &output)
     shared_ptr<DepthFrame> depthFrame_tmp = make_shared<DepthFrame>(640, 480, (uint16_t*) (buffer.data() + 16));
     shared_ptr<DepthFrame> depthFrame = shared_ptr<DepthFrame>(new DepthFrame(*depthFrame_tmp)); // Clone!
     depthFrame->setDistanceUnits(dai::DISTANCE_MILIMETERS);
+    // Set Depth intrinsics of the camera that generated this frame
+    depthFrame->setDepthCameraIntrinsics(fx_d, cx_d, fy_d, cy_d);
     output.insert(DataFrame::Depth, depthFrame);
 
     // Read Mask File
@@ -123,6 +126,9 @@ void IASLAB_RGBD_ID_Instance::nextFrame(QHashDataFrames &output)
     skeletonFile.open(QIODevice::ReadOnly);
     QTextStream in(&skeletonFile);
     shared_ptr<Skeleton> skeleton = make_shared<Skeleton>();
+
+    // Register depth to color
+    depth2color(depthFrame, maskFrame);
 
     /*For every frame, a skeleton file is available. For every joint, a row with the following information is written to the skeleton file:
     [id]: person ID,
@@ -167,6 +173,62 @@ void IASLAB_RGBD_ID_Instance::nextFrame(QHashDataFrames &output)
     shared_ptr<SkeletonFrame> skeletonFrame = make_shared<SkeletonFrame>();
     skeletonFrame->setSkeleton(1, skeleton);
     output.insert(DataFrame::Skeleton, skeletonFrame);
+}
+
+void IASLAB_RGBD_ID_Instance::depth2color(shared_ptr<DepthFrame> depthFrame, shared_ptr<MaskFrame> mask) const
+{
+    /*const glm::mat3 r_matrix = {
+        999.979, 6.497, -0.801,
+        -6.498, 999.978, -1.054,
+        0.794, 1.059, 999.999
+    };*/
+
+    // Translation Transform (millimeters)
+    const glm::vec3 t_vector = {
+        0.025, 0.0, 0.0
+    };
+
+    // Do Registration
+    shared_ptr<DepthFrame> outputDepth = make_shared<DepthFrame>(640, 480);
+    shared_ptr<MaskFrame> outputMask = mask ? make_shared<MaskFrame>(640, 480) : nullptr;
+
+    for (int i=0; i<depthFrame->height(); ++i)
+    {
+        uint16_t* pDepth = depthFrame->getRowPtr(i);
+        uint8_t* pMask = mask ? mask->getRowPtr(i) : nullptr;
+
+        for (int j=0; j<depthFrame->width(); ++j)
+        {
+            // Convert each point of the depth frame into a real world coordinate in millimeters
+            float out_z = pDepth[j];
+            glm::vec3 p3d;
+            p3d.x = (j - cx_d) * out_z / fx_d;
+            p3d.y = (i - cy_d) * out_z / fy_d;
+            p3d.z = out_z;
+
+            // Rotate and Translate 3D point to change origin to color sensor
+            //p3d = r_matrix * p3d;
+            p3d = p3d + t_vector;
+
+            // Reproject to 2D
+            glm::vec2 p2d;
+            p2d.x = (p3d.x * fx_rgb / p3d.z) + cx_rgb;
+            p2d.y = (p3d.y * fy_rgb / p3d.z) + cy_rgb;
+
+            if (p2d.x >= 0 && p2d.y >= 0 && p2d.x < 640 && p2d.y < 480) {
+                outputDepth->setItem(p2d.y, p2d.x, pDepth[j]);
+                if (outputMask) {
+                    outputMask->setItem(p2d.y, p2d.x, pMask[j]);
+                }
+            }
+        }
+    }
+
+    *depthFrame = *outputDepth; // Copy
+
+    if (mask) {
+        *mask = *outputMask; // Copy
+    }
 }
 
 } // End namespace

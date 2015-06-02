@@ -40,7 +40,6 @@ public:
 
     static SkeletonPtr fromBinary(const QByteArray &binData, int* read_bytes = nullptr);
     static void convertJointCoordinatesToDepth(float x, float y, float z, float* pOutX, float* pOutY);
-    static void convertDepthCoordinatesToJoint(float x, float y, float z, float* pOutX, float* pOutY);
 
     // Constructors
     Skeleton(SkeletonType type = SKELETON_OPENNI);

@@ -3,6 +3,8 @@
 
 #include "dataset/DataInstance.h"
 #include "types/SkeletonJoint.h"
+#include "types/DepthFrame.h"
+#include "types/MaskFrame.h"
 
 namespace dai {
 
@@ -24,6 +26,22 @@ protected:
     void closeInstance() override;
     void restartInstance() override;
     void nextFrame(QHashDataFrames& output) override;
+
+private:
+
+    void depth2color(shared_ptr<DepthFrame> depthFrame, shared_ptr<MaskFrame> mask) const;
+
+    // RGB Intrinsics
+    const double fx_rgb = 525.0f;
+    const double fy_rgb = 525.0f;
+    const double cx_rgb = 310.0f;
+    const double cy_rgb = 249.5f;
+
+    // Depth Intrinsics
+    const double fx_d = 575.8f;
+    const double fy_d = 575.8f;
+    const double cx_d = 314.5f;
+    const double cy_d = 235.5f;
 };
 
 } // End namespace

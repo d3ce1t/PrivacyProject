@@ -194,16 +194,6 @@ void Skeleton::convertJointCoordinatesToDepth(float x, float y, float z, float* 
     *pOutY = 480 - (y * fd_y / z + cd_y);
 }
 
-void Skeleton::convertDepthCoordinatesToJoint(float x, float y, float z, float* pOutX, float* pOutY)
-{
-    const double fd_x = 594.21434211923247;
-    const double fd_y = 591.04053696870778;
-    const double cd_x = 640 / 2.0;
-    const double cd_y = 480 / 2.0;
-    *pOutX = (x - cd_x)*z / fd_x;
-    *pOutY = (480 - y - cd_y)*z / fd_y;
-}
-
 QByteArray Skeleton::toBinary() const
 {
     QByteArray data_mem(m_joints.size() * 37 + 2, 0);
