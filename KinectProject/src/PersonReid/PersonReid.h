@@ -59,8 +59,7 @@ public:
     DescriptorPtr feature_region_descriptor(ColorFrame &colorFrame, DepthFrame &depthFrame, MaskFrame &maskFrame,
                                             Skeleton &skeleton, const InstanceInfo& instance_info) const;
 
-    DescriptorPtr feature_region_descriptor_parallel(ColorFrame &colorFrame, DepthFrame &depthFrame, MaskFrame &maskFrame,
-                                            Skeleton &skeleton, const InstanceInfo& instance_info) const;
+    DescriptorPtr feature_pointinterest_descriptor(ColorFrame &colorFrame, MaskFrame &maskFrame, const InstanceInfo& instance_info) const;
 
     DescriptorPtr feature_joint_descriptor(ColorFrame &colorFrame, Skeleton &skeleton, const InstanceInfo& instance_info) const;
 

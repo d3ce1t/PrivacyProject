@@ -10,7 +10,7 @@ class DistancesFeature : public Descriptor
     QList<float> m_distances;
 
 public:
-    DistancesFeature();
+    //DistancesFeature();
     DistancesFeature(const InstanceInfo &label, int frameId);
     float distance(const Descriptor& other) const override;
     bool operator==(const Descriptor& other) const override;

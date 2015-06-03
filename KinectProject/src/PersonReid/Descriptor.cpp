@@ -5,9 +5,9 @@
 
 namespace dai {
 
-Descriptor::Descriptor()
+/*Descriptor::Descriptor()
 {
-}
+}*/
 
 Descriptor::Descriptor(const InstanceInfo& label, int frameId)
 {

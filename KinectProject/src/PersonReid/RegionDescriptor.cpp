@@ -5,9 +5,9 @@
 
 namespace dai {
 
-RegionDescriptor::RegionDescriptor()
+/*RegionDescriptor::RegionDescriptor()
 {
-}
+}*/
 
 RegionDescriptor::RegionDescriptor(const InstanceInfo &label, int frameId)
     : Descriptor(label, frameId)

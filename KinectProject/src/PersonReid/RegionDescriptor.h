@@ -11,7 +11,7 @@ class RegionDescriptor : public Descriptor
     QList<cv::Mat> m_descriptors;
 
 public:
-    RegionDescriptor();
+    //RegionDescriptor();
     RegionDescriptor(const InstanceInfo &label, int frameId);
     float distance(const Descriptor& other) const override;
     bool operator==(const Descriptor& other) const override;

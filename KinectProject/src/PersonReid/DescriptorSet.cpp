@@ -2,9 +2,9 @@
 
 namespace dai {
 
-DescriptorSet::DescriptorSet()
+/*DescriptorSet::DescriptorSet()
 {
-}
+}*/
 
 DescriptorSet::DescriptorSet(const InstanceInfo &label, int frameId)
     : Descriptor(label, frameId)

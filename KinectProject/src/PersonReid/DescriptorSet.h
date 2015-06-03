@@ -11,7 +11,7 @@ class DescriptorSet : public Descriptor
     QList<DescriptorPtr> m_descriptors;
 
 public:
-    DescriptorSet();
+    //DescriptorSet();
     DescriptorSet(const InstanceInfo &label, int frameId);
     float distance(const Descriptor& other_desc) const override;
     bool operator==(const Descriptor& other) const override;

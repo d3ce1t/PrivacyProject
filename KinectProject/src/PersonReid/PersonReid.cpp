@@ -159,15 +159,16 @@ void PersonReid::execute()
     //parseDataset();
 
     // Select dataset
-    Dataset* dataset = new IASLAB_RGBD_ID;
-    dataset->setPath("/Volumes/Files/Datasets/IASLAB-RGBD-ID");
-    //Dataset* dataset = new DAI4REID_Parsed;
-    //dataset->setPath("/Volumes/Files/Datasets/DAI4REID_Parsed");
+    //Dataset* dataset = new IASLAB_RGBD_ID;
+    //dataset->setPath("/Volumes/Files/Datasets/IASLAB-RGBD-ID");
+    //dataset->setPath("/files/IASLAB-RGBD-ID");
+    Dataset* dataset = new DAI4REID_Parsed;
+    dataset->setPath("/files/DAI4REID_Parsed");
 
     // Select actors
-    QList<int> actors = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+    //QList<int> actors = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
     //QList<int> actors = {3, 4, 5, 7, 8, 9, 10, 11};
-    //QList<int> actors = {1, 2, 3, 4, 5};
+    QList<int> actors = {1, 2, 3, 4, 5};
 
     // Start
     QVector<float> results(actors.size());
@@ -198,19 +199,15 @@ void PersonReid::execute()
 QList<DescriptorPtr> PersonReid::train(Dataset* dataset, QList<int> actors, int camera)
 {
     const DatasetMetadata& metadata = dataset->getMetadata();
-    QList<DescriptorPtr> actor_samples;
-    QList<DescriptorPtr> centroids;
 
-    // Create container for read frames
-    QHashDataFrames readFrames;
-
-    // For each actor, compute the feature that minimises the distance to each other sample of
-    // the same actor.
-    for (int actor : actors)
+    // Train one actor
+    auto trainOneActor = [&](int actor, int camera) -> DescriptorPtr
     {
         QList<shared_ptr<InstanceInfo>> instances = metadata.instances({actor},
                                                                        {camera},
                                                                        DatasetMetadata::ANY_LABEL);
+        QList<DescriptorPtr> actor_samples;
+        QHashDataFrames readFrames;
 
         for (shared_ptr<InstanceInfo> instance_info : instances)
         {
@@ -240,7 +237,8 @@ QList<DescriptorPtr> PersonReid::train(Dataset* dataset, QList<int> actors, int 
             //drawJoints(*colorFrame, skeleton->joints());
             //DescriptorPtr feature = feature_global_hist(*colorFrame, *maskFrame, *instance_info);
             //DescriptorPtr feature = feature_joints_hist(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
-            DescriptorPtr feature = feature_region_descriptor_parallel(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
+            //DescriptorPtr feature = feature_region_descriptor(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
+            DescriptorPtr feature = feature_pointinterest_descriptor(*colorFrame, *maskFrame, *instance_info);
             //DescriptorPtr feature = feature_skeleton_distances(*colorFrame, *skeleton, *instance_info);
             //DescriptorPtr feature = feature_joint_descriptor(*colorFrame, *skeleton, *instance_info);
             //DescriptorPtr feature = feature_fusion(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
@@ -249,7 +247,6 @@ QList<DescriptorPtr> PersonReid::train(Dataset* dataset, QList<int> actors, int 
 
             if (feature) {
                 actor_samples << feature;
-                //samples << feature;
             }
 
             // Show
@@ -257,18 +254,14 @@ QList<DescriptorPtr> PersonReid::train(Dataset* dataset, QList<int> actors, int 
 
             // Close Instances
             instance->close();
-
             qDebug("actor %i sample %i fps %f", instance_info->getActor(), instance_info->getSample(), 1000.0f / timer.elapsed());
-        }
+
+        } // End traverse samples of the actor
 
         qDebug() << "Actor samples" << actor_samples.size();
 
         // Learn Minimum: Use the signature that minimise its distance to all of the other signatures for the same actor
-        DescriptorPtr selectedFeature = Descriptor::minFeatureParallel(actor_samples);
-        centroids << selectedFeature;
-        qDebug("Init. Centroid %i = actor %i %i %i", actor, selectedFeature->label().getActor(),
-                                                       selectedFeature->label().getSample(),
-                                                       selectedFeature->frameId());
+        DescriptorPtr learntActorFeature = Descriptor::minFeatureParallel(actor_samples);
 
         // Learn K features for the same actor (K=3)
         /*qDebug() << "Computing K-Means";
@@ -278,48 +271,36 @@ QList<DescriptorPtr> PersonReid::train(Dataset* dataset, QList<int> actors, int 
             gallery << cluster.centroid;
         }*/
 
+        // Clean samples
         actor_samples.clear();
+        return learntActorFeature;
+    };
+
+    // For each actor, compute the feature that minimises the distance to each other sample of
+    // the same actor.
+    std::vector<QFuture<DescriptorPtr>> workers;
+
+    for (int actor : actors) {
+        workers.push_back( QtConcurrent::run(trainOneActor, actor, camera) );
     }
 
-    // Learn A: Learning a signature is the same as clustering the input data into num_actor sets
-    // and use the centroid of each cluster as model.
-    /*qDebug() << "Computing K-Means";
-    auto kmeans = KMeans<Feature>::execute(samples, actors.size(), centroids);
-    printClusters(kmeans->getClusters());
+    QList<DescriptorPtr> gallery;
 
-    QList<shared_ptr<Feature>> gallery;
-
-    foreach (auto cluster, kmeans->getClusters()) {
-        gallery << cluster.centroid;
-    }*/
-
-    // Learn B: Use the signature that minimises the distance to the rest of signatures
-    // of each actor.
-    QList<DescriptorPtr> gallery = centroids;
+    for (QFuture<DescriptorPtr>& f : workers) {
+        DescriptorPtr learntActorFeature = f.result();
+        gallery << learntActorFeature;
+        qDebug("Learnt actor %i sample %i frame %i", learntActorFeature->label().getActor(),
+                                                     learntActorFeature->label().getSample(),
+                                                     learntActorFeature->frameId());
+    }
 
     return gallery;
 }
 
 void PersonReid::validate(Dataset* dataset, const QList<int> &actors, int camera, const QList<DescriptorPtr>& gallery, QVector<float>& results, int *num_tests)
 {
-    const DatasetMetadata& metadata = dataset->getMetadata();
-    int total_tests = 0;
-
-    QList<shared_ptr<InstanceInfo>> instances = metadata.instances(actors,
-                                                                   {camera},
-                                                                   DatasetMetadata::ANY_LABEL);
-    // Create container for read frames
-    QHashDataFrames readFrames;
-
-    // Start validation
-    for (shared_ptr<InstanceInfo> instance_info : instances)
+    auto computeFeature = [this, dataset](shared_ptr<InstanceInfo> instance_info) -> DescriptorPtr
     {
-        std::string fileName = instance_info->getFileName(DataFrame::Color).toStdString();
-
-        /*qDebug("actor %i sample %i file %s", instance_info->getActor(),
-               instance_info->getSample(),
-               fileName.c_str());*/
-
         // Get Sample
         shared_ptr<StreamInstance> instance = dataset->getInstance(*instance_info, DataFrame::Color);
 
@@ -327,6 +308,7 @@ void PersonReid::validate(Dataset* dataset, const QList<int> &actors, int camera
         instance->open();
 
         // Read frames
+        QHashDataFrames readFrames;
         instance->readNextFrame(readFrames);
 
         // Get Frames
@@ -334,30 +316,47 @@ void PersonReid::validate(Dataset* dataset, const QList<int> &actors, int camera
         auto depthFrame = static_pointer_cast<DepthFrame>(readFrames.value(DataFrame::Depth));
         auto maskFrame = static_pointer_cast<MaskFrame>(readFrames.value(DataFrame::Mask));
         auto skeletonFrame = static_pointer_cast<SkeletonFrame>(readFrames.value(DataFrame::Skeleton));
+        shared_ptr<Skeleton> skeleton = skeletonFrame->getSkeleton(skeletonFrame->getAllUsersId().at(0));
 
         // Process
-        QList<int> users = skeletonFrame->getAllUsersId();
-        shared_ptr<Skeleton> skeleton = skeletonFrame->getSkeleton(users.at(0));
-
         //DescriptorPtr query = feature_global_hist(*colorFrame, *maskFrame, *instance_info);
         //DescriptorPtr query = feature_joints_hist(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
-        DescriptorPtr query = feature_region_descriptor_parallel(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
+        //DescriptorPtr query = feature_region_descriptor(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
+        DescriptorPtr query = feature_pointinterest_descriptor(*colorFrame, *maskFrame, *instance_info);
         //DescriptorPtr query = feature_skeleton_distances(*colorFrame, *skeleton, *instance_info);
         //DescriptorPtr query = feature_joint_descriptor(*colorFrame, *skeleton, *instance_info);
         //DescriptorPtr query = feature_fusion(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
 
+        // Close Instances
+        instance->close();
+
+        return query;
+    };
+
+    const DatasetMetadata& metadata = dataset->getMetadata();
+    QList<shared_ptr<InstanceInfo>> instances = metadata.instances(actors, {camera}, DatasetMetadata::ANY_LABEL);
+    int total_tests = 0;
+    std::vector<QFuture<DescriptorPtr>> workers;
+
+    // Start validation    
+    for (shared_ptr<InstanceInfo> instance_info : instances) {
+        workers.push_back( QtConcurrent::run(computeFeature, instance_info) );
+    }
+
+    for (QFuture<DescriptorPtr>& f : workers) {
+
+        DescriptorPtr query = f.result();
+
         if (query) {
             // CMC
+            std::string fileName = query->label().getFileName(DataFrame::Color).toStdString();
             QMap<float, int> query_results = compute_distances_to_all_samples(*query, gallery);
             int pos = cummulative_match_curve(query_results, results, query->label().getActor());
-            qDebug("Results for actor %i sample %i file %s (pos=%i)", instance_info->getActor(), instance_info->getSample(), fileName.c_str(), pos+1);
+            qDebug("Results for actor %i sample %i file %s (pos=%i)", query->label().getActor(), query->label().getSample(), fileName.c_str(), pos+1);
             print_query_results(query_results, pos);
             qDebug() << "--------------------------";
             total_tests++;
         }
-
-        // Close Instances
-        instance->close();
     }
 
     if (num_tests) {
@@ -1215,72 +1214,9 @@ DescriptorPtr PersonReid::feature_region_descriptor(ColorFrame &colorFrame, Dept
                                                     SkeletonJoint::JOINT_LEFT_HAND,
                                                     SkeletonJoint::JOINT_RIGHT_HAND};*/
 
-    cv::SurfFeatureDetector detector;
-    cv::SiftDescriptorExtractor extractor;
-
-    for (const SkeletonJoint& joint : skeleton.joints()) // I use the skeleton of 15 or 20 joints not the temp one.
-    {
-        //if (!ignore_joints.contains(joint.getType()))
-        //{
-            uchar mask_filter = joint.getType() + 1;
-            cv::Mat joint_mask;
-
-            // Create a mask for a given joint with 1 values in pixels matching this
-            // joint in the voronoit mat
-            filterMask(voronoi_mat, joint_mask, [&](uchar in, uchar& out) {
-                out = in == mask_filter ? 1 : 0;
-            });
-
-            // Detect Keypoints
-            std::vector<cv::KeyPoint> keypoints;
-            detector.detect( gray_mat, keypoints, joint_mask);
-
-            // Calculate descriptor
-            cv::Mat descriptor;
-            extractor.compute(gray_mat, keypoints, descriptor);
-
-            // Add to the feature
-            feature->addDescriptor(descriptor);
-
-            /*cv::Mat img_keypoints;
-            cv::drawKeypoints(gray_mat, keypoints, img_keypoints, cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT );
-            cv::imshow("points", img_keypoints);
-            cv::waitKey(1);*/
-        //}
-    }
-
-    //colorImageWithVoronoid(colorFrame, *voronoiMask);
-
-    return feature;
-}
-
-DescriptorPtr PersonReid::feature_region_descriptor_parallel(ColorFrame &colorFrame, DepthFrame &depthFrame, MaskFrame &maskFrame,
-                                        Skeleton &skeleton, const InstanceInfo& instance_info) const
-{
-    cv::Mat color_mat(colorFrame.height(), colorFrame.width(), CV_8UC3,
-                      (void*) colorFrame.getDataPtr(), colorFrame.getStride());
-
-    // Build Voronoi cells as a mask
-    Skeleton skeleton_tmp = skeleton; // copy
-    //makeUpJoints(skeleton_tmp);
-    shared_ptr<MaskFrame> voronoiMask = getVoronoiCells(depthFrame, maskFrame, skeleton_tmp);
-
-    cv::Mat voronoi_mat(voronoiMask->height(), voronoiMask->width(), CV_8UC1,
-                      (void*) voronoiMask->getDataPtr(), voronoiMask->getStride());
-
-    // Convert image to gray for point detector
-    cv::Mat gray_mat;
-    cv::cvtColor(color_mat, gray_mat, CV_RGB2GRAY);
-
-    shared_ptr<RegionDescriptor> feature = make_shared<RegionDescriptor>(instance_info, colorFrame.getIndex());
-
-    /*QSet<SkeletonJoint::JointType> ignore_joints = {SkeletonJoint::JOINT_HEAD,
-                                                    SkeletonJoint::JOINT_LEFT_HAND,
-                                                    SkeletonJoint::JOINT_RIGHT_HAND};*/
-
     auto computeFeature = [&](const SkeletonJoint& joint) -> cv::Mat
     {
-        cv::SurfFeatureDetector detector;
+        cv::FastFeatureDetector detector;
         cv::SiftDescriptorExtractor extractor;
 
         uchar mask_filter = joint.getType() + 1;
@@ -1300,24 +1236,68 @@ DescriptorPtr PersonReid::feature_region_descriptor_parallel(ColorFrame &colorFr
         cv::Mat descriptor;
         extractor.compute(gray_mat, keypoints, descriptor);
 
+        /*cv::Mat img_keypoints;
+        cv::drawKeypoints(gray_mat, keypoints, img_keypoints, cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT );
+        cv::imshow("points", img_keypoints);
+        cv::waitKey(1);*/
+
         // Return
         return descriptor;
     };
 
+    /*QSet<SkeletonJoint::JointType> ignore_joints = {SkeletonJoint::JOINT_HEAD,
+                                                    SkeletonJoint::JOINT_LEFT_HAND,
+                                                    SkeletonJoint::JOINT_RIGHT_HAND};*/
     std::vector<QFuture<cv::Mat>> workers;
 
     for (const SkeletonJoint& joint : skeleton.joints()) // I use the skeleton of 15 or 20 joints not the temp one.
     {
+        /*if (ignore_joints.contains(joint.getType()))
+            continue;*/
+
         workers.push_back( QtConcurrent::run(computeFeature, joint) );
-        //workers.push_back( std::async(computeFeature, joint)  );
     }
 
     for (QFuture<cv::Mat>& f : workers) {
-        //f.wait();
         feature->addDescriptor(f.result());
     }
 
     //colorImageWithVoronoid(colorFrame, *voronoiMask);
+
+    return feature;
+}
+
+DescriptorPtr PersonReid::feature_pointinterest_descriptor(ColorFrame &colorFrame, MaskFrame &maskFrame,
+                                                        const InstanceInfo& instance_info) const
+{
+    cv::Mat color_mat(colorFrame.height(), colorFrame.width(), CV_8UC3,
+                      (void*) colorFrame.getDataPtr(), colorFrame.getStride());
+
+    cv::Mat mask_mat(maskFrame.height(), maskFrame.width(), CV_8UC1,
+                      (void*) maskFrame.getDataPtr(), maskFrame.getStride());
+
+    // Convert image to gray for point detector
+    cv::Mat gray_mat;
+    cv::cvtColor(color_mat, gray_mat, CV_RGB2GRAY);
+
+    shared_ptr<RegionDescriptor> feature = make_shared<RegionDescriptor>(instance_info, colorFrame.getIndex());
+    cv::SurfFeatureDetector detector;
+    cv::SurfDescriptorExtractor extractor;
+
+    // Detect Keypoints
+    std::vector<cv::KeyPoint> keypoints;
+    detector.detect( gray_mat, keypoints, mask_mat);
+
+    // Calculate descriptor
+    cv::Mat descriptor;
+    extractor.compute(gray_mat, keypoints, descriptor);
+
+    /*cv::Mat img_keypoints;
+    cv::drawKeypoints(gray_mat, keypoints, img_keypoints, cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT );
+    cv::imshow("points", img_keypoints);
+    cv::waitKey(1);*/
+
+    feature->addDescriptor(descriptor);
 
     return feature;
 }

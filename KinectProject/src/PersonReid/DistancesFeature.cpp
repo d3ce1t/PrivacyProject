@@ -4,9 +4,9 @@
 
 namespace dai {
 
-DistancesFeature::DistancesFeature()
+/*DistancesFeature::DistancesFeature()
 {
-}
+}*/
 
 DistancesFeature::DistancesFeature(const InstanceInfo &label, int frameId)
     : Descriptor(label, frameId)
