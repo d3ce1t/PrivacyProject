@@ -3,7 +3,6 @@
 
 #include "Quaternion.h"
 #include "Point.h"
-#include <QObject>
 
 namespace dai {
 

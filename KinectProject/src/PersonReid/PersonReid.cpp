@@ -24,6 +24,7 @@
 #include "DistancesFeature.h"
 #include "RegionDescriptor.h"
 #include "DescriptorSet.h"
+#include <QtConcurrent>
 
 namespace dai {
 
@@ -165,6 +166,7 @@ void PersonReid::execute()
 
     // Select actors
     QList<int> actors = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+    //QList<int> actors = {3, 4, 5, 7, 8, 9, 10, 11};
     //QList<int> actors = {1, 2, 3, 4, 5};
 
     // Start
@@ -237,8 +239,8 @@ QList<DescriptorPtr> PersonReid::train(Dataset* dataset, QList<int> actors, int 
             //highLightDepth(*colorFrame, *depthFrame);
             //drawJoints(*colorFrame, skeleton->joints());
             //DescriptorPtr feature = feature_global_hist(*colorFrame, *maskFrame, *instance_info);
-            DescriptorPtr feature = feature_joints_hist(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
-            //DescriptorPtr feature = feature_region_descriptor(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
+            //DescriptorPtr feature = feature_joints_hist(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
+            DescriptorPtr feature = feature_region_descriptor_parallel(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
             //DescriptorPtr feature = feature_skeleton_distances(*colorFrame, *skeleton, *instance_info);
             //DescriptorPtr feature = feature_joint_descriptor(*colorFrame, *skeleton, *instance_info);
             //DescriptorPtr feature = feature_fusion(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
@@ -338,8 +340,8 @@ void PersonReid::validate(Dataset* dataset, const QList<int> &actors, int camera
         shared_ptr<Skeleton> skeleton = skeletonFrame->getSkeleton(users.at(0));
 
         //DescriptorPtr query = feature_global_hist(*colorFrame, *maskFrame, *instance_info);
-        DescriptorPtr query = feature_joints_hist(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
-        //DescriptorPtr query = feature_region_descriptor(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
+        //DescriptorPtr query = feature_joints_hist(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
+        DescriptorPtr query = feature_region_descriptor_parallel(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
         //DescriptorPtr query = feature_skeleton_distances(*colorFrame, *skeleton, *instance_info);
         //DescriptorPtr query = feature_joint_descriptor(*colorFrame, *skeleton, *instance_info);
         //DescriptorPtr query = feature_fusion(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
@@ -1198,7 +1200,7 @@ DescriptorPtr PersonReid::feature_region_descriptor(ColorFrame &colorFrame, Dept
     // Build Voronoi cells as a mask
     Skeleton skeleton_tmp = skeleton; // copy
     //makeUpJoints(skeleton_tmp);
-    shared_ptr<MaskFrame> voronoiMask = getVoronoiCellsParallel(depthFrame, maskFrame, skeleton_tmp);
+    shared_ptr<MaskFrame> voronoiMask = getVoronoiCells(depthFrame, maskFrame, skeleton_tmp);
 
     cv::Mat voronoi_mat(voronoiMask->height(), voronoiMask->width(), CV_8UC1,
                       (void*) voronoiMask->getDataPtr(), voronoiMask->getStride());
@@ -1206,15 +1208,15 @@ DescriptorPtr PersonReid::feature_region_descriptor(ColorFrame &colorFrame, Dept
     // Convert image to gray for point detector
     cv::Mat gray_mat;
     cv::cvtColor(color_mat, gray_mat, CV_RGB2GRAY);
-    int minHessian = 400;
 
     shared_ptr<RegionDescriptor> feature = make_shared<RegionDescriptor>(instance_info, colorFrame.getIndex());
+
     /*QSet<SkeletonJoint::JointType> ignore_joints = {SkeletonJoint::JOINT_HEAD,
                                                     SkeletonJoint::JOINT_LEFT_HAND,
                                                     SkeletonJoint::JOINT_RIGHT_HAND};*/
 
-    cv::SurfFeatureDetector detector;//( minHessian );
-    cv::SurfDescriptorExtractor extractor;
+    cv::SurfFeatureDetector detector;
+    cv::SiftDescriptorExtractor extractor;
 
     for (const SkeletonJoint& joint : skeleton.joints()) // I use the skeleton of 15 or 20 joints not the temp one.
     {
@@ -1245,6 +1247,74 @@ DescriptorPtr PersonReid::feature_region_descriptor(ColorFrame &colorFrame, Dept
             cv::imshow("points", img_keypoints);
             cv::waitKey(1);*/
         //}
+    }
+
+    //colorImageWithVoronoid(colorFrame, *voronoiMask);
+
+    return feature;
+}
+
+DescriptorPtr PersonReid::feature_region_descriptor_parallel(ColorFrame &colorFrame, DepthFrame &depthFrame, MaskFrame &maskFrame,
+                                        Skeleton &skeleton, const InstanceInfo& instance_info) const
+{
+    cv::Mat color_mat(colorFrame.height(), colorFrame.width(), CV_8UC3,
+                      (void*) colorFrame.getDataPtr(), colorFrame.getStride());
+
+    // Build Voronoi cells as a mask
+    Skeleton skeleton_tmp = skeleton; // copy
+    //makeUpJoints(skeleton_tmp);
+    shared_ptr<MaskFrame> voronoiMask = getVoronoiCells(depthFrame, maskFrame, skeleton_tmp);
+
+    cv::Mat voronoi_mat(voronoiMask->height(), voronoiMask->width(), CV_8UC1,
+                      (void*) voronoiMask->getDataPtr(), voronoiMask->getStride());
+
+    // Convert image to gray for point detector
+    cv::Mat gray_mat;
+    cv::cvtColor(color_mat, gray_mat, CV_RGB2GRAY);
+
+    shared_ptr<RegionDescriptor> feature = make_shared<RegionDescriptor>(instance_info, colorFrame.getIndex());
+
+    /*QSet<SkeletonJoint::JointType> ignore_joints = {SkeletonJoint::JOINT_HEAD,
+                                                    SkeletonJoint::JOINT_LEFT_HAND,
+                                                    SkeletonJoint::JOINT_RIGHT_HAND};*/
+
+    auto computeFeature = [&](const SkeletonJoint& joint) -> cv::Mat
+    {
+        cv::SurfFeatureDetector detector;
+        cv::SiftDescriptorExtractor extractor;
+
+        uchar mask_filter = joint.getType() + 1;
+        cv::Mat joint_mask;
+
+        // Create a mask for a given joint with 1 values in pixels matching this
+        // joint in the voronoit mat
+        filterMask(voronoi_mat, joint_mask, [&](uchar in, uchar& out) {
+            out = in == mask_filter ? 1 : 0;
+        });
+
+        // Detect Keypoints
+        std::vector<cv::KeyPoint> keypoints;
+        detector.detect( gray_mat, keypoints, joint_mask);
+
+        // Calculate descriptor
+        cv::Mat descriptor;
+        extractor.compute(gray_mat, keypoints, descriptor);
+
+        // Return
+        return descriptor;
+    };
+
+    std::vector<QFuture<cv::Mat>> workers;
+
+    for (const SkeletonJoint& joint : skeleton.joints()) // I use the skeleton of 15 or 20 joints not the temp one.
+    {
+        workers.push_back( QtConcurrent::run(computeFeature, joint) );
+        //workers.push_back( std::async(computeFeature, joint)  );
+    }
+
+    for (QFuture<cv::Mat>& f : workers) {
+        //f.wait();
+        feature->addDescriptor(f.result());
     }
 
     //colorImageWithVoronoid(colorFrame, *voronoiMask);
