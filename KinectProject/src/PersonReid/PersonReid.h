@@ -46,6 +46,8 @@ public:
     QVector<float> validate_CAVIAR4REID(const QList<int> &actors, const QList<DescriptorPtr>& gallery, int *num_tests = nullptr);
 
     // Features
+    DescriptorPtr computeFeature(Dataset *dataset, shared_ptr<InstanceInfo> instance_info);
+
     DescriptorPtr feature_2parts_hist(shared_ptr<ColorFrame> colorFrame, const InstanceInfo& instance_info) const;
 
     DescriptorPtr feature_fusion(ColorFrame &colorFrame, DepthFrame &depthFrame, MaskFrame &maskFrame,
