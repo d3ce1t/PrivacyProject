@@ -390,7 +390,9 @@ void PersonReid::validate_multiple(Dataset* dataset, const QList<int> &actors, i
             QMap<float, int> query_results; // distance, actor
 
             for (int target : actors) {
-                float distance = match_query_to_target(query, target, gallery);
+                // Get all of the samples of the target actor
+                QList<DescriptorPtr> samples = gallery.values(target);
+                float distance = Descriptor::minDistanceParallel(query, samples);
                 query_results.insertMulti(distance, target);
             }
 
@@ -1067,37 +1069,6 @@ QMap<float, int> PersonReid::compute_distances_to_all_samples(const Descriptor& 
     return query_results;
 }
 
-/**
- * Dado un actor objetivo, comparo la query con todos los samples de ese objetivo
- * en gallery y me quedo con la menor distancia.
- *
- * @brief PersonReid::match_query_to_target
- * @param query
- * @param target
- * @param gallery
- * @return
- */
-float PersonReid::match_query_to_target(const DescriptorPtr query, int target,
-                                                   const QMultiMap<int, DescriptorPtr> &gallery)
-{
-    float min_distance = std::numeric_limits<float>::max();
-
-    // Get all of the samples of the target actor
-    QList<DescriptorPtr> samples = gallery.values(target);
-
-    // Get the min distance
-    for (DescriptorPtr target : samples)
-    {
-        float distance = query->distance(*target);
-
-        if (distance < min_distance) {
-            min_distance = distance;
-        }
-    }
-
-    return min_distance;
-}
-
 int PersonReid::cummulative_match_curve(QMap<float, int>& query_results, QVector<float>& results, int label)
 {
     // Count results as a CMC
@@ -1185,7 +1156,7 @@ DescriptorPtr PersonReid::feature_global_hist(ColorFrame& colorFrame, MaskFrame&
     auto hist = Histogram1c::create(indexed_mat, {0, 255}, mask_mat);
     feature->addHistogram(*hist);
 
-    colorImageWithVoronoid(colorFrame, maskFrame);
+    //colorImageWithVoronoid(colorFrame, maskFrame);
 
     return feature;
 }

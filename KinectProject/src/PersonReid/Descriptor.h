@@ -17,6 +17,7 @@ protected:
     int m_frameId;
 
 public:
+    static float minDistanceParallel(const DescriptorPtr feature, const QList<DescriptorPtr>& samples);
     static DescriptorPtr minFeature(const QList<DescriptorPtr> &features);
     static DescriptorPtr minFeatureParallel(const QList<DescriptorPtr> &features);
 

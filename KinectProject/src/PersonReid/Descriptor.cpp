@@ -20,6 +20,50 @@ bool Descriptor::operator==(const Descriptor& other) const
     return m_label == other.m_label && m_frameId == other.m_frameId;
 }
 
+float Descriptor::minDistanceParallel(const DescriptorPtr feature, const QList<DescriptorPtr>& samples)
+{
+    struct AddDistance
+    {
+        AddDistance(DescriptorPtr feature)
+        : m_feature(feature) { }
+
+        typedef float result_type;
+
+        float operator()(const DescriptorPtr& sample)
+        {
+            return m_feature->distance(*sample);
+        }
+
+        DescriptorPtr m_feature;
+    };
+
+    struct AverageDistance
+    {
+        AverageDistance()
+        {
+            min_distance = std::numeric_limits<float>::max();
+        }
+
+        void operator()(float& result, const float &intermediate)
+        {
+            if (intermediate < min_distance) {
+                min_distance = intermediate;
+                result = min_distance;
+            }
+        }
+
+        float min_distance;
+    };
+
+
+    float result = QtConcurrent::blockingMappedReduced
+            <float, QList<DescriptorPtr>, AddDistance, AverageDistance>
+            (samples,AddDistance(feature),AverageDistance());
+
+
+    return result;
+}
+
 DescriptorPtr Descriptor::minFeatureParallel(const QList<DescriptorPtr> &features)
 {
     struct FeatureWrapper
@@ -62,7 +106,6 @@ DescriptorPtr Descriptor::minFeatureParallel(const QList<DescriptorPtr> &feature
             if (intermediate.distance < min_distance) {
                 min_distance = intermediate.distance;
                 result = intermediate.feature;
-                //m_min_feature = intermediate.second;
             }
         }
 
