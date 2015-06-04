@@ -3,11 +3,8 @@
 #include <QDebug>
 #include <climits>
 
-namespace dai {
 
-/*RegionDescriptor::RegionDescriptor()
-{
-}*/
+namespace dai {
 
 RegionDescriptor::RegionDescriptor(const InstanceInfo &label, int frameId)
     : Descriptor(label, frameId)
@@ -26,7 +23,7 @@ float RegionDescriptor::distance(const Descriptor& other_desc) const
     {
         if ( !(*it1).empty() && !(*it2).empty() )
         {
-            cv::BFMatcher matcher;
+            cv::BFMatcher matcher(cv::NORM_L2SQR);
             //cv::FlannBasedMatcher matcher;
             std::vector<cv::DMatch> matches;
             matcher.match(*it1, *it2, matches);
@@ -51,7 +48,7 @@ float RegionDescriptor::distance(const Descriptor& other_desc) const
                 }
             }
 
-            distance += local_distance / good_matches;
+            distance += local_distance / float(good_matches);
 
             if (good_matches == 0) {
                 qDebug() << "ZERO DIVISION not managed" << min_dist << max_dist << distance << matches.size();

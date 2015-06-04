@@ -38,7 +38,13 @@ public:
 
     // Generic training and testing method
     QList<DescriptorPtr> train(Dataset *dataset, QList<int> actors, int camera);
+
     void validate(Dataset *dataset, const QList<int> &actors, int camera, const QList<DescriptorPtr>& gallery, QVector<float>& results, int *num_tests = nullptr);
+
+    // Multiple-shot vs Multiple-shot approach
+    QMultiMap<int, DescriptorPtr> train_multiple(Dataset *dataset, QList<int> actors, int camera);
+    void validate_multiple(Dataset* dataset, const QList<int> &actors, int camera, const QMultiMap<int, DescriptorPtr>& gallery, QVector<float>& results, int *num_tests);
+    float match_query_to_target(const DescriptorPtr query, int target, const QMultiMap<int, DescriptorPtr> &gallery);
 
     // CAVIAR4REID
     void test_CAVIAR4REID();

@@ -179,14 +179,14 @@ void PersonReid::execute()
     for (int i=0; i<2; ++i)
     {
         // Training (camera 1)
-        QList<DescriptorPtr> gallery = train(dataset, actors, i==0 ? 1 : 2);
+        QMultiMap<int, DescriptorPtr> gallery = train_multiple(dataset, actors, i==0 ? 1 : 2);
 
-        for (DescriptorPtr target : gallery) {
+        /*for (DescriptorPtr target : gallery) {
             qDebug() << target->label().getActor() << target->label().getSample();
-        }
+        }*/
 
         // Validation (camera 2)
-        validate(dataset, actors, i==0 ? 2 : 1, gallery, results, &num_tests);
+        validate_multiple(dataset, actors, i==0 ? 2 : 1, gallery, results, &num_tests);
     }
 
     // Show Results
@@ -195,6 +195,40 @@ void PersonReid::execute()
 
     // Quit
     QCoreApplication::instance()->quit();
+}
+
+DescriptorPtr PersonReid::computeFeature(Dataset* dataset, shared_ptr<InstanceInfo> instance_info)
+{
+    // Get Sample
+    shared_ptr<StreamInstance> instance = dataset->getInstance(*instance_info, DataFrame::Color);
+
+    // Open Instances
+    instance->open();
+
+    // Read frames
+    QHashDataFrames readFrames;
+    instance->readNextFrame(readFrames);
+
+    // Get Frames
+    auto colorFrame = static_pointer_cast<ColorFrame>(readFrames.value(DataFrame::Color));
+    auto depthFrame = static_pointer_cast<DepthFrame>(readFrames.value(DataFrame::Depth));
+    auto maskFrame = static_pointer_cast<MaskFrame>(readFrames.value(DataFrame::Mask));
+    auto skeletonFrame = static_pointer_cast<SkeletonFrame>(readFrames.value(DataFrame::Skeleton));
+    shared_ptr<Skeleton> skeleton = skeletonFrame->getSkeleton(skeletonFrame->getAllUsersId().at(0));
+
+    // Process
+    //DescriptorPtr feature = feature_global_hist(*colorFrame, *maskFrame, *instance_info);
+    //DescriptorPtr feature = feature_joints_hist(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
+    //DescriptorPtr feature = feature_region_descriptor(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
+    //DescriptorPtr feature = feature_pointinterest_descriptor(*colorFrame, *maskFrame, *instance_info);
+    DescriptorPtr feature = feature_skeleton_distances(*colorFrame, *skeleton, *instance_info);
+    //DescriptorPtr feature = feature_joint_descriptor(*colorFrame, *skeleton, *instance_info);
+    //DescriptorPtr feature = feature_fusion(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
+
+    // Close Instances
+    instance->close();
+
+    return feature;
 }
 
 QList<DescriptorPtr> PersonReid::train(Dataset* dataset, QList<int> actors, int camera)
@@ -287,38 +321,91 @@ void PersonReid::validate(Dataset* dataset, const QList<int> &actors, int camera
     }
 }
 
-DescriptorPtr PersonReid::computeFeature(Dataset* dataset, shared_ptr<InstanceInfo> instance_info)
+/**
+ * Realmente este método no realiza un entrenamiento, únicamente carga como galería todas las imágenes
+ * del banco de datos. Sería equivalente a aprender todos.
+ *
+ * @brief PersonReid::train_multiple
+ * @param dataset
+ * @param actors
+ * @param camera
+ * @return
+ */
+QMultiMap<int, DescriptorPtr> PersonReid::train_multiple(Dataset* dataset, QList<int> actors, int camera)
 {
-    // Get Sample
-    shared_ptr<StreamInstance> instance = dataset->getInstance(*instance_info, DataFrame::Color);
+    const DatasetMetadata& metadata = dataset->getMetadata();
+    QMultiMap<int, DescriptorPtr> gallery;
 
-    // Open Instances
-    instance->open();
+    for (int actor : actors)
+    {
+        int samples_processed = 0; // per actor
+        QElapsedTimer timer;
+        timer.start();
 
-    // Read frames
-    QHashDataFrames readFrames;
-    instance->readNextFrame(readFrames);
+        QList<shared_ptr<InstanceInfo>> instances = metadata.instances({actor}, {camera}, DatasetMetadata::ANY_LABEL);
+        std::vector<QFuture<DescriptorPtr>> workers;
 
-    // Get Frames
-    auto colorFrame = static_pointer_cast<ColorFrame>(readFrames.value(DataFrame::Color));
-    auto depthFrame = static_pointer_cast<DepthFrame>(readFrames.value(DataFrame::Depth));
-    auto maskFrame = static_pointer_cast<MaskFrame>(readFrames.value(DataFrame::Mask));
-    auto skeletonFrame = static_pointer_cast<SkeletonFrame>(readFrames.value(DataFrame::Skeleton));
-    shared_ptr<Skeleton> skeleton = skeletonFrame->getSkeleton(skeletonFrame->getAllUsersId().at(0));
+        for (shared_ptr<InstanceInfo> instance_info : instances) {
+            workers.push_back( QtConcurrent::run(this, &PersonReid::computeFeature, dataset, instance_info) );
+        }
 
-    // Process
-    //DescriptorPtr feature = feature_global_hist(*colorFrame, *maskFrame, *instance_info);
-    DescriptorPtr feature = feature_joints_hist(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
-    //DescriptorPtr feature = feature_region_descriptor(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
-    //DescriptorPtr feature = feature_pointinterest_descriptor(*colorFrame, *maskFrame, *instance_info);
-    //DescriptorPtr feature = feature_skeleton_distances(*colorFrame, *skeleton, *instance_info);
-    //DescriptorPtr feature = feature_joint_descriptor(*colorFrame, *skeleton, *instance_info);
-    //DescriptorPtr feature = feature_fusion(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
+        for (QFuture<DescriptorPtr>& f : workers) {
 
-    // Close Instances
-    instance->close();
+            DescriptorPtr feature = f.result();
 
-    return feature;
+            if (feature) {
+                gallery.insert(feature->label().getActor(), feature);
+                samples_processed++;
+            }
+
+            // Show
+            //show_images(colorFrame, maskFrame, depthFrame, skeleton);
+            qDebug("actor %i sample %i fps %f", feature->label().getActor(), feature->label().getSample(), float(samples_processed )/ timer.elapsed() * 1000.0f);
+        }
+
+        qDebug() << "Gallery size" << gallery.size();
+    }
+
+    return gallery;
+}
+
+void PersonReid::validate_multiple(Dataset* dataset, const QList<int> &actors, int camera, const QMultiMap<int, DescriptorPtr>& gallery, QVector<float>& results, int *num_tests)
+{
+    const DatasetMetadata& metadata = dataset->getMetadata();
+    QList<shared_ptr<InstanceInfo>> instances = metadata.instances(actors, {camera}, DatasetMetadata::ANY_LABEL);
+    std::vector<QFuture<DescriptorPtr>> workers;
+    int total_tests = 0;
+
+    // Start validation
+    for (shared_ptr<InstanceInfo> instance_info : instances) {
+        workers.push_back( QtConcurrent::run(this, &PersonReid::computeFeature, dataset, instance_info) );
+    }
+
+    for (QFuture<DescriptorPtr>& f : workers) {
+
+        DescriptorPtr query = f.result();
+
+        if (query) {
+            // CMC: Build ranking
+            QMap<float, int> query_results; // distance, actor
+
+            for (int target : actors) {
+                float distance = match_query_to_target(query, target, gallery);
+                query_results.insertMulti(distance, target);
+            }
+
+            int pos = cummulative_match_curve(query_results, results, query->label().getActor());
+            std::string fileName = query->label().getFileName(DataFrame::Color).toStdString();
+            qDebug("Results for actor %i sample %i file %s (pos=%i)", query->label().getActor(), query->label().getSample(), fileName.c_str(), pos+1);
+            print_query_results(query_results, pos);
+            qDebug() << "--------------------------";
+            total_tests++;
+        }
+    }
+
+    if (num_tests) {
+        *num_tests += total_tests;
+    }
 }
 
 void PersonReid::parseDataset()
@@ -980,6 +1067,37 @@ QMap<float, int> PersonReid::compute_distances_to_all_samples(const Descriptor& 
     return query_results;
 }
 
+/**
+ * Dado un actor objetivo, comparo la query con todos los samples de ese objetivo
+ * en gallery y me quedo con la menor distancia.
+ *
+ * @brief PersonReid::match_query_to_target
+ * @param query
+ * @param target
+ * @param gallery
+ * @return
+ */
+float PersonReid::match_query_to_target(const DescriptorPtr query, int target,
+                                                   const QMultiMap<int, DescriptorPtr> &gallery)
+{
+    float min_distance = std::numeric_limits<float>::max();
+
+    // Get all of the samples of the target actor
+    QList<DescriptorPtr> samples = gallery.values(target);
+
+    // Get the min distance
+    for (DescriptorPtr target : samples)
+    {
+        float distance = query->distance(*target);
+
+        if (distance < min_distance) {
+            min_distance = distance;
+        }
+    }
+
+    return min_distance;
+}
+
 int PersonReid::cummulative_match_curve(QMap<float, int>& query_results, QVector<float>& results, int label)
 {
     // Count results as a CMC
@@ -1165,16 +1283,10 @@ DescriptorPtr PersonReid::feature_region_descriptor(ColorFrame &colorFrame, Dept
     cv::Mat gray_mat;
     cv::cvtColor(color_mat, gray_mat, CV_RGB2GRAY);
 
-    shared_ptr<RegionDescriptor> feature = make_shared<RegionDescriptor>(instance_info, colorFrame.getIndex());
-
-    /*QSet<SkeletonJoint::JointType> ignore_joints = {SkeletonJoint::JOINT_HEAD,
-                                                    SkeletonJoint::JOINT_LEFT_HAND,
-                                                    SkeletonJoint::JOINT_RIGHT_HAND};*/
-
     auto computeFeature = [&](const SkeletonJoint& joint) -> cv::Mat
     {
-        cv::FastFeatureDetector detector;
-        cv::SiftDescriptorExtractor extractor;
+        cv::SurfFeatureDetector detector;
+        cv::SurfDescriptorExtractor extractor;
 
         uchar mask_filter = joint.getType() + 1;
         cv::Mat joint_mask;
@@ -1202,18 +1314,20 @@ DescriptorPtr PersonReid::feature_region_descriptor(ColorFrame &colorFrame, Dept
         return descriptor;
     };
 
-    /*QSet<SkeletonJoint::JointType> ignore_joints = {SkeletonJoint::JOINT_HEAD,
+    QSet<SkeletonJoint::JointType> ignore_joints = {SkeletonJoint::JOINT_HEAD,
                                                     SkeletonJoint::JOINT_LEFT_HAND,
-                                                    SkeletonJoint::JOINT_RIGHT_HAND};*/
+                                                    SkeletonJoint::JOINT_RIGHT_HAND};
     std::vector<QFuture<cv::Mat>> workers;
 
     for (const SkeletonJoint& joint : skeleton.joints()) // I use the skeleton of 15 or 20 joints not the temp one.
     {
-        /*if (ignore_joints.contains(joint.getType()))
-            continue;*/
+        if (ignore_joints.contains(joint.getType()))
+            continue;
 
         workers.push_back( QtConcurrent::run(computeFeature, joint) );
     }
+
+    shared_ptr<RegionDescriptor> feature = make_shared<RegionDescriptor>(instance_info, colorFrame.getIndex());
 
     for (QFuture<cv::Mat>& f : workers) {
         feature->addDescriptor(f.result());
@@ -1238,14 +1352,12 @@ DescriptorPtr PersonReid::feature_pointinterest_descriptor(ColorFrame &colorFram
     cv::cvtColor(color_mat, gray_mat, CV_RGB2GRAY);
 
     shared_ptr<RegionDescriptor> feature = make_shared<RegionDescriptor>(instance_info, colorFrame.getIndex());
-    cv::SurfFeatureDetector detector;
-    cv::SiftDescriptorExtractor extractor;
+    cv::FastFeatureDetector detector;
+    cv::SurfDescriptorExtractor extractor;
 
     // Detect Keypoints
     std::vector<cv::KeyPoint> keypoints;
     detector.detect( gray_mat, keypoints, mask_mat);
-
-    qDebug() << keypoints.size();
 
     // Calculate descriptor
     cv::Mat descriptor;
