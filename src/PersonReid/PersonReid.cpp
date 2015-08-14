@@ -159,17 +159,18 @@ void PersonReid::execute()
     //parseDataset();
 
     // Select dataset
-    //Dataset* dataset = new IASLAB_RGBD_ID;
-    //dataset->setPath("/Volumes/Files/Datasets/IASLAB-RGBD-ID");
+    Dataset* dataset = new IASLAB_RGBD_ID;
+    dataset->setPath("/Volumes/Files/Datasets/IASLAB-RGBD-ID");
     //dataset->setPath("/Volumes/MacHDD/Users/jpadilla/Datasets/IASLAB-RGBD-ID");
     //dataset->setPath("/files/IASLAB-RGBD-ID");
-    Dataset* dataset = new DAI4REID_Parsed;
-    dataset->setPath("/files/DAI4REID_Parsed");
+    //Dataset* dataset = new DAI4REID_Parsed;
+    //dataset->setPath("/Volumes/MacHDD/Users/jpadilla/Datasets/DAI4REID_Parsed");
+    //dataset->setPath("/files/DAI4REID_Parsed");
 
     // Select actors
     //QList<int> actors = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
-    //QList<int> actors = {3, 4, 5, 7, 8, 9, 10, 11};
-    QList<int> actors = {1, 2, 3, 4, 5};
+    QList<int> actors = {3, 4, 5, 7, 8, 9, 10, 11};
+    //QList<int> actors = {1, 2, 3, 4, 5};
 
     // Start
     QVector<float> results(actors.size());
@@ -218,10 +219,10 @@ DescriptorPtr PersonReid::computeFeature(Dataset* dataset, shared_ptr<InstanceIn
 
     // Process
     //DescriptorPtr feature = feature_global_hist(*colorFrame, *maskFrame, *instance_info);
-    //DescriptorPtr feature = feature_joints_hist(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
+    DescriptorPtr feature = feature_joints_hist(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
     //DescriptorPtr feature = feature_region_descriptor(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
     //DescriptorPtr feature = feature_pointinterest_descriptor(*colorFrame, *maskFrame, *instance_info);
-    DescriptorPtr feature = feature_skeleton_distances(*colorFrame, *skeleton, *instance_info);
+    //DescriptorPtr feature = feature_skeleton_distances(*colorFrame, *skeleton, *instance_info);
     //DescriptorPtr feature = feature_joint_descriptor(*colorFrame, *skeleton, *instance_info);
     //DescriptorPtr feature = feature_fusion(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
 
@@ -345,8 +346,11 @@ QMultiMap<int, DescriptorPtr> PersonReid::train_multiple(Dataset* dataset, QList
         QList<shared_ptr<InstanceInfo>> instances = metadata.instances({actor}, {camera}, DatasetMetadata::ANY_LABEL);
         std::vector<QFuture<DescriptorPtr>> workers;
 
+        int i = 0;
         for (shared_ptr<InstanceInfo> instance_info : instances) {
-            workers.push_back( QtConcurrent::run(this, &PersonReid::computeFeature, dataset, instance_info) );
+            if (i % 2 == 0)
+                workers.push_back( QtConcurrent::run(this, &PersonReid::computeFeature, dataset, instance_info) );
+            i++;
         }
 
         for (QFuture<DescriptorPtr>& f : workers) {
@@ -1189,6 +1193,7 @@ DescriptorPtr PersonReid::feature_joints_hist(ColorFrame& colorFrame, DepthFrame
 
     // Build Voronoi cells as a mask
     Skeleton skeleton_tmp = skeleton; // copy
+    //makeUpJoints(skeleton, false);
     //makeUpOnlySomeJoints(skeleton); // Modify passed skeleton in order to view changes in show_images method (called outside of this method)
     shared_ptr<MaskFrame> voronoiMask = getVoronoiCells(depthFrame, maskFrame, skeleton);
 
@@ -1256,8 +1261,8 @@ DescriptorPtr PersonReid::feature_region_descriptor(ColorFrame &colorFrame, Dept
 
     auto computeFeature = [&](const SkeletonJoint& joint) -> cv::Mat
     {
-        cv::SurfFeatureDetector detector;
-        cv::SurfDescriptorExtractor extractor;
+        cv::FastFeatureDetector detector(20); // fast thresold = 20
+        cv::SiftDescriptorExtractor extractor;
 
         uchar mask_filter = joint.getType() + 1;
         cv::Mat joint_mask;
@@ -1285,15 +1290,15 @@ DescriptorPtr PersonReid::feature_region_descriptor(ColorFrame &colorFrame, Dept
         return descriptor;
     };
 
-    QSet<SkeletonJoint::JointType> ignore_joints = {SkeletonJoint::JOINT_HEAD,
+    /*QSet<SkeletonJoint::JointType> ignore_joints = {SkeletonJoint::JOINT_HEAD,
                                                     SkeletonJoint::JOINT_LEFT_HAND,
-                                                    SkeletonJoint::JOINT_RIGHT_HAND};
+                                                    SkeletonJoint::JOINT_RIGHT_HAND};*/
     std::vector<QFuture<cv::Mat>> workers;
 
     for (const SkeletonJoint& joint : skeleton.joints()) // I use the skeleton of 15 or 20 joints not the temp one.
     {
-        if (ignore_joints.contains(joint.getType()))
-            continue;
+        /*if (ignore_joints.contains(joint.getType()))
+            continue;*/
 
         workers.push_back( QtConcurrent::run(computeFeature, joint) );
     }
@@ -1323,8 +1328,8 @@ DescriptorPtr PersonReid::feature_pointinterest_descriptor(ColorFrame &colorFram
     cv::cvtColor(color_mat, gray_mat, CV_RGB2GRAY);
 
     shared_ptr<RegionDescriptor> feature = make_shared<RegionDescriptor>(instance_info, colorFrame.getIndex());
-    cv::FastFeatureDetector detector;
-    cv::SurfDescriptorExtractor extractor;
+    cv::SiftFeatureDetector detector;
+    cv::SiftDescriptorExtractor extractor;
 
     // Detect Keypoints
     std::vector<cv::KeyPoint> keypoints;
@@ -1361,7 +1366,7 @@ DescriptorPtr PersonReid::feature_joint_descriptor(ColorFrame &colorFrame, Skele
 
     // Make up joints
     Skeleton skeleton_tmp = skeleton; // copy
-    makeUpJoints(skeleton_tmp, false);
+    //makeUpJoints(skeleton_tmp, false);
 
     // Convert image to gray for point detector
     cv::Mat gray_mat;
