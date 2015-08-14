@@ -7,8 +7,8 @@
 #include "types/ColorFrame.h"
 #include "types/MaskFrame.h"
 #include "types/SkeletonFrame.h"
-#include "ml/KMeans.h"
 #include "openni/OpenNIDevice.h"
+#include "opencv2/features2d/features2d.hpp"
 
 namespace dai {
 
@@ -17,38 +17,9 @@ class PersonReid : public QObject
     Q_OBJECT
 
 public:
-    void test1();
-    void test2();
-    void test3();
-    void approach1(QHashDataFrames& frames);
-    void approach2(QHashDataFrames& frames);
-    void approach3(QHashDataFrames& frames);
-    void approach4(QHashDataFrames& frames);
-    void approach5(QHashDataFrames& frames);
-    void approach6(QHashDataFrames& frames);
-    void parseDataset();
-
-    // DAI4REID
-    void test_DAI4REID();
-    QList<DescriptorPtr> train_DAI4REID(QList<int> actors);
-    QVector<float> validate_DAI4REID(const QList<int> &actors, const QList<DescriptorPtr>& gallery, int *num_tests = nullptr);
-
-    // DAI4REID Parsed
-    QList<DescriptorPtr> create_gallery_DAI4REID_Parsed();
-
-    // Generic training and testing method
-    QList<DescriptorPtr> train(Dataset *dataset, QList<int> actors, int camera);
-
-    void validate(Dataset *dataset, const QList<int> &actors, int camera, const QList<DescriptorPtr>& gallery, QVector<float>& results, int *num_tests = nullptr);
-
-    // Multiple-shot vs Multiple-shot approach
-    QMultiMap<int, DescriptorPtr> train_multiple(Dataset *dataset, QList<int> actors, int camera);
-    void validate_multiple(Dataset* dataset, const QList<int> &actors, int camera, const QMultiMap<int, DescriptorPtr>& gallery, QVector<float>& results, int *num_tests);
-
-    // CAVIAR4REID
-    void test_CAVIAR4REID();
-    QList<DescriptorPtr> train_CAVIAR4REID(QList<int> actors);
-    QVector<float> validate_CAVIAR4REID(const QList<int> &actors, const QList<DescriptorPtr>& gallery, int *num_tests = nullptr);
+    // Training and Testing
+    QMultiMap<int, DescriptorPtr> train(Dataset *dataset, QList<int> actors, int camera);
+    void validate(Dataset* dataset, const QList<int> &actors, int camera, const QMultiMap<int, DescriptorPtr>& gallery, QVector<float>& results, int *num_tests);
 
     // Features
     DescriptorPtr computeFeature(Dataset *dataset, shared_ptr<InstanceInfo> instance_info);
@@ -68,19 +39,19 @@ public:
 
     DescriptorPtr feature_pointinterest_descriptor(ColorFrame &colorFrame, MaskFrame &maskFrame, const InstanceInfo& instance_info) const;
 
-    DescriptorPtr feature_joint_descriptor(ColorFrame &colorFrame, Skeleton &skeleton, const InstanceInfo& instance_info) const;
+    DescriptorPtr feature_joint_descriptor(ColorFrame &colorFrame, DepthFrame &depthFrame, MaskFrame &maskFrame, Skeleton &skeleton, const InstanceInfo& instance_info) const;
 
 
     DescriptorPtr feature_skeleton_distances(ColorFrame &colorFrame, Skeleton &skeleton, const InstanceInfo& instance_info) const;
 
     // Utils
-    void makeUpJoints(Skeleton& skeleton, bool only_middle_points = false) const;
-    void makeUpOnlySomeJoints(Skeleton& skeleton) const;
-    void drawPoint(ColorFrame &colorFrame, int x, int y, RGBColor color = {255, 0, 0}) const;
-    SkeletonJoint getCloserJoint(const Point3f& cloudPoint, const QList<SkeletonJoint>& joints) const;
-    shared_ptr<MaskFrame> getVoronoiCells(const DepthFrame& depthFrame, const MaskFrame& maskFrame, const Skeleton& skeleton) const;
-    shared_ptr<MaskFrame> getVoronoiCellsParallel(const DepthFrame& depthFrame, const MaskFrame& maskFrame, const Skeleton& skeleton) const;
-    void colorImageWithVoronoid(ColorFrame &colorFrame, MaskFrame &voronoi) const;
+    static void makeUpJoints(Skeleton& skeleton, bool only_middle_points = false);
+    static void makeUpOnlySomeJoints(Skeleton& skeleton);
+    cv::KeyPoint createKeyPoint(const SkeletonJoint& joint, const Skeleton &skeleton, shared_ptr<MaskFrame> voronoi) const;
+    static SkeletonJoint getCloserJoint(const Point3f& cloudPoint, const QList<SkeletonJoint>& joints);
+    static shared_ptr<MaskFrame> getVoronoiCells(const DepthFrame& depthFrame, const MaskFrame& maskFrame, const Skeleton& skeleton);
+    static shared_ptr<MaskFrame> getVoronoiCellsParallel(const DepthFrame& depthFrame, const MaskFrame& maskFrame, const Skeleton& skeleton);
+    static void colorImageWithVoronoid(ColorFrame &colorFrame, MaskFrame &voronoi);
     void highLightMask(ColorFrame &colorFrame, MaskFrame &maskFrame) const;
     void highLightDepth(ColorFrame &colorFrame, DepthFrame &depthFrame) const;
     QHashDataFrames allocateMemory() const;
@@ -94,13 +65,14 @@ public slots:
     void execute();
 
 private:
-    void show_images(shared_ptr<ColorFrame> colorFrame, shared_ptr<MaskFrame> maskFrame, shared_ptr<DepthFrame> depthFrame, shared_ptr<Skeleton> skeleton);
-
-    OpenNIDevice* m_device;
-    void printClusters(const QList<Cluster<Descriptor> > &clusters) const;
-    void drawSkeleton(ColorFrame &colorFrame, shared_ptr<Skeleton> skeleton);
     static RGBColor _colors[20];
 
+    void show_images(shared_ptr<ColorFrame> colorFrame, shared_ptr<MaskFrame> maskFrame, shared_ptr<DepthFrame> depthFrame, shared_ptr<Skeleton> skeleton);
+    //void printClusters(const QList<Cluster<Descriptor> > &clusters) const;
+    void drawSkeleton(ColorFrame &colorFrame, const Skeleton &skeleton) const;
+    void drawPoint(ColorFrame &colorFrame, int x, int y, RGBColor color = {255, 0, 0}) const;
+
+    OpenNIDevice* m_device;
 };
 
 } // End Namespace

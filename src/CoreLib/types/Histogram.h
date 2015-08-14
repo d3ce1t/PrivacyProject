@@ -522,6 +522,15 @@ public:
         return distance;
     }
 
+    void print(int n_elems)
+    {
+        // Show info of the histogram
+        int i=0;
+        foreach (auto item, this->higherFreqBins(n_elems)) {
+            std::cout << i++ << "(" << item->point.toString().toStdString() << ")" << item->value << item->dist << std::endl;
+        }
+    }
+
 }; // End Histogram
 
 // Histogram Definitions

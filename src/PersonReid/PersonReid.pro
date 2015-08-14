@@ -20,14 +20,16 @@ HEADERS += \
     JointHistograms.h \
     DistancesFeature.h \
     RegionDescriptor.h \
-    DescriptorSet.h
+    DescriptorSet.h \
+    tests.h
 
 SOURCES += main.cpp \
     PersonReid.cpp \
     Descriptor.cpp \
     DistancesFeature.cpp \
     RegionDescriptor.cpp \
-    DescriptorSet.cpp
+    DescriptorSet.cpp \
+    tests.cpp
 
 
 unix {

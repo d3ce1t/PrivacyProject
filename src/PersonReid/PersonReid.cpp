@@ -8,7 +8,6 @@
 #include "dataset/DAI4REID/DAI4REID.h"
 #include "dataset/DAI4REID_Parsed/DAI4REID_Parsed.h"
 #include "dataset/IASLAB_RGBD_ID/IASLAB_RGBD_ID.h"
-#include "viewer/InstanceViewerWindow.h"
 #include "Config.h"
 #include "opencv2/features2d/features2d.hpp"
 #include "opencv2/nonfree/features2d.hpp"
@@ -16,15 +15,13 @@
 #include "opencv_utils.h"
 #include "types/Histogram.h"
 #include <QThread>
-#include <QImage>
-#include <QFile>
 #include <future>
-#include <QCryptographicHash>
 #include "JointHistograms.h"
 #include "DistancesFeature.h"
 #include "RegionDescriptor.h"
 #include "DescriptorSet.h"
 #include <QtConcurrent>
+#include <cstdlib>
 
 namespace dai {
 
@@ -51,113 +48,8 @@ RGBColor PersonReid::_colors[20] = {
     {10,  100, 255}
 };
 
-
-// Test save image and read it
-void PersonReid::test1()
-{
-    cv::Mat color_mat = cv::imread("C:/prueba.png");
-
-    shared_ptr<ColorFrame> color_f = make_shared<ColorFrame>();
-    color_f->setDataPtr(color_mat.cols, color_mat.rows, (RGBColor*) color_mat.data, color_mat.step);
-
-    // Save Image
-    QByteArray buffer = color_f->toBinary();
-    QFile colorFile("file.bin");
-    colorFile.open(QIODevice::WriteOnly);
-    colorFile.write(buffer);
-    colorFile.close();
-    buffer.clear();
-
-    // Read Image
-    colorFile.open(QIODevice::ReadOnly);
-    buffer = colorFile.readAll();
-    shared_ptr<ColorFrame> color_copy = make_shared<ColorFrame>();
-    color_copy->loadData(buffer);
-
-    InstanceViewerWindow viewer;
-    viewer.show();
-    viewer.showFrame(color_copy);
-
-    cv::imshow("prueba", color_mat);
-    cv::waitKey(5000);
-}
-
-void PersonReid::test2()
-{
-    // Read Image
-    QFile colorFile("file.bin");
-    colorFile.open(QIODevice::ReadOnly);
-    QByteArray buffer = colorFile.readAll();
-    shared_ptr<ColorFrame> colorFrame = make_shared<ColorFrame>();
-    colorFrame->loadData(buffer);
-
-    // Show
-    cv::Mat color_mat(colorFrame->height(), colorFrame->width(), CV_8UC3, (void*) colorFrame->getDataPtr(), colorFrame->getStride());
-    cv::imshow("prueba", color_mat);
-    cv::waitKey(5000);
-}
-
-void PersonReid::test3()
-{
-    Dataset* dataset = new DAI4REID_Parsed;
-    dataset->setPath("C:/datasets/DAI4REID/parse_subset");
-    const DatasetMetadata& metadata = dataset->getMetadata();
-
-    //shared_ptr<InstanceInfo> instance_info = metadata.instance(1, 1, 302, QList<QString>());
-
-    QList<shared_ptr<InstanceInfo>> instances = metadata.instances({1,2,3,4,5},
-                                                                   {2},
-                                                                   DatasetMetadata::ANY_LABEL);
-    // Create container for read frames
-    QHashDataFrames readFrames;
-    QCryptographicHash sha1_hash(QCryptographicHash::Sha1);
-
-    for (shared_ptr<InstanceInfo> instance_info : instances)
-    {
-        std::string fileName = instance_info->getFileName(DataFrame::Color).toStdString();
-
-        printf("actor %i sample %i file %s\n", instance_info->getActor(),
-               instance_info->getSample(),
-               fileName.c_str());
-
-        fflush(stdout);
-
-        // Get Sample
-        shared_ptr<StreamInstance> instance = dataset->getInstance(*instance_info, DataFrame::Color);
-
-        // Open Instances
-        instance->open();
-
-        // Read frames
-        instance->readNextFrame(readFrames);
-
-        // Get Frames
-        auto colorFrame = static_pointer_cast<ColorFrame>(readFrames.value(DataFrame::Color));
-        auto depthFrame = static_pointer_cast<DepthFrame>(readFrames.value(DataFrame::Depth));
-        auto maskFrame = static_pointer_cast<MaskFrame>(readFrames.value(DataFrame::Mask));
-        auto skeletonFrame = static_pointer_cast<SkeletonFrame>(readFrames.value(DataFrame::Skeleton));
-        colorFrame->setOffset(depthFrame->offset());
-
-        // Process
-        QList<int> users = skeletonFrame->getAllUsersId();
-        shared_ptr<Skeleton> skeleton = skeletonFrame->getSkeleton(users.at(0));
-
-        sha1_hash.addData(colorFrame->toBinary());
-        sha1_hash.addData(depthFrame->toBinary());
-        sha1_hash.addData(maskFrame->toBinary());
-        sha1_hash.addData(skeleton->toBinary());
-
-        // Close Instances
-        instance->close();
-    }
-
-    qDebug() << sha1_hash.result().toHex();
-}
-
 void PersonReid::execute()
 {
-    //parseDataset();
-
     // Select dataset
     Dataset* dataset = new IASLAB_RGBD_ID;
     dataset->setPath("/Volumes/Files/Datasets/IASLAB-RGBD-ID");
@@ -168,9 +60,16 @@ void PersonReid::execute()
     //dataset->setPath("/files/DAI4REID_Parsed");
 
     // Select actors
-    //QList<int> actors = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
-    QList<int> actors = {3, 4, 5, 7, 8, 9, 10, 11};
-    //QList<int> actors = {1, 2, 3, 4, 5};
+    QList<int> actors = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}; // IAS-Lab RGBD-ID
+    //QList<int> actors = {3, 4, 5, 7, 8, 9, 10, 11};
+    //QList<int> actors = {1, 2, 3, 4, 5}; //DAI4REID
+    /*QList<int> actors = { // CAVIAR4REID
+         3,  4,  6,  7,  8,  9, 12, 15, 16, 18,
+        19, 20, 21, 22, 23, 24, 27, 28, 29, 30,
+        31, 32, 33, 34, 35, 36, 37, 38, 40, 41,
+        44, 45, 46, 47, 50, 52, 55, 57, 58, 59,
+        60, 62, 64, 65, 66, 67, 68, 69, 70, 71
+    };*/
 
     // Start
     QVector<float> results(actors.size());
@@ -180,14 +79,14 @@ void PersonReid::execute()
     for (int i=0; i<2; ++i)
     {
         // Training (camera 1)
-        QMultiMap<int, DescriptorPtr> gallery = train_multiple(dataset, actors, i==0 ? 1 : 2);
+        QMultiMap<int, DescriptorPtr> gallery = train(dataset, actors, i==0 ? 1 : 2);
 
         /*for (DescriptorPtr target : gallery) {
             qDebug() << target->label().getActor() << target->label().getSample();
         }*/
 
         // Validation (camera 2)
-        validate_multiple(dataset, actors, i==0 ? 2 : 1, gallery, results, &num_tests);
+        validate(dataset, actors, i==0 ? 2 : 1, gallery, results, &num_tests);
     }
 
     // Show Results
@@ -223,103 +122,13 @@ DescriptorPtr PersonReid::computeFeature(Dataset* dataset, shared_ptr<InstanceIn
     //DescriptorPtr feature = feature_region_descriptor(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
     //DescriptorPtr feature = feature_pointinterest_descriptor(*colorFrame, *maskFrame, *instance_info);
     //DescriptorPtr feature = feature_skeleton_distances(*colorFrame, *skeleton, *instance_info);
-    //DescriptorPtr feature = feature_joint_descriptor(*colorFrame, *skeleton, *instance_info);
+    //DescriptorPtr feature = feature_joint_descriptor(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
     //DescriptorPtr feature = feature_fusion(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
 
     // Close Instances
     instance->close();
 
     return feature;
-}
-
-QList<DescriptorPtr> PersonReid::train(Dataset* dataset, QList<int> actors, int camera)
-{
-    const DatasetMetadata& metadata = dataset->getMetadata();
-    QList<DescriptorPtr> gallery;
-
-    // For each actor, compute the feature that minimises the distance to each other sample of
-    // the same actor.
-    for (int actor : actors)
-    {
-        QElapsedTimer timer;
-        timer.start();
-
-        QList<shared_ptr<InstanceInfo>> instances = metadata.instances({actor}, {camera}, DatasetMetadata::ANY_LABEL);
-        QList<DescriptorPtr> actor_samples;
-        std::vector<QFuture<DescriptorPtr>> workers;
-
-        for (shared_ptr<InstanceInfo> instance_info : instances) {
-            workers.push_back( QtConcurrent::run(this, &PersonReid::computeFeature, dataset, instance_info) );
-        }
-
-        for (QFuture<DescriptorPtr>& f : workers) {
-
-            DescriptorPtr feature = f.result();
-
-            if (feature) {
-                actor_samples << feature;
-            }
-
-            // Show
-            //show_images(colorFrame, maskFrame, depthFrame, skeleton);
-            qDebug("actor %i sample %i fps %f", feature->label().getActor(), feature->label().getSample(), float(actor_samples.size() )/ timer.elapsed() * 1000.0f);
-        }
-
-        qDebug() << "Actor" << actor << "samples" << actor_samples.size();
-
-        // Learn Minimum: Use the signature that minimise its distance to all of the other signatures for the same actor
-        DescriptorPtr learntActorFeature = Descriptor::minFeatureParallel(actor_samples);
-
-        // Learn K features for the same actor (K=3)
-        /*qDebug() << "Computing K-Means";
-        auto kmeans = KMeans<Descriptor>::execute(actor_samples, 5, 5);
-
-        foreach (auto cluster, kmeans->getClusters()) {
-            gallery << cluster.centroid;
-        }*/
-
-        gallery << learntActorFeature;
-        qDebug("Learnt actor %i sample %i frame %i", learntActorFeature->label().getActor(),
-                                                     learntActorFeature->label().getSample(),
-                                                     learntActorFeature->frameId());
-
-        actor_samples.clear();
-    }
-
-    return gallery;
-}
-
-void PersonReid::validate(Dataset* dataset, const QList<int> &actors, int camera, const QList<DescriptorPtr>& gallery, QVector<float>& results, int *num_tests)
-{
-    const DatasetMetadata& metadata = dataset->getMetadata();
-    QList<shared_ptr<InstanceInfo>> instances = metadata.instances(actors, {camera}, DatasetMetadata::ANY_LABEL);
-    std::vector<QFuture<DescriptorPtr>> workers;
-    int total_tests = 0;
-
-    // Start validation    
-    for (shared_ptr<InstanceInfo> instance_info : instances) {
-        workers.push_back( QtConcurrent::run(this, &PersonReid::computeFeature, dataset, instance_info) );
-    }
-
-    for (QFuture<DescriptorPtr>& f : workers) {
-
-        DescriptorPtr query = f.result();
-
-        if (query) {
-            // CMC
-            std::string fileName = query->label().getFileName(DataFrame::Color).toStdString();
-            QMap<float, int> query_results = compute_distances_to_all_samples(*query, gallery);
-            int pos = cummulative_match_curve(query_results, results, query->label().getActor());
-            qDebug("Results for actor %i sample %i file %s (pos=%i)", query->label().getActor(), query->label().getSample(), fileName.c_str(), pos+1);
-            print_query_results(query_results, pos);
-            qDebug() << "--------------------------";
-            total_tests++;
-        }
-    }
-
-    if (num_tests) {
-        *num_tests += total_tests;
-    }
 }
 
 /**
@@ -332,7 +141,7 @@ void PersonReid::validate(Dataset* dataset, const QList<int> &actors, int camera
  * @param camera
  * @return
  */
-QMultiMap<int, DescriptorPtr> PersonReid::train_multiple(Dataset* dataset, QList<int> actors, int camera)
+QMultiMap<int, DescriptorPtr> PersonReid::train(Dataset* dataset, QList<int> actors, int camera)
 {
     const DatasetMetadata& metadata = dataset->getMetadata();
     QMultiMap<int, DescriptorPtr> gallery;
@@ -344,13 +153,34 @@ QMultiMap<int, DescriptorPtr> PersonReid::train_multiple(Dataset* dataset, QList
         timer.start();
 
         QList<shared_ptr<InstanceInfo>> instances = metadata.instances({actor}, {camera}, DatasetMetadata::ANY_LABEL);
+
+        // Single thread
+        /*int i = 0;
+
+        for (shared_ptr<InstanceInfo> instance_info : instances) {
+            if (i % 2 == 0) {
+                DescriptorPtr feature = PersonReid::computeFeature(dataset, instance_info);
+
+                if (feature) {
+                    gallery.insert(feature->label().getActor(), feature);
+                    samples_processed++;
+                }
+
+                // Show
+                //show_images(colorFrame, maskFrame, depthFrame, skeleton);
+                qDebug("actor %i sample %i fps %f", feature->label().getActor(), feature->label().getSample(), float(samples_processed )/ timer.elapsed() * 1000.0f);
+            }
+            i++;
+        }*/
+
+        // Parallel version
         std::vector<QFuture<DescriptorPtr>> workers;
 
-        int i = 0;
+        //int i = 0;
         for (shared_ptr<InstanceInfo> instance_info : instances) {
-            if (i % 2 == 0)
+            //if (i % 2 == 0)
                 workers.push_back( QtConcurrent::run(this, &PersonReid::computeFeature, dataset, instance_info) );
-            i++;
+            //i++;
         }
 
         for (QFuture<DescriptorPtr>& f : workers) {
@@ -373,7 +203,7 @@ QMultiMap<int, DescriptorPtr> PersonReid::train_multiple(Dataset* dataset, QList
     return gallery;
 }
 
-void PersonReid::validate_multiple(Dataset* dataset, const QList<int> &actors, int camera, const QMultiMap<int, DescriptorPtr>& gallery, QVector<float>& results, int *num_tests)
+void PersonReid::validate(Dataset* dataset, const QList<int> &actors, int camera, const QMultiMap<int, DescriptorPtr>& gallery, QVector<float>& results, int *num_tests)
 {
     const DatasetMetadata& metadata = dataset->getMetadata();
     QList<shared_ptr<InstanceInfo>> instances = metadata.instances(actors, {camera}, DatasetMetadata::ANY_LABEL);
@@ -414,461 +244,6 @@ void PersonReid::validate_multiple(Dataset* dataset, const QList<int> &actors, i
     }
 }
 
-void PersonReid::parseDataset()
-{
-    Dataset* dataset = new DAI4REID;
-    dataset->setPath("/files/DAI4REID");
-    const DatasetMetadata& metadata = dataset->getMetadata();
-
-    // Create memory for all kind of frames
-    QHashDataFrames readFrames = allocateMemory();
-
-    // For each actor, parse his/her samples
-    QList<int> actors = {1,2,3,4,5};
-
-    for (int actor : actors)
-    {
-        QList<shared_ptr<InstanceInfo>> instances_md = metadata.instances({actor},
-                                                                       {2},
-                                                                       DatasetMetadata::ANY_LABEL);
-        shared_ptr<InstanceInfo> instance_info = instances_md.at(0);
-        std::string fileName = instance_info->getFileName(DataFrame::Color).toStdString();
-
-        printf("actor %i sample %i file %s\n", instance_info->getActor(),
-               instance_info->getSample(),
-               fileName.c_str());
-
-        std::fflush(stdout);
-
-        // Get instances
-        QList<shared_ptr<StreamInstance>> instances;
-        instances << dataset->getInstance(*instance_info, DataFrame::Color);
-        instances << dataset->getInstance(*instance_info, DataFrame::Metadata);
-
-        // Open Instances
-        for (shared_ptr<StreamInstance> instance : instances) {
-            instance->open();
-        }
-
-        shared_ptr<OpenNIColorInstance> colorInstance = static_pointer_cast<OpenNIColorInstance>(instances.at(0));
-        colorInstance->device().playbackControl()->setSpeed(0.15f);
-
-        // Read frames
-        uint previousFrame = 0;
-
-        while (colorInstance->hasNext())
-        {
-            for (shared_ptr<StreamInstance> instance : instances) {
-                instance->readNextFrame(readFrames);
-            }
-
-            // Get Frames
-            auto colorFrame = static_pointer_cast<ColorFrame>(readFrames.value(DataFrame::Color));
-            auto depthFrame = static_pointer_cast<DepthFrame>(readFrames.value(DataFrame::Depth));
-            auto maskFrame = static_pointer_cast<MaskFrame>(readFrames.value(DataFrame::Mask));
-            auto skeletonFrame = static_pointer_cast<SkeletonFrame>(readFrames.value(DataFrame::Skeleton));
-            auto metadataFrame = static_pointer_cast<MetadataFrame>(readFrames.value(DataFrame::Metadata));
-
-            if (previousFrame + 1 != colorFrame->getIndex())
-                qDebug() << "Frame Skip" << colorFrame->getIndex();
-
-            qDebug() << "Processing frame" << colorFrame->getIndex();
-
-            // Process
-            QList<int> users = skeletonFrame->getAllUsersId();
-
-            // Work with the user inside of the Bounding Box
-            if (!users.isEmpty() && !metadataFrame->boundingBoxes().isEmpty() /*&& colorFrame->getIndex() > 140*/)
-            {
-                int firstUser = users.at(0);
-                shared_ptr<Skeleton> skeleton = skeletonFrame->getSkeleton(firstUser);
-
-                // Get ROIs
-                BoundingBox bb = metadataFrame->boundingBoxes().first();
-                shared_ptr<ColorFrame> roiColor = colorFrame->subFrame(bb);
-                shared_ptr<DepthFrame> roiDepth = depthFrame->subFrame(bb);
-                shared_ptr<MaskFrame> roiMask = maskFrame->subFrame(bb);
-
-                QString fileName = "U" + QString::number(instance_info->getActor()) +
-                                  "_C" + QString::number(instance_info->getCamera()) +
-                                  "_F" + QString::number(roiColor->getIndex());
-
-                // Show
-                cv::Mat color_mat(roiColor->height(), roiColor->width(), CV_8UC3,
-                                  (void*) roiColor->getDataPtr(), roiColor->getStride());
-
-                cv::imshow("img1", color_mat);
-                cv::waitKey(1);
-                QCoreApplication::processEvents();
-
-                // Save color as JPEG
-                QImage image( (uchar*) roiColor->getDataPtr(), roiColor->width(), roiColor->height(),
-                             roiColor->getStride(), QImage::Format_RGB888);
-                image.save("data/" + fileName + "_color.jpg");
-
-                // Save depth
-                /*cv::Mat depth_mat(roiDepth->height(), roiDepth->width(), CV_16UC1,
-                                  (uchar*) roiDepth->getDataPtr(), roiDepth->getStride());
-                cv::imwrite(QString("data/" + fileName + "_depth.png").toStdString(), depth_mat);*/
-                QFile depthFile("data/" + fileName + "_depth.bin");
-                QByteArray depth_data = roiDepth->toBinary();
-                depthFile.open(QIODevice::WriteOnly);
-                depthFile.write(depth_data);
-                depthFile.close();
-
-                // Save mask
-                QFile maskFile("data/" + fileName + "_mask.bin");
-                QByteArray mask_data = roiMask->toBinary();
-                maskFile.open(QIODevice::WriteOnly);
-                maskFile.write(mask_data);
-                maskFile.close();
-
-                // Save Skeleton
-                QFile file("data/" + fileName + "_skel.bin");
-                QByteArray skel_data = skeleton->toBinary();
-                file.open(QIODevice::WriteOnly);
-                file.write(skel_data);
-                file.close();
-            }
-
-            previousFrame = colorFrame->getIndex();
-        }
-
-        // Close Instances
-        for (shared_ptr<StreamInstance> instance : instances) {
-            instance->close();
-        }
-    }
-
-    qDebug() << "Parse Finished!";
-}
-
-// Test feature of n-parts localised histograms (corresponding to joints) with OpenNI
-void PersonReid::test_DAI4REID()
-{
-    QList<int> actors = {1, 2, 3, 4, 5};
-
-    // Training
-    QList<DescriptorPtr> gallery = train_DAI4REID(actors);
-
-    // Validation
-    int num_tests = 0;
-    QVector<float> results = validate_DAI4REID(actors, gallery, &num_tests);
-
-    // Show Results
-    normalise_results(results, num_tests);
-    print_results(results);
-}
-
-QList<DescriptorPtr> PersonReid::train_DAI4REID(QList<int> actors)
-{
-    Dataset* dataset = new DAI4REID;
-    dataset->setPath("C:/datasets/DAI4REID");
-    const DatasetMetadata& metadata = dataset->getMetadata();
-
-    InstanceViewerWindow viewer;
-    viewer.show();
-
-    QList<DescriptorPtr> samples;
-    QList<DescriptorPtr> actor_samples;
-    QList<DescriptorPtr> centroids;
-
-    // Create memory for colorFrame
-    QHashDataFrames readFrames = allocateMemory();
-
-    // For each actor, compute the feature that minimises the distance to each other sample of
-    // the same actor.
-    for (int actor : actors)
-    {
-        QList<shared_ptr<InstanceInfo>> instances = metadata.instances({actor},
-                                                                       {2},
-                                                                       DatasetMetadata::ANY_LABEL);
-
-        for (shared_ptr<InstanceInfo> instance_info : instances)
-        {
-            std::string fileName = instance_info->getFileName(DataFrame::Color).toStdString();
-
-            printf("actor %i sample %i file %s\n", instance_info->getActor(),
-                   instance_info->getSample(),
-                   fileName.c_str());
-
-            std::fflush(stdout);
-
-            // Get Sample
-            QList<shared_ptr<StreamInstance>> instances;
-            instances << dataset->getInstance(*instance_info, DataFrame::Color);
-            //instances << dataset->getInstance(*instance_info, DataFrame::Depth);     // I should FIX this
-            //instances << dataset->getInstance(*instance_info, DataFrame::Skeleton);  // because I don't need
-            //instances << dataset->getInstance(*instance_info, DataFrame::Mask);      // to know imp. details
-            instances << dataset->getInstance(*instance_info, DataFrame::Metadata);
-
-            // Open Instances
-            for (shared_ptr<StreamInstance> instance : instances) {
-                instance->open();
-            }
-
-            shared_ptr<OpenNIColorInstance> colorInstance = static_pointer_cast<OpenNIColorInstance>(instances.at(0));
-            colorInstance->device().playbackControl()->setSpeed(1.0f);
-            m_device = &(colorInstance->device());
-
-            // Read frames
-            while (colorInstance->hasNext())
-            {
-                for (shared_ptr<StreamInstance> instance : instances) {
-                    instance->readNextFrame(readFrames);
-                }
-
-                // Get Frames
-                auto colorFrame = static_pointer_cast<ColorFrame>(readFrames.value(DataFrame::Color));
-                auto depthFrame = static_pointer_cast<DepthFrame>(readFrames.value(DataFrame::Depth));
-                auto maskFrame = static_pointer_cast<MaskFrame>(readFrames.value(DataFrame::Mask));
-                auto skeletonFrame = static_pointer_cast<SkeletonFrame>(readFrames.value(DataFrame::Skeleton));
-                auto metadataFrame = static_pointer_cast<MetadataFrame>(readFrames.value(DataFrame::Metadata));
-
-                // Process
-                QList<int> users = skeletonFrame->getAllUsersId();
-
-                // Work with the user inside of the Bounding Box
-                if (!users.isEmpty() && !metadataFrame->boundingBoxes().isEmpty() && colorFrame->getIndex() > 140)
-                {
-                    int firstUser = users.at(0);
-                    shared_ptr<Skeleton> skeleton = skeletonFrame->getSkeleton(firstUser);
-
-                    //drawJoints(*colorFrame, skeleton->joints());
-
-                    // Get ROIs
-                    BoundingBox bb = metadataFrame->boundingBoxes().first();
-                    shared_ptr<ColorFrame> roiColor = colorFrame->subFrame(bb);
-                    shared_ptr<DepthFrame> roiDepth = depthFrame->subFrame(bb);
-                    shared_ptr<MaskFrame> roiMask = maskFrame->subFrame(bb);
-
-                    DescriptorPtr feature = feature_joints_hist(*roiColor, *roiDepth, *roiMask, *skeleton,
-                                                                      *instance_info);
-                    if (feature) {
-                        actor_samples << feature;
-                        samples << feature;
-                    }
-                }
-
-                // Show
-                viewer.showFrame(colorFrame);
-                QCoreApplication::processEvents();
-            }
-
-            // Close Instances
-            for (shared_ptr<StreamInstance> instance : instances) {
-                instance->close();
-            }
-        }
-
-        qDebug() << "Actor samples" << actor_samples.size();
-        DescriptorPtr selectedFeature = Descriptor::minFeature(actor_samples);
-        centroids << selectedFeature;
-        printf("Init. Centroid %i = actor %i %i %i\n", actor, selectedFeature->label().getActor(),
-                                                       selectedFeature->label().getSample(),
-                                                       selectedFeature->frameId());
-        actor_samples.clear();
-        std::fflush(stdout);
-    }
-
-    // Learn A: Learning a signature is the same as clustering the input data into num_actor sets
-    // and use the centroid of each cluster as model.
-    auto kmeans = KMeans<Descriptor>::execute(samples, actors.size(), centroids);
-    printClusters(kmeans->getClusters());
-
-    QList<DescriptorPtr> gallery;
-
-    for (auto cluster : kmeans->getClusters()) {
-        gallery << cluster.centroid;
-    }
-
-    // Learn B: Use the signature that minimises the distance to the rest of signatures
-    // of each actor.
-    //QList<shared_ptr<Feature>> gallery = centroids;
-
-    return gallery;
-}
-
-QVector<float> PersonReid::validate_DAI4REID(const QList<int> &actors, const QList<DescriptorPtr>& gallery, int *num_tests)
-{
-    Dataset* dataset = new DAI4REID;
-    dataset->setPath("C:/datasets/DAI4REID");
-    const DatasetMetadata& metadata = dataset->getMetadata();
-    int total_tests = 0;
-
-    QList<shared_ptr<InstanceInfo>> instances = metadata.instances(actors,
-                                                                   {2},
-                                                                   DatasetMetadata::ANY_LABEL);
-
-
-    // Create memory for colorFrame
-    QHashDataFrames readFrames = allocateMemory();
-
-    // Start validation
-    QVector<float> results(actors.size());
-
-    for (shared_ptr<InstanceInfo> instance_info : instances)
-    {
-        // Get Sample
-        QList<shared_ptr<StreamInstance>> instances;
-        instances << dataset->getInstance(*instance_info, DataFrame::Color);
-        //instances << dataset->getInstance(*instance_info, DataFrame::Depth);     // I should FIX this
-        //instances << dataset->getInstance(*instance_info, DataFrame::Skeleton);  // because I don't need
-        //instances << dataset->getInstance(*instance_info, DataFrame::Mask);      // to know imp. details
-        instances << dataset->getInstance(*instance_info, DataFrame::Metadata);
-
-        // Open Instances
-        for (shared_ptr<StreamInstance> instance : instances) {
-            instance->open();
-        }
-
-        shared_ptr<OpenNIColorInstance> colorInstance = static_pointer_cast<OpenNIColorInstance>(instances.at(0));
-        colorInstance->device().playbackControl()->setSpeed(0.25f);
-        m_device = &(colorInstance->device());
-
-        // Read frames
-        while (colorInstance->hasNext())
-        {
-            for (shared_ptr<StreamInstance> instance : instances) {
-                instance->readNextFrame(readFrames);
-            }
-
-            // Get Frames
-            auto colorFrame = static_pointer_cast<ColorFrame>(readFrames.value(DataFrame::Color));
-            auto depthFrame = static_pointer_cast<DepthFrame>(readFrames.value(DataFrame::Depth));
-            auto maskFrame = static_pointer_cast<MaskFrame>(readFrames.value(DataFrame::Mask));
-            auto skeletonFrame = static_pointer_cast<SkeletonFrame>(readFrames.value(DataFrame::Skeleton));
-            auto metadataFrame = static_pointer_cast<MetadataFrame>(readFrames.value(DataFrame::Metadata));
-
-            // Feature extraction
-            QList<int> users = skeletonFrame->getAllUsersId();
-
-            // Work with the user inside of the Bounding Box
-            if (!users.isEmpty() && !metadataFrame->boundingBoxes().isEmpty() && colorFrame->getIndex() > 140)
-            {
-                int firstUser = users.at(0);
-                shared_ptr<Skeleton> skeleton = skeletonFrame->getSkeleton(firstUser);
-
-                // Get ROIs
-                BoundingBox bb = metadataFrame->boundingBoxes().first();
-                shared_ptr<ColorFrame> roiColor = colorFrame->subFrame(bb);
-                shared_ptr<DepthFrame> roiDepth = depthFrame->subFrame(bb);
-                shared_ptr<MaskFrame> roiMask = maskFrame->subFrame(bb);
-
-                DescriptorPtr query = feature_joints_hist(*roiColor, *roiDepth, *roiMask, *skeleton,
-                                                                  *instance_info);
-                if (query) {
-                    // CMC
-                    QMap<float, int> query_results = compute_distances_to_all_samples(*query, gallery);
-                    int pos = cummulative_match_curve(query_results, results, query->label().getActor());
-                    cout << "Results for actor " << instance_info->getActor() << " " << instance_info->getSample() << endl;
-                    print_query_results(query_results, pos);
-                    cout << "--------------------------" << endl;
-                    total_tests++;
-                }
-            }
-
-            // Show
-            //viewer.showFrame(colorFrame);
-            //QCoreApplication::processEvents();
-        }
-
-        // Close Instances
-        for (shared_ptr<StreamInstance> instance : instances) {
-            instance->close();
-        }
-    }
-
-    if (num_tests) {
-        *num_tests = total_tests;
-    }
-
-    return results;
-}
-
-QList<DescriptorPtr> PersonReid::create_gallery_DAI4REID_Parsed()
-{
-    Dataset* dataset = new DAI4REID_Parsed;
-    dataset->setPath("C:/datasets/DAI4REID/parse_subset");
-    const DatasetMetadata& metadata = dataset->getMetadata();
-
-    QList<DescriptorPtr> gallery;
-
-    // Centroids: Average actor or KMeans, No make up joints, No ignore
-    /*QList<QPair<int, int>> centroids = {
-        QPair<int, int>(1, 302),
-        QPair<int, int>(2, 663),
-        QPair<int, int>(3, 746),
-        QPair<int, int>(4, 148),
-        QPair<int, int>(5, 359)
-    };*/
-
-    // Centroids for Occupancy Patterns
-    QList<QPair<int, int>> centroids = {
-        QPair<int, int>(1, 291),//389
-        QPair<int, int>(2, 670),//670
-        QPair<int, int>(3, 1162),//1183
-        QPair<int, int>(4, 143),//426
-        QPair<int, int>(5, 313)//313
-    };
-
-    // Centroids: Average actor or Kmeans, Make up joints, No ignore
-    /*QList<QPair<int, int>> centroids = {
-        QPair<int, int>(1, 302),
-        QPair<int, int>(2, 663),
-        QPair<int, int>(3, 744),
-        QPair<int, int>(4, 157),
-        QPair<int, int>(5, 364)
-    };*/
-
-    // Create container for read frames
-    QHashDataFrames readFrames;
-
-    for (auto centroid : centroids)
-    {
-        QList<QString> labels;
-        shared_ptr<InstanceInfo> instance_info = metadata.instance(centroid.first, 1, centroid.second, labels);
-
-        std::string fileName = instance_info->getFileName(DataFrame::Color).toStdString();
-
-        printf("actor %i sample %i file %s\n", instance_info->getActor(), instance_info->getSample(),
-                                               fileName.c_str());
-
-        std::fflush(stdout);
-
-        // Get Sample
-        shared_ptr<StreamInstance> instance = dataset->getInstance(*instance_info, DataFrame::Color);
-
-        // Open Instances
-        instance->open();
-
-        // Read frames
-        instance->readNextFrame(readFrames);
-
-        // Get Frames
-        auto colorFrame = static_pointer_cast<ColorFrame>(readFrames.value(DataFrame::Color));
-        auto depthFrame = static_pointer_cast<DepthFrame>(readFrames.value(DataFrame::Depth));
-        auto maskFrame = static_pointer_cast<MaskFrame>(readFrames.value(DataFrame::Mask));
-        auto skeletonFrame = static_pointer_cast<SkeletonFrame>(readFrames.value(DataFrame::Skeleton));
-        colorFrame->setOffset(depthFrame->offset());
-
-        // Process
-        QList<int> users = skeletonFrame->getAllUsersId();
-        shared_ptr<Skeleton> skeleton = skeletonFrame->getSkeleton(users.at(0));
-        //DescriptorPtr feature = feature_joints_hist(*colorFrame, *depthFrame, *maskFrame, *skeleton, *instance_info);
-        DescriptorPtr feature = feature_skeleton_distances(*colorFrame, *skeleton, *instance_info);
-
-        if (feature) {
-            gallery << feature;
-        }
-
-        // Close Instances
-        instance->close();
-    }
-
-    return gallery;
-}
-
 void PersonReid::show_images(shared_ptr<ColorFrame> colorFrame, shared_ptr<MaskFrame> maskFrame, shared_ptr<DepthFrame> depthFrame, shared_ptr<Skeleton> skeleton)
 {
     Q_UNUSED(depthFrame);
@@ -903,7 +278,7 @@ void PersonReid::show_images(shared_ptr<ColorFrame> colorFrame, shared_ptr<MaskF
     // Skeleton Frame
     //ColorFramePtr skeleton_color = make_shared<ColorFrame>(colorFrame->width(), colorFrame->height());
     //skeleton_color->setOffset(colorFrame->offset());
-    drawSkeleton(*(colorFrame.get()), skeleton);
+    drawSkeleton(*(colorFrame.get()), *skeleton);
     /*cv::Mat skeleton_mat(skeleton_color->height(), skeleton_color->width(), CV_8UC3,
                          (void*) skeleton_color->getDataPtr(), skeleton_color->getStride());*/
 
@@ -921,144 +296,6 @@ void PersonReid::show_images(shared_ptr<ColorFrame> colorFrame, shared_ptr<MaskF
         cv::imwrite("paco_voronoi.png", color_mat);
         cv::waitKey(3000);
     }*/
-}
-
-
-// Test feature of 2-parts Histogram (upper and lower) with CAVIAR4REID
-void PersonReid::test_CAVIAR4REID()
-{
-    QList<int> actors = {
-         3,  4,  6,  7,  8,  9, 12, 15, 16, 18,
-        19, 20, 21, 22, 23, 24, 27, 28, 29, 30,
-        31, 32, 33, 34, 35, 36, 37, 38, 40, 41,
-        44, 45, 46, 47, 50, 52, 55, 57, 58, 59,
-        60, 62, 64, 65, 66, 67, 68, 69, 70, 71
-    };
-
-    // Training
-    QList<DescriptorPtr> gallery = train_CAVIAR4REID(actors);
-
-    // Validation
-    int num_tests = 0;
-    QVector<float> results = validate_CAVIAR4REID(actors, gallery, &num_tests);
-
-    // Show Results
-    normalise_results(results, num_tests);
-    print_results(results);
-}
-
-QList<DescriptorPtr> PersonReid::train_CAVIAR4REID(QList<int> actors)
-{
-    Dataset* dataset = new CAVIAR4REID;
-    dataset->setPath("C:/datasets/CAVIAR4REID");
-    const DatasetMetadata& metadata = dataset->getMetadata();
-
-    InstanceViewerWindow viewer;
-    viewer.show();
-
-    QList<DescriptorPtr> samples;
-    QList<DescriptorPtr> actor_samples;
-    QList<DescriptorPtr> centroids;
-
-    // For each actor, compute the feature that minimises the distance to each other sample of
-    // the same actor.
-    for (int actor : actors)
-    {
-        QList<shared_ptr<InstanceInfo>> instances = metadata.instances({actor},
-                                                                       {1},
-                                                                       DatasetMetadata::ANY_LABEL);
-        actor_samples.clear();
-
-        for (shared_ptr<InstanceInfo> instance_info : instances)
-        {
-            /*std::string fileName = instance_info->getFileName(DataFrame::Color).toStdString();
-
-            printf("actor %i sample %i file %s\n", instance_info->getActor(),
-                   instance_info->getSample(),
-                   fileName.c_str());*/
-
-            // Get Sample
-            shared_ptr<StreamInstance> instance = dataset->getInstance(*instance_info, DataFrame::Color);
-            instance->open();
-            QHashDataFrames readFrames;
-            instance->readNextFrame(readFrames);
-            shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(readFrames.values().at(0));
-
-            // Feature Extraction
-            DescriptorPtr feature = feature_2parts_hist(colorFrame, *instance_info);
-            samples << feature;
-            actor_samples << feature;
-
-            // Output
-            viewer.showFrame(colorFrame);
-
-            // Process Events and sleep
-            std::fflush(stdout);
-            QCoreApplication::processEvents();
-            //QThread::msleep(800);
-        }
-
-        DescriptorPtr selectedFeature = Descriptor::minFeature(actor_samples);
-        centroids << selectedFeature;
-        printf("Init. Centroid %i = actor %i %i\n", actor, selectedFeature->label().getActor(),
-                                                       selectedFeature->label().getSample());
-    }
-
-    // Learn A: Learning a signature is the same as clustering the input data into num_actor sets
-    // and use the centroid of each cluster as model.
-    auto kmeans = KMeans<Descriptor>::execute(samples, actors.size(), centroids);
-    printClusters(kmeans->getClusters());
-
-    QList<DescriptorPtr> gallery;
-
-    for (auto cluster : kmeans->getClusters()) {
-        gallery << cluster.centroid;
-    }
-
-    // Learn B: Use the signature that minimises the distance to the rest of signatures
-    // of each actor.
-    //QList<shared_ptr<Feature>> gallery = centroids;
-
-    return gallery;
-}
-
-QVector<float> PersonReid::validate_CAVIAR4REID(const QList<int>& actors, const QList<DescriptorPtr > &gallery, int *num_tests)
-{
-    Dataset* dataset = new CAVIAR4REID;
-    dataset->setPath("C:/datasets/CAVIAR4REID");
-    const DatasetMetadata& metadata = dataset->getMetadata();
-
-    QList<shared_ptr<InstanceInfo>> instances = metadata.instances(actors,
-                                                                   {2},
-                                                                   DatasetMetadata::ANY_LABEL);
-
-    if (num_tests) {
-        *num_tests = instances.size();
-    }
-
-    QVector<float> results(actors.size());
-
-    for (shared_ptr<InstanceInfo> instance_info : instances)
-    {
-        // Get Sample
-        shared_ptr<StreamInstance> instance = dataset->getInstance(*instance_info, DataFrame::Color);
-        instance->open();
-        QHashDataFrames readFrames;
-        instance->readNextFrame(readFrames);
-        shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(readFrames.values().at(0));
-
-        // Feature Extraction
-        DescriptorPtr query = feature_2parts_hist(colorFrame, *instance_info);
-
-        // CMC
-        QMap<float, int> query_results = compute_distances_to_all_samples(*query, gallery);
-        int pos = cummulative_match_curve(query_results, results, query->label().getActor());
-        cout << "Results for actor " << instance_info->getActor() << " " << instance_info->getSample() << endl;
-        print_query_results(query_results, pos);
-        cout << "--------------------------" << endl;
-    }
-
-    return results;
 }
 
 QMap<float, int> PersonReid::compute_distances_to_all_samples(const Descriptor& query, const QList<DescriptorPtr > &gallery)
@@ -1129,7 +366,7 @@ DescriptorPtr PersonReid::feature_fusion(ColorFrame &colorFrame, DepthFrame &dep
 
     //DescriptorPtr joints_hist = feature_joints_hist(colorFrame, depthFrame, maskFrame, skeleton, instance_info);
     DescriptorPtr skeleton_distances = feature_skeleton_distances(colorFrame, skeleton, instance_info);
-    DescriptorPtr joint_desc = feature_joint_descriptor(colorFrame, skeleton, instance_info);
+    DescriptorPtr joint_desc = feature_joint_descriptor(colorFrame, depthFrame, maskFrame, skeleton, instance_info);
     DescriptorPtr region_desc = feature_region_descriptor(colorFrame, depthFrame, maskFrame, skeleton, instance_info);
 
     //feature->addDescriptor(joints_hist);
@@ -1193,7 +430,7 @@ DescriptorPtr PersonReid::feature_joints_hist(ColorFrame& colorFrame, DepthFrame
 
     // Build Voronoi cells as a mask
     Skeleton skeleton_tmp = skeleton; // copy
-    //makeUpJoints(skeleton, false);
+    //makeUpJoints(skeleton, true);
     //makeUpOnlySomeJoints(skeleton); // Modify passed skeleton in order to view changes in show_images method (called outside of this method)
     shared_ptr<MaskFrame> voronoiMask = getVoronoiCells(depthFrame, maskFrame, skeleton);
 
@@ -1217,7 +454,7 @@ DescriptorPtr PersonReid::feature_joints_hist(ColorFrame& colorFrame, DepthFrame
     {
         if (!ignore_joints.contains(joint.getType())) {
             uchar mask_filter = joint.getType() + 1;
-            auto hist = Histogram1c::create(indexed_mat, {0, 255}, voronoi_mat, mask_filter);
+            auto hist = Histogram1c::create(indexed_mat, {0, 180}, voronoi_mat, mask_filter);
             feature->addHistogram(*hist);
         }
     }
@@ -1297,8 +534,8 @@ DescriptorPtr PersonReid::feature_region_descriptor(ColorFrame &colorFrame, Dept
 
     for (const SkeletonJoint& joint : skeleton.joints()) // I use the skeleton of 15 or 20 joints not the temp one.
     {
-        /*if (ignore_joints.contains(joint.getType()))
-            continue;*/
+        //if (ignore_joints.contains(joint.getType()))
+        //    continue;
 
         workers.push_back( QtConcurrent::run(computeFeature, joint) );
     }
@@ -1328,8 +565,8 @@ DescriptorPtr PersonReid::feature_pointinterest_descriptor(ColorFrame &colorFram
     cv::cvtColor(color_mat, gray_mat, CV_RGB2GRAY);
 
     shared_ptr<RegionDescriptor> feature = make_shared<RegionDescriptor>(instance_info, colorFrame.getIndex());
-    cv::SiftFeatureDetector detector;
-    cv::SiftDescriptorExtractor extractor;
+    cv::SurfFeatureDetector detector; // fast thresold = 20
+    cv::SurfDescriptorExtractor extractor;
 
     // Detect Keypoints
     std::vector<cv::KeyPoint> keypoints;
@@ -1359,64 +596,47 @@ DescriptorPtr PersonReid::feature_pointinterest_descriptor(ColorFrame &colorFram
  * @param instance_info
  * @return
  */
-DescriptorPtr PersonReid::feature_joint_descriptor(ColorFrame &colorFrame, Skeleton &skeleton, const InstanceInfo& instance_info) const
+DescriptorPtr PersonReid::feature_joint_descriptor(ColorFrame &colorFrame, DepthFrame &depthFrame, MaskFrame &maskFrame,
+                                                   Skeleton &skeleton, const InstanceInfo& instance_info) const
 {
     cv::Mat color_mat(colorFrame.height(), colorFrame.width(), CV_8UC3,
                       (void*) colorFrame.getDataPtr(), colorFrame.getStride());
-
-    // Make up joints
-    Skeleton skeleton_tmp = skeleton; // copy
-    //makeUpJoints(skeleton_tmp, false);
 
     // Convert image to gray for point detector
     cv::Mat gray_mat;
     cv::cvtColor(color_mat, gray_mat, CV_RGB2GRAY);
 
     QSet<SkeletonJoint::JointType> ignore_joints = {//SkeletonJoint::JOINT_HEAD,
-                                                    SkeletonJoint::JOINT_CENTER_SHOULDER,
+                                                    //SkeletonJoint::JOINT_CENTER_SHOULDER,
                                                     //SkeletonJoint::JOINT_LEFT_SHOULDER,
                                                     //SkeletonJoint::JOINT_RIGHT_SHOULDER,
                                                     //SkeletonJoint::JOINT_LEFT_ELBOW,
                                                     //SkeletonJoint::JOINT_RIGHT_ELBOW,
-                                                    SkeletonJoint::JOINT_LEFT_HAND,
-                                                    SkeletonJoint::JOINT_RIGHT_HAND,
+                                                    //SkeletonJoint::JOINT_LEFT_HAND,
+                                                    //SkeletonJoint::JOINT_RIGHT_HAND,
                                                     //SkeletonJoint::JOINT_SPINE,
                                                     //SkeletonJoint::JOINT_LEFT_HIP,
                                                     //SkeletonJoint::JOINT_RIGHT_HIP,
                                                     //SkeletonJoint::JOINT_LEFT_KNEE,
                                                     //SkeletonJoint::JOINT_RIGHT_KNEE,
-                                                    SkeletonJoint::JOINT_LEFT_FOOT,
-                                                    SkeletonJoint::JOINT_RIGHT_FOOT};
-    vector<cv::Point2f> points;
+                                                    //SkeletonJoint::JOINT_LEFT_FOOT,
+                                                    //SkeletonJoint::JOINT_RIGHT_FOOT
+                                                   };
+
+    // Make up joints
+    Skeleton skeleton_tmp = skeleton; // copy
+    //makeUpJoints(skeleton_tmp, true);
+
+    shared_ptr<MaskFrame> voronoiMask = getVoronoiCells(depthFrame, maskFrame, skeleton_tmp);
+    vector<cv::KeyPoint> key_points;
 
     // Get Key Points from the Skeleton Joints
     for (const SkeletonJoint& joint : skeleton_tmp.joints())
     {
-        if (!ignore_joints.contains(joint.getType()))
-        {
-            const Point3f& point_3d = joint.getPosition();
-            cv::Point2f point_2d;
+        if (ignore_joints.contains(joint.getType()))
+            continue;
 
-            skeleton_tmp.convertCoordinatesToDepth(point_3d[0], point_3d[1], point_3d[2], &point_2d.x, &point_2d.y);
-            point_2d.x = point_2d.x - colorFrame.offset()[0];
-            point_2d.y = point_2d.y - colorFrame.offset()[1];
-
-            // Fix points if they are out of range
-            if (point_2d.x < 0) point_2d.x = 0;
-            else if (point_2d.x >= color_mat.cols) point_2d.x = color_mat.cols - 1;
-            if (point_2d.y < 0) point_2d.y = 0;
-            else if (point_2d.y >= color_mat.rows) point_2d.y = color_mat.rows - 1;
-
-            //qDebug() << joint.getType() << point_2d.x << point_2d.y << color_mat.cols << color_mat.rows;
-            points.push_back(point_2d);
-        }
-    }
-
-    // Convert points to keypoints
-    vector<cv::KeyPoint> key_points;
-    cv::KeyPoint::convert(points, key_points, 16);
-    for (cv::KeyPoint& kp : key_points) {
-        kp.angle = 270.0f;
+        key_points.push_back(createKeyPoint(joint, skeleton_tmp, voronoiMask));
     }
 
     // Calculate descriptor
@@ -1434,6 +654,63 @@ DescriptorPtr PersonReid::feature_joint_descriptor(ColorFrame &colorFrame, Skele
     cv::waitKey(200);*/
 
     return feature;
+}
+
+cv::KeyPoint PersonReid::createKeyPoint(const SkeletonJoint& joint, const Skeleton& skeleton, shared_ptr<MaskFrame> voronoi) const
+{
+    // Convert 3D point to 2D
+    const Point3f& point_3d = joint.getPosition();
+    cv::Point2f center_point_2d;
+
+    skeleton.convertCoordinatesToDepth(point_3d[0], point_3d[1], point_3d[2], &center_point_2d.x, &center_point_2d.y);
+    center_point_2d.x = center_point_2d.x - voronoi->offset()[0];
+    center_point_2d.y = center_point_2d.y - voronoi->offset()[1];
+
+    // Fix points if they are out of range
+    if (center_point_2d.x < 0) center_point_2d.x = 0;
+    else if (center_point_2d.x >= voronoi->width()) center_point_2d.x = voronoi->width() - 1;
+    if (center_point_2d.y < 0) center_point_2d.y = 0;
+    else if (center_point_2d.y >= voronoi->height()) center_point_2d.y = voronoi->height() - 1;
+
+    // Compute of the radio in pixels
+    uint8_t* voronoi_value = voronoi->getRowPtr(center_point_2d.y);
+    uchar voronoi_region = joint.getType() + 1;
+
+    // Explore right radio
+    int i = center_point_2d.x;
+    while (i < voronoi->width() && voronoi_value[i] == voronoi_region) {
+        i++;
+    }
+    int right_radio = i - center_point_2d.x;
+
+    // Explore left radio
+    i = center_point_2d.x;
+    while (i >= 0 && voronoi_value[i] == voronoi_region) {
+        i--;
+    }
+    int left_radio = center_point_2d.x - i;
+
+    // Explore down radio
+    i = center_point_2d.y;
+    while (i < voronoi->height() && voronoi->getItem(i, center_point_2d.x) == voronoi_region) {
+        i++;
+    }
+    int down_radio = i - center_point_2d.y;
+
+    // Explore up radio
+    i = center_point_2d.y;
+    while (i >= 0 && voronoi->getItem(i, center_point_2d.x) == voronoi_region) {
+        i--;
+    }
+    int up_radio = center_point_2d.y - i;
+
+    float min_vertical_radio = dai::min<int>(down_radio, up_radio);
+    float min_horizontal_radio = dai::min<int>(right_radio, left_radio);
+    float radio_size = dai::max<float>(16.0f, dai::min<float>(min_vertical_radio, min_horizontal_radio) );
+
+    // Create KeyPoint
+    cv::KeyPoint kp(center_point_2d, /*16.0f*/ radio_size, 270.0f); // 16.0f, 32.0f
+    return kp;
 }
 
 /**
@@ -1586,8 +863,7 @@ DescriptorPtr PersonReid::feature_skeleton_distances(ColorFrame &colorFrame, Ske
           Point3f::euclideanDistance(knee_right.getPosition(), hip_right.getPosition()));
     feature->addDistance( // m
           Point3f::euclideanDistance(spine.getPosition(), neck.getPosition()) /
-          Point3f::euclideanDistance(knee_left.getPosition(), hip_left.getPosition()));
-    */
+          Point3f::euclideanDistance(knee_left.getPosition(), hip_left.getPosition()));*/
 
     // Barbosa
     /*float mean_shoulder = (Point3f::euclideanDistance(neck.getPosition(), shoulder_left.getPosition()) + Point3f::euclideanDistance(neck.getPosition(), shoulder_right.getPosition())) / 2.0f;
@@ -1617,7 +893,7 @@ QHashDataFrames PersonReid::allocateMemory() const
 }
 
 // Extract Voronoi cells as a mask
-shared_ptr<MaskFrame> PersonReid::getVoronoiCells(const DepthFrame& depthFrame, const MaskFrame& maskFrame, const Skeleton& skeleton) const
+shared_ptr<MaskFrame> PersonReid::getVoronoiCells(const DepthFrame& depthFrame, const MaskFrame& maskFrame, const Skeleton& skeleton)
 {
     Q_ASSERT(depthFrame.width() == maskFrame.width() && depthFrame.height() == maskFrame.height());
     shared_ptr<MaskFrame> result = static_pointer_cast<MaskFrame>(maskFrame.clone());   
@@ -1643,7 +919,7 @@ shared_ptr<MaskFrame> PersonReid::getVoronoiCells(const DepthFrame& depthFrame, 
     return result;
 }
 
-shared_ptr<MaskFrame> PersonReid::getVoronoiCellsParallel(const DepthFrame& depthFrame, const MaskFrame& maskFrame, const Skeleton& skeleton) const
+shared_ptr<MaskFrame> PersonReid::getVoronoiCellsParallel(const DepthFrame& depthFrame, const MaskFrame& maskFrame, const Skeleton& skeleton)
 {
     Q_ASSERT(depthFrame.width() == maskFrame.width() && depthFrame.height() == maskFrame.height());
 
@@ -1653,7 +929,7 @@ shared_ptr<MaskFrame> PersonReid::getVoronoiCellsParallel(const DepthFrame& dept
     shared_ptr<MaskFrame> output_mask = static_pointer_cast<MaskFrame>(maskFrame.clone());
     QList<SkeletonJoint> joints = skeleton.joints();
 
-    auto code = [this, depthFrame, joints, &output_mask](int row) -> void
+    auto code = [depthFrame, joints, &output_mask](int row) -> void
     {
         uint16_t* depth = depthFrame.getRowPtr(row);
         uint8_t* mask = output_mask->getRowPtr(row);
@@ -1664,7 +940,7 @@ shared_ptr<MaskFrame> PersonReid::getVoronoiCellsParallel(const DepthFrame& dept
             {
                 Point3f point(0.0f, 0.0f, float(depth[j]));
                 depthFrame.convertCoordinatesToWorld(j, row, depth[j], &point[0], &point[1]);
-                SkeletonJoint closerJoint = this->getCloserJoint(point, joints);
+                SkeletonJoint closerJoint = PersonReid::getCloserJoint(point, joints);
                 mask[j] = closerJoint.getType()+1;
             }
         }
@@ -1685,11 +961,12 @@ shared_ptr<MaskFrame> PersonReid::getVoronoiCellsParallel(const DepthFrame& dept
     return output_mask;
 }
 
-void PersonReid::drawSkeleton(ColorFrame& colorFrame, shared_ptr<Skeleton> skeleton) {
+void PersonReid::drawSkeleton(ColorFrame& colorFrame, const Skeleton& skeleton) const
+{
     // Draw Joints
-    for (const SkeletonJoint& joint : skeleton->joints()) {
+    for (const SkeletonJoint& joint : skeleton.joints()) {
         float x, y;
-        skeleton->convertCoordinatesToDepth(joint.getPosition()[0],
+        skeleton.convertCoordinatesToDepth(joint.getPosition()[0],
                 joint.getPosition()[1], joint.getPosition()[2], &x, &y);
 
         if (joint.getType() > SkeletonJoint::JOINT_USER_RESERVED)
@@ -1699,7 +976,7 @@ void PersonReid::drawSkeleton(ColorFrame& colorFrame, shared_ptr<Skeleton> skele
     }
 }
 
-SkeletonJoint PersonReid::getCloserJoint(const Point3f& cloudPoint, const QList<SkeletonJoint>& joints) const
+SkeletonJoint PersonReid::getCloserJoint(const Point3f& cloudPoint, const QList<SkeletonJoint>& joints)
 {
     SkeletonJoint minJoint;
     float minDistance = numeric_limits<float>::max();
@@ -1717,7 +994,7 @@ SkeletonJoint PersonReid::getCloserJoint(const Point3f& cloudPoint, const QList<
     return minJoint;
 }
 
-void PersonReid::colorImageWithVoronoid(ColorFrame& colorFrame, MaskFrame& voronoi) const
+void PersonReid::colorImageWithVoronoid(ColorFrame& colorFrame, MaskFrame& voronoi)
 {
     Q_ASSERT(colorFrame.width() == voronoi.width() && colorFrame.height() == voronoi.height());
 
@@ -1777,7 +1054,7 @@ void PersonReid::highLightDepth(ColorFrame &colorFrame, DepthFrame &depthFrame) 
     }
 }
 
-void PersonReid::printClusters(const QList<Cluster<Descriptor> > &clusters) const
+/*void PersonReid::printClusters(const QList<Cluster<Descriptor> > &clusters) const
 {
     int i = 0;
 
@@ -1797,9 +1074,9 @@ void PersonReid::printClusters(const QList<Cluster<Descriptor> > &clusters) cons
             ++i;
         }
     }
-}
+}*/
 
-void PersonReid::makeUpJoints(Skeleton& skeleton, bool only_middle_points) const
+void PersonReid::makeUpJoints(Skeleton& skeleton, bool only_middle_points)
 {
     const Skeleton::SkeletonLimb* limbMap = skeleton.getLimbsMap();
     int user_joint_id = 1;
@@ -1848,7 +1125,7 @@ void PersonReid::makeUpJoints(Skeleton& skeleton, bool only_middle_points) const
     }
 }
 
-void PersonReid::makeUpOnlySomeJoints(Skeleton& skeleton) const
+void PersonReid::makeUpOnlySomeJoints(Skeleton& skeleton)
 {
     int user_joint_id = 1;
 
@@ -1891,579 +1168,5 @@ void PersonReid::drawPoint(ColorFrame& colorFrame, int x, int y, RGBColor color)
     }
 }
 
-template <class T, int N>
-void printHistogram(const Histogram<T, N> &hist, int n_elems)
-{
-    // Show info of the histogram
-    int i=0;
-    foreach (auto item, hist.higherFreqBins(n_elems)) {
-        qDebug() << i++ << "(" << item->point.toString() << ")" << item->value << item->dist;
-    }
-}
-
-
-// Approach 1: log color space (2 channels) without Histogram!!
-// Paper: Color Invariants for Person Reidentification
-void PersonReid::approach1(QHashDataFrames &frames)
-{
-    Q_ASSERT(frames.contains(DataFrame::Color) && frames.contains(DataFrame::Mask) &&
-             frames.contains(DataFrame::Skeleton) && frames.contains(DataFrame::Metadata));
-
-    shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(frames.value(DataFrame::Color));
-    shared_ptr<MaskFrame> maskFrame = static_pointer_cast<MaskFrame>(frames.value(DataFrame::Mask));
-    shared_ptr<MetadataFrame> metadataFrame = static_pointer_cast<MetadataFrame>(frames.value(DataFrame::Metadata));
-
-    // Work in the Bounding Box
-    if (metadataFrame->boundingBoxes().isEmpty())
-        return;
-
-    BoundingBox bb = metadataFrame->boundingBoxes().first();
-    shared_ptr<ColorFrame> subColorFrame = colorFrame->subFrame(bb.getMin().val(1),bb.getMin().val(0),
-                                                                bb.size().width(), bb.size().height());
-    shared_ptr<MaskFrame> subMaskFrame = maskFrame->subFrame(bb.getMin().val(1),bb.getMin().val(0),
-                                                             bb.size().width(), bb.size().height());
-
-    // Use cv::Mat for my color frame and mask frame
-    cv::Mat inputImg(subColorFrame->height(), subColorFrame->width(),
-                 CV_8UC3, (void*)subColorFrame->getDataPtr(), subColorFrame->getStride());
-
-    cv::Mat mask(subMaskFrame->height(), subMaskFrame->width(),
-             CV_8UC1, (void*)subMaskFrame->getDataPtr(), subMaskFrame->getStride());
-
-    // Compute Upper and Lower Masks
-    cv::Mat upper_mask, lower_mask;
-    computeUpperAndLowerMasks(inputImg, upper_mask, lower_mask, mask);
-
-    // Sample points
-    const int num_samples = 85;
-    QList<Point3b> u_list = randomSampling<uchar, 3>(inputImg, num_samples, upper_mask);
-    QList<Point3b> l_list = randomSampling<uchar, 3>(inputImg, num_samples, lower_mask);
-
-    // Convert from RGB color space to 2D log-chromacity color space
-    QList<Point2f> log_u_list = convertRGB2Log2DAsList(u_list);
-    QList<Point2f> log_l_list = convertRGB2Log2DAsList(l_list);
-
-    // Create a 2D Image of the color space
-    float log_range[] = {-5.6f, 5.6f};
-    cv::Mat logCoordImg;
-    create2DCoordImage({&log_u_list, &log_l_list},
-                       {cv::Vec3b(0, 0, 255), cv::Vec3b(255, 0, 0)}, // Red (upper), Blue (lower)
-                       logCoordImg,
-                       log_range);
-
-    // Show
-    cv::imshow("Log.Img", logCoordImg);
-    cv::waitKey(1);
-}
-
-// Approach 2: CIElab (2 channels)
-// Paper: Color Invariants for Person Reidentification
-void PersonReid::approach2(QHashDataFrames &frames)
-{
-    Q_ASSERT(frames.contains(DataFrame::Color) && frames.contains(DataFrame::Mask) &&
-             frames.contains(DataFrame::Skeleton) && frames.contains(DataFrame::Metadata));
-
-    shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(frames.value(DataFrame::Color));
-    shared_ptr<MaskFrame> maskFrame = static_pointer_cast<MaskFrame>(frames.value(DataFrame::Mask));
-    shared_ptr<MetadataFrame> metadataFrame = static_pointer_cast<MetadataFrame>(frames.value(DataFrame::Metadata));
-
-    // Work in the Bounding Box
-    if (metadataFrame->boundingBoxes().isEmpty())
-        return;
-
-    BoundingBox bb = metadataFrame->boundingBoxes().first();
-    shared_ptr<ColorFrame> subColorFrame = colorFrame->subFrame(bb.getMin().val(1),bb.getMin().val(0),
-                                                                bb.size().width(), bb.size().height());
-    shared_ptr<MaskFrame> subMaskFrame = maskFrame->subFrame(bb.getMin().val(1),bb.getMin().val(0),
-                                                             bb.size().width(), bb.size().height());
-
-    // Start OpenCV code
-    {using namespace cv;
-
-        // Use cv::Mat for my color frame and mask frame
-        Mat inputImg(subColorFrame->height(), subColorFrame->width(),
-                     CV_8UC3, (void*)subColorFrame->getDataPtr(), subColorFrame->getStride());
-
-        Mat mask(subMaskFrame->height(), subMaskFrame->width(),
-                 CV_8UC1, (void*)subMaskFrame->getDataPtr(), subMaskFrame->getStride());
-
-        // Compute Upper and Lower Masks
-        Mat upper_mask, lower_mask;
-        computeUpperAndLowerMasks(inputImg, upper_mask, lower_mask, mask); // This ones modifies inputImg
-
-        // Sample Mask
-        Mat upper_sampled_mask = upper_mask; //randomSampling<uchar>(upper_mask, 200, upper_mask);
-        Mat lower_sampled_mask = lower_mask; //randomSampling<uchar>(lower_mask, 200, lower_mask);
-
-        // Denoise Image
-        //denoiseImage(copyImg, copyImg);
-
-        // Convert from RGB color space to CIElab
-        // CIElab 8 bits image: all channels range is 0-255.
-        Mat imgLab;
-        cv::cvtColor(inputImg, imgLab, cv::COLOR_RGB2Lab);
-
-        // Split image in L*, a* and b* channels
-        vector<Mat> lab_planes;
-        split(imgLab, lab_planes);
-
-        // Create 2D image with only a and b channels
-        vector<Mat> ab_planes = {lab_planes[1], lab_planes[2]};
-        Mat imgAb;
-        merge(ab_planes, imgAb);
-
-        // Compute the histogram for the upper (torso) and lower (leggs) parts
-        auto u_hist = Histogram2D<uchar>::create(imgAb, {0, 255}, upper_sampled_mask);
-        auto l_hist = Histogram2D<uchar>::create(imgAb, {0, 255}, lower_sampled_mask);
-
-        const int n_often_colors = 8;
-
-        // Create an image of the distribution of the histogram
-        Mat histDist;
-        createHistImage<uchar,2>({u_hist.get(), l_hist.get()},
-                                     {Scalar(255, 0, 0), Scalar(0, 0, 255)}, // Blue (upper), Red (lower)
-                                     histDist);
-
-        // Create a 2D Image of the histogram
-        float ab_range[] = {0.0f, 255.0f};
-        Mat histImg;
-        create2DCoordImage<uchar>({u_hist.get(), l_hist.get()},
-                                  n_often_colors,
-                                  {Vec3b(255, 0, 0), Vec3b(0, 0, 255)}, // Blue (upper), Red (lower)
-                                  histImg,
-                                  ab_range);
-
-        // Modify input image to show used mask
-        colorImageWithMask(inputImg, inputImg, upper_mask, lower_mask);
-
-        // Show
-        imshow("Hist.Dist", histDist);
-        imshow("Hist.Img", histImg);
-        waitKey(1);
-
-    } // End OpenCV code
-
-    return;
-}
-
-// Approach 3: YUV (2 channels)
-// Paper: Color Invariants for Person Reidentification
-void PersonReid::approach3(QHashDataFrames& frames)
-{
-    Q_ASSERT(frames.contains(DataFrame::Color) && frames.contains(DataFrame::Mask) &&
-             frames.contains(DataFrame::Skeleton) && frames.contains(DataFrame::Metadata));
-
-    shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(frames.value(DataFrame::Color));
-    shared_ptr<MaskFrame> maskFrame = static_pointer_cast<MaskFrame>(frames.value(DataFrame::Mask));
-    shared_ptr<MetadataFrame> metadataFrame = static_pointer_cast<MetadataFrame>(frames.value(DataFrame::Metadata));
-
-    // Work in the Bounding Box
-    if (metadataFrame->boundingBoxes().isEmpty())
-        return;
-
-    BoundingBox bb = metadataFrame->boundingBoxes().first();
-    shared_ptr<ColorFrame> subColorFrame = colorFrame->subFrame(bb.getMin().val(1),bb.getMin().val(0),
-                                                                bb.size().width(), bb.size().height());
-    shared_ptr<MaskFrame> subMaskFrame = maskFrame->subFrame(bb.getMin().val(1),bb.getMin().val(0),
-                                                             bb.size().width(), bb.size().height());
-
-    // Start OpenCV code
-    {using namespace cv;
-
-        // Use cv::Mat for my color frame and mask frame
-        Mat inputImg(subColorFrame->height(), subColorFrame->width(),
-                     CV_8UC3, (void*)subColorFrame->getDataPtr(), subColorFrame->getStride());
-
-        Mat mask(subMaskFrame->height(), subMaskFrame->width(),
-                 CV_8UC1, (void*)subMaskFrame->getDataPtr(), subMaskFrame->getStride());
-
-
-        // Compute Upper and Lower Masks
-        Mat upper_mask, lower_mask;
-        computeUpperAndLowerMasks(inputImg, upper_mask, lower_mask, mask); // This ones modifies inputImg
-
-        // Sample Mask
-        Mat upper_sampled_mask = upper_mask; //randomSampling<uchar>(upper_mask, 200, upper_mask);
-        Mat lower_sampled_mask = lower_mask; //randomSampling<uchar>(lower_mask, 200, lower_mask);
-
-        // Denoise Image
-        //denoiseImage(copyImg, copyImg);
-
-        // Convert from RGB color space to YCrCb
-        Mat imgYuv;
-        cv::cvtColor(inputImg, imgYuv, cv::COLOR_RGB2YCrCb);
-
-        // Split image in Y, u and v channels
-        vector<Mat> yuv_planes;
-        split(imgYuv, yuv_planes);
-
-        // Create 2D image with only u and v channels
-        vector<Mat> uv_planes = {yuv_planes[1], yuv_planes[2]};
-        Mat imgUv;
-        merge(uv_planes, imgUv);
-
-        // Compute the histogram for the upper (torso) and lower (leggs) parts
-        auto u_hist = Histogram2D<uchar>::create(imgUv, {0, 255}, upper_sampled_mask);
-        auto l_hist = Histogram2D<uchar>::create(imgUv, {0, 255}, lower_sampled_mask);
-
-        const int n_often_colors = 8;
-
-        // Show info of the histogram
-        printHistogram<uchar, 2>(*u_hist, n_often_colors);
-
-        // Create an image of the distribution of the histogram
-        Mat histDist;
-        createHistImage<uchar,2>({u_hist.get(), l_hist.get()},
-                                     {Scalar(255, 0, 0), Scalar(0, 0, 255)}, // Blue (upper), Red (lower)
-                                     histDist);
-
-        // Create a 2D Image of the histogram
-        float uv_range[] = {0.0f, 255.0f};
-        Mat histImg;
-        create2DCoordImage<uchar>({u_hist.get(), l_hist.get()},
-                                  n_often_colors,
-                                  {Vec3b(255, 0, 0), Vec3b(0, 0, 255)}, // Blue (upper), Red (lower)
-                                  histImg,
-                                  uv_range);
-
-        // Modify input image to show used mask
-        colorImageWithMask(inputImg, inputImg, upper_mask, lower_mask);
-
-        // Show
-        imshow("Hist.Dist", histDist);
-        imshow("Hist.Img", histImg);
-        waitKey(1);
-
-    } // End OpenCV code
-
-    return;
-}
-
-// Approach 4: RGB
-// Paper: Color Invariants for Person Reidentification
-void PersonReid::approach4(QHashDataFrames &frames)
-{
-    Q_ASSERT(frames.contains(DataFrame::Color) && frames.contains(DataFrame::Mask) &&
-             frames.contains(DataFrame::Skeleton) && frames.contains(DataFrame::Metadata));
-
-    shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(frames.value(DataFrame::Color));
-    shared_ptr<MaskFrame> maskFrame = static_pointer_cast<MaskFrame>(frames.value(DataFrame::Mask));
-    shared_ptr<MetadataFrame> metadataFrame = static_pointer_cast<MetadataFrame>(frames.value(DataFrame::Metadata));
-
-    // Work in the Bounding Box
-    if (metadataFrame->boundingBoxes().isEmpty())
-        return;
-
-    BoundingBox bb = metadataFrame->boundingBoxes().first();
-    shared_ptr<ColorFrame> roiColorFrame = colorFrame->subFrame(bb.getMin().val(1),bb.getMin().val(0),
-                                                                bb.size().width(), bb.size().height());
-    shared_ptr<MaskFrame> roiMaskFrame = maskFrame->subFrame(bb.getMin().val(1),bb.getMin().val(0),
-                                                             bb.size().width(), bb.size().height());
-
-    // Start OpenCV code
-    {using namespace cv;
-
-        // Use cv::Mat for my color frame and mask frame
-        Mat inputImg(roiColorFrame->height(), roiColorFrame->width(),
-                     CV_8UC3, (void*)roiColorFrame->getDataPtr(), roiColorFrame->getStride());
-
-        Mat mask(roiMaskFrame->height(), roiMaskFrame->width(),
-                 CV_8UC1, (void*)roiMaskFrame->getDataPtr(), roiMaskFrame->getStride());
-
-        // Denoise Image
-        denoiseImage(inputImg, inputImg);
-
-        // Discretise Image
-        //discretiseRGBImage(inputImg, inputImg); // TEST: in YUV Space not RGB
-
-        // Compute Upper and Lower Masks
-        Mat upper_mask, lower_mask;
-        computeUpperAndLowerMasks(inputImg, upper_mask, lower_mask, mask);
-
-        // Sample Mask
-        Mat upper_sampled_mask = upper_mask; //randomSampling<uchar>(upper_mask, 1500, upper_mask);
-        Mat lower_sampled_mask = lower_mask; //randomSampling<uchar>(lower_mask, 1500, lower_mask);
-
-        // Convert to another color space
-        Mat imgYuv;
-        cv::cvtColor(inputImg, imgYuv, cv::COLOR_RGB2YCrCb); // YUV
-
-        // Compute the histogram for the upper (torso) and lower (leggs) parts
-        auto u_hist = Histogram3D<uchar>::create(imgYuv, {0, 255}, upper_sampled_mask);
-        auto l_hist = Histogram3D<uchar>::create(imgYuv, {0, 255}, lower_sampled_mask);
-
-        const int n_often_items = 72;
-
-        // Create Distribution
-        Mat distImg;
-        createHistImage<uchar,3>({u_hist.get(), l_hist.get()},
-                                     {Scalar(0, 255, 255), Scalar(0, 0, 255)}, // Blue (upper hist), Red (lower hist)
-                                     distImg);
-
-        // Create it on an image
-        Mat colorPalette;
-        create2DColorPalette<uchar>(u_hist->higherFreqBins(n_often_items), l_hist->higherFreqBins(n_often_items), colorPalette);
-        cv::cvtColor(colorPalette, colorPalette, cv::COLOR_YCrCb2BGR); // YUV to BGR
-
-        // Show
-        imshow("Dist.Hist", distImg);
-        imshow("Palette", colorPalette);
-        waitKey(1);
-
-    } // End OpenCV code
-}
-
-// Approach 5: RGB with buffering
-// Paper: Color Invariants for Person Reidentification
-void PersonReid::approach5(QHashDataFrames& frames)
-{
-    Q_ASSERT(frames.contains(DataFrame::Color) && frames.contains(DataFrame::Mask) &&
-             frames.contains(DataFrame::Skeleton) && frames.contains(DataFrame::Metadata));
-
-    shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(frames.value(DataFrame::Color));
-    shared_ptr<MaskFrame> maskFrame = static_pointer_cast<MaskFrame>(frames.value(DataFrame::Mask));
-    shared_ptr<MetadataFrame> metadataFrame = static_pointer_cast<MetadataFrame>(frames.value(DataFrame::Metadata));
-
-    // Work in the Bounding Box
-    if (metadataFrame->boundingBoxes().isEmpty())
-        return;
-
-    BoundingBox bb = metadataFrame->boundingBoxes().first();
-    shared_ptr<ColorFrame> roiColorFrame = colorFrame->subFrame(bb.getMin().val(1),bb.getMin().val(0),
-                                                                bb.size().width(), bb.size().height());
-    shared_ptr<MaskFrame> roiMaskFrame = maskFrame->subFrame(bb.getMin().val(1),bb.getMin().val(0),
-                                                             bb.size().width(), bb.size().height());
-
-    static int frame_counter = 0;
-    static const int buffer_size = 5;
-    const int n_often_items = 72;
-    static cv::Mat color_frame_vector[buffer_size];
-    static cv::Mat mask_frame_vector[buffer_size];
-    static bool finished = false;
-
-    // Start OpenCV code
-    {using namespace cv;
-
-        // Use cv::Mat for my color frame and mask frame
-        Mat inputImg(roiColorFrame->height(), roiColorFrame->width(),
-                     CV_8UC3, (void*)roiColorFrame->getDataPtr(), roiColorFrame->getStride());
-
-        Mat mask(roiMaskFrame->height(), roiMaskFrame->width(),
-                 CV_8UC1, (void*)roiMaskFrame->getDataPtr(), roiMaskFrame->getStride());
-
-        //
-        // Image Pre-Processing
-        //
-        Mat img = inputImg.clone();
-
-        // Denoise Image
-        denoiseImage(img, img);
-
-        // Discretise Image
-        //discretiseRGBImage(img, img); // TEST: in YUV Space not RGB
-
-        // Convert to another color space
-        cv::cvtColor(img, img, cv::COLOR_RGB2YCrCb); // YUV
-
-        //
-        // Buffering
-        //
-        int current_idx = frame_counter % buffer_size;
-        color_frame_vector[current_idx] = img;
-        mask_frame_vector[current_idx] = mask.clone();
-
-        // Start to do things when I fill up the buffer
-        if (frame_counter >= buffer_size-1)
-        {
-            // Compute accumulated histogram of the current frame plus the previous fourth
-            Histogram3c u_hist_acc, l_hist_acc;
-
-            for (int i=0; i<buffer_size; ++i)
-            {
-                // Compute Upper and Lower Masks
-                Mat upper_mask, lower_mask;
-                computeUpperAndLowerMasks(color_frame_vector[i], upper_mask, lower_mask, mask_frame_vector[i]);
-
-                // Sample Mask
-                Mat upper_sampled_mask = upper_mask; //randomSampling<uchar>(upper_mask, 1500, upper_mask);
-                Mat lower_sampled_mask = lower_mask; //randomSampling<uchar>(lower_mask, 1500, lower_mask);
-
-
-                // Compute the histogram for the upper (torso) and lower (leggs) parts of each frame in the buffer
-                auto u_hist_t = Histogram3D<uchar>::create(color_frame_vector[i], {0, 255}, upper_sampled_mask);
-                auto l_hist_t = Histogram3D<uchar>::create(color_frame_vector[i], {0, 255}, lower_sampled_mask);
-
-                // Accumulate it
-                u_hist_acc += *u_hist_t;
-                l_hist_acc += *l_hist_t;
-            }
-
-            // Show it on an image
-            Mat colorPalette_acc;
-            create2DColorPalette<uchar>(u_hist_acc.higherFreqBins(n_often_items), l_hist_acc.higherFreqBins(n_often_items), colorPalette_acc);
-            cv::cvtColor(colorPalette_acc, colorPalette_acc, cv::COLOR_YCrCb2BGR); // YUV to BGR
-
-            // Show Distribution
-            Mat distImg;
-            createHistImage<uchar,3>({&u_hist_acc, &l_hist_acc},
-                                         {Scalar(255, 0, 0), Scalar(0, 0, 255)}, // Blue (upper hist), Red (lower hist)
-                                         distImg);
-
-            // Show
-            imshow("Palette AC", colorPalette_acc);
-            imshow("Hist.dist", distImg);
-            waitKey(1);
-        }
-        else {
-            qDebug() << "Buffering " << frame_counter % buffer_size;
-        }
-
-    } // End OpenCV code
-
-    frame_counter++;
-}
-
-// Approach 6: Indexed colors
-void PersonReid::approach6(QHashDataFrames &frames)
-{
-    Q_ASSERT(frames.contains(DataFrame::Color) && frames.contains(DataFrame::Mask) &&
-             frames.contains(DataFrame::Skeleton) && frames.contains(DataFrame::Metadata));
-
-    shared_ptr<ColorFrame> colorFrame = static_pointer_cast<ColorFrame>(frames.value(DataFrame::Color));
-    shared_ptr<MaskFrame> maskFrame = static_pointer_cast<MaskFrame>(frames.value(DataFrame::Mask));
-    shared_ptr<MetadataFrame> metadataFrame = static_pointer_cast<MetadataFrame>(frames.value(DataFrame::Metadata));
-
-    // Work in the Bounding Box
-    if (metadataFrame->boundingBoxes().isEmpty())
-        return;
-
-    BoundingBox bb = metadataFrame->boundingBoxes().first();
-    shared_ptr<ColorFrame> roiColorFrame = colorFrame->subFrame(bb.getMin().val(1),bb.getMin().val(0),
-                                                                bb.size().width(), bb.size().height());
-    shared_ptr<MaskFrame> roiMaskFrame = maskFrame->subFrame(bb.getMin().val(1),bb.getMin().val(0),
-                                                             bb.size().width(), bb.size().height());
-
-    static int frame_counter = 0;
-    static const int buffer_size = 5; // 190
-    static cv::Mat color_frame_vector[buffer_size];
-    static cv::Mat mask_frame_vector[buffer_size];
-
-    // Start OpenCV code
-    {using namespace cv;
-
-        // Use cv::Mat for my color frame and mask frame
-        Mat inputImg(roiColorFrame->height(), roiColorFrame->width(),
-                     CV_8UC3, (void*)roiColorFrame->getDataPtr(), roiColorFrame->getStride());
-
-        Mat mask(roiMaskFrame->height(), roiMaskFrame->width(),
-                 CV_8UC1, (void*)roiMaskFrame->getDataPtr(), roiMaskFrame->getStride());
-
-        // Color Palette with 8-8-4 levels
-        Mat indexedImg = convertRGB2Indexed884(inputImg);
-
-        //
-        // Buffering
-        //
-        int current_idx = frame_counter % buffer_size;
-        color_frame_vector[current_idx] = indexedImg;
-        mask_frame_vector[current_idx] = mask.clone();
-
-        // Start to do things when I fill up the buffer
-        if (frame_counter >= buffer_size-1)
-        {
-            QList<shared_ptr<Histogram1c>> samples;
-            Histogram1c u_hist_acc, l_hist_acc;
-
-            for (int i=0; i<buffer_size; ++i)
-            {
-                // Compute Upper and Lower Masks
-                Mat upper_mask, lower_mask;
-                computeUpperAndLowerMasks(color_frame_vector[i], upper_mask, lower_mask, mask_frame_vector[i]);
-
-                // Sample Mask
-                Mat upper_sampled_mask = upper_mask; //randomSampling<uchar>(upper_mask, 1500, upper_mask);
-                Mat lower_sampled_mask = lower_mask; //randomSampling<uchar>(lower_mask, 1500, lower_mask);
-
-                // Compute the histogram for the upper (torso) and lower (leggs) parts of each frame in the buffer
-                auto u_hist_t = Histogram1c::create(color_frame_vector[i], {0, 255}, upper_sampled_mask);
-                auto l_hist_t = Histogram1c::create(color_frame_vector[i], {0, 255}, lower_sampled_mask);
-
-                // Add to samples list
-                samples << u_hist_t << l_hist_t;
-
-                // Accumulate it
-                u_hist_acc += *u_hist_t;
-                l_hist_acc += *l_hist_t;
-            }
-
-            qDebug() << "u.items" << u_hist_acc.numItems() << "l.items" << l_hist_acc.numItems();
-            qDebug() << "dist.ul" << Histogram1c::intersection(u_hist_acc, l_hist_acc);
-
-            // KMeans
-            qDebug() << "Computing K-Means...";
-            const int k = 2;
-            auto kmeans = KMeans<Histogram1c>::execute(samples, k);
-            QList<Cluster<Histogram1c>> clusters = kmeans->getClusters();
-
-            Mat hist_img[k];
-            int i = 0;
-
-            foreach (Cluster<Histogram1c> cluster, clusters)
-            {
-                if (!cluster.samples.isEmpty()) {
-                    qDebug() << "Cluster" << i << "size" << cluster.samples.size();
-                    shared_ptr<Histogram1c> hist = cluster.centroid;
-                    createHistImage<uchar,1>({hist.get()}, {Scalar(0, 0, 255)}, hist_img[i]);
-                    ++i;
-                }
-            }
-
-            qDebug() << "Job Done";
-
-            /*Mat hist_img[k];
-            int img_idx = 0;
-
-            foreach (shared_ptr<DistanceComparable> item, kmeans->getCentroids())
-            {
-                shared_ptr<Histogram3D<uchar>> hist = static_pointer_cast<Histogram3D<uchar>>(item);
-                createHistImage(hist->sortedItems(n_often_items), hist_img[img_idx]);
-                cv::cvtColor(hist_img[img_idx], hist_img[img_idx], cv::COLOR_YCrCb2BGR); // YUV to BGR
-                img_idx++;
-            }
-
-            imshow("centroid1", hist_img[0]);
-            imshow("centroid2", hist_img[1]);
-            imshow("centroid3", hist_img[2]);
-            imshow("centroid4", hist_img[3]);*/
-
-            // Show it on an image
-            /*Mat colorPalette_acc;
-            create2DColorPalette<uchar>(u_hist_acc.sortedItems(n_often_items), l_hist_acc.sortedItems(n_often_items), colorPalette_acc);
-            cv::cvtColor(colorPalette_acc, colorPalette_acc, cv::COLOR_YCrCb2BGR);*/ // YUV to BGR
-
-            // Show Distribution
-            /*Mat distImg;
-            createHistDistImage<uchar,1>({&u_hist_acc, &l_hist_acc},
-                                       0,
-                                       {Scalar(0, 255, 255), Scalar(0, 0, 255)}, // Blue (upper hist), Red (lower hist)
-                                       distImg);*/
-            // Show
-            //imshow("Palette AC", colorPalette_acc);
-
-            //imshow("Hist.dist", distImg);
-            imshow("hist1", hist_img[0]);
-            imshow("hist2", hist_img[1]);
-            waitKey(1);
-        }
-        else {
-            qDebug() << "Buffering " << frame_counter % buffer_size;
-        }
-    } // End OpenCV code
-
-    frame_counter++;
-}
 
 } // End Namespace
-
-
-

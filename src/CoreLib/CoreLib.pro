@@ -61,7 +61,8 @@ SOURCES += \
     dataset/DAI4REID_Parsed/DAI4REID_Parsed.cpp \
     dataset/DAI4REID_Parsed/DAI4REID_ParsedInstance.cpp \
     dataset/IASLAB_RGBD_ID/IASLAB_RGBD_ID.cpp \
-    dataset/IASLAB_RGBD_ID/IASLAB_RGBD_ID_Instance.cpp
+    dataset/IASLAB_RGBD_ID/IASLAB_RGBD_ID_Instance.cpp \
+    opencv_utils.cpp
 
 HEADERS += \
     types/Vector3D.h \

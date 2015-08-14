@@ -3,7 +3,7 @@
 }
 
 QT       += core
-QT       -= gui
+#QT       -= gui
 
 TARGET = DatasetParser
 TEMPLATE  = app
@@ -18,6 +18,16 @@ unix {
     PRE_TARGETDEPS += $$BIN_PATH/libCoreLib.a
     INCLUDEPATH += $$PWD/../CoreLib
     DEPENDPATH += $$PWD/../CoreLib
+
+    # OpenNI2
+    LIBS += -L$$(OPENNI2_REDIST) -lOpenNI2
+    INCLUDEPATH += $$(OPENNI2_INCLUDE)
+    DEPENDPATH += $$(OPENNI2_INCLUDE)
+
+    # NiTE2
+    #LIBS += -L/opt/NiTE-Linux-x64-2.2/Redist/ -lNiTE2
+    INCLUDEPATH += /opt/NiTE-Linux-x64-2.2/Include
+    DEPENDPATH += /opt/NiTE-Linux-x64-2.2/Include
 }
 
 win32 {

@@ -64,7 +64,7 @@ public:
     Skeleton& operator=(const Skeleton& other);
 
     // Extra
-    void convertCoordinatesToDepth(float x, float y, float z, float* pOutX, float* pOutY);
+    void convertCoordinatesToDepth(float x, float y, float z, float* pOutX, float* pOutY) const;
     void setCameraIntrinsics(double fx, double cx, double fy, double cy);
 
 private:

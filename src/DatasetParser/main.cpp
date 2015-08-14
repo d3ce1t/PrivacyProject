@@ -4,9 +4,17 @@
 #include <iostream>
 #include "dataset/InstanceInfo.h"
 #include "dataset/DatasetMetadata.h"
+#include "dataset/DAI4REID/DAI4REID.h"
 #include <QMultiMap>
 #include "dataset/MSRAction3D/MSR3Action3D.h"
 #include "types/SkeletonFrame.h"
+#include "types/ColorFrame.h"
+#include "types/MaskFrame.h"
+#include "types/DepthFrame.h"
+#include "types/MetadataFrame.h"
+#include "openni/OpenNIColorInstance.h"
+#include "opencv_utils.h"
+#include <QImage>
 #include "Config.h"
 
 using namespace std;
@@ -776,6 +784,143 @@ dai::InstanceInfo* findInstance(QString activity, int actor, int sample, QMap<in
     }
 
     return result;
+}
+
+void convertDAI4REIDOniToFiles()
+{
+    using namespace dai;
+    using namespace cv;
+
+    Dataset* dataset = new DAI4REID;
+    dataset->setPath("/files/DAI4REID");
+    const DatasetMetadata& metadata = dataset->getMetadata();
+
+    // Create memory for all kind of frames
+    QHashDataFrames readFrames;
+    readFrames.insert(DataFrame::Color, make_shared<ColorFrame>(640, 480));
+    readFrames.insert(DataFrame::Depth, make_shared<DepthFrame>(640, 480));
+    readFrames.insert(DataFrame::Mask, make_shared<MaskFrame>(640, 480));
+    readFrames.insert(DataFrame::Skeleton, make_shared<SkeletonFrame>());
+    readFrames.insert(DataFrame::Metadata, make_shared<MetadataFrame>());
+
+    // For each actor, parse his/her samples
+    QList<int> actors = {1,2,3,4,5};
+
+    for (int actor : actors)
+    {
+        QList<shared_ptr<InstanceInfo>> instances_md = metadata.instances({actor},
+                                                                       {2},
+                                                                       DatasetMetadata::ANY_LABEL);
+        shared_ptr<InstanceInfo> instance_info = instances_md.at(0);
+        std::string fileName = instance_info->getFileName(DataFrame::Color).toStdString();
+
+        printf("actor %i sample %i file %s\n", instance_info->getActor(),
+               instance_info->getSample(),
+               fileName.c_str());
+
+        std::fflush(stdout);
+
+        // Get instances
+        QList<shared_ptr<StreamInstance>> instances;
+        instances << dataset->getInstance(*instance_info, DataFrame::Color);
+        instances << dataset->getInstance(*instance_info, DataFrame::Metadata);
+
+        // Open Instances
+        for (shared_ptr<StreamInstance> instance : instances) {
+            instance->open();
+        }
+
+        shared_ptr<OpenNIColorInstance> colorInstance = static_pointer_cast<OpenNIColorInstance>(instances.at(0));
+        colorInstance->device().playbackControl()->setSpeed(0.15f);
+
+        // Read frames
+        uint previousFrame = 0;
+
+        while (colorInstance->hasNext())
+        {
+            for (shared_ptr<StreamInstance> instance : instances) {
+                instance->readNextFrame(readFrames);
+            }
+
+            // Get Frames
+            auto colorFrame = static_pointer_cast<ColorFrame>(readFrames.value(DataFrame::Color));
+            auto depthFrame = static_pointer_cast<DepthFrame>(readFrames.value(DataFrame::Depth));
+            auto maskFrame = static_pointer_cast<MaskFrame>(readFrames.value(DataFrame::Mask));
+            auto skeletonFrame = static_pointer_cast<SkeletonFrame>(readFrames.value(DataFrame::Skeleton));
+            auto metadataFrame = static_pointer_cast<MetadataFrame>(readFrames.value(DataFrame::Metadata));
+
+            if (previousFrame + 1 != colorFrame->getIndex())
+                qDebug() << "Frame Skip" << colorFrame->getIndex();
+
+            qDebug() << "Processing frame" << colorFrame->getIndex();
+
+            // Process
+            QList<int> users = skeletonFrame->getAllUsersId();
+
+            // Work with the user inside of the Bounding Box
+            if (!users.isEmpty() && !metadataFrame->boundingBoxes().isEmpty() /*&& colorFrame->getIndex() > 140*/)
+            {
+                int firstUser = users.at(0);
+                shared_ptr<Skeleton> skeleton = skeletonFrame->getSkeleton(firstUser);
+
+                // Get ROIs
+                BoundingBox bb = metadataFrame->boundingBoxes().first();
+                shared_ptr<ColorFrame> roiColor = colorFrame->subFrame(bb);
+                shared_ptr<DepthFrame> roiDepth = depthFrame->subFrame(bb);
+                shared_ptr<MaskFrame> roiMask = maskFrame->subFrame(bb);
+
+                QString fileName = "U" + QString::number(instance_info->getActor()) +
+                                  "_C" + QString::number(instance_info->getCamera()) +
+                                  "_F" + QString::number(roiColor->getIndex());
+
+                // Show
+                cv::Mat color_mat(roiColor->height(), roiColor->width(), CV_8UC3,
+                                  (void*) roiColor->getDataPtr(), roiColor->getStride());
+
+                cv::imshow("img1", color_mat);
+                cv::waitKey(1);
+                QCoreApplication::processEvents();
+
+                // Save color as JPEG
+                QImage image( (uchar*) roiColor->getDataPtr(), roiColor->width(), roiColor->height(),
+                             roiColor->getStride(), QImage::Format_RGB888);
+                image.save("data/" + fileName + "_color.jpg");
+
+                // Save depth
+                /*cv::Mat depth_mat(roiDepth->height(), roiDepth->width(), CV_16UC1,
+                                  (uchar*) roiDepth->getDataPtr(), roiDepth->getStride());
+                cv::imwrite(QString("data/" + fileName + "_depth.png").toStdString(), depth_mat);*/
+                QFile depthFile("data/" + fileName + "_depth.bin");
+                QByteArray depth_data = roiDepth->toBinary();
+                depthFile.open(QIODevice::WriteOnly);
+                depthFile.write(depth_data);
+                depthFile.close();
+
+                // Save mask
+                QFile maskFile("data/" + fileName + "_mask.bin");
+                QByteArray mask_data = roiMask->toBinary();
+                maskFile.open(QIODevice::WriteOnly);
+                maskFile.write(mask_data);
+                maskFile.close();
+
+                // Save Skeleton
+                QFile file("data/" + fileName + "_skel.bin");
+                QByteArray skel_data = skeleton->toBinary();
+                file.open(QIODevice::WriteOnly);
+                file.write(skel_data);
+                file.close();
+            }
+
+            previousFrame = colorFrame->getIndex();
+        }
+
+        // Close Instances
+        for (shared_ptr<StreamInstance> instance : instances) {
+            instance->close();
+        }
+    }
+
+    qDebug() << "Parse Finished!";
 }
 
 

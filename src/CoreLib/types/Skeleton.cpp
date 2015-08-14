@@ -205,7 +205,7 @@ void Skeleton::setCameraIntrinsics(double fx, double cx, double fy, double cy) {
 }
 
 // http://ksimek.github.io/2013/08/13/intrinsic/
-void Skeleton::convertCoordinatesToDepth(float x, float y, float z, float* pOutX, float* pOutY)
+void Skeleton::convertCoordinatesToDepth(float x, float y, float z, float* pOutX, float* pOutY) const
 {
     *pOutX = (x * m_fx_rgb / z) + m_cx_rgb;
     *pOutY = (y * m_fy_rgb / z) + m_cy_rgb;

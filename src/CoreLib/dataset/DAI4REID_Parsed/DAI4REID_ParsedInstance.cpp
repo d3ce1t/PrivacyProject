@@ -32,7 +32,7 @@ bool DAI4REID_ParsedInstance::is_open() const
 
 bool DAI4REID_ParsedInstance::hasNext() const
 {
-    return true;
+    return false;
 }
 
 bool DAI4REID_ParsedInstance::openInstance()
@@ -85,6 +85,7 @@ void DAI4REID_ParsedInstance::nextFrame(QHashDataFrames &output)
 
     // Set color frame offset based on the depth bin that may contain it.
     dstColor->setOffset(depthFrame->offset());
+
     /*instancePath = m_info.parent().getPath() + "/" + m_info.getFileName(DataFrame::Depth);
     cv::Mat depth_mat = cv::imread(instancePath.toStdString()); //, CV_LOAD_IMAGE_GRAYSCALE);
     qDebug() << depth_mat.type() << depth_mat.depth() << depth_mat.channels();
