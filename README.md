@@ -1,4 +1,9 @@
-# PrivacyProject
+PrivacyProject
+=============
+A set of tools and libraries for visual privacy protection that may need some love :). 
+
+Description
+-----------
 The source code of this project has been developed as part of a PhD thesis about Visual Privacy Protection.
 Specifically, it consists in the protection of individual's privacy appearing in images and videos. For this
 purpose, a protection scheme is proposed that is based on visualisation models in order to have several privacy
@@ -7,7 +12,8 @@ this protection scheme enables individuals to specify their privacy preferences 
 and a desired privacy level. This way, whenever such circumstances are detected, the preferred privacy level is
 automatically applied. As it can be guessed, the proposed scheme relies on the context in order to do this.
 
-### Modules
+Modules
+-------
 So, the source code included as part of this project is related to image modification and context detection. It is organised in several modules that are described below:
 
 * [CoreLib] - A shared library that includes all of the interfaces and types used. It also contains code that wrap the OpenNI/NiTE library and load several datasets for action recognition and person re-identification.
@@ -26,7 +32,23 @@ So, the source code included as part of this project is related to image modific
 
 
 License
-----
+-------
+Distributed under the free software license [Apache License, version 2.0](http://www.apache.org/licenses/LICENSE-2.0) requiring preservation of the copyright notice and disclaimer.
 
-[Apache License, version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
-
+**If used in research work a citation to the following bibtex is required:**
+```
+  @Article{padilla2015,
+    author = {Padilla-López, José Ramón and Chaaraoui, Alexandros Andre and Gu, Feng and Flórez-Revuelta, 
+              Francisco},
+    title = {Visual Privacy by Context: Proposal and Evaluation of a Level-Based Visualisation Scheme},
+    journal = {Sensors},
+    volume = {15},
+    year = {2015},
+    number = {6},
+    pages = {12959-12982},
+    url = {http://www.mdpi.com/1424-8220/15/6/12959},
+    PubMedID = {26053746},
+    issn = {1424-8220},
+    doi = {10.3390/s150612959}
+  }
+```
